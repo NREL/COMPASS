@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/ordinance"]
+members = [ "crates/cli","crates/ordinance"]
 default-members = ["crates/ordinance"]
 resolver = "2"
 
