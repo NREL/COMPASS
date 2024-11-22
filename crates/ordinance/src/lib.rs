@@ -1,12 +1,12 @@
 /// NREL's ordinance database
-
 use duckdb::Connection;
 
 pub fn init_db(path: &str) -> duckdb::Result<()> {
     let db = Connection::open(&path)?;
     db.execute_batch("SET VARIABLE ordinancedb_version = '0.0.1';")?;
 
-    db.execute_batch("BEGIN;
+    db.execute_batch(
+        "BEGIN;
     CREATE SEQUENCE bookkeeping_sequence START 1;
     CREATE TABLE bookkeeping (
         id INTEGER PRIMARY KEY DEFAULT NEXTVAL('bookkeeping_sequence'),
@@ -46,12 +46,12 @@ pub fn init_db(path: &str) -> duckdb::Result<()> {
       comments TEXT
       );
 
-    COMMIT;")?;
+    COMMIT;",
+    )?;
 
     println!("{}", db.is_autocommit());
     Ok(())
 }
-
 
 #[cfg(test)]
 mod tests {
