@@ -1,6 +1,9 @@
 [package]
-name = "NREL-ordinance-DB"
-version = "0.1.0"
-edition = "2021"
+name = "ordinance"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
 
 [dependencies]
