@@ -1,4 +1,7 @@
 /// NREL's ordinance database
+
+mod error;
+
 use duckdb::Connection;
 
 pub fn init_db(path: &str) -> duckdb::Result<()> {
