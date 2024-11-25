@@ -5,6 +5,9 @@ fn main() {
     let matches = command!() // requires `cargo` feature
         .arg(arg!(--db <DATABASE>).required(true))
         .subcommand(Command::new("init").about("Initialize a new database"))
+        .subcommand(Command::new("load").about("Load ordinance raw data")
+            .arg(Arg::new("path").value_parser(value_parser!(PathBuf)))
+            )
         .subcommand(Command::new("log").about("Show the history of the database"))
         .get_matches();
 
