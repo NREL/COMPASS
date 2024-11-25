@@ -5,6 +5,9 @@ pub(crate) enum Error {
     #[error(transparent)]
     IOError(#[from] std::io::Error),
 
+    #[error(transparent)]
+    DuckDBError(#[from] duckdb::Error),
+
     #[allow(dead_code)]
     #[error("Undefined error")]
     // Used during development while it is not clear a category of error
