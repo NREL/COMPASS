@@ -31,7 +31,9 @@ impl ScrappedOrdinance {
 
         let features_file = root.join("wind_db.csv");
         if !features_file.exists() {
-            return Err(error::Error::Undefined("Features file does not exist".to_string()));
+            return Err(error::Error::Undefined(
+                "Features file does not exist".to_string(),
+            ));
         }
 
         Ok(Self { root })
