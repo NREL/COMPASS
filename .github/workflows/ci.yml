@@ -21,12 +21,7 @@ jobs:
           cache: true
           frozen: true
 
-      - name: Cache compiled dependencies
-        id: cache-target
-        uses: actions/cache@v4
-        with:
-          path: target
-          key: ${{ runner.os }}-ordinance-${{ hashFiles('**/Cargo.lock') }}
+      - uses: Swatinem/rust-cache@v2
 
       - name: Run cargo check
         run: |
