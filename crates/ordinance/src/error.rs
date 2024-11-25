@@ -3,10 +3,10 @@
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
     #[error(transparent)]
-    IOError(#[from] std::io::Error),
+    IO(#[from] std::io::Error),
 
     #[error(transparent)]
-    DuckDBError(#[from] duckdb::Error),
+    DuckDB(#[from] duckdb::Error),
 
     #[allow(dead_code)]
     #[error("Undefined error")]
