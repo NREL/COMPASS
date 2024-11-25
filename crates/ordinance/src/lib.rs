@@ -89,10 +89,14 @@ pub fn init_db(path: &str) -> Result<()> {
 }
 
 #[allow(dead_code)]
-fn scan_features(path: &str) {
-    let conn: Connection = Connection::open(&path).unwrap();
+/// Scan and load features from a CSV file
+///
+/// Proof of concept. Parse a CSV file and load the features into the
+/// database.
+fn scan_features(db_filename: &str, raw_filename: &str) {
+    let conn: Connection = Connection::open(&db_filename).unwrap();
 
-    let mut rdr = csv::Reader::from_path("sample.csv").unwrap();
+    let mut rdr = csv::Reader::from_path(&raw_filename).unwrap();
     let mut stmt = conn.prepare_cached("INSERT INTO property (county, state, FIPS, feature, fixed_value, mult_value, mult_type, adder, min_dist, max_dist, value, units, ord_year, last_updated, section, source, comments) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").unwrap();
     for result in rdr.records() {
         let record = result.unwrap();
