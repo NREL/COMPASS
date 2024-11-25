@@ -47,6 +47,7 @@ pub fn init_db(path: &str) -> duckdb::Result<()> {
       id INTEGER PRIMARY KEY DEFAULT NEXTVAL('jurisdiction_sequence'),
       bookkeeping_lnk INTEGER REFERENCES bookkeeping(id) NOT NULL,
       name TEXT NOT NULL,
+      FIPS INTEGER NOT NULL,
       geometry GEOMETRY NOT NULL,
       rank jurisdiction_rank NOT NULL,
       parent_id INTEGER REFERENCES jurisdiction(id),
