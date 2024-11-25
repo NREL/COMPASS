@@ -1,4 +1,4 @@
-/// NREL's ordinance database
+//! NREL's ordinance database
 
 mod error;
 
