@@ -15,7 +15,7 @@ fn main() {
 
     if let Some(matches) = matches.subcommand_matches("init") {
         println!("Creating database at {:?}", "mane");
-        ordinance::init_db(&db).unwrap();
+        ordinance::init_db(db).unwrap();
     } else if let Some(matches) = matches.subcommand_matches("log") {
         println!("Showing log for database at {:?}", "mane");
     }
