@@ -5,12 +5,13 @@
 mod error;
 
 use duckdb::Connection;
+use error::Result;
 
 /// Initialize the database
 ///
 /// Create a new database as a local single file ready to store the ordinance
 /// data.
-pub fn init_db(path: &str) -> duckdb::Result<()> {
+pub fn init_db(path: &str) -> Result<()> {
     let db = Connection::open(&path)?;
     db.execute_batch("SET VARIABLE ordinancedb_version = '0.0.1';")?;
 

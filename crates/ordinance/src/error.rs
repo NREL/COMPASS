@@ -1,7 +1,7 @@
 /// Possible errors
 
 #[derive(Debug, thiserror::Error)]
-pub(crate) enum Error {
+pub enum Error {
     #[error(transparent)]
     IOError(#[from] std::io::Error),
 
