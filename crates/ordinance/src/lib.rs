@@ -4,10 +4,39 @@
 
 mod error;
 
+use std::path::PathBuf;
+
 use duckdb::Connection;
 use serde::Serialize;
 
 use error::Result;
+
+#[allow(dead_code)]
+/// Abstraction for the ordinance scrapper output
+///
+/// The ordinance scrapper outputs a standard directory with multiple files
+/// and sub-directories. This struct abstracts the access to such output.
+struct ScrappedOrdinance {
+    root: PathBuf,
+}
+
+impl ScrappedOrdinance {
+    #[allow(dead_code)]
+    /// Open an existing scrapped ordinance folder
+    fn open(root: PathBuf) -> Result<Self> {
+        // Validate
+        if !root.exists() {
+            return Err(error::Error::Undefined("Path does not exist".to_string()));
+        }
+
+        let features_file = root.join("wind_db.csv");
+        if !features_file.exists() {
+            return Err(error::Error::Undefined("Features file does not exist".to_string()));
+        }
+
+        Ok(Self { root })
+    }
+}
 
 /// Initialize the database
 ///
