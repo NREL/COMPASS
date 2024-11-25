@@ -1,3 +1,5 @@
+#![deny(missing_docs)]
+
 //! NREL's ordinance database
 
 mod error;
