@@ -87,6 +87,21 @@ pub fn init_db(path: &str) -> duckdb::Result<()> {
     Ok(())
 }
 
+#[allow(dead_code)]
+fn scan_features(path: &str) {
+    let conn: Connection = Connection::open(&path).unwrap();
+
+    let mut rdr = csv::Reader::from_path("sample.csv").unwrap();
+    let mut stmt = conn.prepare_cached("INSERT INTO property (county, state, FIPS, feature, fixed_value, mult_value, mult_type, adder, min_dist, max_dist, value, units, ord_year, last_updated, section, source, comments) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").unwrap();
+    for result in rdr.records() {
+        let record = result.unwrap();
+        println!("{:?}", record);
+        stmt.execute([record[0].to_string(), record[1].to_string(), record[2].to_string(), record[3].to_string(), record[4].to_string(), record[5].to_string(), record[6].to_string(), record[7].to_string(), record[8].to_string(), record[9].to_string(), record[10].to_string(), record[11].to_string(), record[12].to_string(), record[13].to_string(), record[14].to_string(), record[15].to_string(), record[16].to_string()]).unwrap();
+
+    }
+    //let df = polars::io::csv::read::CsvReadOptions::default().with_has_header(true).try_into_reader_with_file_path(Some("sample.csv".into())).unwrap().finish();
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
