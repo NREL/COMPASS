@@ -45,6 +45,8 @@ jobs:
           cache: true
           frozen: true
 
+      - uses: Swatinem/rust-cache@v2
+
       - name: Run cargo fmt
         run: |
           pixi run --frozen cargo fmt --all --check
