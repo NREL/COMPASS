@@ -44,13 +44,15 @@ jobs:
 
       - name: Run cargo fmt
         run: |
-          pixi run --frozen cargo fmt --all --check
+          pixi run cargo fmt --all --check
 
       - name: Run cargo clippy
         run: |
           pixi run --frozen cargo clippy --all-features --tests -- -D warnings
 
   test:
+    # Only run tests if code looks good
+    needs: check
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
