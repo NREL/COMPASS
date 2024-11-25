@@ -108,6 +108,12 @@ mod tests {
 
     #[test]
     fn it_works() {
-        init_db("mane").unwrap();
+        init_db("test").unwrap();
+    }
+
+    #[test]
+    fn dev() {
+        init_db("test").unwrap();
+        scan_features("test");
     }
 }
