@@ -245,6 +245,7 @@ packages:
   - rust-std-x86_64-unknown-linux-gnu 1.82.0 h2c6d0dc_1
   - sysroot_linux-64 >=2.17
   license: MIT
+  license_family: MIT
   size: 209712025
   timestamp: 1732290451631
 - kind: conda
@@ -259,6 +260,7 @@ packages:
   depends:
   - rust-std-aarch64-apple-darwin 1.82.0 hf6ec828_1
   license: MIT
+  license_family: MIT
   size: 207135850
   timestamp: 1732292697729
 - kind: conda
@@ -273,6 +275,7 @@ packages:
   depends:
   - rust-std-x86_64-pc-windows-msvc 1.82.0 h17fc481_1
   license: MIT
+  license_family: MIT
   size: 206098437
   timestamp: 1732292818770
 - kind: conda
@@ -290,6 +293,7 @@ packages:
   constrains:
   - rust >=1.82.0,<1.82.1.0a0
   license: MIT
+  license_family: MIT
   size: 31712084
   timestamp: 1732289518031
 - kind: conda
@@ -307,6 +311,7 @@ packages:
   constrains:
   - rust >=1.82.0,<1.82.1.0a0
   license: MIT
+  license_family: MIT
   size: 26940418
   timestamp: 1732292544591
 - kind: conda
@@ -324,6 +329,7 @@ packages:
   constrains:
   - rust >=1.82.0,<1.82.1.0a0
   license: MIT
+  license_family: MIT
   size: 35921074
   timestamp: 1732290266047
 - kind: conda
