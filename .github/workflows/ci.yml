@@ -25,7 +25,7 @@ jobs:
 
       - name: Run cargo check
         run: |
-          pixi run --frozen cargo check
+          pixi run --frozen cargo check --workspace
 
   lints:
     name: Lints
@@ -44,7 +44,7 @@ jobs:
 
       - name: Run cargo fmt
         run: |
-          pixi run cargo fmt --all --check
+          pixi run --frozen cargo fmt --all --check
 
       - name: Run cargo clippy
         run: |
@@ -82,4 +82,4 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
 
-      - run: pixi run test --no-fail-fast
+      - run: pixi run --frozen cargo test --workspace --no-fail-fast
