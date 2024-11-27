@@ -10,6 +10,13 @@ fn main() {
                 .about("Load ordinance raw data")
                 .arg(Arg::new("path").value_parser(value_parser!(PathBuf))),
         )
+        .subcommand(
+            Command::new("export")
+                .about("Export the database")
+                .arg(
+                    arg!(--format <FORMAT>)
+                    .default_value("csv")),
+        )
         .subcommand(Command::new("log").about("Show the history of the database"))
         .get_matches();
 
@@ -21,6 +28,8 @@ fn main() {
     if let Some(matches) = matches.subcommand_matches("init") {
         println!("Creating database at {:?}", "mane");
         ordinance::init_db(db).unwrap();
+    } else if let Some(matches) = matches.subcommand_matches("export") {
+        println!("Showing export for database at {:?}", "mane");
     } else if let Some(matches) = matches.subcommand_matches("log") {
         println!("Showing log for database at {:?}", "mane");
     }
