@@ -25,12 +25,21 @@ fn main() {
     let db = matches.get_one::<String>("db").expect("required");
     println!("two: {:?}", db);
 
-    if let Some(matches) = matches.subcommand_matches("init") {
-        println!("Creating database at {:?}", "mane");
-        ordinance::init_db(db).unwrap();
-    } else if let Some(matches) = matches.subcommand_matches("export") {
-        println!("Showing export for database at {:?}", "mane");
-    } else if let Some(matches) = matches.subcommand_matches("log") {
-        println!("Showing log for database at {:?}", "mane");
+    match matches.subcommand_name() {
+        Some("init") => {
+            println!("Creating database at {:?}", &db);
+            ordinance::init_db(db).unwrap();
+        }
+        Some("export") => {
+            println!("Showing export for database at {:?}", &db);
+            ordinance::export_db(&db, "csv");
+        }
+        Some("log") => {
+            println!("Showing log for database at {:?}", &db);
+        }
+        _ => {
+            println!("No subcommand was used");
+        }
     }
+
 }
