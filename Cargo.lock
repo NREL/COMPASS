@@ -952,6 +952,7 @@ version = "0.0.1"
 dependencies = [
  "csv",
  "duckdb",
+ "serde",
  "thiserror",
 ]
 
