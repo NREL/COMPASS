@@ -7,7 +7,7 @@ fn main() {
     let matches = command!() // requires `cargo` feature
         .arg(arg!(--db <DATABASE>).required(true))
         .arg(Arg::new("verbose").short('v').action(ArgAction::Count))
-        .subcommand(Command::new("init").about("Initialize a new database"))
+        .subcommand(Command::new("init").about("Initialize a new empty database"))
         .subcommand(
             Command::new("load")
                 .about("Load ordinance raw data")
