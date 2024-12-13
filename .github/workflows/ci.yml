@@ -28,6 +28,8 @@ jobs:
           pixi run --frozen cargo check --workspace
 
   lints:
+    # Only run tests if code looks OK
+    needs: check
     name: Lints
     runs-on: ubuntu-latest
     steps:
@@ -51,7 +53,7 @@ jobs:
           pixi run --frozen cargo clippy --all-features --tests -- -D warnings
 
   test:
-    # Only run tests if code looks good
+    # Only run tests if code looks OK
     needs: check
     runs-on: ${{ matrix.os }}
     strategy:
