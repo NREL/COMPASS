@@ -97,7 +97,6 @@ impl ScrappedOrdinance {
 
 #[cfg(test)]
 mod tests {
-    use std::io::Write;
     use super::ScrappedOrdinance;
     use std::io::Write;
 
