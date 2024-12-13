@@ -1,9 +1,10 @@
-use clap::{arg, command, value_parser, Arg, Command};
+use clap::{arg, command, value_parser, Arg, ArgAction, Command};
 use std::path::PathBuf;
 
 fn main() {
     let matches = command!() // requires `cargo` feature
         .arg(arg!(--db <DATABASE>).required(true))
+        .arg(Arg::new("verbose").short('v').action(ArgAction::Count))
         .subcommand(Command::new("init").about("Initialize a new database"))
         .subcommand(
             Command::new("load")
