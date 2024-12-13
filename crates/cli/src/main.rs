@@ -6,7 +6,12 @@ use tracing::trace;
 fn main() {
     let matches = command!() // requires `cargo` feature
         .arg(arg!(--db <DATABASE>).required(true))
-        .arg(Arg::new("verbose").short('v').action(ArgAction::Count))
+        .arg(
+            Arg::new("verbose")
+                .short('v')
+                .action(ArgAction::Count)
+                .help("Set the verbosity level, ex.: -vvv"),
+        )
         .subcommand(Command::new("init").about("Initialize a new empty database"))
         .subcommand(
             Command::new("load")
