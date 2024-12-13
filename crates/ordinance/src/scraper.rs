@@ -35,14 +35,12 @@ impl ScrappedOrdinance {
             return Err(error::Error::Undefined("Path does not exist".to_string()));
         }
 
-        /*
-        let features_file = root.join("wind_db.csv");
+        let features_file = root.join("ord_db.csv");
         if !features_file.exists() {
             return Err(error::Error::Undefined(
                 "Features file does not exist".to_string(),
             ));
         }
-        */
 
         Ok(Self {
             root,
@@ -69,8 +67,10 @@ mod tests {
 
     #[tokio::test]
     /// Open a Scrapped Ordinance raw output
-    async fn wip() {
+    async fn open_scrapped_ordinance() {
         let target = tempfile::tempdir().unwrap();
+        let ordinance_filename = target.path().join("ord_db.csv");
+        let ordinance_file = std::fs::File::create(ordinance_filename).unwrap();
 
         ScrappedOrdinance::open(target).await.unwrap();
     }
