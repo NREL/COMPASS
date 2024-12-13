@@ -136,7 +136,10 @@ struct Ordinance {
 }
 
 /// Export the database
-pub fn export_db(db_filename: &str, format: &str) {
+///
+/// Currently, it is a proof of concept. It reads the database and prints
+/// some fields to the standard output in CSV format.
+pub fn export_db(db_filename: &str) {
     let conn = Connection::open(db_filename).unwrap();
     let mut stmt = conn
         .prepare("SELECT county, state, fips, feature FROM property")
