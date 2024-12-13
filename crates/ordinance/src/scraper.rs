@@ -51,6 +51,7 @@ impl ScrappedOrdinance {
 
 #[cfg(test)]
 mod tests {
+    use std::io::Write;
     use super::ScrappedOrdinance;
 
     #[tokio::test]
@@ -68,9 +69,12 @@ mod tests {
     #[tokio::test]
     /// Open a Scrapped Ordinance raw output
     async fn open_scrapped_ordinance() {
+        // A sample ordinance file for now.
         let target = tempfile::tempdir().unwrap();
         let ordinance_filename = target.path().join("ord_db.csv");
-        let ordinance_file = std::fs::File::create(ordinance_filename).unwrap();
+        let mut ordinance_file = std::fs::File::create(ordinance_filename).unwrap();
+        writeln!(ordinance_file, "county,state,FIPS,feature,fixed_value,mult_value,mult_type,adder,min_dist,max_dist,value,units,ord_year,last_updated,section,source,comment").unwrap();
+        writeln!(ordinance_file, "county-1,state-1,FIPS-1,feature-1,fixed_value-1,mult_value-1,mult_type-1,adder-1,min_dist-1,max_dist-1,value-1,units-1,ord_year-1,last_updated-1,section-1,source-1,comment").unwrap();
 
         ScrappedOrdinance::open(target).await.unwrap();
     }
