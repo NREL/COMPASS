@@ -35,12 +35,14 @@ impl ScrappedOrdinance {
             return Err(error::Error::Undefined("Path does not exist".to_string()));
         }
 
+        /*
         let features_file = root.join("wind_db.csv");
         if !features_file.exists() {
             return Err(error::Error::Undefined(
                 "Features file does not exist".to_string(),
             ));
         }
+        */
 
         Ok(Self { root , format_version: "0.0.1".to_string() })
     }
@@ -61,5 +63,13 @@ mod tests {
         assert!(!target.exists());
 
         ScrappedOrdinance::open(target).await.unwrap_err();
+    }
+
+    #[tokio::test]
+    /// Open a Scrapped Ordinance raw output
+    async fn wip() {
+        let target = tempfile::tempdir().unwrap();
+
+        ScrappedOrdinance::open(target).await.unwrap();
     }
 }
