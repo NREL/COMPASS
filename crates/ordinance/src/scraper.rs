@@ -13,20 +13,22 @@ use crate::error::Result;
 //     a compatible version, and how to handle it.
 // - Async loading into DB
 // - Logging operations
+
 #[allow(dead_code)]
+#[derive(Debug)]
 /// Abstraction for the ordinance scrapper raw output
 ///
 /// The ordinance scrapper outputs a standard directory with multiple files
 /// and sub-directories. This struct abstracts the access to such output.
 struct ScrappedOrdinance {
-    root: PathBuf,
     format_version: String,
+    root: PathBuf,
 }
 
 impl ScrappedOrdinance {
     #[allow(dead_code)]
     /// Open an existing scrapped ordinance folder
-    fn open(root: PathBuf) -> Result<Self> {
+    async fn open(root: PathBuf) -> Result<Self> {
         // Validate
         if !root.exists() {
             return Err(error::Error::Undefined("Path does not exist".to_string()));
@@ -46,10 +48,17 @@ impl ScrappedOrdinance {
 
 #[cfg(test)]
 mod tests {
+    use super::ScrappedOrdinance;
 
-    #[test]
-    fn dev() {
+    #[tokio::test]
+    /// Opening an inexistent path should give an error
+    async fn open_inexistent_path() {
+        let tmp = tempfile::tempdir().unwrap();
+        let target = tmp.path().join("inexistent");
 
-        assert!(true);
+        // First confirm that the path does not exist
+        assert!(!target.exists());
+
+        ScrappedOrdinance::open(target).await.unwrap_err();
     }
 }
