@@ -53,6 +53,7 @@ impl ScrappedOrdinance {
                 "Features file does not exist".to_string(),
             ));
         }
+        */
 
         let config_file = root.join("ord_db.csv");
         if !config_file.exists() {
