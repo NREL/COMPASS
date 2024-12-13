@@ -42,7 +42,7 @@ fn main() {
             ordinance::init_db(db).unwrap();
         }
         Some("export") => {
-                trace!("Showing export for database at {:?}", &db);
+            trace!("Showing export for database at {:?}", &db);
             if verbose > 0 {
                 println!("Showing export for database at {:?}", &db);
             }
