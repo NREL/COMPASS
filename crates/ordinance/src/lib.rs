@@ -10,7 +10,6 @@ use serde::Serialize;
 
 use error::Result;
 
-
 /// Initialize the database
 ///
 /// Create a new database as a local single file ready to store the ordinance

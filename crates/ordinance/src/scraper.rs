@@ -44,10 +44,12 @@ impl ScrappedOrdinance {
         }
         */
 
-        Ok(Self { root , format_version: "0.0.1".to_string() })
+        Ok(Self {
+            root,
+            format_version: "0.0.1".to_string(),
+        })
     }
 }
-
 
 #[cfg(test)]
 mod tests {
