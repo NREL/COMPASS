@@ -70,7 +70,6 @@ impl ScrappedOrdinance {
                 "Features file does not exist".to_string(),
             ));
         }
-        */
 
         Ok(Self {
             root,
