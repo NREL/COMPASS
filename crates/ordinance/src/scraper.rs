@@ -1,6 +1,6 @@
 //! Support for the ordinance scrapper output
 
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use crate::error;
 use crate::error::Result;
@@ -28,7 +28,8 @@ struct ScrappedOrdinance {
 impl ScrappedOrdinance {
     #[allow(dead_code)]
     /// Open an existing scrapped ordinance folder
-    async fn open(root: PathBuf) -> Result<Self> {
+    async fn open<P: AsRef<Path>>(root: P) -> Result<Self> {
+        let root = root.as_ref().to_path_buf();
         // Validate
         if !root.exists() {
             return Err(error::Error::Undefined("Path does not exist".to_string()));
