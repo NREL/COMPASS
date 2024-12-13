@@ -13,7 +13,7 @@ use serde::Serialize;
 use error::Result;
 
 #[allow(dead_code)]
-/// Abstraction for the ordinance scrapper output
+/// Abstraction for the ordinance scrapper raw output
 ///
 /// The ordinance scrapper outputs a standard directory with multiple files
 /// and sub-directories. This struct abstracts the access to such output.
