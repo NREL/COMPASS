@@ -37,8 +37,11 @@ fn main() {
             ordinance::init_db(db).unwrap();
         }
         Some("export") => {
-            println!("Showing export for database at {:?}", &db);
-            ordinance::export_db(&db, "csv");
+            if verbose > 0 {
+                println!("Showing export for database at {:?}", &db);
+            }
+
+            ordinance::export_db(&db);
         }
         Some("log") => {
             println!("Showing log for database at {:?}", &db);
