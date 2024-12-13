@@ -140,7 +140,7 @@ pub fn export_db(db_filename: &str, format: &str) {
     let conn = Connection::open(db_filename).unwrap();
     let mut stmt = conn
         .prepare("SELECT county, state, fips, feature FROM property")
-        .unwrap();
+        .expect("Failed to prepare statement");
     //dbg!("Row count", stmt.row_count());
     let row_iter= stmt.query_map([], |row| {
         Ok(Ordinance {
