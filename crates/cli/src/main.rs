@@ -14,9 +14,7 @@ fn main() {
         .subcommand(
             Command::new("export")
                 .about("Export the database")
-                .arg(
-                    arg!(--format <FORMAT>)
-                    .default_value("csv")),
+                .arg(arg!(--format <FORMAT>).default_value("csv")),
         )
         .subcommand(Command::new("log").about("Show the history of the database"))
         .get_matches();
@@ -29,7 +27,6 @@ fn main() {
     //       Command::new("log")
     //          .about("Show the history of the database")
     let db = matches.get_one::<String>("db").expect("required");
-    println!("two: {:?}", db);
 
     match matches.subcommand_name() {
         Some("init") => {
@@ -50,5 +47,4 @@ fn main() {
             println!("No subcommand was used");
         }
     }
-
 }

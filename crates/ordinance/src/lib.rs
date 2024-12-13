@@ -142,14 +142,16 @@ pub fn export_db(db_filename: &str, format: &str) {
         .prepare("SELECT county, state, fips, feature FROM property")
         .expect("Failed to prepare statement");
     //dbg!("Row count", stmt.row_count());
-    let row_iter= stmt.query_map([], |row| {
-        Ok(Ordinance {
-            county: row.get(0)?,
-            state: row.get(1)?,
-            fips: row.get(2)?,
-            feature: row.get(3)?,
+    let row_iter = stmt
+        .query_map([], |row| {
+            Ok(Ordinance {
+                county: row.get(0)?,
+                state: row.get(1)?,
+                fips: row.get(2)?,
+                feature: row.get(3)?,
+            })
         })
-    }).unwrap();
+        .expect("Failed to query");
 
     let mut wtr = csv::Writer::from_writer(std::io::stdout());
 
