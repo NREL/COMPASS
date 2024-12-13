@@ -21,6 +21,11 @@ fn main() {
         .subcommand(Command::new("log").about("Show the history of the database"))
         .get_matches();
 
+    let verbose = matches.get_count("verbose");
+    if verbose > 0 {
+        println!("verbose level: {:?}", verbose);
+    }
+
     //       Command::new("log")
     //          .about("Show the history of the database")
     let db = matches.get_one::<String>("db").expect("required");
