@@ -1,5 +1,7 @@
-use clap::{arg, command, value_parser, Arg, ArgAction, Command};
 use std::path::PathBuf;
+
+use clap::{arg, command, value_parser, Arg, ArgAction, Command};
+use tracing::trace;
 
 fn main() {
     let matches = command!() // requires `cargo` feature
@@ -21,6 +23,7 @@ fn main() {
 
     let verbose = matches.get_count("verbose");
     if verbose > 0 {
+        trace!("verbose level: {:?}", verbose);
         println!("verbose level: {:?}", verbose);
     }
 
@@ -30,10 +33,11 @@ fn main() {
 
     match matches.subcommand_name() {
         Some("init") => {
-            println!("Creating database at {:?}", &db);
+            trace!("Creating database at {:?}", &db);
             ordinance::init_db(db).unwrap();
         }
         Some("export") => {
+                trace!("Showing export for database at {:?}", &db);
             if verbose > 0 {
                 println!("Showing export for database at {:?}", &db);
             }
@@ -41,7 +45,7 @@ fn main() {
             ordinance::export_db(&db);
         }
         Some("log") => {
-            println!("Showing log for database at {:?}", &db);
+            trace!("Showing log for database at {:?}", &db);
         }
         _ => {
             println!("No subcommand was used");
