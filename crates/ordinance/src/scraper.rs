@@ -71,6 +71,23 @@ impl ScrappedOrdinance {
             ));
         }
 
+        let config_file = root.join("ord_db.csv");
+        if !config_file.exists() {
+            trace!("Missing config file: {:?}", config_file);
+            return Err(error::Error::Undefined(
+                "Features file does not exist".to_string(),
+            ));
+        }
+
+        let usage_file = root.join("ord_db.csv");
+        if !usage_file.exists() {
+            trace!("Missing usage file: {:?}", usage_file);
+            return Err(error::Error::Undefined(
+                "Features file does not exist".to_string(),
+            ));
+        }
+        */
+
         Ok(Self {
             root,
             format_version: "0.0.1".to_string(),
