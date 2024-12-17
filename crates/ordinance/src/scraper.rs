@@ -42,6 +42,7 @@ impl ScrappedOrdinance {
             return Err(error::Error::Undefined("Path does not exist".to_string()));
         }
 
+        /*
         let features_file = root.join("ord_db.csv");
         if !features_file.exists() {
             trace!("Missing features file: {:?}", features_file);
@@ -49,6 +50,23 @@ impl ScrappedOrdinance {
                 "Features file does not exist".to_string(),
             ));
         }
+
+        let config_file = root.join("ord_db.csv");
+        if !config_file.exists() {
+            trace!("Missing config file: {:?}", config_file);
+            return Err(error::Error::Undefined(
+                "Features file does not exist".to_string(),
+            ));
+        }
+
+        let usage_file = root.join("ord_db.csv");
+        if !usage_file.exists() {
+            trace!("Missing usage file: {:?}", usage_file);
+            return Err(error::Error::Undefined(
+                "Features file does not exist".to_string(),
+            ));
+        }
+        */
 
         Ok(Self {
             root,
