@@ -55,6 +55,22 @@ impl ScrappedOrdinance {
             format_version: "0.0.1".to_string(),
         })
     }
+
+    #[allow(dead_code)]
+    fn config(&self) -> Result<serde_json::Value> {
+        let config_file = &self.root.join("config.json");
+        if !config_file.exists() {
+            trace!("Missing config file: {:?}", config_file);
+            return Err(error::Error::Undefined(
+                "Features file does not exist".to_string(),
+            ));
+        }
+
+        let config: serde_json::Value = serde_json::from_reader(std::fs::File::open(config_file)?).expect("Failed to parse config file");
+        dbg!(&config);
+
+        Ok(config)
+    }
 }
 
 #[cfg(test)]
