@@ -87,7 +87,8 @@ impl ScrappedOrdinance {
             ));
         }
 
-        let config: serde_json::Value = serde_json::from_reader(std::fs::File::open(config_file)?).expect("Failed to parse config file");
+        let config: serde_json::Value = serde_json::from_reader(std::fs::File::open(config_file)?)
+            .expect("Failed to parse config file");
         dbg!(&config);
 
         Ok(config)
