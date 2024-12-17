@@ -18,9 +18,11 @@ fn main() {
         )
         .subcommand(Command::new("init").about("Initialize a new empty database"))
         .subcommand(
-            Command::new("load")
-                .about("Load ordinance raw data")
-                .arg(Arg::new("path").value_parser(value_parser!(PathBuf))),
+            Command::new("load").about("Load ordinance raw data").arg(
+                Arg::new("path")
+                    .value_parser(value_parser!(PathBuf))
+                    .help("Path to directory with scrapper output"),
+            ),
         )
         .subcommand(
             Command::new("export")
