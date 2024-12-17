@@ -5,7 +5,11 @@ use tracing::trace;
 
 fn main() {
     let matches = command!() // requires `cargo` feature
-        .arg(arg!(--db <DATABASE>).required(true))
+        .arg(
+            arg!(--db <DATABASE>)
+                .required(true)
+                .help("Path to the database file. Ex.: ./ordinance.db"),
+        )
         .arg(
             Arg::new("verbose")
                 .short('v')
