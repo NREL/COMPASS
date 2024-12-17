@@ -2,6 +2,8 @@
 
 use std::path::{Path, PathBuf};
 
+use tracing::trace;
+
 use crate::error;
 use crate::error::Result;
 
@@ -29,14 +31,20 @@ impl ScrappedOrdinance {
     #[allow(dead_code)]
     /// Open an existing scrapped ordinance folder
     async fn open<P: AsRef<Path>>(root: P) -> Result<Self> {
+        trace!("Opening scrapped ordinance");
+
         let root = root.as_ref().to_path_buf();
+        trace!("Defined root as: {:?}", root);
+
         // Validate
         if !root.exists() {
+            trace!("Root path does not exist");
             return Err(error::Error::Undefined("Path does not exist".to_string()));
         }
 
         let features_file = root.join("ord_db.csv");
         if !features_file.exists() {
+            trace!("Missing features file: {:?}", features_file);
             return Err(error::Error::Undefined(
                 "Features file does not exist".to_string(),
             ));
