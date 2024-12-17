@@ -53,6 +53,11 @@ fn main() {
 
             ordinance::export_db(&db);
         }
+        Some("load") => {
+            let path = matches.get_one::<PathBuf>("path").expect("required");
+            trace!("Loading data from {:?} into database at {:?}", &path, &db);
+            ordinance::scan_features(&db, path);
+        }
         Some("log") => {
             trace!("Showing log for database at {:?}", &db);
         }
