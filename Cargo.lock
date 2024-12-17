@@ -1000,9 +1000,11 @@ dependencies = [
  "csv",
  "duckdb",
  "serde",
+ "serde_json",
  "tempfile",
  "thiserror",
  "tokio",
+ "tracing",
 ]
 
 [[package]]
