@@ -103,7 +103,7 @@ fn scan_features(db_filename: &str, raw_filename: &str) {
     let mut stmt = conn.prepare_cached("INSERT INTO property (county, state, FIPS, feature, fixed_value, mult_value, mult_type, adder, min_dist, max_dist, value, units, ord_year, last_updated, section, source, comments) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").unwrap();
     for result in rdr.records() {
         let record = result.unwrap();
-        println!("{:?}", record);
+        // println!("{:?}", record);
         stmt.execute([
             record[0].to_string(),
             record[1].to_string(),
