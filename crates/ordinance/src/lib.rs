@@ -96,7 +96,7 @@ pub fn init_db(path: &str) -> Result<()> {
 ///
 /// Proof of concept. Parse a CSV file and load the features into the
 /// database.
-fn scan_features(db_filename: &str, raw_filename: &str) {
+pub fn scan_features<P: AsRef<std::path::Path>>(db_filename: &str, raw_filename: P) {
     let conn: Connection = Connection::open(db_filename).unwrap();
 
     let mut rdr = csv::Reader::from_path(raw_filename).unwrap();
