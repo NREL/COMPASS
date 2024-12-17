@@ -10,9 +10,11 @@ use crate::error::Result;
 // Concepts
 // - Lazy loading a scrapper output
 //   - Early validation. Not necessary complete, but able to abort early
-//     if identifies a problem.
+//     if identifies any major problem.
 //   - Handle multiple versions. Identify right the way if the output is
 //     a compatible version, and how to handle it.
+//     - Define the trait and implement that on multiple readers for different
+//       versions.
 // - Async loading into DB
 // - Logging operations
 
@@ -28,6 +30,7 @@ struct ScrappedOrdinance {
 }
 
 impl ScrappedOrdinance {
+    // Keep in mind a lazy state.
     #[allow(dead_code)]
     /// Open an existing scrapped ordinance folder
     async fn open<P: AsRef<Path>>(root: P) -> Result<Self> {
