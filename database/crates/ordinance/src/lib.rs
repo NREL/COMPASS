@@ -52,6 +52,14 @@ pub fn init_db(path: &str) -> Result<()> {
       bookkeeping_lnk INTEGER REFERENCES bookkeeping(id) NOT NULL,
       name TEXT NOT NULL,
       FIPS INTEGER NOT NULL,
+
+      state_name TEXT,
+      state_FIPS INTEGER,
+      county_name TEXT,
+      county_FIPS INTEGER,
+      subd_name TEXT,
+      subd_FIPS INTEGER,
+
       geometry GEOMETRY NOT NULL,
       rank jurisdiction_rank NOT NULL,
       parent_id INTEGER REFERENCES jurisdiction(id),
