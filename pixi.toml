@@ -1,5 +1,8 @@
 [project]
-authors = ["Gui Castelao <gpimenta@nrel.gov>"]
+authors = [
+    "Gui Castelao <gpimenta@nrel.gov>",
+    "Paul Pinchuk <ppinchuk@nrel.gov>"
+]
 channels = ["conda-forge", "anaconda", "main"]
 description = "Add a short description here"
 name = "ordinanceDB"
