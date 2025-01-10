@@ -58,6 +58,9 @@ class AsyncFileLoader:
     }
     """Default header"""
 
+    PAGE_LOAD_TIMEOUT = 90_000
+    """Default page load timeout value in milliseconds"""
+
     def __init__(
         self,
         header_template=None,
@@ -197,17 +200,20 @@ class AsyncFileLoader:
 
         async with aiohttp.ClientSession() as session:
             try:
+                logger.trace("Fetching content from %r", url)
                 url_bytes = await self._fetch_content_with_retry(url, session)
             except ELMRuntimeError:
                 return PDFDocument(pages=[]), None
 
+        logger.trace("Got content from %r", url)
         doc = await self.pdf_read_coroutine(url_bytes, **self.pdf_read_kwargs)
         if doc.pages:
             return doc, url_bytes
 
-        text = await load_html_with_pw(
-            url, self.browser_semaphore, **self.pw_launch_kwargs
-        )
+        logger.trace("PDF read failed; fetching HTML content from %r", url)
+        text = await load_html_with_pw(url, self.browser_semaphore,
+                                       timeout=self.PAGE_LOAD_TIMEOUT,
+                                       **self.pw_launch_kwargs)
         doc = await self.html_read_coroutine(text, **self.html_read_kwargs)
         if doc.pages:
             return doc, doc.text
