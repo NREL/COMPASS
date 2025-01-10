@@ -171,9 +171,6 @@ sphinx-copybutton = ">=0.5.2,<0.6"
 sphinx-tabs = ">=3.4.1,<4"
 sphinxcontrib-mermaid = ">=1.0.0,<2"
 
-[tool.pixi.feature.python-doc.pypi-dependencies]
-NREL-Scraper = { path = ".", editable = true, extras = ["doc"]}
-
 [tool.pixi.feature.python-anthropic.dependencies]
 anthropic = ">=0.40.0,<0.41"
 botocore = ">=1.35.72,<2"
