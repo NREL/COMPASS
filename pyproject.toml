@@ -58,7 +58,7 @@ dependencies = [
 
 [project.optional-dependencies]
 ocr = [
-    "pytesseract>=0.3.13,<0.4"
+  "pytesseract>=0.3.13,<0.4"
 ]
 dev = [
   "build>=0.10",
@@ -256,7 +256,7 @@ convention = "numpy"
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = [
-    "F401", # unused-import
+  "F401", # unused-import
 ]
 "tests/**.py" = [
   "ARG001", # unused-function-argument
@@ -279,55 +279,55 @@ branch = true
 [tool.coverage.report]
 # Regexes for lines to exclude from consideration
 exclude_also = [
-    # Have to re-enable the standard pragma
-    "pragma: no cover",
+  # Have to re-enable the standard pragma
+  "pragma: no cover",
 
-    # Don't complain about missing debug-only code:
-    "if self\\.debug",
+  # Don't complain about missing debug-only code:
+  "if self\\.debug",
 
-    # Don't complain about repr methods
-    "def __repr__",
-    "def _repr_markdown_",
+  # Don't complain about repr methods
+  "def __repr__",
+  "def _repr_markdown_",
 
-    # Don't complain about data I/O code
-    "def load*",
-    "def _load*",
+  # Don't complain about data I/O code
+  "def load*",
+  "def _load*",
 
-    # Don't complain if tests don't hit defensive assertion code:
-    "raise AssertionError",
-    "raise NotImplementedError",
+  # Don't complain if tests don't hit defensive assertion code:
+  "raise AssertionError",
+  "raise NotImplementedError",
 
-    # Don't complain if non-runnable code isn't run:
-    "if __name__ == .__main__.:",
+  # Don't complain if non-runnable code isn't run:
+  "if __name__ == .__main__.:",
 
-    # Don't complain about abstract methods, they aren't run:
-    "@(abc\\.)?abstractmethod",
+  # Don't complain about abstract methods, they aren't run:
+  "@(abc\\.)?abstractmethod",
 
-    # Don't complain about logging debugging functions
-    "def print_logging_info*",
-    "def __cls_name",
+  # Don't complain about logging debugging functions
+  "def print_logging_info*",
+  "def __cls_name",
 ]
 
 omit = [
-    # omit test files
-    "tests/*",
-    # omit init files
-    "__init__.py",
-    # omit version file
-    "_version.py",
-    # omit log file copied over from other repo
-    "scraper/utilities/log.py",
-    # omit config loading code for now
-    "scraper/utilities/config.py",
-    # omit pixi files
-    ".pixi/*",
+  # omit test files
+  "tests/*",
+  # omit init files
+  "__init__.py",
+  # omit version file
+  "_version.py",
+  # omit log file copied over from other repo
+  "scraper/utilities/log.py",
+  # omit config loading code for now
+  "scraper/utilities/config.py",
+  # omit pixi files
+  ".pixi/*",
 ]
 
 
 [tool.pytest.ini_options]
 addopts = "--cov=scraper --cov-report=html --cov-report=xml:coverage.xml --disable-warnings --cov-fail-under=80"
 testpaths = [
-    "tests"
-    # "tests/unit",
-    # "tests/integration",
+  "tests"
+  # "tests/unit",
+  # "tests/integration",
 ]
