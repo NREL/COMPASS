@@ -11,12 +11,12 @@ dynamic = ["version"]
 description = "National Renewable Energy Laboratory's (NREL's) Python implementation of the Ordinance Database (OrdinanceDB)"
 readme = "README.rst"
 authors = [
-  {name = "Guilherme Castelão", email = "gpimenta@nrel.gov"},
   {name = "Paul Pinchuk", email = "ppinchuk@nrel.gov"},
+  {name = "Guilherme Castelão", email = "gpimenta@nrel.gov"},
 ]
 maintainers = [
-  {name = "Guilherme Castelão", email = "gpimenta@nrel.gov"},
   {name = "Paul Pinchuk", email = "ppinchuk@nrel.gov"},
+  {name = "Guilherme Castelão", email = "gpimenta@nrel.gov"},
 ]
 # license = {text = "BSD-3-Clause"}
 keywords = ["NREL", "Ordinance", "Database"]

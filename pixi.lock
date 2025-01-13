@@ -11861,8 +11861,8 @@ packages:
   requires_python: '>=3.8'
 - pypi: .
   name: nrel-scraper
-  version: 0.1.1.dev9+gb02c84c.d20250110
-  sha256: 2b256c5b8d4b1e0a48d25def378131a7e58df7d201c7715ab3a00428ac8ae940
+  version: 0.1.1.dev10+g4e6fd34f.d20250110
+  sha256: 7c56a419398a90ceae3857711462b8bb4da5b92472b00bd035fbb192a3f199bb
   requires_dist:
   - beautifulsoup4>=4.12.3,<5
   - click>=8.1.7,<9
