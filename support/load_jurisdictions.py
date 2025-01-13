@@ -3,7 +3,7 @@ import duckdb
 import geopandas
 
 df = geopandas.read_file("ord_areas.gpkg")
-db = duckdb.connect("demo.db")
+db = duckdb.connect("ROSIE.db")
 
 bookkeepping_id = db.sql("INSERT INTO bookkeeping (hash) values ('dummy_hash') RETURNING id").fetchone()[0]
 
