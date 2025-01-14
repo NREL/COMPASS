@@ -1,3 +1,1 @@
-"""Welcome to the NREL Ordinance DB API docs!"""
-
-from ._version import __version__
+"""Ordinance document download and structured data extraction"""
