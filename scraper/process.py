@@ -14,33 +14,32 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from elm import ApiBase
 from elm.utilities import validate_azure_api_params
 
-from elm.ords.download import download_county_ordinance
-from elm.ords.services.usage import UsageTracker
-from elm.ords.services.openai import OpenAIService, usage_from_response
-from elm.ords.services.provider import RunningAsyncServices
-from elm.ords.services.threaded import (
+from scraper.download import download_county_ordinance
+from scraper.extraction import (
+    extract_ordinance_values,
+    extract_ordinance_text_with_ngram_validation,
+)
+from scraper.services.cpu import PDFLoader, read_pdf_doc, read_pdf_doc_ocr
+from scraper.services.usage import UsageTracker
+from scraper.services.openai import OpenAIService, usage_from_response
+from scraper.services.provider import RunningAsyncServices
+from scraper.services.threaded import (
     TempFileCache,
     FileMover,
     CleanedFileWriter,
     OrdDBFileWriter,
     UsageUpdater,
 )
-from elm.ords.services.cpu import PDFLoader, read_pdf_doc, read_pdf_doc_ocr
-from elm.ords.utilities import (
+from scraper.utilities import (
     RTS_SEPARATORS,
     load_all_county_info,
     load_counties_from_fp,
 )
-from elm.ords.utilities.location import County
-from elm.ords.utilities.queued_logging import (
+from scraper.utilities.location import County
+from scraper.utilities.queued_logging import (
     LocationFileLog,
     LogListener,
     NoLocationFilter,
-)
-
-from scraper.extraction import (
-    extract_ordinance_values,
-    extract_ordinance_text_with_ngram_validation,
 )
 
 logger = logging.getLogger(__name__)
@@ -132,7 +131,7 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         instead.
     llm_call_kwargs : dict, optional
         Keyword-value pairs used to initialize an
-        `elm.ords.llm.LLMCaller` instance. By default, ``None``.
+        `scraper.llm.LLMCaller` instance. By default, ``None``.
     llm_service_rate_limit : int, optional
         Token rate limit of LLm service being used (OpenAI).
         By default, ``4000``.
@@ -409,12 +408,12 @@ async def process_county_with_logging(
 
     Parameters
     ----------
-    listener : elm.ords.utilities.queued_logging.LogListener
+    listener : scraper.utilities.queued_logging.LogListener
         Active ``LogListener`` instance that can be passed to
-        :class:`elm.ords.utilities.queued_logging.LocationFileLog`.
+        :class:`scraper.utilities.queued_logging.LocationFileLog`.
     log_dir : path-like
         Path to output directory to contain log file.
-    county : elm.ords.utilities.location.Location
+    county : scraper.utilities.location.Location
         County to retrieve ordinance document for.
     text_splitter : obj, optional
         Instance of an object that implements a `split_text` method.
@@ -438,7 +437,7 @@ async def process_county_with_logging(
         Log level to set for retrieval logger. By default, ``"INFO"``.
     **kwargs
         Keyword-value pairs used to initialize an
-        `elm.ords.llm.LLMCaller` instance.
+        `scraper.llm.LLMCaller` instance.
 
     Returns
     -------
@@ -485,7 +484,7 @@ async def process_county(
 
     Parameters
     ----------
-    county : elm.ords.utilities.location.Location
+    county : scraper.utilities.location.Location
         County to retrieve ordinance document for.
     text_splitter : obj, optional
         Instance of an object that implements a `split_text` method.
@@ -507,7 +506,7 @@ async def process_county(
         are applied. By default, ``None``.
     **kwargs
         Keyword-value pairs used to initialize an
-        `elm.ords.llm.LLMCaller` instance.
+        `scraper.llm.LLMCaller` instance.
 
     Returns
     -------

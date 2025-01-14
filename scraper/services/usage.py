@@ -1,4 +1,4 @@
-"""ELM Ordinances usage tracking utilities."""
+"""Ordinances usage tracking utilities"""
 
 import time
 import logging
@@ -111,7 +111,7 @@ class UsageTracker(UserDict):
             format) and an LLm response as inputs, updates the usage
             dictionary with usage info based on the response, and
             returns the updated dictionary. See, for example,
-            :func:`elm.ords.services.openai.usage_from_response`.
+            :func:`scraper.services.openai.usage_from_response`.
         """
         super().__init__()
         self.label = label

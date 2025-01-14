@@ -4,15 +4,15 @@ import asyncio
 import logging
 from abc import ABC, abstractmethod
 
-from elm.ords.services.queues import get_service_queue
-from elm.ords.utilities.exceptions import ELMOrdsNotInitializedError
+from scraper.services.queues import get_service_queue
+from scraper.utilities.exceptions import ELMOrdsNotInitializedError
 
 
 logger = logging.getLogger(__name__)
 MISSING_SERVICE_MESSAGE = """Must initialize the queue for {service_name!r}.
 You can likely use the following code structure to fix this:
 
-    from elm.ords.services.provider import RunningAsyncServices
+    from scraper.services.provider import RunningAsyncServices
 
     services = [
         ...

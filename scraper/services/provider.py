@@ -3,12 +3,12 @@
 import asyncio
 import logging
 
-from elm.ords.services.queues import (
+from scraper.services.queues import (
     initialize_service_queue,
     get_service_queue,
     tear_down_service_queue,
 )
-from elm.ords.utilities.exceptions import ELMOrdsValueError
+from scraper.utilities.exceptions import ELMOrdsValueError
 
 
 logger = logging.getLogger(__name__)
@@ -22,7 +22,7 @@ class _RunningProvider:
 
         Parameters
         ----------
-        service : :class:`elm.ords.services.base.Service`
+        service : :class:`scraper.services.base.Service`
             An instance of a single async service to run.
         queue : :class:`asyncio.Queue`
             Queue object for the running service.
@@ -161,7 +161,7 @@ class RunningAsyncServices:
 
         Parameters
         ----------
-        services : iterable of :class:`elm.ords.services.base.Service`
+        services : iterable of :class:`scraper.services.base.Service`
             An iterable (i.e. a list) of Services that are needed to run
             the asynchronous function.
         coroutine :  coroutine

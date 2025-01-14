@@ -2,12 +2,13 @@
 
 import logging
 
-from elm.ords.llm import StructuredLLMCaller
-from elm.ords.extraction import check_for_ordinance_info
-from elm.ords.services.threaded import TempFileCache
-from elm.ords.validation.location import CountyValidator
 from elm.web.document import PDFDocument
 from elm.web.google_search import google_results_as_docs, filter_documents
+
+from scraper.llm import StructuredLLMCaller
+from scraper.extraction import check_for_ordinance_info
+from scraper.services.threaded import TempFileCache
+from scraper.validation.location import CountyValidator
 
 
 logger = logging.getLogger(__name__)
@@ -33,7 +34,7 @@ async def download_county_ordinance(
 
     Parameters
     ----------
-    location : :class:`elm.ords.utilities.location.Location`
+    location : :class:`scraper.utilities.location.Location`
         Location objects representing the county.
     text_splitter : obj, optional
         Instance of an object that implements a `split_text` method.
@@ -57,7 +58,7 @@ async def download_county_ordinance(
         are applied. By default, ``None``.
     **kwargs
         Keyword-value pairs used to initialize an
-        `elm.ords.llm.LLMCaller` instance.
+        `scraper.llm.LLMCaller` instance.
 
     Returns
     -------

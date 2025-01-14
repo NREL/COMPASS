@@ -6,12 +6,11 @@ from pathlib import Path
 
 import pandas as pd
 
-from elm import ELM_DIR
-from elm.ords.utilities.exceptions import ELMOrdsValueError
+from scraper.utilities.exceptions import ELMOrdsValueError
 
 
 logger = logging.getLogger(__name__)
-_COUNTY_DATA_FP = Path(ELM_DIR) / "ords" / "data" / "conus_counties.csv"
+_COUNTY_DATA_FP = Path(__file__).parent.parent / "data" / "conus_counties.csv"
 
 
 def load_all_county_info():

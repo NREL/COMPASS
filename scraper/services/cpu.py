@@ -4,9 +4,10 @@ import asyncio
 from functools import partial
 from concurrent.futures import ProcessPoolExecutor
 
-from elm.ords.services.base import Service
 from elm.web.document import PDFDocument
 from elm.utilities.parse import read_pdf, read_pdf_ocr
+
+from scraper.services.base import Service
 
 
 class ProcessPoolService(Service):
