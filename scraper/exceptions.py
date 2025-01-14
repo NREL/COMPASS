@@ -1,15 +1,13 @@
-"""Custom Exceptions and Errors for ELM Ordinances"""
+"""Custom Exceptions and Errors for Ordinances"""
 
 import logging
 
-from elm.exceptions import ELMError
+
+logger = logging.getLogger("scraper")
 
 
-logger = logging.getLogger("elm")
-
-
-class ELMOrdsError(ELMError):
-    """Generic ELM Ordinance Error"""
+class OrdinanceError:
+    """Generic Ordinance Error"""
 
     def __init__(self, *args, **kwargs):
         """Init exception and broadcast message to logger"""
@@ -18,13 +16,9 @@ class ELMOrdsError(ELMError):
             logger.error(str(args[0]), stacklevel=2)
 
 
-class ELMOrdsNotInitializedError(ELMOrdsError):
-    """ELM Ordinances not initialized error"""
+class OrdinanceNotInitializedError(OrdinanceError):
+    """Ordinances not initialized error"""
 
 
-class ELMOrdsValueError(ELMOrdsError, ValueError):
-    """ELM Ordinances ValueError"""
-
-
-class ELMOrdsRuntimeError(ELMOrdsError, RuntimeError):
-    """ELM Ordinances RuntimeError"""
+class OrdinanceValueError(OrdinanceError, ValueError):
+    """Ordinances ValueError"""

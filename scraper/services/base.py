@@ -5,7 +5,7 @@ import logging
 from abc import ABC, abstractmethod
 
 from scraper.services.queues import get_service_queue
-from scraper.utilities.exceptions import ELMOrdsNotInitializedError
+from scraper.exceptions import OrdinanceNotInitializedError
 
 
 logger = logging.getLogger(__name__)
@@ -38,7 +38,7 @@ class Service(ABC):
         queue = get_service_queue(service_name)
         if queue is None:
             msg = MISSING_SERVICE_MESSAGE.format(service_name=service_name)
-            raise ELMOrdsNotInitializedError(msg)
+            raise OrdinanceNotInitializedError(msg)
         return queue
 
     @classmethod

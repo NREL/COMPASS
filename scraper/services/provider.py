@@ -8,7 +8,7 @@ from scraper.services.queues import (
     get_service_queue,
     tear_down_service_queue,
 )
-from scraper.utilities.exceptions import ELMOrdsValueError
+from scraper.exceptions import OrdinanceValueError
 
 
 logger = logging.getLogger(__name__)
@@ -119,7 +119,7 @@ class RunningAsyncServices:
         """Validate input services."""
         if len(self.services) < 1:
             msg = "Must provide at least one service to run!"
-            raise ELMOrdsValueError(msg)
+            raise OrdinanceValueError(msg)
 
     def _reset_providers(self):
         """Reset running providers"""
