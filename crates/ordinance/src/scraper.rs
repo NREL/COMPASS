@@ -140,7 +140,7 @@ impl ScrappedOrdinance {
     }
 
     #[allow(dead_code)]
-    fn config(&self) -> Result<serde_json::Value> {
+    fn config(&self) -> Result<ScrapperConfig> {
         let config_file = &self.root.join("config.json");
         if !config_file.exists() {
             trace!("Missing config file: {:?}", config_file);
@@ -149,9 +149,8 @@ impl ScrappedOrdinance {
             ));
         }
 
-        let config: serde_json::Value = serde_json::from_reader(std::fs::File::open(config_file)?)
+        let config = ScrapperConfig::from_json(&std::fs::read_to_string(config_file)?)
             .expect("Failed to parse config file");
-        dbg!(&config);
 
         Ok(config)
     }
