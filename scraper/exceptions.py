@@ -6,7 +6,7 @@ import logging
 logger = logging.getLogger("scraper")
 
 
-class OrdinanceError:
+class OrdinanceError(Exception):
     """Generic Ordinance Error"""
 
     def __init__(self, *args, **kwargs):
