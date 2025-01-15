@@ -1,3 +1,3 @@
-"""ELM Ordinance LLM callers. """
+"""ELM Ordinance LLM callers"""
 
 from .calling import LLMCaller, ChatLLMCaller, StructuredLLMCaller
