@@ -219,6 +219,22 @@ impl ScrappedOrdinance {
 
         Ok(config)
     }
+
+    #[allow(dead_code)]
+    pub(crate) async fn usage(&self) -> Result<Usage> {
+        let usage_file = &self.root.join("usage.json");
+        if !usage_file.exists() {
+            trace!("Missing usage file: {:?}", usage_file);
+            return Err(error::Error::Undefined(
+                "Features file does not exist".to_string(),
+            ));
+        }
+
+        let usage = Usage::from_json(&std::fs::read_to_string(usage_file)?)
+            .expect("Failed to parse usage file");
+
+        Ok(usage)
+    }
 }
 
 #[cfg(test)]
