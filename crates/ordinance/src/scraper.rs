@@ -34,7 +34,11 @@ impl ScrapperConfig {
         let mut v: serde_json::Map<String, serde_json::Value> = serde_json::from_str(json).unwrap();
 
         let model = v.remove("model").unwrap().as_str().unwrap().to_string();
-        let llm_service_rate_limit = v.remove("llm_service_rate_limit").unwrap().as_u64().unwrap();
+        let llm_service_rate_limit = v
+            .remove("llm_service_rate_limit")
+            .unwrap()
+            .as_u64()
+            .unwrap();
         let extra = serde_json::to_string(&v).unwrap();
 
         Ok(Self {
@@ -73,10 +77,10 @@ mod test_ScrapperConfig {
             }
         }"#;
 
-    let config = ScrapperConfig::from_json(data).unwrap();
+        let config = ScrapperConfig::from_json(data).unwrap();
 
-    assert_eq!(config.model, "gpt-4");
-    assert_eq!(config.llm_service_rate_limit, 50000);
+        assert_eq!(config.model, "gpt-4");
+        assert_eq!(config.llm_service_rate_limit, 50000);
     }
 }
 

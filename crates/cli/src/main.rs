@@ -58,7 +58,11 @@ fn main() {
         }
         Some("load") => {
             trace!("Subcommand load");
-            let path = matches.subcommand_matches("load").unwrap().get_one::<PathBuf>("path").unwrap();
+            let path = matches
+                .subcommand_matches("load")
+                .unwrap()
+                .get_one::<PathBuf>("path")
+                .unwrap();
             trace!("Loading data from: {:?}, into database: {:?}", &path, &db);
             dbg!(&path);
             ordinance::scan_features(&db, path);
