@@ -147,9 +147,13 @@ pub fn scan_features<P: AsRef<std::path::Path> + std::fmt::Debug>(
         .enable_all()
         .build()
         .unwrap();
-    let ordinance = rt.block_on(scraper::ScrappedOrdinance::open(ordinance_path));
+    let ordinance = rt
+        .block_on(scraper::ScrappedOrdinance::open(ordinance_path))
+        .unwrap();
     dbg!(&ordinance);
-    let scrapper_config = rt.block_on(ordinance.unwrap().config()).unwrap();
+    let scrapper_config = rt.block_on(ordinance.config()).unwrap();
+    let scrapper_usage = rt.block_on(ordinance.usage()).unwrap();
+    dbg!(&scrapper_usage);
 
     let conn: Connection = Connection::open(db_filename).unwrap();
 
