@@ -30,6 +30,14 @@ pub fn init_db(path: &str) -> Result<()> {
         model TEXT
         );
 
+    CREATE SEQUENCE scrapper_config_sequence START 1;
+    CREATE TABLE scrapper_config (
+      id INTEGER PRIMARY KEY DEFAULT NEXTVAL('scrapper_config_sequence'),
+      model TEXT NOT NULL,
+      llm_service_rate_limit INTEGER,
+      extra TEXT,
+      );
+
     CREATE SEQUENCE source_sequence START 1;
     CREATE TABLE source (
       id INTEGER PRIMARY KEY DEFAULT NEXTVAL('source_sequence'),
