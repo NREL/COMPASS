@@ -21,10 +21,10 @@ use crate::error::Result;
 #[allow(dead_code)]
 #[derive(Debug)]
 /// Configuration of the ordinance scrapper
-struct ScrapperConfig {
-    model: String,
-    llm_service_rate_limit: u64,
-    extra: String,
+pub(crate) struct ScrapperConfig {
+    pub(crate) model: String,
+    pub(crate) llm_service_rate_limit: u64,
+    pub(crate) extra: String,
 }
 
 impl ScrapperConfig {
@@ -86,7 +86,7 @@ mod test_ScrapperConfig {
 ///
 /// The ordinance scrapper outputs a standard directory with multiple files
 /// and sub-directories. This struct abstracts the access to such output.
-struct ScrappedOrdinance {
+pub(crate) struct ScrappedOrdinance {
     format_version: String,
     root: PathBuf,
 }
@@ -95,7 +95,7 @@ impl ScrappedOrdinance {
     // Keep in mind a lazy state.
     #[allow(dead_code)]
     /// Open an existing scrapped ordinance folder
-    async fn open<P: AsRef<Path>>(root: P) -> Result<Self> {
+    pub(crate) async fn open<P: AsRef<Path>>(root: P) -> Result<Self> {
         trace!("Opening scrapped ordinance");
 
         let root = root.as_ref().to_path_buf();
@@ -140,7 +140,7 @@ impl ScrappedOrdinance {
     }
 
     #[allow(dead_code)]
-    fn config(&self) -> Result<ScrapperConfig> {
+    pub(crate) async fn config(&self) -> Result<ScrapperConfig> {
         let config_file = &self.root.join("config.json");
         if !config_file.exists() {
             trace!("Missing config file: {:?}", config_file);
