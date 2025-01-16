@@ -21,6 +21,7 @@ fn main() {
             Command::new("load").about("Load ordinance raw data").arg(
                 Arg::new("path")
                     .value_parser(value_parser!(PathBuf))
+                    .required(true)
                     .help("Path to directory with scrapper output"),
             ),
         )
