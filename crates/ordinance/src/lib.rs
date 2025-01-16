@@ -92,6 +92,35 @@ pub fn init_db(path: &str) -> Result<()> {
       comments TEXT
       );
 
+    CREATE SEQUENCE usage_run_sequence START 1;
+    CREATE TABLE usage_run (
+      id INTEGER PRIMARY KEY DEFAULT NEXTVAL('usage_run_sequence'),
+      bookkeeping_lnk INTEGER REFERENCES bookkeeping(id) NOT NULL,
+      total_time FLOAT NOT NULL,
+      created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+      );
+
+    CREATE SEQUENCE usage_per_item_sequence START 1;
+    CREATE TABLE usage_per_item(
+      id INTEGER PRIMARY KEY DEFAULT NEXTVAL('usage_per_item_sequence'),
+      // connection with file
+      jurisdiction_lnk INTEGER REFERENCES jurisdiction(id) NOT NULL,
+      total_time FLOAT,
+      total_requests INTEGER NOT NULL,
+      total_prompt_tokens INTEGER NOT NULL,
+      total_response_tokens INTEGER NOT NULL,
+      );
+
+    CREATE SEQUENCE usage_event_sequence START 1;
+    CREATE TABLE usage_event (
+      id INTEGER PRIMARY KEY DEFAULT NEXTVAL('usage_event_sequence'),
+      usage_per_item_lnk INTEGER REFERENCES usage_per_item(id) NOT NULL,
+      event TEXT NOT NULL,
+      requests INTEGER NOT NULL,
+      prompt_tokens INTEGER NOT NULL,
+      response_tokens INTEGER NOT NULL,
+      );
+
     COMMIT;",
     )?;
 
