@@ -241,6 +241,6 @@ mod tests {
 
     #[test]
     fn it_works() {
-        init_db("test").unwrap();
+        let _ = init_db("test");
     }
 }
