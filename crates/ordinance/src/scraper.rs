@@ -49,7 +49,7 @@ impl ScrapperConfig {
     }
 }
 
-mod test_ScrapperConfig {
+mod test_scrapper_config {
     use super::ScrapperConfig;
 
     #[test]
