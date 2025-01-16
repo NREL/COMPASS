@@ -167,7 +167,8 @@ pub fn scan_features<P: AsRef<std::path::Path> + std::fmt::Debug>(
         "1".to_string(),
         scrapper_usage.total_time.to_string(),
         scrapper_usage.extra,
-    ]).unwrap();
+    ])
+    .unwrap();
 
     let mut stmt = conn
         .prepare_cached(
