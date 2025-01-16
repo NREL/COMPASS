@@ -96,8 +96,8 @@ struct UsageValues {
 #[allow(dead_code)]
 #[derive(Debug, serde::Deserialize)]
 pub(crate) struct Usage {
-    total_time: f64,
-    extra: String,
+    pub(crate) total_time: f64,
+    pub(crate) extra: String,
 }
 
 impl Usage {

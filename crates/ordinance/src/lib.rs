@@ -97,6 +97,7 @@ pub fn init_db(path: &str) -> Result<()> {
       id INTEGER PRIMARY KEY DEFAULT NEXTVAL('usage_run_sequence'),
       bookkeeping_lnk INTEGER REFERENCES bookkeeping(id) NOT NULL,
       total_time FLOAT NOT NULL,
+      extra TEXT,
       created_at TIMESTAMP NOT NULL DEFAULT NOW(),
       );
 
@@ -156,6 +157,17 @@ pub fn scan_features<P: AsRef<std::path::Path> + std::fmt::Debug>(
     dbg!(&scrapper_usage);
 
     let conn: Connection = Connection::open(db_filename).unwrap();
+
+    let mut stmt = conn
+        .prepare_cached(
+            "INSERT INTO usage_run (bookkeeping_lnk, total_time, extra) VALUES (?, ?, ?)",
+        )
+        .unwrap();
+    stmt.execute([
+        "1".to_string(),
+        scrapper_usage.total_time.to_string(),
+        scrapper_usage.extra,
+    ]).unwrap();
 
     let mut stmt = conn
         .prepare_cached(
