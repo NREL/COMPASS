@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use clap::{arg, command, value_parser, Arg, ArgAction, Command};
-use tracing::{debug,trace};
+use tracing::{debug, trace};
 use tracing_subscriber;
 
 fn main() {
@@ -49,7 +49,9 @@ fn main() {
         2 => tracing::Level::DEBUG,
         _ => tracing::Level::TRACE,
     };
-    tracing_subscriber::fmt().with_max_level(tracing_level).init();
+    tracing_subscriber::fmt()
+        .with_max_level(tracing_level)
+        .init();
     debug!("Verbosity level: {:?}", verbose);
 
     //       Command::new("log")
@@ -81,7 +83,12 @@ fn main() {
                 .unwrap()
                 .get_one::<PathBuf>("path")
                 .unwrap();
-            trace!("Loading data from: {:?}; username: {:?}; database: {:?}", &path, &username, &db);
+            trace!(
+                "Loading data from: {:?}; username: {:?}; database: {:?}",
+                &path,
+                &username,
+                &db
+            );
             ordinance::scan_features(&db, path);
         }
         Some("log") => {
