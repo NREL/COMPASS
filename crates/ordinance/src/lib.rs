@@ -135,10 +135,9 @@ pub fn init_db(path: &str) -> Result<()> {
 /// Proof of concept. Parse a CSV file and load the features into the
 /// database.
 pub fn scan_features<P: AsRef<std::path::Path> + std::fmt::Debug>(
-    db_filename: &str,
+    database: duckdb::Connection,
     ordinance_path: P,
 ) {
-    dbg!(&db_filename);
     dbg!(&ordinance_path);
     let raw_filename = ordinance_path.as_ref().join("ord_db.csv");
     dbg!(&raw_filename);
@@ -156,7 +155,7 @@ pub fn scan_features<P: AsRef<std::path::Path> + std::fmt::Debug>(
     let scrapper_usage = rt.block_on(ordinance.usage()).unwrap();
     dbg!(&scrapper_usage);
 
-    let conn: Connection = Connection::open(db_filename).unwrap();
+    let conn = database;
 
     let mut stmt = conn
         .prepare_cached(

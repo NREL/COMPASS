@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 
 use clap::{arg, command, value_parser, Arg, ArgAction, Command};
+use duckdb::Connection;
 use tracing::{debug, trace};
 use tracing_subscriber;
 
@@ -86,7 +87,10 @@ fn main() {
                 .get_one::<PathBuf>("path")
                 .unwrap();
             trace!("Loading data from: {:?}", &path,);
-            ordinance::scan_features(&db, path);
+
+            let conn: Connection = Connection::open(&db).expect("Failed to open database");
+
+            ordinance::scan_features(conn, path);
         }
         Some("log") => {
             trace!("Showing log for database at {:?}", &db);
