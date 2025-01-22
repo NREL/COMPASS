@@ -1,7 +1,8 @@
 use std::path::PathBuf;
 
 use clap::{arg, command, value_parser, Arg, ArgAction, Command};
-use tracing::trace;
+use tracing::{debug,trace};
+use tracing_subscriber;
 
 fn main() {
     let matches = command!() // requires `cargo` feature
@@ -34,10 +35,14 @@ fn main() {
         .get_matches();
 
     let verbose = matches.get_count("verbose");
-    if verbose > 0 {
-        trace!("verbose level: {:?}", verbose);
-        println!("verbose level: {:?}", verbose);
-    }
+    let tracing_level = match verbose {
+        0 => tracing::Level::WARN,
+        1 => tracing::Level::INFO,
+        2 => tracing::Level::DEBUG,
+        _ => tracing::Level::TRACE,
+    };
+    tracing_subscriber::fmt().with_max_level(tracing_level).init();
+    debug!("Verbosity level: {:?}", verbose);
 
     //       Command::new("log")
     //          .about("Show the history of the database")
