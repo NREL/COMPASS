@@ -10,3 +10,4 @@ rust-version.workspace = true
 clap = { workspace = true, features = ["cargo"] }
 ordinance = { workspace = true }
 tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
