@@ -73,22 +73,19 @@ fn main() {
         }
         Some("load") => {
             trace!("Subcommand load");
+            trace!("Using database: {:?}", &db);
             let username = matches
                 .subcommand_matches("load")
                 .unwrap()
                 .get_one::<String>("username")
                 .unwrap();
+            trace!("Username: {:?}", &username);
             let path = matches
                 .subcommand_matches("load")
                 .unwrap()
                 .get_one::<PathBuf>("path")
                 .unwrap();
-            trace!(
-                "Loading data from: {:?}; username: {:?}; database: {:?}",
-                &path,
-                &username,
-                &db
-            );
+            trace!("Loading data from: {:?}", &path,);
             ordinance::scan_features(&db, path);
         }
         Some("log") => {
