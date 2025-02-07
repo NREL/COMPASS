@@ -7,6 +7,8 @@ use tracing::trace;
 use crate::error;
 use crate::error::Result;
 
+pub(crate) const SCRAPPED_ORDINANCE_VERSION: &str = "0.0.1";
+
 // Concepts
 // - Lazy loading a scrapper output
 //   - Early validation. Not necessary complete, but able to abort early
@@ -200,7 +202,7 @@ impl ScrappedOrdinance {
 
         Ok(Self {
             root,
-            format_version: "0.0.1".to_string(),
+            format_version: SCRAPPED_ORDINANCE_VERSION.to_string(),
         })
     }
 
