@@ -147,6 +147,18 @@ pub fn scan_features<P: AsRef<std::path::Path> + std::fmt::Debug>(
     username: &String,
     ordinance_path: P,
 ) {
+
+    // insert into bookkeeping (hash, username) and get the pk to be used in all the following
+    // inserts.
+    let conn = database.transaction().unwrap();
+    trace!("Transaction started");
+    // conn.execute("BEGIN TRANSACTION", []).unwrap();
+    let commit_id = conn.execute("INSERT INTO bookkeeping (hash, username) VALUES (?, ?) RETURNING id", [
+        "dummy hash".to_string(),
+        username.to_string(),
+    ]);
+    debug!("Commit id: {:?}", commit_id);
+
     dbg!(&ordinance_path);
     let raw_filename = ordinance_path.as_ref().join("ord_db.csv");
     dbg!(&raw_filename);
@@ -160,6 +172,7 @@ pub fn scan_features<P: AsRef<std::path::Path> + std::fmt::Debug>(
         .block_on(scraper::ScrappedOrdinance::open(ordinance_path))
         .unwrap();
     dbg!(&ordinance);
+    /*
     let scrapper_config = rt.block_on(ordinance.config()).unwrap();
     let scrapper_usage = rt.block_on(ordinance.usage()).unwrap();
     dbg!(&scrapper_usage);
@@ -216,7 +229,13 @@ pub fn scan_features<P: AsRef<std::path::Path> + std::fmt::Debug>(
         ])
         .unwrap();
     }
+
+    */
     //let df = polars::io::csv::read::CsvReadOptions::default().with_has_header(true).try_into_reader_with_file_path(Some("sample.csv".into())).unwrap().finish();
+
+    conn.commit().unwrap();
+    debug!("Transaction committed");
+
 }
 
 #[derive(Debug, Serialize)]
