@@ -7,6 +7,7 @@ mod scraper;
 
 use duckdb::Connection;
 use serde::Serialize;
+use tracing::{debug, trace};
 
 use error::Result;
 
@@ -15,8 +16,13 @@ use error::Result;
 /// Create a new database as a local single file ready to store the ordinance
 /// data.
 pub fn init_db(path: &str) -> Result<()> {
+    trace!("Creating a new database at {:?}", &path);
+
     let db = Connection::open(path)?;
+    trace!("Database opened: {:?}", &db);
+
     db.execute_batch("SET VARIABLE ordinancedb_version = '0.0.1';")?;
+    trace!("Defining ordinance data model version as: 0.0.1");
 
     db.execute_batch(
         "BEGIN;
@@ -124,6 +130,8 @@ pub fn init_db(path: &str) -> Result<()> {
 
     COMMIT;",
     )?;
+
+    trace!("Database initialized");
 
     println!("{}", db.is_autocommit());
     Ok(())
