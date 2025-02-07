@@ -3,7 +3,7 @@
 //! NREL's ordinance database
 
 mod error;
-pub mod scraper;
+mod scraper;
 
 use duckdb::Connection;
 use serde::Serialize;
