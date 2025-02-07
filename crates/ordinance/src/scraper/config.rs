@@ -19,7 +19,7 @@ pub(crate) struct ScrapperConfig {
 impl ScrapperConfig {
     #[allow(dead_code)]
     /// Extract the configuration from a JSON string
-    fn from_json(json: &str) -> Result<Self> {
+    pub(super) fn from_json(json: &str) -> Result<Self> {
         let mut v: serde_json::Map<String, serde_json::Value> = serde_json::from_str(json).unwrap();
 
         let model = v.remove("model").unwrap().as_str().unwrap().to_string();
