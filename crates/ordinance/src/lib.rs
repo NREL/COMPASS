@@ -143,7 +143,8 @@ pub fn init_db(path: &str) -> Result<()> {
 /// Proof of concept. Parse a CSV file and load the features into the
 /// database.
 pub fn scan_features<P: AsRef<std::path::Path> + std::fmt::Debug>(
-    database: duckdb::Connection,
+    mut database: duckdb::Connection,
+    username: &String,
     ordinance_path: P,
 ) {
     dbg!(&ordinance_path);
