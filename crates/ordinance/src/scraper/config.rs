@@ -1,4 +1,8 @@
-//! Support for the ordinance scrapper output
+//! Parse and handle the Scrapper configuration information
+//!
+//! The setup used to run the scrapper is saved together with the output.
+//! This module provides the support to work with that information, from
+//! validating and parsing to loading it in the database.
 
 use crate::error::Result;
 
