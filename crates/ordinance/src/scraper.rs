@@ -168,7 +168,8 @@ impl ScrappedOrdinance {
         let root = root.as_ref().to_path_buf();
         trace!("Defined root as: {:?}", root);
 
-        // Validate
+        // Do some validation before returning a ScrappedOrdinance
+
         if !root.exists() {
             trace!("Root path does not exist");
             return Err(error::Error::Undefined("Path does not exist".to_string()));
