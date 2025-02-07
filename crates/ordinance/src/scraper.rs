@@ -208,6 +208,12 @@ impl ScrappedOrdinance {
     }
 
     #[allow(dead_code)]
+    pub(crate) async fn load(&self) -> Result<()> {
+        // Load the ordinance into the database
+        Ok(())
+    }
+
+    #[allow(dead_code)]
     pub(crate) async fn config(&self) -> Result<ScrapperConfig> {
         let config_file = &self.root.join("config.json");
         if !config_file.exists() {
