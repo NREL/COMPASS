@@ -147,6 +147,20 @@ mod test_usage {
     }
 }
 
+
+// Some concepts:
+//
+// - One single ordinance output is loaded and abstracted as a
+//   ScrappedOrdinance. Everything inside should be accessible through this
+//   abstraction.
+// - It is possible to operate in multiple ordinance outputs at once, such
+//   as loading multiple ordinance outputs into the database.
+// - The ScrappedOrdinance should implement a hash estimate, which will
+//   be used to identify the commit in the database.
+// - Open ScrappedOrdinance is an async operation, and accessing/parsing
+//   each component is also async. Thus, it can load into DB as it goes
+//   until complete all components.
+
 #[allow(dead_code)]
 #[derive(Debug)]
 /// Abstraction for the ordinance scrapper raw output
