@@ -88,8 +88,11 @@ fn main() {
                 .unwrap();
             trace!("Loading data from: {:?}", &path,);
 
+            // In the future, replace this Connection with a custom one
+            // that already creates a session with the username, and hance
+            // handle ahead permissions/authorization.
             let conn: Connection = Connection::open(&db).expect("Failed to open database");
-            ordinance::scan_features(conn, path);
+            ordinance::scan_features(conn, username, path);
         }
         Some("log") => {
             trace!("Showing log for database at {:?}", &db);
