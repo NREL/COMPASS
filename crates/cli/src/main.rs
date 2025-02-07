@@ -89,7 +89,6 @@ fn main() {
             trace!("Loading data from: {:?}", &path,);
 
             let conn: Connection = Connection::open(&db).expect("Failed to open database");
-
             ordinance::scan_features(conn, path);
         }
         Some("log") => {
