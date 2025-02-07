@@ -104,7 +104,7 @@ pub fn init_db(path: &str) -> Result<()> {
     CREATE SEQUENCE usage_per_item_sequence START 1;
     CREATE TABLE usage_per_item(
       id INTEGER PRIMARY KEY DEFAULT NEXTVAL('usage_per_item_sequence'),
-      // connection with file
+      /* connection with file */
       jurisdiction_lnk INTEGER REFERENCES jurisdiction(id) NOT NULL,
       total_time FLOAT,
       total_requests INTEGER NOT NULL,
