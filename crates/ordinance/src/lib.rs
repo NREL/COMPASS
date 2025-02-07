@@ -159,16 +159,15 @@ pub fn scan_features<P: AsRef<std::path::Path> + std::fmt::Debug>(
     username: &String,
     ordinance_path: P,
 ) {
-
     // insert into bookkeeping (hash, username) and get the pk to be used in all the following
     // inserts.
     let conn = database.transaction().unwrap();
     trace!("Transaction started");
     // conn.execute("BEGIN TRANSACTION", []).unwrap();
-    let commit_id = conn.execute("INSERT INTO bookkeeping (hash, username) VALUES (?, ?) RETURNING id", [
-        "dummy hash".to_string(),
-        username.to_string(),
-    ]);
+    let commit_id = conn.execute(
+        "INSERT INTO bookkeeping (hash, username) VALUES (?, ?) RETURNING id",
+        ["dummy hash".to_string(), username.to_string()],
+    );
     debug!("Commit id: {:?}", commit_id);
 
     dbg!(&ordinance_path);
@@ -247,7 +246,6 @@ pub fn scan_features<P: AsRef<std::path::Path> + std::fmt::Debug>(
 
     conn.commit().unwrap();
     debug!("Transaction committed");
-
 }
 
 #[derive(Debug, Serialize)]
