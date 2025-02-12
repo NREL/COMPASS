@@ -928,6 +928,7 @@ name = "nrel-ordinance-cli"
 version = "0.0.3"
 dependencies = [
  "clap",
+ "duckdb",
  "ordinance",
  "tracing",
  "tracing-subscriber",
