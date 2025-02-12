@@ -30,10 +30,13 @@ impl Usage {
     }
 }
 
-mod test_usage {
-    #[test]
-    fn dev() {
-        let data = r#"
+#[cfg(test)]
+pub(crate) mod sample {
+    use crate::error::Result;
+    use std::io::Write;
+
+    pub(crate) fn as_text_v1() -> String {
+        r#"
         {
           "total_time_seconds": 294.69257712364197,
           "total_time": "0:04:54.692577",
@@ -56,8 +59,24 @@ mod test_usage {
               "response_tokens": 6297
             }
           }
-        }"#;
-        let usage = super::Usage::from_json(data).unwrap();
+        }"#
+        .to_string()
+    }
+
+    pub(crate) fn as_file<P: AsRef<std::path::Path>>(path: P) -> Result<std::fs::File> {
+        let mut f = std::fs::File::create(path)?;
+        write!(f, "{}", as_text_v1()).unwrap();
+        Ok(f)
+    }
+}
+
+#[cfg(test)]
+mod test_scrapper_usage {
+    use super::sample::as_text_v1;
+
+    #[test]
+    fn parse_json() {
+        let usage = super::Usage::from_json(&as_text_v1()).unwrap();
 
         assert!((usage.total_time - 294.69257712364197).abs() <= f64::EPSILON);
     }
