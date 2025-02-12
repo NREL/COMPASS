@@ -6,7 +6,6 @@
 
 use crate::error::Result;
 
-
 #[allow(dead_code)]
 #[derive(Debug)]
 /// Configuration of the ordinance scrapper
@@ -38,35 +37,57 @@ impl ScrapperConfig {
     }
 }
 
+#[cfg(test)]
+/// Samples of scrapper configuration to support tests
+///
+/// These samples should cover multiple versions of data models as this library evolves and it
+/// should be acessible from other parts of the crate.
+pub(crate) mod sample {
+    use crate::error::Result;
+    use std::io::Write;
+
+    pub(crate) fn as_text_v1() -> String {
+        r#"
+    {
+      "log_level": "DEBUG",
+      "out_dir": ".",
+      "county_fp": "counties.csv",
+      "model": "gpt-4",
+      "llm_call_kwargs":{
+        "temperature": 0,
+        "seed": 42,
+        "timeout": 300
+        },
+      "llm_service_rate_limit": 50000,
+      "td_kwargs": {
+        "dir": "."
+        },
+      "tpe_kwargs": {
+        "max_workers": 10
+        },
+      "ppe_kwargs": {
+        "max_workers": 4
+        }
+    }"#
+        .to_string()
+    }
+
+    pub(crate) fn as_file<P: AsRef<std::path::Path>>(path: P) -> Result<std::fs::File> {
+        let mut f = std::fs::File::create(path).unwrap();
+        writeln!(f, "{}", as_text_v1()).unwrap();
+        Ok(f)
+    }
+}
+
+#[cfg(test)]
 mod test_scrapper_config {
+    use super::sample::as_text_v1;
     use super::ScrapperConfig;
 
     #[test]
-    fn dev() {
-        let data = r#"
-        {
-          "log_level": "DEBUG",
-          "out_dir": ".",
-          "county_fp": "counties.csv",
-          "model": "gpt-4",
-          "llm_call_kwargs":{
-            "temperature": 0,
-            "seed": 42,
-            "timeout": 300
-            },
-          "llm_service_rate_limit": 50000,
-          "td_kwargs": {
-            "dir": "."
-            },
-          "tpe_kwargs": {
-            "max_workers": 10
-            },
-          "ppe_kwargs": {
-            "max_workers": 4
-            }
-        }"#;
-
-        let config = ScrapperConfig::from_json(data).unwrap();
+    /// Load a ScrapperConfig from a JSON string
+    fn parse_json() {
+        let config = ScrapperConfig::from_json(&as_text_v1()).unwrap();
 
         assert_eq!(config.model, "gpt-4");
         assert_eq!(config.llm_service_rate_limit, 50000);
