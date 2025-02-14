@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from scraper.utilities.parsing import (
+from compass.utilities.parsing import (
     llm_response_as_json,
     merge_overlapping_texts,
 )

@@ -3,13 +3,13 @@
 import logging
 from warnings import warn
 
-from scraper.llm import LLMCaller, StructuredLLMCaller
-from scraper.extraction.date import DateExtractor
-from scraper.extraction.ordinance import (
+from compass.llm import LLMCaller, StructuredLLMCaller
+from compass.extraction.date import DateExtractor
+from compass.extraction.ordinance import (
     OrdinanceValidator,
     OrdinanceExtractor,
 )
-from scraper.extraction.parse import StructuredOrdinanceParser
+from compass.extraction.parse import StructuredOrdinanceParser
 
 
 logger = logging.getLogger(__name__)
@@ -33,7 +33,7 @@ async def check_for_ordinance_info(doc, text_splitter, **kwargs):
         input.
     **kwargs
         Keyword-value pairs used to initialize an
-        `scraper.llm.LLMCaller` instance.
+        `compass.llm.LLMCaller` instance.
 
     Returns
     -------
@@ -72,7 +72,7 @@ async def extract_ordinance_text_with_llm(doc, text_splitter, extractor):
         A document known to contain ordinance information. This means it
         must contain an ``"ordinance_text"`` key in the metadata. You
         can run
-        :func:`~scraper.extraction.apply.check_for_ordinance_info`
+        :func:`~compass.extraction.apply.check_for_ordinance_info`
         to have this attribute populated automatically for documents
         that are found to contain ordinance data. Note that if the
         document's metadata does not contain the ``"ordinance_text"``
@@ -82,8 +82,8 @@ async def extract_ordinance_text_with_llm(doc, text_splitter, extractor):
         The method should take text as input (str) and return a list
         of text chunks. Langchain's text splitters should work for this
         input.
-    extractor : scraper.extraction.ordinance.OrdinanceExtractor
-        Instance of `~scraper.extraction.ordinance.OrdinanceExtractor`
+    extractor : compass.extraction.ordinance.OrdinanceExtractor
+        Instance of `~compass.extraction.ordinance.OrdinanceExtractor`
         used for ordinance text extraction.
 
     Returns
@@ -130,7 +130,7 @@ async def extract_ordinance_text_with_ngram_validation(
         A document known to contain ordinance information. This means it
         must contain an ``"ordinance_text"`` key in the metadata. You
         can run
-        :func:`~scraper.extraction.apply.check_for_ordinance_info`
+        :func:`~compass.extraction.apply.check_for_ordinance_info`
         to have this attribute populated automatically for documents
         that are found to contain ordinance data. Note that if the
         document's metadata does not contain the ``"ordinance_text"``
@@ -156,7 +156,7 @@ async def extract_ordinance_text_with_ngram_validation(
         By default, ``0.95``.
     **kwargs
         Keyword-value pairs used to initialize an
-        `scraper.llm.LLMCaller` instance.
+        `compass.llm.LLMCaller` instance.
 
     Returns
     -------
@@ -199,7 +199,7 @@ async def _extract_with_ngram_check(
     ngram_fraction_threshold=0.95,
 ):
     """Extract ordinance info from doc and validate using ngrams."""
-    from scraper.extraction.ngrams import sentence_ngram_containment  # noqa
+    from compass.extraction.ngrams import sentence_ngram_containment  # noqa
 
     source = doc.metadata.get("source", "Unknown")
     og_text = doc.metadata["ordinance_text"]
@@ -277,14 +277,14 @@ async def extract_ordinance_values(doc, **kwargs):
         A document known to contain ordinance text. This means it must
         contain an ``"cleaned_ordinance_text"`` key in the metadata. You
         can run
-        :func:`~scraper.extraction.apply.extract_ordinance_text_with_llm`
+        :func:`~compass.extraction.apply.extract_ordinance_text_with_llm`
         to have this attribute populated automatically for documents
         that are found to contain ordinance data. Note that if the
         document's metadata does not contain the
         ``"cleaned_ordinance_text"`` key, it will not be processed.
     **kwargs
         Keyword-value pairs used to initialize an
-        `scraper.llm.LLMCaller` instance.
+        `compass.llm.LLMCaller` instance.
 
     Returns
     -------

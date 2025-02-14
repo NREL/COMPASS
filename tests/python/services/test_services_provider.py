@@ -5,9 +5,9 @@ from pathlib import Path
 
 import pytest
 
-from scraper.services.base import Service
-from scraper.services.provider import RunningAsyncServices, _RunningProvider
-from scraper.exceptions import (
+from compass.services.base import Service
+from compass.services.provider import RunningAsyncServices, _RunningProvider
+from compass.exceptions import (
     OrdinanceNotInitializedError,
     OrdinanceValueError,
 )

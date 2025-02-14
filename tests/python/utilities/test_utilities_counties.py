@@ -5,12 +5,12 @@ from pathlib import Path
 import pytest
 import pandas as pd
 
-from scraper.utilities.counties import (
+from compass.utilities.counties import (
     load_all_county_info,
     load_counties_from_fp,
     county_websites,
 )
-from scraper.exceptions import OrdinanceValueError
+from compass.exceptions import OrdinanceValueError
 
 
 def test_load_counties():

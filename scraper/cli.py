@@ -8,8 +8,8 @@ import logging
 import multiprocessing
 from pathlib import Path
 
-from scraper import __version__
-from scraper.process import process_counties_with_openai
+from compass import __version__
+from compass.process import process_counties_with_openai
 
 
 @click.group()
@@ -28,7 +28,7 @@ def main(ctx):
     type=click.Path(exists=True),
     help="Path to ordinance configuration JSON file. This file "
     "should contain any/all the arguments to pass to "
-    ":func:`scraper.process.process_counties_with_openai`.",
+    ":func:`compass.process.process_counties_with_openai`.",
 )
 @click.option(
     "-v",

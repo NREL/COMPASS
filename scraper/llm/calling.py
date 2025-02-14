@@ -2,7 +2,7 @@
 
 import logging
 
-from scraper.utilities import llm_response_as_json
+from compass.utilities import llm_response_as_json
 
 
 logger = logging.getLogger(__name__)
@@ -16,7 +16,7 @@ class BaseLLMCaller:
         Helper classes to call LLMs.
     Responsibilities:
         1. Use a service (e.g.
-           :class:`~scraper.services.openai.OpenAIService`) to query an
+           :class:`~compass.services.openai.OpenAIService`) to query an
            LLM.
         2. Maintain a useful context to simplify LLM query.
             - Typically these classes are initialized with a single LLM
@@ -24,9 +24,9 @@ class BaseLLMCaller:
             - This context is passed to every ``Service.call``
               invocation, allowing user to focus on only the message.
         3. Track message history
-           (:class:`~scraper.llm.calling.ChatLLMCaller`)
+           (:class:`~compass.llm.calling.ChatLLMCaller`)
            or convert output into JSON
-           (:class:`~scraper.llm.calling.StructuredLLMCaller`).
+           (:class:`~compass.llm.calling.StructuredLLMCaller`).
     Key Relationships:
         Delegates most of work to underlying ``Service`` class.
     """
@@ -36,9 +36,9 @@ class BaseLLMCaller:
 
         Parameters
         ----------
-        llm_service : scraper.services.base.Service
+        llm_service : compass.services.base.Service
             LLM service used for queries.
-        usage_tracker : scraper.services.usage.UsageTracker, optional
+        usage_tracker : compass.services.usage.UsageTracker, optional
             Optional tracker instance to monitor token usage during
             LLM calls. By default, ``None``.
         **kwargs
@@ -99,11 +99,11 @@ class ChatLLMCaller(BaseLLMCaller):
 
         Parameters
         ----------
-        llm_service : scraper.services.base.Service
+        llm_service : compass.services.base.Service
             LLM service used for queries.
         system_message : str
             System message to use for chat with LLM.
-        usage_tracker : scraper.services.usage.UsageTracker, optional
+        usage_tracker : compass.services.usage.UsageTracker, optional
             Optional tracker instance to monitor token usage during
             LLM calls. By default, ``None``.
         **kwargs

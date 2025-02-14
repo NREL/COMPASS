@@ -8,7 +8,7 @@ import asyncio
 import logging
 from abc import ABC, abstractmethod
 
-from scraper.extraction.ngrams import convert_text_to_sentence_ngrams
+from compass.extraction.ngrams import convert_text_to_sentence_ngrams
 
 
 logger = logging.getLogger(__name__)
@@ -157,11 +157,11 @@ class CountyValidator:
         1. Use a combination of heuristics and LLM queries to determine
            wether or not a document pertains to a particular county.
     Key Relationships:
-        Uses a :class:`~scraper.llm.calling.StructuredLLMCaller` for
+        Uses a :class:`~compass.llm.calling.StructuredLLMCaller` for
         LLM queries and delegates sub-validation to
-        :class:`~scraper.validation.location.CountyNameValidator`,
-        :class:`~scraper.validation.location.CountyJurisdictionValidator`,
-        and :class:`~scraper.validation.location.URLValidator`.
+        :class:`~compass.validation.location.CountyNameValidator`,
+        :class:`~compass.validation.location.CountyJurisdictionValidator`,
+        and :class:`~compass.validation.location.URLValidator`.
     """
 
     def __init__(self, structured_llm_caller, score_thresh=0.8):

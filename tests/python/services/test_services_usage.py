@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from scraper.services.usage import (
+from compass.services.usage import (
     TimedEntry,
     TimeBoundedUsageTracker,
     UsageTracker,

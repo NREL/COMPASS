@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from scraper.exceptions import OrdinanceValueError
+from compass.exceptions import OrdinanceValueError
 
 
 logger = logging.getLogger(__name__)

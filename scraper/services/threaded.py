@@ -11,7 +11,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from elm.web.utilities import write_url_doc_to_file
 
-from scraper.services.base import Service
+from compass.services.base import Service
 
 
 def _move_file(doc, out_dir):

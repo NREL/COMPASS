@@ -14,29 +14,29 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from elm import ApiBase
 from elm.utilities import validate_azure_api_params
 
-from scraper.download import download_county_ordinance
-from scraper.extraction import (
+from compass.download import download_county_ordinance
+from compass.extraction import (
     extract_ordinance_values,
     extract_ordinance_text_with_ngram_validation,
 )
-from scraper.services.cpu import PDFLoader, read_pdf_doc, read_pdf_doc_ocr
-from scraper.services.usage import UsageTracker
-from scraper.services.openai import OpenAIService, usage_from_response
-from scraper.services.provider import RunningAsyncServices
-from scraper.services.threaded import (
+from compass.services.cpu import PDFLoader, read_pdf_doc, read_pdf_doc_ocr
+from compass.services.usage import UsageTracker
+from compass.services.openai import OpenAIService, usage_from_response
+from compass.services.provider import RunningAsyncServices
+from compass.services.threaded import (
     TempFileCache,
     FileMover,
     CleanedFileWriter,
     OrdDBFileWriter,
     UsageUpdater,
 )
-from scraper.utilities import (
+from compass.utilities import (
     RTS_SEPARATORS,
     load_all_county_info,
     load_counties_from_fp,
 )
-from scraper.utilities.location import County
-from scraper.utilities.queued_logging import (
+from compass.utilities.location import County
+from compass.utilities.queued_logging import (
     LocationFileLog,
     LogListener,
     NoLocationFilter,
@@ -131,7 +131,7 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         instead.
     llm_call_kwargs : dict, optional
         Keyword-value pairs used to initialize an
-        `scraper.llm.LLMCaller` instance. By default, ``None``.
+        `compass.llm.LLMCaller` instance. By default, ``None``.
     llm_service_rate_limit : int, optional
         Token rate limit of LLm service being used (OpenAI).
         By default, ``4000``.
@@ -408,12 +408,12 @@ async def process_county_with_logging(
 
     Parameters
     ----------
-    listener : scraper.utilities.queued_logging.LogListener
+    listener : compass.utilities.queued_logging.LogListener
         Active ``LogListener`` instance that can be passed to
-        :class:`scraper.utilities.queued_logging.LocationFileLog`.
+        :class:`compass.utilities.queued_logging.LocationFileLog`.
     log_dir : path-like
         Path to output directory to contain log file.
-    county : scraper.utilities.location.Location
+    county : compass.utilities.location.Location
         County to retrieve ordinance document for.
     text_splitter : obj, optional
         Instance of an object that implements a `split_text` method.
@@ -437,7 +437,7 @@ async def process_county_with_logging(
         Log level to set for retrieval logger. By default, ``"INFO"``.
     **kwargs
         Keyword-value pairs used to initialize an
-        `scraper.llm.LLMCaller` instance.
+        `compass.llm.LLMCaller` instance.
 
     Returns
     -------
@@ -484,7 +484,7 @@ async def process_county(
 
     Parameters
     ----------
-    county : scraper.utilities.location.Location
+    county : compass.utilities.location.Location
         County to retrieve ordinance document for.
     text_splitter : obj, optional
         Instance of an object that implements a `split_text` method.
@@ -506,7 +506,7 @@ async def process_county(
         are applied. By default, ``None``.
     **kwargs
         Keyword-value pairs used to initialize an
-        `scraper.llm.LLMCaller` instance.
+        `compass.llm.LLMCaller` instance.
 
     Returns
     -------

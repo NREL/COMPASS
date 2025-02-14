@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from scraper.validation.content import (
+from compass.validation.content import (
     ValidationWithMemory,
     possibly_mentions_wind,
 )

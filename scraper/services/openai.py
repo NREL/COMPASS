@@ -6,8 +6,8 @@ import openai
 from elm.base import ApiBase
 from elm.utilities.retry import async_retry_with_exponential_backoff
 
-from scraper.services.base import RateLimitedService
-from scraper.services.usage import TimeBoundedUsageTracker
+from compass.services.base import RateLimitedService
+from compass.services.usage import TimeBoundedUsageTracker
 
 
 logger = logging.getLogger(__name__)
@@ -89,7 +89,7 @@ class OpenAIService(RateLimitedService):
         4. Parse responses into `str` and pass back to calling function.
     Key Relationships:
         Must be activated with
-        :class:`~scraper.services.provider.RunningAsyncServices`
+        :class:`~compass.services.provider.RunningAsyncServices`
         context.
     """
 
@@ -126,7 +126,7 @@ class OpenAIService(RateLimitedService):
         ----------
         model : str
             OpenAI GPT model to query.
-        usage_tracker : `scraper.services.usage.UsageTracker`, optional
+        usage_tracker : `compass.services.usage.UsageTracker`, optional
             UsageTracker instance. Providing this input will update your
             tracker with this call's token usage info.
             By default, ``None``.

@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from elm.web.document import HTMLDocument
-from scraper.services.threaded import TempFileCache, FileMover
+from compass.services.threaded import TempFileCache, FileMover
 
 
 @pytest.mark.asyncio

@@ -30,7 +30,7 @@ class DateExtractor:
 
         Parameters
         ----------
-        structured_llm_caller : scraper.llm.StructuredLLMCaller
+        structured_llm_caller : compass.llm.StructuredLLMCaller
             StructuredLLMCaller instance. Used for structured validation
             queries.
         """

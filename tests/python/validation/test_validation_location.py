@@ -11,11 +11,11 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from elm import TEST_DATA_DIR, ApiBase
 from elm.web.document import PDFDocument, HTMLDocument
 from elm.utilities.parse import read_pdf
-from scraper.llm import StructuredLLMCaller
-from scraper.services.openai import OpenAIService
-from scraper.services.provider import RunningAsyncServices
-from scraper.utilities import RTS_SEPARATORS
-from scraper.validation.location import (
+from compass.llm import StructuredLLMCaller
+from compass.services.openai import OpenAIService
+from compass.services.provider import RunningAsyncServices
+from compass.utilities import RTS_SEPARATORS
+from compass.validation.location import (
     CountyValidator,
     CountyNameValidator,
     CountyJurisdictionValidator,

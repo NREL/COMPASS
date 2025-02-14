@@ -3,7 +3,7 @@
 import logging
 
 
-logger = logging.getLogger("scraper")
+logger = logging.getLogger("compass")
 
 
 class OrdinanceError(Exception):

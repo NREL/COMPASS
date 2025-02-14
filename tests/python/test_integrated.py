@@ -15,11 +15,11 @@ from elm.web.google_search import PlaywrightGoogleLinkSearch
 from elm.web.file_loader import AsyncFileLoader
 from elm.web.document import HTMLDocument
 
-from scraper.services.usage import TimeBoundedUsageTracker, UsageTracker
-from scraper.services.openai import OpenAIService, usage_from_response
-from scraper.services.threaded import TempFileCache
-from scraper.services.provider import RunningAsyncServices
-from scraper.utilities.queued_logging import LocationFileLog, LogListener
+from compass.services.usage import TimeBoundedUsageTracker, UsageTracker
+from compass.services.openai import OpenAIService, usage_from_response
+from compass.services.threaded import TempFileCache
+from compass.services.provider import RunningAsyncServices
+from compass.utilities.queued_logging import LocationFileLog, LogListener
 
 
 class MockResponse:

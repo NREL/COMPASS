@@ -7,7 +7,7 @@ from concurrent.futures import ProcessPoolExecutor
 from elm.web.document import PDFDocument
 from elm.utilities.parse import read_pdf, read_pdf_ocr
 
-from scraper.services.base import Service
+from compass.services.base import Service
 
 
 class ProcessPoolService(Service):

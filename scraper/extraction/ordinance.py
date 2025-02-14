@@ -9,11 +9,11 @@ import logging
 
 from elm import ApiBase
 
-from scraper.validation.content import (
+from compass.validation.content import (
     ValidationWithMemory,
     possibly_mentions_wind,
 )
-from scraper.utilities.parsing import merge_overlapping_texts
+from compass.utilities.parsing import merge_overlapping_texts
 
 
 logger = logging.getLogger(__name__)
@@ -47,7 +47,7 @@ class OrdinanceValidator(ValidationWithMemory):
         the text into chunks and parsing them individually using LLMs.
     Key Relationships:
         Child class of
-        :class:`~scraper.validation.content.ValidationWithMemory`,
+        :class:`~compass.validation.content.ValidationWithMemory`,
         which allows the validation to look at neighboring chunks of
         text.
     """
@@ -105,7 +105,7 @@ class OrdinanceValidator(ValidationWithMemory):
 
         Parameters
         ----------
-        structured_llm_caller : scraper.llm.StructuredLLMCaller
+        structured_llm_caller : compass.llm.StructuredLLMCaller
             StructuredLLMCaller instance. Used for structured validation
             queries.
         text_chunks : list of str
@@ -231,7 +231,7 @@ class OrdinanceExtractor:
            particular ordinance type (e.g. wind zoning for utility-scale
            systems).
     Key Relationships:
-        Uses a :class:`~scraper.llm.calling.StructuredLLMCaller` for
+        Uses a :class:`~compass.llm.calling.StructuredLLMCaller` for
         LLM queries.
     """
 
@@ -273,7 +273,7 @@ class OrdinanceExtractor:
 
         Parameters
         ----------
-        llm_caller : scraper.llm.LLMCaller
+        llm_caller : compass.llm.LLMCaller
             LLM Caller instance used to extract ordinance info with.
         """
         self.llm_caller = llm_caller

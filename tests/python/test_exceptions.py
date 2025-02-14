@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from scraper.exceptions import (
+from compass.exceptions import (
     OrdinanceError,
     OrdinanceValueError,
     OrdinanceNotInitializedError,

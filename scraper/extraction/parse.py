@@ -7,11 +7,11 @@ from itertools import chain
 
 import pandas as pd
 
-from scraper.llm.calling import BaseLLMCaller, ChatLLMCaller
-from scraper.utilities import llm_response_as_json
-from scraper.extraction.tree import AsyncDecisionTree
-from scraper.extraction.features import SetbackFeatures
-from scraper.extraction.graphs import (
+from compass.llm.calling import BaseLLMCaller, ChatLLMCaller
+from compass.utilities import llm_response_as_json
+from compass.extraction.tree import AsyncDecisionTree
+from compass.extraction.features import SetbackFeatures
+from compass.extraction.graphs import (
     EXTRACT_ORIGINAL_TEXT_PROMPT,
     setup_graph_wes_types,
     setup_base_graph,
@@ -119,9 +119,9 @@ class StructuredOrdinanceParser(BaseLLMCaller):
            a decision-tree-based chain-of-thought prompt on the text for
            each value to be extracted.
     Key Relationships:
-        Uses a :class:`~scraper.llm.calling.StructuredLLMCaller` for
+        Uses a :class:`~compass.llm.calling.StructuredLLMCaller` for
         LLM queries and multiple
-        :class:`~scraper.extraction.tree.AsyncDecisionTree` instances
+        :class:`~compass.extraction.tree.AsyncDecisionTree` instances
         to guide the extraction of individual values.
     """
 

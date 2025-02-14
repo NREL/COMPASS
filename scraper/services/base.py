@@ -4,15 +4,15 @@ import asyncio
 import logging
 from abc import ABC, abstractmethod
 
-from scraper.services.queues import get_service_queue
-from scraper.exceptions import OrdinanceNotInitializedError
+from compass.services.queues import get_service_queue
+from compass.exceptions import OrdinanceNotInitializedError
 
 
 logger = logging.getLogger(__name__)
 MISSING_SERVICE_MESSAGE = """Must initialize the queue for {service_name!r}.
 You can likely use the following code structure to fix this:
 
-    from scraper.services.provider import RunningAsyncServices
+    from compass.services.provider import RunningAsyncServices
 
     services = [
         ...

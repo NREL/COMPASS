@@ -3,12 +3,12 @@
 import asyncio
 import logging
 
-from scraper.services.queues import (
+from compass.services.queues import (
     initialize_service_queue,
     get_service_queue,
     tear_down_service_queue,
 )
-from scraper.exceptions import OrdinanceValueError
+from compass.exceptions import OrdinanceValueError
 
 
 logger = logging.getLogger(__name__)
@@ -22,7 +22,7 @@ class _RunningProvider:
 
         Parameters
         ----------
-        service : :class:`scraper.services.base.Service`
+        service : :class:`compass.services.base.Service`
             An instance of a single async service to run.
         queue : :class:`asyncio.Queue`
             Queue object for the running service.
@@ -161,7 +161,7 @@ class RunningAsyncServices:
 
         Parameters
         ----------
-        services : iterable of :class:`scraper.services.base.Service`
+        services : iterable of :class:`compass.services.base.Service`
             An iterable (i.e. a list) of Services that are needed to run
             the asynchronous function.
         coroutine :  coroutine
