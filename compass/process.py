@@ -15,10 +15,6 @@ from elm import ApiBase
 from elm.utilities import validate_azure_api_params
 
 from compass.download import download_county_ordinance
-from compass.extraction import (
-    extract_ordinance_values,
-    extract_ordinance_text_with_ngram_validation,
-)
 from compass.services.cpu import PDFLoader, read_pdf_doc, read_pdf_doc_ocr
 from compass.services.usage import UsageTracker
 from compass.services.openai import OpenAIService, usage_from_response
