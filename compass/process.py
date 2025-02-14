@@ -202,7 +202,7 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         be stored in the output directory under "wind_db.csv".
     """
     start_time = time.time()
-    log_listener = LogListener(["elm"], level=log_level)
+    log_listener = LogListener(["compass", "elm"], level=log_level)
     dirs = _setup_folders(
         out_dir,
         log_dir=log_dir,
