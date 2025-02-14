@@ -8,7 +8,7 @@ use crate::error::Result;
 
 #[allow(dead_code)]
 #[derive(Debug)]
-/// Configuration of the ordinance scrapper
+/// Configuration used to run the scrapper
 pub(crate) struct ScrapperConfig {
     pub(crate) model: String,
     pub(crate) llm_service_rate_limit: u64,
@@ -16,6 +16,23 @@ pub(crate) struct ScrapperConfig {
 }
 
 impl ScrapperConfig {
+    /// Initialize the database to support ScrapperConfig
+    pub(super) fn init_db(conn: &duckdb::Transaction) -> Result<()> {
+        conn.execute_batch(
+            r"
+            CREATE SEQUENCE IF NOT EXISTS scrapper_config_sequence START 1;
+            CREATE TABLE IF NOT EXISTS scrapper_config (
+              id INTEGER PRIMARY KEY DEFAULT
+                NEXTVAL('scrapper_config_sequence'),
+              model TEXT NOT NULL,
+              llm_service_rate_limit INTEGER,
+              extra TEXT,
+            );",
+        )?;
+
+        Ok(())
+    }
+
     #[allow(dead_code)]
     /// Extract the configuration from a JSON string
     pub(super) fn from_json(json: &str) -> Result<Self> {
