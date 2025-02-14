@@ -51,7 +51,7 @@ async def download_county_ordinance(
         Dictionary of keyword-argument pairs to initialize
         :class:`elm.web.file_loader.AsyncFileLoader` with. If found, the
         "pw_launch_kwargs" key in these will also be used to initialize
-        the :class:`elm.web.google_search.PlaywrightGoogleLinkSearch`
+        the :class:`elm.web.search.google.PlaywrightGoogleLinkSearch`
         used for the google URL search. By default, ``None``.
     browser_semaphore : :class:`asyncio.Semaphore`, optional
         Semaphore instance that can be used to limit the number of
