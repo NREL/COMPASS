@@ -43,9 +43,10 @@ def process(config, verbose):
         config = json.load(fh)
 
     if verbose:
-        logger = logging.getLogger("elm")
-        logger.addHandler(logging.StreamHandler(stream=sys.stdout))
-        logger.setLevel(config.get("log_level", "INFO"))
+        for lib in ["compass", "elm"]:
+            logger = logging.getLogger(lib)
+            logger.addHandler(logging.StreamHandler(stream=sys.stdout))
+            logger.setLevel(config.get("log_level", "INFO"))
 
     # Need to set start method to "spawn" instead of "fork" for unix
     # systems. If this call is not present, software hangs when process
