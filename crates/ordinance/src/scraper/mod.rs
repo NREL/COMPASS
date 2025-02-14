@@ -52,6 +52,13 @@ pub(crate) struct ScrappedOrdinance {
 }
 
 impl ScrappedOrdinance {
+    pub(super) fn init_db(conn: &duckdb::Transaction) -> Result<()> {
+        config::ScrapperConfig::init_db(conn)?;
+        usage::ScrapperUsage::init_db(conn)?;
+
+        Ok(())
+    }
+
     // Keep in mind a lazy state.
     #[allow(dead_code)]
     /// Open an existing scrapped ordinance folder
