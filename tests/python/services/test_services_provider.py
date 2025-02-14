@@ -7,10 +7,7 @@ import pytest
 
 from compass.services.base import Service
 from compass.services.provider import RunningAsyncServices, _RunningProvider
-from compass.exceptions import (
-    OrdinanceNotInitializedError,
-    OrdinanceValueError,
-)
+from compass.exceptions import COMPASSNotInitializedError, COMPASSValueError
 
 
 @pytest.mark.asyncio
@@ -26,10 +23,10 @@ async def test_services_provider(service_base_class):
     class AlwaysTenService(TestService):
         NUMBER = 5
 
-    with pytest.raises(OrdinanceNotInitializedError):
+    with pytest.raises(COMPASSNotInitializedError):
         AlwaysTenService._queue()
 
-    with pytest.raises(OrdinanceValueError):
+    with pytest.raises(COMPASSValueError):
         async with RunningAsyncServices([]):
             pass
 

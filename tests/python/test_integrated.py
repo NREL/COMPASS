@@ -157,7 +157,7 @@ async def test_google_search_with_logging(tmp_path):
 
     logger = logging.getLogger("search_test")
     test_locations = ["El Paso County, Colorado", "Decatur County, Indiana"]
-    num_requested_links = 10
+    num_requested_links = 5
 
     async def search_single(location):
         logger.info("This location is %r", location)

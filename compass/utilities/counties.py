@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from compass.exceptions import OrdinanceValueError
+from compass.exceptions import COMPASSValueError
 
 
 logger = logging.getLogger(__name__)
@@ -92,7 +92,7 @@ def _validate_county_input(df):
             "The following required columns were not found in the county "
             f"input: {missing}"
         )
-        raise OrdinanceValueError(msg)
+        raise COMPASSValueError(msg)
 
 
 def _filter_not_found_counties(df):

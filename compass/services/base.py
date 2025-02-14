@@ -5,7 +5,7 @@ import logging
 from abc import ABC, abstractmethod
 
 from compass.services.queues import get_service_queue
-from compass.exceptions import OrdinanceNotInitializedError
+from compass.exceptions import COMPASSNotInitializedError
 
 
 logger = logging.getLogger(__name__)
@@ -38,7 +38,7 @@ class Service(ABC):
         queue = get_service_queue(service_name)
         if queue is None:
             msg = MISSING_SERVICE_MESSAGE.format(service_name=service_name)
-            raise OrdinanceNotInitializedError(msg)
+            raise COMPASSNotInitializedError(msg)
         return queue
 
     @classmethod

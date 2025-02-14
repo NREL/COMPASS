@@ -1,4 +1,4 @@
-"""Custom Exceptions and Errors for Ordinances"""
+"""Custom Exceptions and Errors for COMPASS"""
 
 import logging
 
@@ -6,8 +6,8 @@ import logging
 logger = logging.getLogger("compass")
 
 
-class OrdinanceError(Exception):
-    """Generic Ordinance Error"""
+class COMPASSError(Exception):
+    """Generic COMPASS Error"""
 
     def __init__(self, *args, **kwargs):
         """Init exception and broadcast message to logger"""
@@ -16,9 +16,9 @@ class OrdinanceError(Exception):
             logger.error(str(args[0]), stacklevel=2)
 
 
-class OrdinanceNotInitializedError(OrdinanceError):
-    """Ordinances not initialized error"""
+class COMPASSNotInitializedError(COMPASSError):
+    """COMPASS not initialized error"""
 
 
-class OrdinanceValueError(OrdinanceError, ValueError):
-    """Ordinances ValueError"""
+class COMPASSValueError(COMPASSError, ValueError):
+    """COMPASS ValueError"""
