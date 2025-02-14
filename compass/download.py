@@ -3,7 +3,8 @@
 import logging
 
 from elm.web.document import PDFDocument
-from elm.web.google_search import google_results_as_docs, filter_documents
+from elm.web.search.run import web_search_links_as_docs
+from elm.web.utilities import filter_documents
 
 from compass.llm import StructuredLLMCaller
 from compass.extraction import check_for_ordinance_info
@@ -101,7 +102,7 @@ async def _docs_from_google_search(
             "file_cache_coroutine": TempFileCache.call,
         }
     )
-    return await google_results_as_docs(
+    return await web_search_links_as_docs(
         queries,
         num_urls=num_urls,
         browser_semaphore=browser_semaphore,

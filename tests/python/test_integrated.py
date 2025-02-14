@@ -11,7 +11,7 @@ import httpx
 import pytest
 import openai
 import elm.web.html_pw
-from elm.web.google_search import PlaywrightGoogleLinkSearch
+from elm.web.search.google import PlaywrightGoogleLinkSearch
 from elm.web.file_loader import AsyncFileLoader
 from elm.web.document import HTMLDocument
 
