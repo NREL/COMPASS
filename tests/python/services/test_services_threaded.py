@@ -1,4 +1,4 @@
-"""Test ELM Ordinances TempFileCache Services"""
+"""Test COMPASS Ordinances TempFileCache Services"""
 
 from pathlib import Path
 

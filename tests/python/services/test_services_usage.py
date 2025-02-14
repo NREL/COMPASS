@@ -1,4 +1,4 @@
-"""Test ELM Ordinance service usage functions and classes"""
+"""Test COMPASS Ordinance service usage functions and classes"""
 
 import time
 from pathlib import Path

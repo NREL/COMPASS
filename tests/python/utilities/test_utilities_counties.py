@@ -1,4 +1,4 @@
-"""ELM Ordinance county utilities tests."""
+"""COMPASS Ordinance county utilities tests."""
 
 from pathlib import Path
 

@@ -1,4 +1,4 @@
-"""ELM Ordinance CPU-bound services"""
+"""COMPASS Ordinance CPU-bound services"""
 
 import asyncio
 from functools import partial

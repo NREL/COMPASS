@@ -1,4 +1,4 @@
-"""ELM Ordinance location specification utilities"""
+"""COMPASS Ordinance location specification utilities"""
 
 from abc import ABC, abstractmethod
 

@@ -1,4 +1,4 @@
-"""ELM Ordinance Threaded services"""
+"""COMPASS Ordinance Threaded services"""
 
 import json
 import shutil

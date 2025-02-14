@@ -1,4 +1,4 @@
-"""Test ELM Ordinance location validation tests."""
+"""Test COMPASS Ordinance location validation tests."""
 
 import os
 from pathlib import Path

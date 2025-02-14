@@ -1,4 +1,4 @@
-"""Test ELM Ordinance parsing utilities"""
+"""Test COMPASS Ordinance parsing utilities"""
 
 from pathlib import Path
 

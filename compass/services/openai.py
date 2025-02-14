@@ -1,4 +1,4 @@
-"""ELM Ordinances OpenAI service amd utils"""
+"""COMPASS Ordinances OpenAI service amd utils"""
 
 import logging
 

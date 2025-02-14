@@ -1,4 +1,4 @@
-"""ELM abstract Service class"""
+"""COMPASS abstract Service class"""
 
 import asyncio
 import logging

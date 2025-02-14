@@ -1,4 +1,4 @@
-"""Test ELM Ordinance openai services"""
+"""Test COMPASS Ordinance openai services"""
 
 from pathlib import Path
 

@@ -1,4 +1,4 @@
-"""ELM Ordinance Location Validation logic
+"""COMPASS Ordinance Location Validation logic
 
 These are primarily used to validate that a legal document applies to a
 particular location.
@@ -147,7 +147,7 @@ class CountyNameValidator(FixedMessageValidator):
 
 
 class CountyValidator:
-    """ELM Ords County validator
+    """COMPASS Ords County validator
 
     Combines the logic of several validators into a single class.
 

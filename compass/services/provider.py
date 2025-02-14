@@ -1,4 +1,4 @@
-"""ELM service provider classes"""
+"""COMPASS service provider classes"""
 
 import asyncio
 import logging

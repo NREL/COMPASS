@@ -1,4 +1,4 @@
-"""ELM Ordinance queued logging
+"""COMPASS Ordinance queued logging
 
 This module implements queued logging, mostly following this blog:"
 https://www.zopatista.com/python/2019/05/11/asyncio-logging/

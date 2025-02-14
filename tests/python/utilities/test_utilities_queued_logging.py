@@ -1,4 +1,4 @@
-"""Test ELM Ordinance logging logic."""
+"""Test COMPASS Ordinance logging logic."""
 
 import logging
 import asyncio

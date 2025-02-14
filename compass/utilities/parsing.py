@@ -1,4 +1,4 @@
-"""ELM Ordinances parsing utilities."""
+"""COMPASS Ordinances parsing utilities."""
 
 import json
 import logging

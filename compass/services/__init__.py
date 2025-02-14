@@ -1,1 +1,1 @@
-"""ELM asynchronous services"""
+"""COMPASS asynchronous services"""
