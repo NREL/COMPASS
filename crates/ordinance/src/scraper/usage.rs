@@ -18,7 +18,44 @@ pub(crate) struct Usage {
     pub(crate) extra: String,
 }
 
-impl Usage {
+impl ScrapperUsage {
+    pub(super) fn init_db(conn: &duckdb::Transaction) -> Result<()> {
+        conn.execute_batch(
+            r"
+            CREATE SEQUENCE usage_run_sequence START 1;
+            CREATE TABLE usage_run (
+              id INTEGER PRIMARY KEY DEFAULT NEXTVAL('usage_run_sequence'),
+              bookkeeping_lnk INTEGER REFERENCES bookkeeping(id) NOT NULL,
+              total_time FLOAT NOT NULL,
+              extra TEXT,
+              created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+              );
+
+            CREATE SEQUENCE usage_per_item_sequence START 1;
+            CREATE TABLE usage_per_item(
+              id INTEGER PRIMARY KEY DEFAULT NEXTVAL('usage_per_item_sequence'),
+              /* connection with file */
+              jurisdiction_lnk INTEGER REFERENCES jurisdiction(id) NOT NULL,
+              total_time FLOAT,
+              total_requests INTEGER NOT NULL,
+              total_prompt_tokens INTEGER NOT NULL,
+              total_response_tokens INTEGER NOT NULL,
+              );
+
+            CREATE SEQUENCE usage_event_sequence START 1;
+            CREATE TABLE usage_event (
+              id INTEGER PRIMARY KEY DEFAULT NEXTVAL('usage_event_sequence'),
+              usage_per_item_lnk INTEGER REFERENCES usage_per_item(id) NOT NULL,
+              event TEXT NOT NULL,
+              requests INTEGER NOT NULL,
+              prompt_tokens INTEGER NOT NULL,
+              response_tokens INTEGER NOT NULL,
+              );",
+        )?;
+
+        Ok(())
+    }
+
     #[allow(dead_code)]
     pub(super) fn from_json(json: &str) -> Result<Self> {
         let mut v: serde_json::Map<String, serde_json::Value> = serde_json::from_str(json).unwrap();
