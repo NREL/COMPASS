@@ -4,6 +4,8 @@
 //! This module provides the support to work with that information, from
 //! validating and parsing to loading it in the database.
 
+use tracing;
+
 use crate::error::Result;
 
 #[allow(dead_code)]
@@ -18,6 +20,7 @@ pub(crate) struct ScrapperConfig {
 impl ScrapperConfig {
     /// Initialize the database to support ScrapperConfig
     pub(super) fn init_db(conn: &duckdb::Transaction) -> Result<()> {
+        tracing::trace!("Initializing database for ScrapperConfig");
         conn.execute_batch(
             r"
             CREATE SEQUENCE IF NOT EXISTS scrapper_config_sequence START 1;
@@ -30,6 +33,7 @@ impl ScrapperConfig {
             );",
         )?;
 
+        tracing::trace!("Database ready for ScrapperConfig");
         Ok(())
     }
 
@@ -54,6 +58,7 @@ impl ScrapperConfig {
     }
 
     pub(super) fn write(&self, conn: &duckdb::Transaction) -> Result<()> {
+        tracing::trace!("Writing ScrapperConfig to the database {:?}", self);
         conn.execute(
             "INSERT INTO scrapper_config (model, llm_service_rate_limit, extra) VALUES (?, ?, ?)",
             [
