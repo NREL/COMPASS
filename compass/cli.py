@@ -43,7 +43,7 @@ def process(config, verbose):
         config = json.load(fh)
 
     if verbose:
-        logger = logging.getLogger("scraper")
+        logger = logging.getLogger("elm")
         logger.addHandler(logging.StreamHandler(stream=sys.stdout))
         logger.setLevel(config.get("log_level", "INFO"))
 
