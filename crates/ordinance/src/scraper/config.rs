@@ -53,7 +53,7 @@ impl ScrapperConfig {
         })
     }
 
-    pub(super) fn write(&self, conn: duckdb::Transaction) -> Result<()> {
+    pub(super) fn write(&self, conn: &duckdb::Transaction) -> Result<()> {
         conn.execute(
             "INSERT INTO scrapper_config (model, llm_service_rate_limit, extra) VALUES (?, ?, ?)",
             [
