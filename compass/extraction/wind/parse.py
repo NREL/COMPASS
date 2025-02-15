@@ -1,4 +1,4 @@
-"""Ordinance structured parsing class"""
+"""Wind ordinance structured parsing class"""
 
 import asyncio
 import logging
@@ -101,7 +101,7 @@ async def _run_async_tree_with_bm(tree, base_messages):
 
 def _empty_output(feature):
     """Empty output for a feature (not found in text)"""
-    if feature in {"struct", "pline"}:
+    if feature in {"struct", "prop_line"}:
         return [
             {"feature": f"{feature} (participating)"},
             {"feature": f"{feature} (non-participating)"},
@@ -184,10 +184,10 @@ class StructuredWindOrdinanceParser(BaseLLMCaller):
             text=text,
             chat_llm_caller=self._init_chat_llm_caller(DEFAULT_SYSTEM_MESSAGE),
         )
-        dtree_wes_types_out = await _run_async_tree(tree)
+        decision_tree_wes_types_out = await _run_async_tree(tree)
 
         return (
-            dtree_wes_types_out.get("largest_wes_type")
+            decision_tree_wes_types_out.get("largest_wes_type")
             or "large wind energy systems"
         )
 
@@ -223,7 +223,7 @@ class StructuredWindOrdinanceParser(BaseLLMCaller):
             logger.debug("Failed `_found_ord` check for feature %r", feature)
             return _empty_output(feature)
 
-        if feature not in {"struct", "pline"}:
+        if feature not in {"struct", "prop_line"}:
             output = {"feature": feature}
             output.update(
                 await self._extract_setback_values(
@@ -256,9 +256,9 @@ class StructuredWindOrdinanceParser(BaseLLMCaller):
     async def _extract_setback_values_for_p_or_np(
         self, text, base_messages, **feature_kwargs
     ):
-        """Extract setback values for participating ords"""
+        """Extract setback values for participating ordinances"""
         logger.debug("Checking participating vs non-participating")
-        dtree_participating_out = await self._run_setback_graph(
+        decision_tree_participating_out = await self._run_setback_graph(
             setup_participating_owner,
             text,
             base_messages=deepcopy(base_messages),
@@ -272,7 +272,7 @@ class StructuredWindOrdinanceParser(BaseLLMCaller):
                 ),
                 name=outer_task_name,
             )
-            for key, sub_text in dtree_participating_out.items()
+            for key, sub_text in decision_tree_participating_out.items()
         ]
         return await asyncio.gather(*p_or_np_parsers)
 
@@ -306,18 +306,18 @@ class StructuredWindOrdinanceParser(BaseLLMCaller):
 
     async def _extract_setback_values(self, text, **kwargs):
         """Extract setback values for a given feature from input text"""
-        dtree_out = await self._run_setback_graph(
+        decision_tree_out = await self._run_setback_graph(
             setup_multiplier, text, **kwargs
         )
 
-        if dtree_out.get("mult_value") is None:
-            return dtree_out
+        if decision_tree_out.get("mult_value") is None:
+            return decision_tree_out
 
-        dtree_con_out = await self._run_setback_graph(
+        decision_tree_conditional_out = await self._run_setback_graph(
             setup_conditional, text, **kwargs
         )
-        dtree_out.update(dtree_con_out)
-        return dtree_out
+        decision_tree_out.update(decision_tree_conditional_out)
+        return decision_tree_out
 
     async def _run_setback_graph(
         self,
