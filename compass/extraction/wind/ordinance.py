@@ -28,6 +28,12 @@ RESTRICTIONS = """- buildings / structures / residences
 - density restrictions
 - turbine height restrictions
 - minimum/maximum lot size
+- maximum project size
+- moratorium or bans
+- decommissioning requirements
+- lighting restrictions
+- blade ground clearance
+- visual impact assessments
 """
 MIN_CHARS_IN_VALID_CHUNK = 20
 NOT_WIND_WORDS = [
