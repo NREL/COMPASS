@@ -22,10 +22,9 @@ impl ScrapperUsage {
     pub(super) fn init_db(conn: &duckdb::Transaction) -> Result<()> {
         conn.execute_batch(
             r"
-            CREATE SEQUENCE usage_run_sequence START 1;
-            CREATE TABLE usage_run (
-              id INTEGER PRIMARY KEY DEFAULT NEXTVAL('usage_run_sequence'),
-              bookkeeping_lnk INTEGER REFERENCES bookkeeping(id) NOT NULL,
+            CREATE SEQUENCE usage_sequence START 1;
+            CREATE TABLE usage (
+              id INTEGER PRIMARY KEY DEFAULT NEXTVAL('usage_sequence'),
               total_time FLOAT NOT NULL,
               extra TEXT,
               created_at TIMESTAMP NOT NULL DEFAULT NOW(),
