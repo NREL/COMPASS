@@ -4,6 +4,7 @@
 //! This module provides the support to work with that information, from
 //! validating and parsing to loading it in the database.
 
+use std::io::Read;
 use tracing;
 
 use crate::error::Result;
@@ -35,6 +36,26 @@ impl ScrapperConfig {
 
         tracing::trace!("Database ready for ScrapperConfig");
         Ok(())
+    }
+
+    pub(super) async fn open<P: AsRef<std::path::Path>>(root: P) -> Result<Self> {
+        tracing::trace!("Opening ScrapperConfig from {:?}", root.as_ref());
+
+        let path = root.as_ref().join("config.json");
+        if !path.exists() {
+            tracing::error!("Missing configuration file: {:?}", path);
+            return Err(crate::error::Error::Undefined("Missing configuration file".to_string()));
+        }
+
+        tracing::trace!("Identified ScrapperConfig at {:?}", path);
+
+        let file = std::fs::File::open(path);
+        let mut reader = std::io::BufReader::new(file.unwrap());
+        let mut buffer = String::new();
+        let _ = reader.read_to_string(&mut buffer);
+
+        let config = Self::from_json(&buffer)?;
+        Ok(config)
     }
 
     #[allow(dead_code)]
