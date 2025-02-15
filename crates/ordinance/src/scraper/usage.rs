@@ -23,6 +23,7 @@ pub(crate) struct ScrapperUsage {
 
 impl ScrapperUsage {
     pub(super) fn init_db(conn: &duckdb::Transaction) -> Result<()> {
+        tracing::trace!("Initializing database for ScrapperUsage");
         conn.execute_batch(
             r"
             CREATE SEQUENCE usage_sequence START 1;
