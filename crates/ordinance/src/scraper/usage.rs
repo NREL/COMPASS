@@ -56,6 +56,28 @@ impl ScrapperUsage {
         Ok(())
     }
 
+    pub(super) async fn open<P: AsRef<std::path::Path>>(root: P) -> Result<Self> {
+        tracing::trace!("Opening ScrapperUsage from {:?}", root.as_ref());
+
+        let path = root.as_ref().join("usage.json");
+        if !path.exists() {
+            tracing::error!("Missing usage file: {:?}", path);
+            return Err(crate::error::Error::Undefined("Missing usage file".to_string()));
+        }
+
+        tracing::trace!("Identified ScrapperUsage at {:?}", path);
+
+        let file = std::fs::File::open(path);
+        let mut reader = std::io::BufReader::new(file.unwrap());
+        let mut buffer = String::new();
+        let _ = reader.read_to_string(&mut buffer);
+
+        let usage = Self::from_json(&buffer)?;
+        tracing::trace!("ScrapperUsage loaded: {:?}", usage);
+
+        Ok(usage)
+    }
+
     #[allow(dead_code)]
     pub(super) fn from_json(json: &str) -> Result<Self> {
         let mut v: serde_json::Map<String, serde_json::Value> = serde_json::from_str(json).unwrap();
