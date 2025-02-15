@@ -49,10 +49,12 @@ pub(crate) const SCRAPPED_ORDINANCE_VERSION: &str = "0.0.1";
 pub(crate) struct ScrappedOrdinance {
     format_version: String,
     root: PathBuf,
+    config: Option<ScrapperConfig>,
 }
 
 impl ScrappedOrdinance {
     pub(super) fn init_db(conn: &duckdb::Transaction) -> Result<()> {
+        tracing::trace!("Initializing ScrappedOrdinance database");
         config::ScrapperConfig::init_db(conn)?;
         usage::ScrapperUsage::init_db(conn)?;
 
@@ -66,7 +68,7 @@ impl ScrappedOrdinance {
         trace!("Opening scrapped ordinance");
 
         let root = root.as_ref().to_path_buf();
-        trace!("Defined root as: {:?}", root);
+        trace!("Scrapper output located at: {:?}", root);
 
         // Do some validation before returning a ScrappedOrdinance
 
@@ -83,15 +85,10 @@ impl ScrappedOrdinance {
                 "Features file does not exist".to_string(),
             ));
         }
+        */
+        let config = config::ScrapperConfig::open(&root).await?;
 
-        let config_file = root.join("ord_db.csv");
-        if !config_file.exists() {
-            trace!("Missing config file: {:?}", config_file);
-            return Err(error::Error::Undefined(
-                "Features file does not exist".to_string(),
-            ));
-        }
-
+        /*
         let usage_file = root.join("ord_db.csv");
         if !usage_file.exists() {
             trace!("Missing usage file: {:?}", usage_file);
@@ -104,6 +101,7 @@ impl ScrappedOrdinance {
         Ok(Self {
             root,
             format_version: SCRAPPED_ORDINANCE_VERSION.to_string(),
+            config: Some(config),
         })
     }
 
