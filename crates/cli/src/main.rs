@@ -92,7 +92,7 @@ fn main() {
             // that already creates a session with the username, and hance
             // handle ahead permissions/authorization.
             let conn: Connection = Connection::open(&db).expect("Failed to open database");
-            ordinance::scan_features(conn, username, path);
+            ordinance::load_ordinance(conn, username, path);
         }
         Some("log") => {
             trace!("Showing log for database at {:?}", &db);

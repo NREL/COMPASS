@@ -116,7 +116,7 @@ pub(crate) fn load_ordinance<P: AsRef<std::path::Path> + std::fmt::Debug>(
 ///
 /// Proof of concept. Parse a CSV file and load the features into the
 /// database.
-pub fn scan_features<P: AsRef<std::path::Path> + std::fmt::Debug>(
+pub fn load_ordinance<P: AsRef<std::path::Path> + std::fmt::Debug>(
     mut database: duckdb::Connection,
     username: &String,
     ordinance_path: P,
