@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use clap::{arg, command, value_parser, Arg, ArgAction, Command};
 use duckdb::Connection;
-use tracing::{debug, trace};
+use tracing::{self, debug, trace};
 use tracing_subscriber;
 
 fn main() {
@@ -53,7 +53,7 @@ fn main() {
     tracing_subscriber::fmt()
         .with_max_level(tracing_level)
         .init();
-    debug!("Verbosity level: {:?}", verbose);
+    tracing::info!("Verbosity level: {:?}", verbose);
 
     //       Command::new("log")
     //          .about("Show the history of the database")
