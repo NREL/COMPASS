@@ -5,12 +5,12 @@ mod usage;
 
 use std::path::{Path, PathBuf};
 
-use tracing::trace;
+use tracing::{self, trace};
 
-use config::ScrapperConfig;
-use usage::Usage as ScrapperUsage;
 use crate::error;
 use crate::error::Result;
+use config::ScrapperConfig;
+use usage::ScrapperUsage;
 
 pub(crate) const SCRAPPED_ORDINANCE_VERSION: &str = "0.0.1";
 
@@ -24,8 +24,6 @@ pub(crate) const SCRAPPED_ORDINANCE_VERSION: &str = "0.0.1";
 //       versions.
 // - Async loading into DB
 // - Logging operations
-
-
 
 // Some concepts:
 //
@@ -160,7 +158,6 @@ mod tests {
 
         // First confirm that the path does not exist
         assert!(!target.exists());
-
         ScrappedOrdinance::open(target).await.unwrap_err();
     }
 
