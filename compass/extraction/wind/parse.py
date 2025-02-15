@@ -26,8 +26,8 @@ from compass.extraction.wind.graphs import (
 logger = logging.getLogger(__name__)
 
 DEFAULT_SYSTEM_MESSAGE = (
-    "You are a legal scholar explaining legal ordinances to a wind "
-    "energy developer."
+    "You are a legal scholar informing a wind energy developer about local "
+    "zoning ordinances."
 )
 SETBACKS_SYSTEM_MESSAGE = (
     f"{DEFAULT_SYSTEM_MESSAGE} "
