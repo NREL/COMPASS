@@ -55,6 +55,8 @@ impl ScrapperConfig {
         let _ = reader.read_to_string(&mut buffer);
 
         let config = Self::from_json(&buffer)?;
+        tracing::trace!("ScrapperConfig loaded: {:?}", config);
+
         Ok(config)
     }
 
