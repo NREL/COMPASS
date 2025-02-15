@@ -23,6 +23,7 @@ from compass.extraction.wind import (
     WindOrdinanceValidator,
     WindOrdinanceTextExtractor,
     StructuredWindOrdinanceParser,
+    WIND_QUESTION_TEMPLATES,
 )
 from compass.llm import LLMCaller
 from compass.services.cpu import PDFLoader, read_pdf_doc, read_pdf_doc_ocr
@@ -457,6 +458,7 @@ async def process_county_with_logging(
     ):
         task = asyncio.create_task(
             process_county(
+                WIND_QUESTION_TEMPLATES,
                 county,
                 text_splitter,
                 num_urls=num_urls,
@@ -479,6 +481,7 @@ async def process_county_with_logging(
 
 
 async def process_county(
+    question_templates,
     county,
     text_splitter,
     num_urls=5,
@@ -523,6 +526,7 @@ async def process_county(
     """
     start_time = time.time()
     doc = await _find_document(
+        question_templates,
         county,
         text_splitter,
         start_time,
@@ -541,6 +545,7 @@ async def process_county(
 
 
 async def _find_document(
+    question_templates,
     county,
     text_splitter,
     start_time,
@@ -551,6 +556,7 @@ async def _find_document(
 ):
     """Search the web for an ordinance document and construct it"""
     doc = await download_county_ordinance(
+        question_templates,
         county,
         text_splitter,
         validator_class=WindOrdinanceValidator,
