@@ -50,6 +50,7 @@ pub(crate) struct ScrappedOrdinance {
     format_version: String,
     root: PathBuf,
     config: Option<ScrapperConfig>,
+    usage: Option<ScrapperUsage>,
 }
 
 impl ScrappedOrdinance {
@@ -87,6 +88,7 @@ impl ScrappedOrdinance {
         }
         */
         let config = config::ScrapperConfig::open(&root).await?;
+        let usage = usage::ScrapperUsage::open(&root).await?;
 
         /*
         let usage_file = root.join("ord_db.csv");
@@ -102,6 +104,7 @@ impl ScrappedOrdinance {
             root,
             format_version: SCRAPPED_ORDINANCE_VERSION.to_string(),
             config: Some(config),
+            usage: Some(usage),
         })
     }
 
