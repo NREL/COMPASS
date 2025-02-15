@@ -109,7 +109,7 @@ def _empty_output(feature):
     return [{"feature": feature}]
 
 
-class StructuredOrdinanceParser(BaseLLMCaller):
+class StructuredWindOrdinanceParser(BaseLLMCaller):
     """LLM ordinance document structured data scraping utility
 
     Purpose:

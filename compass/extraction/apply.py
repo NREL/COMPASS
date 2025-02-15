@@ -9,7 +9,7 @@ from compass.extraction.wind import (
     WindOrdinanceValidator,
     WindOrdinanceExtractor,
 )
-from compass.extraction.parse import StructuredOrdinanceParser
+from compass.extraction.wind import StructuredWindOrdinanceParser
 
 
 logger = logging.getLogger(__name__)
@@ -305,7 +305,7 @@ async def extract_ordinance_values(doc, **kwargs):
         warn(msg, UserWarning)
         return doc
 
-    parser = StructuredOrdinanceParser(**kwargs)
+    parser = StructuredWindOrdinanceParser(**kwargs)
     text = doc.metadata["cleaned_ordinance_text"]
     doc.metadata["ordinance_values"] = await parser.parse(text)
     return doc
