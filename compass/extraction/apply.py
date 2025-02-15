@@ -5,9 +5,9 @@ from warnings import warn
 
 from compass.llm import LLMCaller, StructuredLLMCaller
 from compass.extraction.date import DateExtractor
-from compass.extraction.ordinance import (
-    OrdinanceValidator,
-    OrdinanceExtractor,
+from compass.extraction.wind import (
+    WindOrdinanceValidator,
+    WindOrdinanceExtractor,
 )
 from compass.extraction.parse import StructuredOrdinanceParser
 
@@ -54,7 +54,7 @@ async def check_for_ordinance_info(doc, text_splitter, **kwargs):
 
     llm_caller = StructuredLLMCaller(**kwargs)
     chunks = text_splitter.split_text(doc.text)
-    validator = OrdinanceValidator(llm_caller, chunks)
+    validator = WindOrdinanceValidator(llm_caller, chunks)
     doc.metadata["contains_ord_info"] = await validator.parse()
     if doc.metadata["contains_ord_info"]:
         doc.metadata["date"] = await DateExtractor(llm_caller).parse(doc)
@@ -82,8 +82,9 @@ async def extract_ordinance_text_with_llm(doc, text_splitter, extractor):
         The method should take text as input (str) and return a list
         of text chunks. Langchain's text splitters should work for this
         input.
-    extractor : compass.extraction.ordinance.OrdinanceExtractor
-        Instance of `~compass.extraction.ordinance.OrdinanceExtractor`
+    extractor : compass.extraction.ordinance.WindOrdinanceExtractor
+        Instance of
+        :class:`~compass.extraction.ordinance.WindOrdinanceExtractor`
         used for ordinance text extraction.
 
     Returns
@@ -178,7 +179,7 @@ async def extract_ordinance_text_with_ngram_validation(
         return doc
 
     llm_caller = LLMCaller(**kwargs)
-    extractor = OrdinanceExtractor(llm_caller)
+    extractor = WindOrdinanceExtractor(llm_caller)
 
     return await _extract_with_ngram_check(
         doc,

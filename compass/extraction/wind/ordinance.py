@@ -35,7 +35,7 @@ RESTRICTIONS = """- buildings / structures / residences
 MIN_CHARS_IN_VALID_CHUNK = 20
 
 
-class OrdinanceValidator(ValidationWithMemory):
+class WindOrdinanceValidator(ValidationWithMemory):
     """Check document text for wind ordinances
 
     Purpose:
@@ -221,7 +221,7 @@ class OrdinanceValidator(ValidationWithMemory):
         return bool(self._ordinance_chunks)
 
 
-class OrdinanceExtractor:
+class WindOrdinanceExtractor:
     """Extract succinct ordinance text from input
 
     Purpose:
