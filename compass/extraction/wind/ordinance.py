@@ -385,6 +385,21 @@ class WindOrdinanceTextExtractor:
             valid_chunk=_valid_chunk,
         )
 
+    @property
+    def parsers(self):
+        """Iterable of parsers provided by this extractor
+
+        Yields
+        ------
+        name : str
+            Name describing the type of text output by the parser.
+        parser
+            Parser that takes a `text_chunks` input and outputs parsed
+            text.
+        """
+        yield "restrictions_ordinance_text", self.check_for_restrictions
+        yield "cleaned_ordinance_text", self.check_for_correct_size
+
 
 def possibly_mentions_wind(text, match_count_threshold=1):
     """Perform a heuristic check for mention of wind energy in text

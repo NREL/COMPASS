@@ -93,13 +93,11 @@ async def extract_ordinance_text_with_llm(doc, text_splitter, extractor):
         ``"cleaned_ordinance_text"`` key that will contain the cleaned
         ordinance text.
     """
-    text_chunks = text_splitter.split_text(doc.metadata["ordinance_text"])
-    ordinance_text = await extractor.check_for_restrictions(text_chunks)
-    doc.metadata["restrictions_ordinance_text"] = ordinance_text
-
-    text_chunks = text_splitter.split_text(ordinance_text)
-    ordinance_text = await extractor.check_for_correct_size(text_chunks)
-    doc.metadata["cleaned_ordinance_text"] = ordinance_text
+    prev_meta_name = "ordinance_text"
+    for meta_name, parser in extractor.parsers:
+        text_chunks = text_splitter.split_text(doc.metadata[prev_meta_name])
+        doc.metadata[meta_name] = await parser(text_chunks)
+        prev_meta_name = meta_name
 
     return doc
 
