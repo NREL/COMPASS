@@ -87,6 +87,17 @@ impl ScrapperUsage {
 
         Ok(Self { total_time, extra })
     }
+
+    pub(super) fn write(&self, conn: &duckdb::Transaction) -> Result<()> {
+        tracing::trace!("Writing ScrapperUsage to the database {:?}", self);
+        conn.execute(
+            "INSERT INTO usage (total_time, extra) VALUES (?, ?)",
+            &[&self.total_time.to_string(), &self.extra],
+        )?;
+        tracing::trace!("ScrapperUsage written to the database");
+
+        Ok(())
+    }
 }
 
 #[cfg(test)]
