@@ -23,17 +23,17 @@ RESTRICTIONS = """- buildings / structures / residences
 - overhead electrical transmission wires
 - bodies of water including wetlands, lakes, reservoirs, streams, and rivers
 - natural, wildlife, and environmental conservation areas
-- noise restrictions
-- shadow flicker restrictions
-- density restrictions
-- turbine height restrictions
+- noise limits
+- shadow flicker limits
+- density limits
+- turbine height limits
 - minimum/maximum lot size
 - maximum project size
 - moratorium or bans
 - decommissioning requirements
-- lighting restrictions
-- blade ground clearance
-- visual impact assessments
+- lighting requirements
+- blade ground clearance limits
+- visual impact assessment requirements
 """
 MIN_CHARS_IN_VALID_CHUNK = 20
 NOT_WIND_WORDS = [
