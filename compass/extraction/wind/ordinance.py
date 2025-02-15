@@ -221,7 +221,7 @@ class WindOrdinanceValidator(ValidationWithMemory):
         return bool(self._ordinance_chunks)
 
 
-class WindOrdinanceExtractor:
+class WindOrdinanceTextExtractor:
     """Extract succinct ordinance text from input
 
     Purpose:
