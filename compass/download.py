@@ -26,6 +26,7 @@ QUESTION_TEMPLATES = [
 async def download_county_ordinance(
     location,
     text_splitter,
+    validator_class,
     num_urls=5,
     file_loader_kwargs=None,
     browser_semaphore=None,
@@ -78,7 +79,11 @@ async def download_county_ordinance(
         docs, location=location, **kwargs
     )
     docs = await _down_select_docs_correct_content(
-        docs, location=location, text_splitter=text_splitter, **kwargs
+        docs,
+        location=location,
+        text_splitter=text_splitter,
+        validator_class=validator_class,
+        **kwargs,
     )
     logger.info(
         "Found %d potential ordinance documents for %s",
