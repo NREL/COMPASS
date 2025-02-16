@@ -18,7 +18,7 @@ use error::Result;
 pub fn init_db(path: &str) -> Result<()> {
     trace!("Creating a new database at {:?}", &path);
 
-    let db = Connection::open(path)?;
+    let mut db = Connection::open(path)?;
     trace!("Database opened: {:?}", &db);
 
     db.execute_batch("SET VARIABLE ordinancedb_version = '0.0.1';")?;
