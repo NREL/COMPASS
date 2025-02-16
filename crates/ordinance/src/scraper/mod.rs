@@ -37,6 +37,13 @@ pub(crate) const SCRAPPED_ORDINANCE_VERSION: &str = "0.0.1";
 // - Open ScrappedOrdinance is an async operation, and accessing/parsing
 //   each component is also async. Thus, it can load into DB as it goes
 //   until complete all components.
+// - The sequence:
+//   - Open ScrappedOrdinance (async)
+//   - Validate the content (async)
+//     - Does it has all the requirements?
+//     - Light check. Without requiring to open everything or loading
+//       everything in memory, does it look fine?
+//   - Load into DB as each component is available (async)
 
 #[allow(dead_code)]
 #[derive(Debug)]
@@ -113,8 +120,12 @@ impl ScrappedOrdinance {
         let conn = conn.transaction().unwrap();
         tracing::trace!("Transaction started");
 
+        // Do I need to extract the hash here from the full ScrappedOutput?
+        // What about username?
+        // self.config().await.unwrap().push(conn).await.unwrap();
         self.config().await.unwrap().write(&conn, commit_id).unwrap();
         self.usage().await.unwrap().write(&conn, commit_id).unwrap();
+        // commit transaction
 
         tracing::trace!("Committing transaction");
         conn.commit()?;

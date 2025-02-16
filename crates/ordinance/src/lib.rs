@@ -24,6 +24,25 @@ pub fn init_db(path: &str) -> Result<()> {
     db.execute_batch("SET VARIABLE ordinancedb_version = '0.0.1';")?;
     trace!("Defining ordinance data model version as: 0.0.1");
 
+    /*
+     * Change the source structure to have a database of all sources, and
+     * the run links to the source used. Also link that to the jurisdiction
+     * such that it could later request all sources related to a certain
+     * jurisdiction.
+     *
+     * Multiple sources for the same jurisdiction (consider multiple
+     * technologies) should be possible.
+     *
+     * In case of multiple sources for one jurisdiction, we should be able
+     * to support what was the latest document available, or list all of
+     * them.
+     *
+     * Check the new jurisdiction file.
+     *
+     * If user don't have a database. Download it in the right path.
+     *
+     *
+     */
     db.execute_batch(
         "BEGIN;
     CREATE SEQUENCE bookkeeping_sequence START 1;
