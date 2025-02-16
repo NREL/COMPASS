@@ -168,8 +168,13 @@ impl ScrappedOrdinance {
 
 #[cfg(test)]
 mod tests {
+    use super::config;
+    use super::config::sample::as_file;
+    use super::config::sample::as_text_v1;
+    use super::usage;
     use super::ScrappedOrdinance;
     use std::io::Write;
+    use std::path::PathBuf;
 
     #[tokio::test]
     /// Opening an inexistent path should give an error
@@ -187,11 +192,31 @@ mod tests {
     async fn open_scrapped_ordinance() {
         // A sample ordinance file for now.
         let target = tempfile::tempdir().unwrap();
+
+        let _config_file = config::sample::as_file(target.path().join("config.json")).unwrap();
+        let _usage_file = usage::sample::as_file(target.path().join("usage.json")).unwrap();
+
         let ordinance_filename = target.path().join("ord_db.csv");
         let mut ordinance_file = std::fs::File::create(ordinance_filename).unwrap();
         writeln!(ordinance_file, "county,state,FIPS,feature,fixed_value,mult_value,mult_type,adder,min_dist,max_dist,value,units,ord_year,last_updated,section,source,comment").unwrap();
-        writeln!(ordinance_file, "county-1,state-1,FIPS-1,feature-1,fixed_value-1,mult_value-1,mult_type-1,adder-1,min_dist-1,max_dist-1,value-1,units-1,ord_year-1,last_updated-1,section-1,source-1,comment").unwrap();
+        writeln!(ordinance_file, "county-1,state-1,FIPS-1,feature-1,fixed_value-1,mult_value-1,mult_type-1,adder-1,min_dist-1,max_dist-1,value-1,units-1,ord_year-1,last_updated-1,section-1,source-1,comment-1").unwrap();
+        writeln!(ordinance_file, "county-2,state-2,FIPS-2,feature-2,fixed_value-2,mult_value-2,mult_type-2,adder-2,min_dist-2,max_dist-2,value-2,units-2,ord_year-2,last_updated-2,section-2,source-2,comment-2").unwrap();
 
-        ScrappedOrdinance::open(target).await.unwrap();
+        let demo = ScrappedOrdinance::open(target).await.unwrap();
+        dbg!(&demo);
+
+        let mut db = duckdb::Connection::open_in_memory().unwrap();
+        let conn = db.transaction().unwrap();
+        ScrappedOrdinance::init_db(&conn).unwrap();
+        let username = "test";
+        let commit_id: usize = conn.query_row(
+            "INSERT INTO bookkeeping (hash, username) VALUES (?, ?) RETURNING id",
+            ["dummy hash".to_string(), username.to_string()],
+            |row| row.get(0),
+            ).expect("Failed to insert into bookkeeping");
+        conn.commit().unwrap();
+        demo.push(&mut db, commit_id).await.unwrap();
+
+        assert!(false);
     }
 }
