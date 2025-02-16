@@ -79,11 +79,10 @@ def setup_multiplier(**kwargs):
         "init",
         prompt=(
             "We will attempt to extract structured data for this ordinance. "
-            "Let's think step by step. Does the text mention a multiplier "
-            "that should be applied to the structure height to compute the "
-            "setback distance from {feature}? Ignore any text related to "
-            "{ignore_features}. Begin your response with either 'Yes' or "
-            "'No' and explain your answer."
+            "Does the text mention a multiplier that should be applied to the "
+            "structure height to compute the setback distance from {feature}? "
+            "Ignore any text related to {ignore_features}. Begin your "
+            "response with either 'Yes' or 'No' and explain your answer."
         ),
     )
     G.add_edge("init", "no_multiplier", condition=llm_response_starts_with_no)

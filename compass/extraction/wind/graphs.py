@@ -80,13 +80,13 @@ def setup_multiplier(**kwargs):
         "init",
         prompt=(
             "We will attempt to extract structured data for this ordinance. "
-            "Let's think step by step. Does the text mention a multiplier "
-            "that should be applied to a turbine dimension (e.g. height, "
-            "rotor diameter, etc) to compute the setback distance from "
-            "{feature}? Ignore any text related to {ignore_features}. "
-            "Remember that 1 is a valid multiplier, and treat any mention of "
-            "'fall zone' as a system height multiplier of 1. Begin your "
-            "response with either 'Yes' or 'No' and explain your answer."
+            "Does the text mention a multiplier that should be applied to a "
+            "turbine dimension (e.g. height, rotor diameter, etc) to compute "
+            "the setback distance from {feature}? Ignore any text related to "
+            "{ignore_features}. Remember that 1 is a valid multiplier, and "
+            "treat any mention of 'fall zone' as a system height multiplier "
+            "of 1. Begin your response with either 'Yes' or 'No' and explain "
+            "your answer."
         ),
     )
     G.add_edge("init", "no_multiplier", condition=llm_response_starts_with_no)
@@ -227,13 +227,12 @@ def setup_conditional(**kwargs):
         "init",
         prompt=(
             "We will attempt to extract structured data for this ordinance. "
-            "Let's think step by step. Does the setback from {feature} "
-            "mention a minimum or maximum static setback distance regardless "
-            "of the outcome of the multiplier calculation? This is often "
-            "phrased as 'the greater of' or 'the lesser of'. Do not confuse "
-            "this value with static values to be added to multiplicative "
-            "setbacks. Begin your response with either 'Yes' or 'No' and "
-            "explain your answer."
+            "Does the setback from {feature} mention a minimum or maximum "
+            "static setback distance regardless of the outcome of the "
+            "multiplier calculation? This is often phrased as 'the greater "
+            "of' or 'the lesser of'. Do not confuse this value with static "
+            "values to be added to multiplicative setbacks. Begin your "
+            "response with either 'Yes' or 'No' and explain your answer."
         ),
     )
 

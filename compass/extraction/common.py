@@ -266,14 +266,13 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
     G.add_node(
         "init",
         prompt=(
-            "We will attempt to extract structured data for this "
-            "ordinance. Let's think step by step. Does the following text "
-            "explicitly mention {restriction} for {tech}? "
-            "Do not infer based on other restrictions; if this particular "
-            "restriction is not explicitly mentioned then say 'No'. Pay extra "
-            "attention to clarifying text found in parentheses and footnotes. "
-            "Begin your response with either 'Yes' or 'No' and explain "
-            "your answer."
+            "We will attempt to extract structured data for this ordinance. "
+            "Does the following text explicitly mention {restriction} for "
+            "{tech}? Do not infer based on other restrictions; if this "
+            "particular restriction is not explicitly mentioned then say "
+            "'No'. Pay extra attention to clarifying text found in "
+            "parentheses and footnotes. Begin your response with either "
+            "'Yes' or 'No' and explain your answer."
             '\n\n"""\n{text}\n"""'
         ),
     )
