@@ -115,13 +115,15 @@ pub fn load_ordinance<P: AsRef<std::path::Path> + std::fmt::Debug>(
 ) -> Result<()> {
     // insert into bookkeeping (hash, username) and get the pk to be used in all the following
     // inserts.
+    tracing::trace!("Starting a transaction");
     let conn = database.transaction().unwrap();
-    tracing::trace!("Transaction started");
-    // conn.execute("BEGIN TRANSACTION", []).unwrap();
-    let commit_id = conn.execute(
+
+    let commit_id: usize = conn.query_row(
         "INSERT INTO bookkeeping (hash, username) VALUES (?, ?) RETURNING id",
         ["dummy hash".to_string(), username.to_string()],
-    );
+        |row| row.get(0),
+    ).expect("Failed to insert into bookkeeping");
+
     tracing::debug!("Commit id: {:?}", commit_id);
 
     /*
