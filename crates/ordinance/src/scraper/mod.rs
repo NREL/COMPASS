@@ -107,8 +107,17 @@ impl ScrappedOrdinance {
     }
 
     #[allow(dead_code)]
-    pub(crate) async fn load(&self) -> Result<()> {
-        // Load the ordinance into the database
+    pub(crate) async fn push(&self, conn: &mut duckdb::Connection) -> Result<()> {
+        tracing::trace!("Pushing scrapped ordinance into the database");
+        let conn = conn.transaction().unwrap();
+        tracing::trace!("Transaction started");
+
+        self.config().await.unwrap().write(&conn).unwrap();
+        self.usage().await.unwrap().write(&conn).unwrap();
+
+        tracing::trace!("Committing transaction");
+        conn.commit()?;
+
         Ok(())
     }
 
