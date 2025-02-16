@@ -1,7 +1,6 @@
 """Wind ordinance extraction utilities"""
 
 from .ordinance import (
-    possibly_mentions_wind,
     WindOrdinanceTextExtractor,
     WindOrdinanceValidator,
 )
