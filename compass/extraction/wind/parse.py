@@ -8,18 +8,22 @@ from itertools import chain
 import pandas as pd
 
 from compass.llm.calling import BaseLLMCaller, ChatLLMCaller
-from compass.utilities import llm_response_as_json
-from compass.extraction.tree import AsyncDecisionTree
 from compass.extraction.features import SetbackFeatures
-from compass.extraction.wind.graphs import (
+from compass.extraction.common import (
     EXTRACT_ORIGINAL_TEXT_PROMPT,
-    setup_graph_wes_types,
+    run_async_tree,
+    run_async_tree_with_bm,
+    found_ord,
+    empty_output,
+    setup_async_decision_tree,
     setup_base_graph,
-    setup_multiplier,
-    setup_conditional,
     setup_participating_owner,
     setup_graph_extra_restriction,
-    llm_response_starts_with_yes,
+)
+from compass.extraction.wind.graphs import (
+    setup_graph_wes_types,
+    setup_multiplier,
+    setup_conditional,
 )
 
 
@@ -32,82 +36,27 @@ DEFAULT_SYSTEM_MESSAGE = (
 SETBACKS_SYSTEM_MESSAGE = (
     f"{DEFAULT_SYSTEM_MESSAGE} "
     "For the duration of this conversation, only focus on "
-    "ordinances relating to setbacks from {feature} for {wes_type}. Ignore "
+    "ordinances relating to setbacks from {feature} for {tech}. Ignore "
     "all text that pertains to private, micro, small, or medium sized wind "
     "energy systems."
 )
 RESTRICTIONS_SYSTEM_MESSAGE = (
     f"{DEFAULT_SYSTEM_MESSAGE} "
     "For the duration of this conversation, only focus on "
-    "ordinances relating to {restriction} for {wes_type}. Ignore "
+    "ordinances relating to {restriction} for {tech}. Ignore "
     "all text that pertains to private, micro, small, or medium sized wind "
     "energy systems."
 )
-EXTRA_RESTRICTIONS_TO_CHECK = {
+EXTRA_NUMERICAL_RESTRICTIONS = {
     "noise": "maximum noise level allowed",
     "max height": "maximum turbine height allowed",
     "min lot size": "minimum lot size allowed",
     "shadow flicker": "maximum shadow flicker allowed",
     "density": "maximum turbine spacing allowed",
+}
+EXTRA_QUALITATIVE_RESTRICTIONS = {
     "decommissioning": "decommissioning requirement(s)",
 }
-
-
-def _setup_async_decision_tree(graph_setup_func, **kwargs):
-    """Setup Async Decision tree dor ordinance extraction"""
-    G = graph_setup_func(**kwargs)  # noqa: N806
-    tree = AsyncDecisionTree(G)
-    assert len(tree.chat_llm_caller.messages) == 1
-    return tree
-
-
-def _found_ord(messages):
-    """Check messages from the base graph to see if ordinance was found
-
-    ..IMPORTANT:: This function may break if the base graph structure
-                  changes. Always update the hardcoded values to match
-                  the base graph message containing the LLM response
-                  about ordinance content.
-    """
-    num_messages_in_base_tree = 3
-    if len(messages) < num_messages_in_base_tree:
-        return False
-    return llm_response_starts_with_yes(messages[2].get("content", ""))
-
-
-async def _run_async_tree(tree, response_as_json=True):
-    """Run Async Decision Tree and return output as dict"""
-    try:
-        response = await tree.async_run()
-    except RuntimeError:
-        msg = (
-            "    - NOTE: This is not necessarily an error and may just mean "
-            "that the text does not have the requested data."
-        )
-        logger.error(msg)  # noqa: TRY400
-        response = None
-
-    if response_as_json:
-        return llm_response_as_json(response) if response else {}
-
-    return response
-
-
-async def _run_async_tree_with_bm(tree, base_messages):
-    """Run Async Decision Tree from base messages; return dict output"""
-    tree.chat_llm_caller.messages = base_messages
-    assert len(tree.chat_llm_caller.messages) == len(base_messages)
-    return await _run_async_tree(tree)
-
-
-def _empty_output(feature):
-    """Empty output for a feature (not found in text)"""
-    if feature in {"struct", "prop_line"}:
-        return [
-            {"feature": f"{feature} (participating)"},
-            {"feature": f"{feature} (non-participating)"},
-        ]
-    return [{"feature": feature}]
 
 
 class StructuredWindOrdinanceParser(BaseLLMCaller):
@@ -167,11 +116,20 @@ class StructuredWindOrdinanceParser(BaseLLMCaller):
         extras_parsers = [
             asyncio.create_task(
                 self._parse_extra_restriction(
-                    text, feature, r_text, largest_wes_type
+                    text, feature, r_text, largest_wes_type, is_numerical=True
                 ),
                 name=outer_task_name,
             )
-            for feature, r_text in EXTRA_RESTRICTIONS_TO_CHECK.items()
+            for feature, r_text in EXTRA_NUMERICAL_RESTRICTIONS.items()
+        ]
+        extras_parsers += [
+            asyncio.create_task(
+                self._parse_extra_restriction(
+                    text, feature, r_text, largest_wes_type, is_numerical=False
+                ),
+                name=outer_task_name,
+            )
+            for feature, r_text in EXTRA_QUALITATIVE_RESTRICTIONS.items()
         ]
         outputs = await asyncio.gather(*(feature_parsers + extras_parsers))
 
@@ -180,12 +138,12 @@ class StructuredWindOrdinanceParser(BaseLLMCaller):
     async def _check_wind_turbine_type(self, text):
         """Get the largest turbine size mentioned in the text"""
         logger.debug("Checking turbine_types")
-        tree = _setup_async_decision_tree(
+        tree = setup_async_decision_tree(
             setup_graph_wes_types,
             text=text,
             chat_llm_caller=self._init_chat_llm_caller(DEFAULT_SYSTEM_MESSAGE),
         )
-        decision_tree_wes_types_out = await _run_async_tree(tree)
+        decision_tree_wes_types_out = await run_async_tree(tree)
 
         return (
             decision_tree_wes_types_out.get("largest_wes_type")
@@ -193,21 +151,22 @@ class StructuredWindOrdinanceParser(BaseLLMCaller):
         )
 
     async def _parse_extra_restriction(
-        self, text, feature, restriction_text, largest_wes_type
+        self, text, feature, restriction_text, largest_wes_type, is_numerical
     ):
         """Parse a non-setback restriction from the text"""
         logger.debug("Parsing extra feature %r", feature)
         system_message = RESTRICTIONS_SYSTEM_MESSAGE.format(
-            restriction=restriction_text, wes_type=largest_wes_type
+            restriction=restriction_text, tech=largest_wes_type
         )
-        tree = _setup_async_decision_tree(
+        tree = setup_async_decision_tree(
             setup_graph_extra_restriction,
-            wes_type=largest_wes_type,
+            is_numerical=is_numerical,
+            tech=largest_wes_type,
             restriction=restriction_text,
             text=text,
             chat_llm_caller=self._init_chat_llm_caller(system_message),
         )
-        info = await _run_async_tree(tree)
+        info = await run_async_tree(tree)
         info.update({"feature": feature})
         return [info]
 
@@ -216,13 +175,13 @@ class StructuredWindOrdinanceParser(BaseLLMCaller):
     ):
         """Parse values for a setback feature"""
         feature = feature_kwargs["feature_id"]
-        feature_kwargs["wes_type"] = largest_wes_type
+        feature_kwargs["tech"] = largest_wes_type
         logger.debug("Parsing feature %r", feature)
 
         base_messages = await self._base_messages(text, **feature_kwargs)
-        if not _found_ord(base_messages):
+        if not found_ord(base_messages):
             logger.debug("Failed `_found_ord` check for feature %r", feature)
-            return _empty_output(feature)
+            return empty_output(feature)
 
         if feature not in {"struct", "prop_line"}:
             output = {"feature": feature}
@@ -243,15 +202,15 @@ class StructuredWindOrdinanceParser(BaseLLMCaller):
         """Get base messages for setback feature parsing"""
         system_message = SETBACKS_SYSTEM_MESSAGE.format(
             feature=feature_kwargs["feature"],
-            wes_type=feature_kwargs["wes_type"],
+            tech=feature_kwargs["wes_type"],
         )
-        tree = _setup_async_decision_tree(
+        tree = setup_async_decision_tree(
             setup_base_graph,
             text=text,
             chat_llm_caller=self._init_chat_llm_caller(system_message),
             **feature_kwargs,
         )
-        await _run_async_tree(tree, response_as_json=False)
+        await run_async_tree(tree, response_as_json=False)
         return deepcopy(tree.chat_llm_caller.messages)
 
     async def _extract_setback_values_for_p_or_np(
@@ -293,7 +252,7 @@ class StructuredWindOrdinanceParser(BaseLLMCaller):
 
         base_messages = deepcopy(base_messages)
         base_messages[-2]["content"] = EXTRACT_ORIGINAL_TEXT_PROMPT.format(
-            feature=feature, wes_type=feature_kwargs["wes_type"]
+            feature=feature, tech=feature_kwargs["tech"]
         )
         base_messages[-1]["content"] = sub_text
 
@@ -325,15 +284,15 @@ class StructuredWindOrdinanceParser(BaseLLMCaller):
         graphs_setup_func,
         text,
         feature,
-        wes_type,
+        tech,
         base_messages=None,
         **kwargs,
     ):
         """Generic function to run async tree"""
         system_message = SETBACKS_SYSTEM_MESSAGE.format(
-            feature=feature, wes_type=wes_type
+            feature=feature, tech=tech
         )
-        tree = _setup_async_decision_tree(
+        tree = setup_async_decision_tree(
             graphs_setup_func,
             feature=feature,
             text=text,
@@ -341,5 +300,5 @@ class StructuredWindOrdinanceParser(BaseLLMCaller):
             **kwargs,
         )
         if base_messages:
-            return await _run_async_tree_with_bm(tree, base_messages)
-        return await _run_async_tree(tree)
+            return await run_async_tree_with_bm(tree, base_messages)
+        return await run_async_tree(tree)
