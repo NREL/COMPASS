@@ -286,7 +286,7 @@ class WindOrdinanceTextExtractor:
         "of the original text directly."
     )
     MODEL_INSTRUCTIONS_RESTRICTIONS = (
-        "Extract one or more direct text excerpts related to the restrictions "
+        "Extract all portions of the text related to the restrictions "
         "of large wind energy systems with respect to any of the following:\n"
         f"{RESTRICTIONS}"
         "Include section headers (if any) for the text excerpts. Also include "
@@ -296,12 +296,12 @@ class WindOrdinanceTextExtractor:
         '"No relevant text."'
     )
     MODEL_INSTRUCTIONS_SIZE = (
-        "Extract one or more direct text excerpts pertaining to large wind "
+        "Extract all portions of the text that apply to large wind "
         "energy systems. Large wind energy systems (WES) may also be referred "
         "to as wind turbines, wind energy conversion systems (WECS), wind "
         "energy facilities (WEF), wind energy turbines (WET), large wind "
         "energy turbines (LWET), utility-scale wind energy turbines (UWET), "
-        "or similar. Do not return any text excerpts that only apply to "
+        "or similar. Remove all text that only applies to "
         "private, micro, small, or medium sized wind energy systems. Include "
         "section headers (if any) for the text excerpts. Also include any "
         "text excerpts that define what kind of large wind energy conversion "

@@ -262,7 +262,8 @@ class SolarOrdinanceTextExtractor:
         "of the original text directly."
     )
     MODEL_INSTRUCTIONS_RESTRICTIONS = (
-        "Extract direct text excerpts related to the restrictions "
+        # "Extract direct text excerpts related to the restrictions "
+        "Extract all portions of the text related to the restrictions "
         "of large solar energy systems with respect to any of the following:\n"
         f"{RESTRICTIONS}"
         "Include section headers (if any) for the text excerpts. Also include "
@@ -272,13 +273,13 @@ class SolarOrdinanceTextExtractor:
         '"No relevant text."'
     )
     MODEL_INSTRUCTIONS_SIZE = (
-        "Extract direct text excerpts pertaining to large solar "
+        "Extract all portions of the text that apply to large solar "
         "energy systems. Large solar energy systems (SES) may also be "
-        "referred to as solar panels, solar energy conversion systems (SECS), "
+        "referred to as solar energy conversion systems (SECS), "
         "solar energy facilities (SEF), solar energy farms (SEF), solar farms "
         "(SF), utility-scale solar energy systems (USES), commercial solar "
-        "energy systems, or similar. Do not return any text excerpts that "
-        "only apply to private, micro, small, or medium sized solar energy "
+        "energy systems, or similar. Remove all text that "
+        "only applies to private, micro, or small solar energy "
         "systems. Include section headers (if any) for the text excerpts. "
         "Also include any text excerpts that define what kind of large solar "
         "energy conversion system the restriction applies to. If there is no "
