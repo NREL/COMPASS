@@ -537,7 +537,8 @@ async def process_county(
     )
     if doc is None:
         return doc
-    doc = _extract_ordinance_text(doc, text_splitter, **kwargs)
+
+    doc = await _extract_ordinance_text(doc, text_splitter, **kwargs)
     doc = await _extract_ordinances_from_text(doc, **kwargs)
     doc = await _move_files(doc, county)
     await _record_time_and_usage(start_time, **kwargs)
