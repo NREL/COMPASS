@@ -83,11 +83,12 @@ impl ScrapperConfig {
         })
     }
 
-    pub(super) fn write(&self, conn: &duckdb::Transaction) -> Result<()> {
+    pub(super) fn write(&self, conn: &duckdb::Transaction, commit_id: usize) -> Result<()> {
         tracing::trace!("Writing ScrapperConfig to the database {:?}", self);
         conn.execute(
-            "INSERT INTO scrapper_config (model, llm_service_rate_limit, extra) VALUES (?, ?, ?)",
+            "INSERT INTO scrapper_config (bookkeeping_lnk, model, llm_service_rate_limit, extra) VALUES (?, ?, ?, ?)",
             [
+                commit_id.to_string(),
                 self.model.to_string(),
                 self.llm_service_rate_limit.to_string(),
                 self.extra.to_string(),

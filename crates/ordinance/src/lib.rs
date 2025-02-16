@@ -145,7 +145,7 @@ pub fn load_ordinance<P: AsRef<std::path::Path> + std::fmt::Debug>(
     tracing::debug!("Transaction committed");
 
     tracing::trace!("Ordinance: {:?}", ordinance);
-    rt.block_on(ordinance.push(&mut database)).unwrap();
+    rt.block_on(ordinance.push(&mut database, commit_id)).unwrap();
 
     /*
     let mut rdr = csv::Reader::from_path(raw_filename).unwrap();

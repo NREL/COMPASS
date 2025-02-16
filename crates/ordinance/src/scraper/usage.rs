@@ -94,11 +94,11 @@ impl ScrapperUsage {
         Ok(Self { total_time, extra })
     }
 
-    pub(super) fn write(&self, conn: &duckdb::Transaction) -> Result<()> {
+    pub(super) fn write(&self, conn: &duckdb::Transaction, commit_id: usize) -> Result<()> {
         tracing::trace!("Writing ScrapperUsage to the database {:?}", self);
         conn.execute(
-            "INSERT INTO usage (total_time, extra) VALUES (?, ?)",
-            &[&self.total_time.to_string(), &self.extra],
+            "INSERT INTO usage (total_time, extra) VALUES (?, ?, ?)",
+            [&commit_id.to_string(), &self.total_time.to_string(), &self.extra], 
         )?;
         tracing::trace!("ScrapperUsage written to the database");
 
