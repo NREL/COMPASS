@@ -326,6 +326,7 @@ class WindOrdinanceTextExtractor:
             "Extracting ordinance text from %d text chunks asynchronously...",
             len(text_chunks),
         )
+        logger.debug("Model instructions are:\n%s", instructions)
         outer_task_name = asyncio.current_task().get_name()
         summaries = [
             asyncio.create_task(
