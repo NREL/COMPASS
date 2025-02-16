@@ -7,7 +7,7 @@ mod scraper;
 
 use duckdb::Connection;
 use serde::Serialize;
-use tracing::{self, debug, trace};
+use tracing::{self, trace};
 
 use error::Result;
 
