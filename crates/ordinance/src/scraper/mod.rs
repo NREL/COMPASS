@@ -173,12 +173,9 @@ impl ScrappedOrdinance {
 #[cfg(test)]
 mod tests {
     use super::config;
-    use super::config::sample::as_file;
-    use super::config::sample::as_text_v1;
     use super::usage;
     use super::ScrappedOrdinance;
     use std::io::Write;
-    use std::path::PathBuf;
 
     #[tokio::test]
     /// Opening an inexistent path should give an error

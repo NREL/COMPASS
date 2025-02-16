@@ -1,7 +1,6 @@
 //! Parse and handle the Scrapper usage information
 
 use std::io::Read;
-use tracing;
 
 use crate::error::Result;
 

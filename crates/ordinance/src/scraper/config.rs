@@ -5,7 +5,6 @@
 //! validating and parsing to loading it in the database.
 
 use std::io::Read;
-use tracing;
 
 use crate::error::Result;
 
