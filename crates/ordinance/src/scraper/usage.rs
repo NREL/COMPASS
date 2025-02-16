@@ -98,7 +98,11 @@ impl ScrapperUsage {
         tracing::trace!("Writing ScrapperUsage to the database {:?}", self);
         conn.execute(
             "INSERT INTO usage (total_time, extra) VALUES (?, ?, ?)",
-            [&commit_id.to_string(), &self.total_time.to_string(), &self.extra], 
+            [
+                &commit_id.to_string(),
+                &self.total_time.to_string(),
+                &self.extra,
+            ],
         )?;
         tracing::trace!("ScrapperUsage written to the database");
 

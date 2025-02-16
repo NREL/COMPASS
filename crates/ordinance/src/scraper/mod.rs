@@ -123,7 +123,11 @@ impl ScrappedOrdinance {
         // Do I need to extract the hash here from the full ScrappedOutput?
         // What about username?
         // self.config().await.unwrap().push(conn).await.unwrap();
-        self.config().await.unwrap().write(&conn, commit_id).unwrap();
+        self.config()
+            .await
+            .unwrap()
+            .write(&conn, commit_id)
+            .unwrap();
         self.usage().await.unwrap().write(&conn, commit_id).unwrap();
         // commit transaction
 
@@ -224,6 +228,5 @@ mod tests {
         conn.commit().unwrap();
         demo.push(&mut db, commit_id).await.unwrap();
         */
-
     }
 }

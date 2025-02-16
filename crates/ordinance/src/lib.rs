@@ -137,11 +137,13 @@ pub fn load_ordinance<P: AsRef<std::path::Path> + std::fmt::Debug>(
     tracing::trace!("Starting a transaction");
     let conn = database.transaction().unwrap();
 
-    let commit_id: usize = conn.query_row(
-        "INSERT INTO bookkeeper (hash, username) VALUES (?, ?) RETURNING id",
-        ["dummy hash".to_string(), username.to_string()],
-        |row| row.get(0),
-    ).expect("Failed to insert into bookkeeper");
+    let commit_id: usize = conn
+        .query_row(
+            "INSERT INTO bookkeeper (hash, username) VALUES (?, ?) RETURNING id",
+            ["dummy hash".to_string(), username.to_string()],
+            |row| row.get(0),
+        )
+        .expect("Failed to insert into bookkeeper");
 
     tracing::debug!("Commit id: {:?}", commit_id);
 
@@ -164,7 +166,8 @@ pub fn load_ordinance<P: AsRef<std::path::Path> + std::fmt::Debug>(
     tracing::debug!("Transaction committed");
 
     tracing::trace!("Ordinance: {:?}", ordinance);
-    rt.block_on(ordinance.push(&mut database, commit_id)).unwrap();
+    rt.block_on(ordinance.push(&mut database, commit_id))
+        .unwrap();
 
     /*
     let mut rdr = csv::Reader::from_path(raw_filename).unwrap();
