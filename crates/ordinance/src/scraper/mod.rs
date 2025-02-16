@@ -210,10 +210,10 @@ mod tests {
         ScrappedOrdinance::init_db(&conn).unwrap();
         let username = "test";
         let commit_id: usize = conn.query_row(
-            "INSERT INTO bookkeeping (hash, username) VALUES (?, ?) RETURNING id",
+            "INSERT INTO bookkeeper (hash, username) VALUES (?, ?) RETURNING id",
             ["dummy hash".to_string(), username.to_string()],
             |row| row.get(0),
-            ).expect("Failed to insert into bookkeeping");
+            ).expect("Failed to insert into bookkeeper");
         conn.commit().unwrap();
         demo.push(&mut db, commit_id).await.unwrap();
 

@@ -28,7 +28,7 @@ impl ScrapperConfig {
             CREATE TABLE IF NOT EXISTS scrapper_config (
               id INTEGER PRIMARY KEY DEFAULT
                 NEXTVAL('scrapper_config_sequence'),
-              bookkeeping_lnk INTEGER REFERENCES bookkeeping(id) NOT NULL,
+              bookkeeper_lnk INTEGER REFERENCES bookkeeper(id) NOT NULL,
               model TEXT NOT NULL,
               llm_service_rate_limit INTEGER,
               extra TEXT,
@@ -86,7 +86,7 @@ impl ScrapperConfig {
     pub(super) fn write(&self, conn: &duckdb::Transaction, commit_id: usize) -> Result<()> {
         tracing::trace!("Writing ScrapperConfig to the database {:?}", self);
         conn.execute(
-            "INSERT INTO scrapper_config (bookkeeping_lnk, model, llm_service_rate_limit, extra) VALUES (?, ?, ?, ?)",
+            "INSERT INTO scrapper_config (bookkeeper_lnk, model, llm_service_rate_limit, extra) VALUES (?, ?, ?, ?)",
             [
                 commit_id.to_string(),
                 self.model.to_string(),

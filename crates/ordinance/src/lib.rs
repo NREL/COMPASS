@@ -45,9 +45,9 @@ pub fn init_db(path: &str) -> Result<()> {
      */
     db.execute_batch(
         "BEGIN;
-    CREATE SEQUENCE bookkeeping_sequence START 1;
-    CREATE TABLE bookkeeping (
-        id INTEGER PRIMARY KEY DEFAULT NEXTVAL('bookkeeping_sequence'),
+    CREATE SEQUENCE bookkeeper_sequence START 1;
+    CREATE TABLE bookkeeper (
+        id INTEGER PRIMARY KEY DEFAULT NEXTVAL('bookkeeper_sequence'),
         hash TEXT NOT NULL,
         created_at TIMESTAMP NOT NULL DEFAULT NOW(),
         username TEXT,
@@ -58,7 +58,7 @@ pub fn init_db(path: &str) -> Result<()> {
     CREATE SEQUENCE source_sequence START 1;
     CREATE TABLE source (
       id INTEGER PRIMARY KEY DEFAULT NEXTVAL('source_sequence'),
-      bookkeeping_lnk INTEGER REFERENCES bookkeeping(id) NOT NULL,
+      bookkeeper_lnk INTEGER REFERENCES bookkeeper(id) NOT NULL,
       name TEXT NOT NULL,
       hash TEXT NOT NULL,
       origin TEXT,
@@ -74,7 +74,7 @@ pub fn init_db(path: &str) -> Result<()> {
     CREATE TYPE jurisdiction_rank AS ENUM ('state', 'county', 'city', 'town', 'CCD', 'reservation', 'other');
     CREATE TABLE jurisdiction (
       id INTEGER PRIMARY KEY DEFAULT NEXTVAL('jurisdiction_sequence'),
-      bookkeeping_lnk INTEGER REFERENCES bookkeeping(id) NOT NULL,
+      bookkeeper_lnk INTEGER REFERENCES bookkeeper(id) NOT NULL,
       name TEXT NOT NULL,
       FIPS INTEGER NOT NULL,
       geometry GEOMETRY NOT NULL,
@@ -132,16 +132,16 @@ pub fn load_ordinance<P: AsRef<std::path::Path> + std::fmt::Debug>(
     username: &String,
     ordinance_path: P,
 ) -> Result<()> {
-    // insert into bookkeeping (hash, username) and get the pk to be used in all the following
+    // insert into bookkeeper (hash, username) and get the pk to be used in all the following
     // inserts.
     tracing::trace!("Starting a transaction");
     let conn = database.transaction().unwrap();
 
     let commit_id: usize = conn.query_row(
-        "INSERT INTO bookkeeping (hash, username) VALUES (?, ?) RETURNING id",
+        "INSERT INTO bookkeeper (hash, username) VALUES (?, ?) RETURNING id",
         ["dummy hash".to_string(), username.to_string()],
         |row| row.get(0),
-    ).expect("Failed to insert into bookkeeping");
+    ).expect("Failed to insert into bookkeeper");
 
     tracing::debug!("Commit id: {:?}", commit_id);
 
