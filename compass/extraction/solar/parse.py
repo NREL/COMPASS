@@ -181,7 +181,7 @@ class StructuredSolarOrdinanceParser(BaseLLMCaller):
 
         base_messages = await self._base_messages(text, **feature_kwargs)
         if not found_ord(base_messages):
-            logger.debug("Failed `_found_ord` check for feature %r", feature)
+            logger.debug("Failed `found_ord` check for feature %r", feature)
             return empty_output(feature)
 
         if feature not in {"struct", "prop_line"}:
