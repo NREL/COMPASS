@@ -28,6 +28,7 @@ impl ScrapperConfig {
             CREATE TABLE IF NOT EXISTS scrapper_config (
               id INTEGER PRIMARY KEY DEFAULT
                 NEXTVAL('scrapper_config_sequence'),
+              bookkeeping_lnk INTEGER REFERENCES bookkeeping(id) NOT NULL,
               model TEXT NOT NULL,
               llm_service_rate_limit INTEGER,
               extra TEXT,

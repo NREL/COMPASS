@@ -29,6 +29,7 @@ impl ScrapperUsage {
             CREATE SEQUENCE usage_sequence START 1;
             CREATE TABLE usage (
               id INTEGER PRIMARY KEY DEFAULT NEXTVAL('usage_sequence'),
+              bookkeeping_lnk INTEGER REFERENCES bookkeeping(id) NOT NULL,
               total_time FLOAT NOT NULL,
               extra TEXT,
               created_at TIMESTAMP NOT NULL DEFAULT NOW(),
