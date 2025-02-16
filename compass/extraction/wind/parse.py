@@ -44,11 +44,12 @@ RESTRICTIONS_SYSTEM_MESSAGE = (
     "energy systems."
 )
 EXTRA_RESTRICTIONS_TO_CHECK = {
-    "noise": "maximum noise level",
-    "max height": "maximum turbine height",
-    "min lot size": "minimum lot size",
-    "shadow flicker": "maximum shadow flicker",
-    "density": "maximum turbine spacing",
+    "noise": "maximum noise level allowed",
+    "max height": "maximum turbine height allowed",
+    "min lot size": "minimum lot size allowed",
+    "shadow flicker": "maximum shadow flicker allowed",
+    "density": "maximum turbine spacing allowed",
+    "decommissioning": "decommissioning requirement(s)",
 }
 
 
