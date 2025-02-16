@@ -8,6 +8,7 @@ from .parse import StructuredSolarOrdinanceParser
 
 
 SOLAR_QUESTION_TEMPLATES = [
+    "filetype:pdf {location} solar energy conversion system zoning ordinances",
     "solar energy conversion system zoning ordinances {location}",
     "{location} solar energy farm zoning ordinance",
     "Where can I find the legal text for commercial solar energy "
