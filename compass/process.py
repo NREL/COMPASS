@@ -4,23 +4,23 @@ import time
 import json
 import asyncio
 import logging
-from datetime import datetime, timedelta
 from pathlib import Path
 from functools import partial
 from collections import namedtuple
+from datetime import datetime, timedelta
 
 import openai
 import pandas as pd
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 from elm import ApiBase
 from elm.utilities import validate_azure_api_params
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 from compass.download import download_county_ordinance
+from compass.exceptions import COMPASSValueError
 from compass.extraction import (
     extract_ordinance_values,
     extract_ordinance_text_with_ngram_validation,
 )
-
 from compass.extraction.solar import (
     SolarOrdinanceValidator,
     SolarOrdinanceTextExtractor,
@@ -56,7 +56,6 @@ from compass.utilities.queued_logging import (
     LogListener,
     NoLocationFilter,
 )
-from compass.exceptions import COMPASSValueError
 
 
 logger = logging.getLogger(__name__)
