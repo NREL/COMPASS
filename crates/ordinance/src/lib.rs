@@ -93,23 +93,15 @@ pub fn init_db(path: &str) -> Result<()> {
     COMMIT;",
     )?;
 
-    trace!("Database initialized");
+    let conn = db.transaction()?;
+    scraper::ScrappedOrdinance::init_db(&conn)?;
+    conn.commit()?;
 
     println!("{}", db.is_autocommit());
+
+    trace!("Database initialized");
     Ok(())
 }
-
-/*
-#[allow(dead_code)]
-pub(crate) fn load_ordinance<P: AsRef<std::path::Path> + std::fmt::Debug>(
-    database: duckdb::Connection,
-    ordinance_path: P,
-) -> Result<()> {
-    let ordinance = scraper::ScrappedOrdinance::open(ordinance_path)?;
-
-    OK(())
-}
-*/
 
 #[allow(dead_code)]
 /// Scan and load features from a CSV file
