@@ -124,50 +124,28 @@ pub fn load_ordinance<P: AsRef<std::path::Path> + std::fmt::Debug>(
     );
     tracing::debug!("Commit id: {:?}", commit_id);
 
+    /*
     dbg!(&ordinance_path);
     let raw_filename = ordinance_path.as_ref().join("ord_db.csv");
     dbg!(&raw_filename);
     dbg!("========");
+    */
 
     let rt = tokio::runtime::Builder::new_current_thread()
         .enable_all()
         .build()
         .unwrap();
+
     let ordinance = rt
         .block_on(scraper::ScrappedOrdinance::open(ordinance_path))
         .unwrap();
-    dbg!(&ordinance);
+    conn.commit().unwrap();
+    tracing::debug!("Transaction committed");
+
+    tracing::trace!("Ordinance: {:?}", ordinance);
+    rt.block_on(ordinance.push(&mut database)).unwrap();
+
     /*
-    let scrapper_config = rt.block_on(ordinance.config()).unwrap();
-    let scrapper_usage = rt.block_on(ordinance.usage()).unwrap();
-    dbg!(&scrapper_usage);
-
-    let conn = database;
-
-    let mut stmt = conn
-        .prepare_cached(
-            "INSERT INTO usage_run (bookkeeping_lnk, total_time, extra) VALUES (?, ?, ?)",
-        )
-        .unwrap();
-    stmt.execute([
-        "1".to_string(),
-        scrapper_usage.total_time.to_string(),
-        scrapper_usage.extra,
-    ])
-    .unwrap();
-
-    let mut stmt = conn
-        .prepare_cached(
-            "INSERT INTO scrapper_config (model, llm_service_rate_limit, extra) VALUES (?, ?, ?)",
-        )
-        .unwrap();
-    stmt.execute([
-        scrapper_config.model,
-        scrapper_config.llm_service_rate_limit.to_string(),
-        scrapper_config.extra,
-    ])
-    .unwrap();
-
     let mut rdr = csv::Reader::from_path(raw_filename).unwrap();
     let mut stmt = conn.prepare_cached("INSERT INTO property (county, state, FIPS, feature, fixed_value, mult_value, mult_type, adder, min_dist, max_dist, value, units, ord_year, last_updated, section, source, comments) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").unwrap();
     for result in rdr.records() {
@@ -197,9 +175,6 @@ pub fn load_ordinance<P: AsRef<std::path::Path> + std::fmt::Debug>(
 
     */
     //let df = polars::io::csv::read::CsvReadOptions::default().with_has_header(true).try_into_reader_with_file_path(Some("sample.csv".into())).unwrap().finish();
-
-    conn.commit().unwrap();
-    tracing::debug!("Transaction committed");
 
     Ok(())
 }
