@@ -44,7 +44,9 @@ impl ScrapperConfig {
         let path = root.as_ref().join("config.json");
         if !path.exists() {
             tracing::error!("Missing configuration file: {:?}", path);
-            return Err(crate::error::Error::Undefined("Missing configuration file".to_string()));
+            return Err(crate::error::Error::Undefined(
+                "Missing configuration file".to_string(),
+            ));
         }
 
         tracing::trace!("Identified ScrapperConfig at {:?}", path);

@@ -65,7 +65,9 @@ impl ScrapperUsage {
         let path = root.as_ref().join("usage.json");
         if !path.exists() {
             tracing::error!("Missing usage file: {:?}", path);
-            return Err(crate::error::Error::Undefined("Missing usage file".to_string()));
+            return Err(crate::error::Error::Undefined(
+                "Missing usage file".to_string(),
+            ));
         }
 
         tracing::trace!("Identified ScrapperUsage at {:?}", path);
