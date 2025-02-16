@@ -112,7 +112,7 @@ pub fn load_ordinance<P: AsRef<std::path::Path> + std::fmt::Debug>(
     mut database: duckdb::Connection,
     username: &String,
     ordinance_path: P,
-) {
+) -> Result<()> {
     // insert into bookkeeping (hash, username) and get the pk to be used in all the following
     // inserts.
     let conn = database.transaction().unwrap();
