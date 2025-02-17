@@ -30,8 +30,9 @@ RESTRICTIONS = """- buildings / structures / residences
 - maximum project size
 - moratorium or bans
 - decommissioning plans/requirements
-- coverage limits
+- land coverage limits
 - glare limits
+- visual impact assessment requirements
 """
 MIN_CHARS_IN_VALID_CHUNK = 20
 

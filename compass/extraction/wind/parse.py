@@ -56,6 +56,7 @@ EXTRA_NUMERICAL_RESTRICTIONS = {
 }
 EXTRA_QUALITATIVE_RESTRICTIONS = {
     "decommissioning": "decommissioning requirement(s)",
+    "visual impact": "visual impact assessment requirement(s)",
 }
 
 

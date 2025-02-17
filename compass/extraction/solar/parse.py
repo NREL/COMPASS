@@ -51,12 +51,13 @@ EXTRA_NUMERICAL_RESTRICTIONS = {
     "max size": "maximum project spacing allowed",
     "min lot size": "minimum lot size allowed",
     "density": "maximum panel spacing allowed",
-    "coverage": "maximum coverage allowed",
+    "coverage": "maximum land coverage allowed",
 }
 EXTRA_QUALITATIVE_RESTRICTIONS = {
     "moratorium": "moratorium or ban",
     "decommissioning": "decommissioning requirement(s)",
     "glare": "glare restriction",
+    "visual impact": "visual impact assessment requirement(s)",
 }
 
 
