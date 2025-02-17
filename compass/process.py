@@ -86,7 +86,7 @@ LLMParseArgs = namedtuple(
         "text_splitter_chunk_size",
         "text_splitter_chunk_overlap",
     ],
-    defaults=["gpt-4", None, 4000, 3000, 300],
+    defaults=["gpt-4", None, 4000, 10_000, 1000],
 )
 WebSearchParams = namedtuple(
     "WebSearchParams",
@@ -136,8 +136,8 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
     azure_endpoint=None,
     llm_call_kwargs=None,
     llm_service_rate_limit=4000,
-    text_splitter_chunk_size=3000,
-    text_splitter_chunk_overlap=300,
+    text_splitter_chunk_size=10_000,
+    text_splitter_chunk_overlap=1000,
     num_urls_to_check_per_county=5,
     max_num_concurrent_browsers=10,
     file_loader_kwargs=None,
@@ -188,13 +188,17 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         Token rate limit of LLm service being used (OpenAI).
         By default, ``4000``.
     text_splitter_chunk_size : int, optional
-        Chunk size input to
-        `langchain.text_splitter.RecursiveCharacterTextSplitter`.
-        By default, ``3000``.
+        Chunk size used to split the ordinance text. Parsing is
+        performed on each individual chunk. Units are in token count of
+        the model in charge of parsing ordinance text. Keeping this
+        value low can help reduce token usage since (free) heuristics
+        checks may be able to throw away irrelevant chunks of text
+        before passing to the LLM. By default, ``10000``.
     text_splitter_chunk_overlap : int, optional
-        Chunk overlap input to
-        `langchain.text_splitter.RecursiveCharacterTextSplitter`.
-        By default, ``300``.
+        Overlap of consecutive chunks of the ordinance text. Parsing is
+        performed on each individual chunk. Units are in token count of
+        the model in charge of parsing ordinance text.
+        By default, ``1000``.
     num_urls_to_check_per_county : int, optional
         Number of unique Google search result URL's to check for
         ordinance document. By default, ``5``.
