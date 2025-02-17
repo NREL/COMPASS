@@ -530,8 +530,8 @@ async def process_county_with_logging(
         except KeyboardInterrupt:
             raise
         except Exception:
-            msg = "Encountered error while processing %s:", county.full_name
-            logger.exception(msg)
+            msg = "Encountered error while processing %s:"
+            logger.exception(msg, county.full_name)
             doc = None
 
         return doc
