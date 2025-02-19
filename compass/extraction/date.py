@@ -52,10 +52,25 @@ class DateExtractor:
             3-tuple containing year, month, day, or ``None`` if any of
             those are not found.
         """
-        all_years = []
+        if url := doc.metadata.get("source"):
+            logger.debug("Checking URL for date: %s", url)
+            response = await self.slc.call(
+                sys_msg=self.SYSTEM_MESSAGE,
+                content=(
+                    "Please extract the date from the URL for this "
+                    f"ordinance, if possible:\n{url}"
+                ),
+                usage_sub_label="date_extraction",
+            )
+            if response:
+                date = _parse_date([response])
+                logger.debug("Parsed date from URL: %s", str(date))
+                return date
+
         if not doc.raw_pages:
             return None, None, None
 
+        all_years = []
         for text in doc.raw_pages:
             if not text:
                 continue
