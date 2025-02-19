@@ -73,6 +73,7 @@ async def download_county_ordinance(
         browser_semaphore,
         **(file_loader_kwargs or {}),
     )
+    # return _sort_final_ord_docs(docs)
     docs = await _down_select_docs_correct_location(
         docs, location=location, **kwargs
     )
