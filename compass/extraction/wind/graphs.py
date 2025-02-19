@@ -79,14 +79,15 @@ def setup_multiplier(**kwargs):
     G.add_node(
         "init",
         prompt=(
-            "We will attempt to extract structured data for this ordinance. "
             "Does the text mention a multiplier that should be applied to a "
             "turbine dimension (e.g. height, rotor diameter, etc) to compute "
-            "the setback distance from {feature}? Ignore any text related to "
-            "{ignore_features}. Remember that 1 is a valid multiplier, and "
-            "treat any mention of 'fall zone' as a system height multiplier "
-            "of 1. Begin your response with either 'Yes' or 'No' and explain "
-            "your answer."
+            "the setback distance from {feature}? "
+            "Focus only on {feature}; do not respond based on any text "
+            "related to {ignore_features}."
+            "Remember that 1 is a valid multiplier, and treat any mention "
+            "of 'fall zone' as a system height multiplier of 1. "
+            "Please start your response with either 'Yes' or 'No' and "
+            "explain your answer."
         ),
     )
     G.add_edge("init", "no_multiplier", condition=llm_response_starts_with_no)
@@ -101,8 +102,8 @@ def setup_multiplier(**kwargs):
     G.add_node(
         "out_static",
         prompt=(
-            "Now we are ready to extract structured data. Respond based on "
-            "our entire conversation so far. Return your answer in JSON "
+            "Please respond based on our entire conversation so far. "
+            "Return your answer in JSON "
             "format (not markdown). Your JSON file must include exactly "
             'five keys. The keys are "value", "units", "summary", '
             '"section", and "comment". The value of the "value" key '
@@ -157,9 +158,8 @@ def setup_multiplier(**kwargs):
     G.add_node(
         "adder_eq",
         prompt=(
-            "We are only interested in adders that satisfy the following "
-            "equation: 'multiplier * turbine_dimension + <adder>'. Does the "
-            "adder value you identified satisfy this equation? Begin your "
+            "Does the adder value you identified satisfy the following "
+            "equation: 'multiplier * height + <adder>'? Please begin your "
             "response with either 'Yes' or 'No' and explain your answer."
         ),
     )
@@ -183,8 +183,8 @@ def setup_multiplier(**kwargs):
     G.add_node(
         "out_m",
         prompt=(
-            "Now we are ready to extract structured data. Respond based on "
-            "our entire conversation so far. Return your answer in JSON "
+            "Please respond based on our entire conversation so far. "
+            "Return your answer in JSON "
             "format (not markdown). Your JSON file must include exactly six "
             'keys. The keys are "mult_value", "mult_type", "adder", '
             '"summary", "section", and "comment". The value of the '
@@ -226,7 +226,6 @@ def setup_conditional(**kwargs):
     G.add_node(
         "init",
         prompt=(
-            "We will attempt to extract structured data for this ordinance. "
             "Does the setback from {feature} mention a minimum or maximum "
             "static setback distance regardless of the outcome of the "
             "multiplier calculation? This is often phrased as 'the greater "
@@ -252,15 +251,16 @@ def setup_conditional(**kwargs):
     G.add_node(
         "out_condition",
         prompt=(
-            "Now we are ready to extract structured data. Respond based "
-            "on our entire conversation so far. Return your answer in JSON "
+            "Please respond based on our entire conversation so far. "
+            "Return your answer in JSON "
             "format (not markdown). Your JSON file must include exactly two "
             'keys. The keys are "min_dist" and "max_dist". The value of the '
             '"min_dist" key should be a numerical value corresponding to the '
             "minimum setback value from {feature} we determined earlier, or "
             '`null` if no such value exists. The value of the "max_dist" key '
             "should be a numerical value corresponding to the maximum setback "
-            "value from {feature} we determined earlier, or `null` if no such "
+            "value from {feature}  we "
+            "determined earlier, or `null` if no such "
             "value exists."
         ),
     )
