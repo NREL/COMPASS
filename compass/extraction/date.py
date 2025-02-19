@@ -102,4 +102,6 @@ def _parse_date_element(json_list, key, max_len, min_val, max_val):
     ]
     if not date_elements:
         return -1 * float("inf")
-    return max(date_elements)
+    return max(
+        sorted(set(date_elements), reverse=True), key=date_elements.count
+    )
