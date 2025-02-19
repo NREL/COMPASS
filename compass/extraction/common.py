@@ -14,11 +14,6 @@ _SECTION_PROMPT = (
     "title of the section (including numerical labels), if it's given, "
     "and `null` otherwise."
 )
-_COMMENT_PROMPT = (
-    'The value of the "comment" key should be a one-sentence explanation '
-    "of how you determined the value, if you think it is necessary "
-    "(`null` otherwise)."
-)
 _SUMMARY_PROMPT = (
     'The value of the "summary" key should be a two-sentence short summary '
     "of the ordinance, quoting the text directly if possible."
@@ -42,7 +37,6 @@ def setup_graph_no_nodes(**kwargs):
     """
     return nx.DiGraph(
         SECTION_PROMPT=_SECTION_PROMPT,
-        COMMENT_PROMPT=_COMMENT_PROMPT,
         SUMMARY_PROMPT=_SUMMARY_PROMPT,
         **kwargs,
     )
@@ -284,8 +278,8 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
                 "Please respond based on our entire conversation so far. "
                 "Return your answer in "
                 "JSON format (not markdown). Your JSON file must include "
-                'exactly five keys. The keys are "value", "units", "summary", '
-                '"section", and "comment". The value of the "value" key '
+                'exactly four keys. The keys are "value", "units", "summary", '
+                'and "section". The value of the "value" key '
                 "should be a numerical value corresponding to the "
                 "{restriction} for {tech}, or `null` if the text does not "
                 "mention such a restriction. Use our conversation to fill "
@@ -294,7 +288,7 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
                 "allowed for {tech} by the text below, or `null` if the text "
                 "does not mention such a restriction. Make sure to include "
                 'any "per XXX" clauses in the units. {SUMMARY_PROMPT} '
-                "{SECTION_PROMPT} {COMMENT_PROMPT}"
+                "{SECTION_PROMPT}"
             ),
         )
     else:
@@ -304,8 +298,8 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
                 "Please respond based on our entire conversation so far. "
                 "Return your answer in "
                 "JSON format (not markdown). Your JSON file must include "
-                'exactly three keys. The keys are "summary", "section", and '
-                '"comment". {SUMMARY_PROMPT} {SECTION_PROMPT} {COMMENT_PROMPT}'
+                'exactly two keys. The keys are "summary" and "section. '
+                "{SUMMARY_PROMPT} {SECTION_PROMPT}"
             ),
         )
     return G

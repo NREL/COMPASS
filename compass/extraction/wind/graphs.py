@@ -105,14 +105,14 @@ def setup_multiplier(**kwargs):
             "Please respond based on our entire conversation so far. "
             "Return your answer in JSON "
             "format (not markdown). Your JSON file must include exactly "
-            'five keys. The keys are "value", "units", "summary", '
-            '"section", and "comment". The value of the "value" key '
+            'four keys. The keys are "value", "units", "summary", and '
+            '"section". The value of the "value" key '
             "should be a numerical value corresponding to the setback "
             "distance value from {feature} or `null` if there was no such "
             'value. The value of the "units" key should be a string '
             "corresponding to the units of the setback distance value from "
             "{feature} or `null` if there was no such value. {SUMMARY_PROMPT} "
-            "{SECTION_PROMPT} {COMMENT_PROMPT}"
+            "{SECTION_PROMPT}"
         ),
     )
     G.add_edge("init", "m_single", condition=llm_response_starts_with_yes)
@@ -185,9 +185,9 @@ def setup_multiplier(**kwargs):
         prompt=(
             "Please respond based on our entire conversation so far. "
             "Return your answer in JSON "
-            "format (not markdown). Your JSON file must include exactly six "
+            "format (not markdown). Your JSON file must include exactly five "
             'keys. The keys are "mult_value", "mult_type", "adder", '
-            '"summary", "section", and "comment". The value of the '
+            '"summary", and "section". The value of the '
             '"mult_value" key should be a numerical value corresponding to '
             "the multiplier value we determined earlier. The value of the "
             '"mult_type" key should be a string corresponding to the '
@@ -196,7 +196,7 @@ def setup_multiplier(**kwargs):
             "numerical value corresponding to the static value to be added "
             "to the total setback distance after multiplication, as we "
             "determined earlier, or `null` if there is no such value. "
-            "{SUMMARY_PROMPT} {SECTION_PROMPT} {COMMENT_PROMPT}"
+            "{SUMMARY_PROMPT} {SECTION_PROMPT}"
         ),
     )
 

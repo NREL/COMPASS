@@ -100,14 +100,13 @@ def setup_multiplier(**kwargs):
             "Please respond based on our entire conversation so far. "
             "Return your answer in JSON "
             "format (not markdown). Your JSON file must include exactly "
-            'five keys. The keys are "value", "units", "summary", "section", '
-            'and "comment". The value of the "value" key should be a '
+            'four keys. The keys are "value", "units", "summary", and '
+            'and "section". The value of the "value" key should be a '
             "numerical value corresponding to the setback distance value "
             "from {feature} or `null` if there was no such value. The value "
             'of the "units" key should be a string corresponding to the units '
             "of the setback distance value from {feature} or `null` if there "
             "was no such value. {SUMMARY_PROMPT} {SECTION_PROMPT} "
-            "{COMMENT_PROMPT}"
         ),
     )
     G.add_edge("init", "m_single", condition=llm_response_starts_with_yes)
@@ -167,15 +166,15 @@ def setup_multiplier(**kwargs):
         prompt=(
             "Please respond based on our entire conversation so far. "
             "Return your answer in JSON "
-            "format (not markdown). Your JSON file must include exactly five "
-            'keys. The keys are "mult_value", "adder", "summary", "section", '
-            'and "comment". The value of the "mult_value" key should be a '
+            "format (not markdown). Your JSON file must include exactly four "
+            'keys. The keys are "mult_value", "adder", "summary", and '
+            '"section". The value of the "mult_value" key should be a '
             "numerical value corresponding to the multiplier value we "
             'determined earlier. The value of the "adder" key should be a '
             "numerical value corresponding to the static value to be added "
             "to the total setback distance after multiplication, as we "
             "determined earlier, or `null` if there is no such value. "
-            "{SUMMARY_PROMPT} {SECTION_PROMPT} {COMMENT_PROMPT}"
+            "{SUMMARY_PROMPT} {SECTION_PROMPT}"
         ),
     )
 
