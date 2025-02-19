@@ -263,8 +263,8 @@ class SolarOrdinanceTextExtractor:
         "of the original text directly."
     )
     MODEL_INSTRUCTIONS_RESTRICTIONS = (
-        "Extract all portions of the text related to restrictions for"
-        "large solar energy systems with respect to the following:\n"
+        "Extract all portions of the text related to the restrictions "
+        "of large solar energy systems with respect to any of the following:\n"
         f"{RESTRICTIONS}"
         "Include section headers (if any) for the text excerpts. Also include "
         "any text excerpts that define what kind of large solar energy "
