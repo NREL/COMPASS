@@ -22,7 +22,9 @@ class DateExtractor:
         "that information cannot be found in the text. The fourth key is "
         "'day', which should contain an integer value that represents the "
         "latest day of the month this ordinance was enacted/updated, or null "
-        "if that information cannot be found in the text."
+        "if that information cannot be found in the text. Only provide values "
+        "if you are confident that they represent the latest date this "
+        "ordinance was enacted/updated"
     )
 
     def __init__(self, structured_llm_caller):
