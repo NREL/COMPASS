@@ -24,8 +24,8 @@ _SUMMARY_PROMPT = (
     "of the ordinance, quoting the text directly if possible."
 )
 EXTRACT_ORIGINAL_TEXT_PROMPT = (
-    "Can you extract the raw text with original formatting "
-    "that states how close I can site {tech} to {feature}? "
+    "Extract all portions of the text (with original formatting) "
+    "that state how close I can site {tech} to {feature}"
 )
 
 
@@ -230,8 +230,8 @@ def setup_participating_owner(**kwargs):
     G.add_node(
         "final",
         prompt=(
-            "Now we are ready to extract structured data. Respond based on "
-            "our entire conversation so far. Return your answer in JSON "
+            "Please respond based on our entire conversation so far. "
+            "Return your answer in JSON "
             "format (not markdown). Your JSON file must include exactly two "
             'keys. The keys are "participating" and "non-participating". The '
             'value of the "participating" key should be a string containing '
@@ -266,7 +266,6 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
     G.add_node(
         "init",
         prompt=(
-            "We will attempt to extract structured data for this ordinance. "
             "Does the following text explicitly mention {restriction} for "
             "{tech}? Do not infer based on other restrictions; if this "
             "particular restriction is not explicitly mentioned then say "
@@ -282,8 +281,8 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
         G.add_node(
             "final",
             prompt=(
-                "Now we are ready to extract structured data. Respond based "
-                "on our entire conversation so far. Return your answer in "
+                "Please respond based on our entire conversation so far. "
+                "Return your answer in "
                 "JSON format (not markdown). Your JSON file must include "
                 'exactly five keys. The keys are "value", "units", "summary", '
                 '"section", and "comment". The value of the "value" key '
@@ -302,8 +301,8 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
         G.add_node(
             "final",
             prompt=(
-                "Now we are ready to extract structured data. Respond based "
-                "on our entire conversation so far. Return your answer in "
+                "Please respond based on our entire conversation so far. "
+                "Return your answer in "
                 "JSON format (not markdown). Your JSON file must include "
                 'exactly three keys. The keys are "summary", "section", and '
                 '"comment". {SUMMARY_PROMPT} {SECTION_PROMPT} {COMMENT_PROMPT}'
