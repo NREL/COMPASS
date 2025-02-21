@@ -34,7 +34,7 @@ pub(super) struct UsageValues {
     response_tokens: u32,
 }
 
-impl ScrapperUsage {
+impl Usage {
     pub(super) fn init_db(conn: &duckdb::Transaction) -> Result<()> {
         tracing::trace!("Initializing database for ScrapperUsage");
         conn.execute_batch(
@@ -74,7 +74,7 @@ impl ScrapperUsage {
     }
 
     pub(super) async fn open<P: AsRef<std::path::Path>>(root: P) -> Result<Self> {
-        tracing::trace!("Opening ScrapperUsage from {:?}", root.as_ref());
+        tracing::trace!("Opening Usage from {:?}", root.as_ref());
 
         let path = root.as_ref().join("usage.json");
         if !path.exists() {
@@ -84,7 +84,7 @@ impl ScrapperUsage {
             ));
         }
 
-        tracing::trace!("Identified ScrapperUsage at {:?}", path);
+        tracing::trace!("Identified Usage at {:?}", path);
 
         let file = std::fs::File::open(path);
         let mut reader = std::io::BufReader::new(file.unwrap());
@@ -92,7 +92,7 @@ impl ScrapperUsage {
         let _ = reader.read_to_string(&mut buffer);
 
         let usage = Self::from_json(&buffer)?;
-        tracing::trace!("ScrapperUsage loaded: {:?}", usage);
+        tracing::trace!("Usage loaded: {:?}", usage);
 
         Ok(usage)
     }
