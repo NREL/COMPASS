@@ -36,23 +36,24 @@ pub(super) struct UsageValues {
 
 impl Usage {
     pub(super) fn init_db(conn: &duckdb::Transaction) -> Result<()> {
-        tracing::trace!("Initializing database for ScrapperUsage");
+        tracing::trace!("Initializing database for Usage");
         conn.execute_batch(
             r"
             CREATE SEQUENCE usage_sequence START 1;
-            CREATE TABLE usage (
+            CREATE TABLE IF NOT EXISTS usage (
               id INTEGER PRIMARY KEY DEFAULT NEXTVAL('usage_sequence'),
               bookkeeper_lnk INTEGER REFERENCES bookkeeper(id) NOT NULL,
               total_time FLOAT NOT NULL,
-              extra TEXT,
               created_at TIMESTAMP NOT NULL DEFAULT NOW(),
               );
 
             CREATE SEQUENCE usage_per_item_sequence START 1;
-            CREATE TABLE usage_per_item(
+            CREATE TABLE IF NOT EXISTS usage_per_item(
               id INTEGER PRIMARY KEY DEFAULT NEXTVAL('usage_per_item_sequence'),
-              /* connection with file */
+              name TEXT NOT NULL,
+              /* connection with file
               jurisdiction_lnk INTEGER REFERENCES jurisdiction(id) NOT NULL,
+              */
               total_time FLOAT,
               total_requests INTEGER NOT NULL,
               total_prompt_tokens INTEGER NOT NULL,
@@ -60,7 +61,7 @@ impl Usage {
               );
 
             CREATE SEQUENCE usage_event_sequence START 1;
-            CREATE TABLE usage_event (
+            CREATE TABLE IF NOT EXISTS usage_event (
               id INTEGER PRIMARY KEY DEFAULT NEXTVAL('usage_event_sequence'),
               usage_per_item_lnk INTEGER REFERENCES usage_per_item(id) NOT NULL,
               event TEXT NOT NULL,
