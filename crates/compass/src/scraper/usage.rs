@@ -1,23 +1,37 @@
 //! Parse and handle the Scrapper usage information
 
+use std::collections::HashMap;
 use std::io::Read;
 
 use crate::error::Result;
 
 #[allow(dead_code)]
 #[derive(Debug, serde::Deserialize)]
-struct UsageValues {
-    //event: String,
-    request: u32,
-    prompt_tokens: u32,
-    response_tokens: u32,
+pub(super) struct Usage {
+    pub(super) total_time_seconds: f64,
+    pub(super) total_time: String,
+
+    #[serde(flatten)]
+    pub(super) jurisdiction: HashMap<String, UsagePerItem>,
 }
 
 #[allow(dead_code)]
 #[derive(Debug, serde::Deserialize)]
-pub(crate) struct ScrapperUsage {
-    pub(crate) total_time: f64,
-    pub(crate) extra: String,
+pub(super) struct UsagePerItem {
+    total_time_seconds: f64,
+    total_time: String,
+
+    #[serde(flatten)]
+    events: HashMap<String, UsageValues>,
+}
+
+#[allow(dead_code)]
+#[derive(Debug, serde::Deserialize)]
+pub(super) struct UsageValues {
+    //event: String,
+    requests: u32,
+    prompt_tokens: u32,
+    response_tokens: u32,
 }
 
 impl ScrapperUsage {
