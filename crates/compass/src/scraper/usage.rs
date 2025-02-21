@@ -186,8 +186,8 @@ mod test_scrapper_usage {
 
     #[test]
     fn parse_json() {
-        let usage = super::ScrapperUsage::from_json(&as_text_v1()).unwrap();
+        let usage = super::Usage::from_json(&as_text_v1()).unwrap();
 
-        assert!((usage.total_time - 294.69257712364197).abs() <= f64::EPSILON);
+        assert!((usage.total_time_seconds - 294.69257712364197).abs() <= f64::EPSILON);
     }
 }
