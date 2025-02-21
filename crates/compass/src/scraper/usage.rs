@@ -100,12 +100,9 @@ impl Usage {
 
     #[allow(dead_code)]
     pub(super) fn from_json(json: &str) -> Result<Self> {
-        let mut v: serde_json::Map<String, serde_json::Value> = serde_json::from_str(json).unwrap();
-
-        let total_time = v.remove("total_time_seconds").unwrap().as_f64().unwrap();
-        let extra = serde_json::to_string(&v).unwrap();
-
-        Ok(Self { total_time, extra })
+        tracing::trace!("Parsing Usage as JSON");
+        let usage: Usage = serde_json::from_str(json).unwrap();
+        Ok(usage)
     }
 
     pub(super) fn write(&self, conn: &duckdb::Transaction, commit_id: usize) -> Result<()> {
