@@ -1,4 +1,8 @@
-//! Parse and handle the Scrapper usage information
+//! All the context for the scrapper usage data
+//!
+//! This module provides support to parse, define the required database
+//! structure and record data in the database. All the context specific
+//! for the scrapper usage is defined here.
 
 use std::collections::HashMap;
 use std::io::Read;
@@ -7,6 +11,11 @@ use crate::error::Result;
 
 #[allow(dead_code)]
 #[derive(Debug, serde::Deserialize)]
+/// Scrapper usage data
+///
+/// This top level structure contains all the usage information for a single
+/// run of the scrapper. Given one run can contain multiple targets, each
+/// target is one item in the jurisdiction item.
 pub(super) struct Usage {
     pub(super) total_time_seconds: f64,
     pub(super) total_time: String,
@@ -17,6 +26,12 @@ pub(super) struct Usage {
 
 #[allow(dead_code)]
 #[derive(Debug, serde::Deserialize)]
+/// Scraper usage for a single target
+///
+/// Holds the usage information for a single target of a single run of the
+/// scrapper. Each item has the totals as well as the information for specific
+/// components such as 'data extraction' or 'document validation'. All the
+/// components are stored in the `events` field.
 pub(super) struct UsagePerItem {
     total_time_seconds: f64,
     total_time: String,
@@ -35,6 +50,7 @@ pub(super) struct UsageValues {
 }
 
 impl Usage {
+    /// Initialize the database for the Usage context
     pub(super) fn init_db(conn: &duckdb::Transaction) -> Result<()> {
         tracing::trace!("Initializing database for Usage");
         conn.execute_batch(
@@ -74,6 +90,18 @@ impl Usage {
         Ok(())
     }
 
+    /// Open the usage related components of the scrapper output
+    ///
+    /// # Arguments
+    /// * `root`: The root directory of the scrapper output.
+    ///
+    /// # Returns
+    /// A Usage structure with the parsed data.
+    ///
+    /// # Attention
+    /// Currently opens and parses right the way the usage data. In the future
+    /// this should be changed to a lazy approach and take better advantage of
+    /// been async.
     pub(super) async fn open<P: AsRef<std::path::Path>>(root: P) -> Result<Self> {
         tracing::trace!("Opening Usage from {:?}", root.as_ref());
 
@@ -99,12 +127,14 @@ impl Usage {
     }
 
     #[allow(dead_code)]
+    /// Parse the usage data from a JSON string
     pub(super) fn from_json(json: &str) -> Result<Self> {
         tracing::trace!("Parsing Usage as JSON");
         let usage: Usage = serde_json::from_str(json).unwrap();
         Ok(usage)
     }
 
+    /// Write the usage data to the database
     pub(super) fn write(&self, conn: &duckdb::Transaction, commit_id: usize) -> Result<()> {
         tracing::trace!("Writing Usage to the database {:?}", self);
         let usage_id: u32 = conn.query_row(
