@@ -126,7 +126,6 @@ impl Usage {
         Ok(usage)
     }
 
-    #[allow(dead_code)]
     /// Parse the usage data from a JSON string
     pub(super) fn from_json(json: &str) -> Result<Self> {
         tracing::trace!("Parsing Usage as JSON");
