@@ -154,7 +154,7 @@ impl ScrappedOrdinance {
     }
 
     #[allow(dead_code)]
-    pub(crate) async fn usage(&self) -> Result<Usage> {
+    async fn usage(&self) -> Result<Usage> {
         let usage_file = &self.root.join("usage.json");
         if !usage_file.exists() {
             trace!("Missing usage file: {:?}", usage_file);
