@@ -136,16 +136,23 @@ impl Usage {
     /// Write the usage data to the database
     pub(super) fn write(&self, conn: &duckdb::Transaction, commit_id: usize) -> Result<()> {
         tracing::trace!("Writing Usage to the database {:?}", self);
-        let usage_id: u32 = conn.query_row(
-            "INSERT INTO usage (bookkeeper_lnk, total_time) VALUES (?, ?) RETURNING id",
-            [&commit_id.to_string(), &self.total_time_seconds.to_string()],
-            |row| row.get(0)
-            ).expect("Failed to insert usage");
+        // An integer type in duckdb is 32 bits.
+        let usage_id: u32 = conn
+            .query_row(
+                "INSERT INTO usage (bookkeeper_lnk, total_time) VALUES (?, ?) RETURNING id",
+                [&commit_id.to_string(), &self.total_time_seconds.to_string()],
+                |row| row.get(0),
+            )
+            .expect("Failed to insert usage");
         tracing::trace!("Usage written to the database, id: {:?}", usage_id);
 
         for (jurisdiction_name, content) in &self.jurisdiction {
-            tracing::trace!("Writing Usage-Item to the database: {:?}", jurisdiction_name);
+            tracing::trace!(
+                "Writing Usage-Item to the database: {:?}",
+                jurisdiction_name
+            );
 
+            // An integer type in duckdb is 32 bits.
             let item_id: u32 = conn.query_row(
                 "INSERT INTO usage_per_item (name, total_time, total_requests, total_prompt_tokens, total_response_tokens) VALUES (?, ?, ?, ?, ?) RETURNING id",
                 [jurisdiction_name, &content.total_time_seconds.to_string(), &content.events["tracker_totals"].requests.to_string(), &content.events["tracker_totals"].prompt_tokens.to_string(), &content.events["tracker_totals"].response_tokens.to_string()],
@@ -163,7 +170,6 @@ impl Usage {
                     ).expect("Failed to insert usage_event");
             }
         }
-
 
         Ok(())
     }
