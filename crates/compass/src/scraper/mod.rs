@@ -1,6 +1,7 @@
 //! Support for the ordinance scrapper output
 
 mod metadata;
+mod source;
 mod usage;
 
 use std::path::{Path, PathBuf};
@@ -10,6 +11,7 @@ use tracing::{self, trace};
 use crate::error;
 use crate::error::Result;
 use metadata::Metadata;
+use source::Source;
 use usage::Usage;
 
 pub(crate) const SCRAPPED_ORDINANCE_VERSION: &str = "0.0.1";
@@ -62,6 +64,7 @@ impl ScrappedOrdinance {
     pub(super) fn init_db(conn: &duckdb::Transaction) -> Result<()> {
         tracing::trace!("Initializing ScrappedOrdinance database");
         metadata::Metadata::init_db(conn)?;
+        source::Source::init_db(conn)?;
         usage::Usage::init_db(conn)?;
 
         Ok(())
