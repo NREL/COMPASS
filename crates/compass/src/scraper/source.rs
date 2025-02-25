@@ -14,6 +14,7 @@ impl Source {
     pub(super) fn init_db(conn: &duckdb::Transaction) -> Result<()> {
         trace!("Initializing database for Source");
 
+        // Store all individual documents scrapped
         conn.execute_batch(
             r"
             CREATE SEQUENCE document_sequence START 1;
@@ -28,6 +29,7 @@ impl Source {
               );",
         )?;
 
+        // Register the target documents of each scrapping run
         conn.execute_batch(
             r"
             CREATE SEQUENCE source_sequence START 1;
