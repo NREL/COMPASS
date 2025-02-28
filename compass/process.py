@@ -424,9 +424,9 @@ def _setup_folders(out_dir, log_dir=None, clean_dir=None, cod=None, cdd=None):
     out_folders = Directories(
         out_dir,
         Path(log_dir) if log_dir else out_dir / "logs",
-        Path(clean_dir) if clean_dir else out_dir / "clean",
-        Path(cod) if cod else out_dir / "county_ord_files",
-        Path(cdd) if cdd else out_dir / "county_dbs",
+        Path(clean_dir) if clean_dir else out_dir / "cleaned_text",
+        Path(cod) if cod else out_dir / "ordinance_files",
+        Path(cdd) if cdd else out_dir / "jurisdiction_dbs",
     )
     for folder in out_folders:
         folder.mkdir(exist_ok=True, parents=True)
