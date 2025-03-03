@@ -226,6 +226,8 @@ def setup_conditional(**kwargs):
     G.add_node(
         "init",
         prompt=(
+            "We are interested in setback from {feature}. Please don't "
+            "consider setbacks from anything else. "
             "Does the setback from {feature} mention a minimum or maximum "
             "static setback distance regardless of the outcome of the "
             "multiplier calculation? This is often phrased as 'the greater "
