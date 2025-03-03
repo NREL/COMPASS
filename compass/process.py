@@ -250,7 +250,7 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         DataFrame of parsed ordinance information. This file will also
         be stored in the output directory under "wind_db.csv".
     """
-    start_time = time.time()
+    start_time = time.monotonic()
     log_listener = LogListener(["compass", "elm"], level=log_level)
     dirs = _setup_folders(
         out_dir,
@@ -309,7 +309,9 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
             process_kwargs=pk,
             log_level=log_level,
         )
-    _record_total_time(dirs.out_dir / "usage.json", time.time() - start_time)
+    _record_total_time(
+        dirs.out_dir / "usage.json", time.monotonic() - start_time
+    )
     return db
 
 
@@ -574,7 +576,7 @@ async def process_county(
         document was found. Extracted ordinance information is stored in
         the document's ``attrs`` attribute.
     """
-    start_time = time.time()
+    start_time = time.monotonic()
     doc = await _find_document(
         tech_specs,
         county,
@@ -676,7 +678,7 @@ async def _record_usage(**kwargs):
 
 async def _record_time_and_usage(start_time, **kwargs):
     """Add elapsed time before updating usage to file"""
-    seconds_elapsed = time.time() - start_time
+    seconds_elapsed = time.monotonic() - start_time
     usage_tracker = kwargs.get("usage_tracker")
     if usage_tracker:
         usage_tracker["total_time_seconds"] = seconds_elapsed
