@@ -1,7 +1,11 @@
 """Ordinance utilities"""
 
 from .counties import load_all_county_info, load_counties_from_fp
-from .parsing import llm_response_as_json, merge_overlapping_texts
+from .parsing import (
+    llm_response_as_json,
+    merge_overlapping_texts,
+    extract_ord_year_from_doc_attrs,
+)
 
 
 RTS_SEPARATORS = [
