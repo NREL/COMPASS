@@ -813,5 +813,7 @@ def _empirical_adjustments(db):
 
 def _formatted_db(db):
     """Format DataFrame for output"""
-    out_cols = [col for col in OUT_COLS if col in db.columns]
-    return db[out_cols]
+    for col in OUT_COLS:
+        if col not in db.columns:
+            db[col] = None
+    return db[OUT_COLS]
