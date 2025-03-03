@@ -203,7 +203,7 @@ class StructuredWindOrdinanceParser(BaseLLMCaller):
         """Get base messages for setback feature parsing"""
         system_message = SETBACKS_SYSTEM_MESSAGE.format(
             feature=feature_kwargs["feature"],
-            tech=feature_kwargs["wes_type"],
+            tech=feature_kwargs["tech"],
         )
         tree = setup_async_decision_tree(
             setup_base_graph,
