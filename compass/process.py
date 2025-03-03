@@ -102,13 +102,11 @@ OUT_COLS = [
     "state",
     "FIPS",
     "feature",
-    "mult_value",
-    "mult_type",
+    "value",
+    "units",
     "adder",
     "min_dist",
     "max_dist",
-    "value",
-    "units",
     "summary",
     "ord_year",
     "last_updated",
@@ -116,11 +114,10 @@ OUT_COLS = [
     "source",
 ]
 CHECK_COLS = [
-    "mult_value",
+    "value",
     "adder",
     "min_dist",
     "max_dist",
-    "value",
     "summary",
 ]
 
