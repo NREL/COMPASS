@@ -44,11 +44,13 @@ from compass.services.threaded import (
     CleanedFileWriter,
     OrdDBFileWriter,
     UsageUpdater,
+    JurisdictionUpdater,
 )
 from compass.utilities import (
     RTS_SEPARATORS,
     load_all_county_info,
     load_counties_from_fp,
+    extract_ord_year_from_doc_attrs,
 )
 from compass.utilities.location import County
 from compass.utilities.queued_logging import (
@@ -109,13 +111,12 @@ PARSED_COLS = [
     "max_dist",
     "summary",
     "ord_year",
-    "last_updated",
     "section",
     "source",
     "quantitative",
 ]
 QUANT_OUT_COLS = PARSED_COLS[:-1]
-QUAL_OUT_COLS = PARSED_COLS[:4] + PARSED_COLS[-6:-1]
+QUAL_OUT_COLS = PARSED_COLS[:4] + PARSED_COLS[-5:-1]
 CHECK_COLS = PARSED_COLS[4:10]
 
 
@@ -361,6 +362,9 @@ async def _process_with_logs(  # noqa: PLR0914
         CleanedFileWriter(dirs.clean_dir, tpe_kwargs=tpe_kwargs),
         OrdDBFileWriter(dirs.county_dbs_dir, tpe_kwargs=tpe_kwargs),
         UsageUpdater(dirs.out_dir / "usage.json", tpe_kwargs=tpe_kwargs),
+        JurisdictionUpdater(
+            dirs.out_dir / "jurisdictions.json", tpe_kwargs=tpe_kwargs
+        ),
         PDFLoader(**(process_kwargs.ppe_kwargs or {})),
     ]
 
@@ -588,7 +592,9 @@ async def process_county(
         **kwargs,
     )
     if doc is None:
+        await _record_jurisdiction_info(county, doc)
         return doc
+
     doc = await _extract_ordinance_text(
         doc, text_splitter, extractor_class=tech_specs.text_extractor, **kwargs
     )
@@ -597,6 +603,7 @@ async def process_county(
     )
     doc = await _move_files(doc, county)
     await _record_time_and_usage(start_time, **kwargs)
+    await _record_jurisdiction_info(county, doc)
     return doc
 
 
@@ -707,6 +714,11 @@ async def _write_ord_db(doc):
     return doc
 
 
+async def _record_jurisdiction_info(county, doc):
+    """Record info about jurisdiction"""
+    await JurisdictionUpdater.call(county, doc)
+
+
 def _setup_pytesseract(exe_fp):
     """Set the pytesseract command"""
     import pytesseract  # noqa: PLC0415
@@ -782,8 +794,7 @@ def _db_results(doc):
         return None
 
     results["source"] = doc.attrs.get("source")
-    year = doc.attrs.get("date", (None, None, None))[0]
-    results["ord_year"] = year if year is not None and year > 0 else None
+    results["ord_year"] = extract_ord_year_from_doc_attrs(doc)
     results["last_updated"] = datetime.now().strftime("%m/%d/%Y")
 
     location = doc.attrs["location"]
