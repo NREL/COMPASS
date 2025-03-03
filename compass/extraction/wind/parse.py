@@ -170,7 +170,7 @@ class StructuredWindOrdinanceParser(BaseLLMCaller):
             chat_llm_caller=self._init_chat_llm_caller(system_message),
         )
         info = await run_async_tree(tree)
-        info.update({"feature": feature})
+        info.update({"feature": feature, "quantitative": is_numerical})
         return [info]
 
     async def _parse_setback_feature(

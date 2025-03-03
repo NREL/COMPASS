@@ -97,7 +97,7 @@ WebSearchParams = namedtuple(
     ],
     defaults=[5, 10, None],
 )
-OUT_COLS = [
+PARSED_COLS = [
     "county",
     "state",
     "FIPS",
@@ -112,14 +112,11 @@ OUT_COLS = [
     "last_updated",
     "section",
     "source",
+    "quantitative",
 ]
-CHECK_COLS = [
-    "value",
-    "adder",
-    "min_dist",
-    "max_dist",
-    "summary",
-]
+QUANT_OUT_COLS = PARSED_COLS[:-1]
+QUAL_OUT_COLS = PARSED_COLS[:4] + PARSED_COLS[-6:-1]
+CHECK_COLS = PARSED_COLS[4:10]
 
 
 async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
@@ -403,7 +400,7 @@ async def _process_with_logs(  # noqa: PLR0914
         docs = await asyncio.gather(*tasks)
 
     db = _docs_to_db(docs)
-    db.to_csv(dirs.out_dir / "ordinance_db.csv", index=False)
+    _save_db(db, dirs.out_dir)
     return db
 
 
@@ -769,7 +766,7 @@ def _docs_to_db(docs):
         db.append(results)
 
     if not db:
-        return pd.DataFrame(columns=OUT_COLS)
+        return pd.DataFrame(columns=PARSED_COLS)
 
     db = pd.concat(db)
     db = _empirical_adjustments(db)
@@ -813,7 +810,19 @@ def _empirical_adjustments(db):
 
 def _formatted_db(db):
     """Format DataFrame for output"""
-    for col in OUT_COLS:
+    for col in PARSED_COLS:
         if col not in db.columns:
             db[col] = None
-    return db[OUT_COLS]
+
+    db["quantitative"] = db["quantitative"].astype("boolean").fillna(True)
+    return db[PARSED_COLS]
+
+
+def _save_db(db, out_dir):
+    """Split DB into qualitative vs quantitative and save to disk"""
+    if db.empty:
+        return
+    qual_db = db[~db["quantitative"]][QUAL_OUT_COLS]
+    quant_db = db[db["quantitative"]][QUANT_OUT_COLS]
+    qual_db.to_csv(out_dir / "qualitative_ordinances.csv", index=False)
+    quant_db.to_csv(out_dir / "quantitative_ordinances.csv", index=False)
