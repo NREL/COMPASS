@@ -802,7 +802,8 @@ def _empirical_adjustments(db):
         - Limit adder to max of 250 ft.
             - Chat GPT likes to report large values here, but in
             practice all values manually observed in ordinance documents
-            are below 250 ft.
+            are below 250 ft. If large value is detected, assume it's an
+            error on Chat GPT's part and remove it.
 
     """
     if "adder" in db.columns:
