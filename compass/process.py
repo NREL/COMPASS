@@ -76,7 +76,7 @@ ProcessKwargs = namedtuple(
 )
 Directories = namedtuple(
     "Directories",
-    ["out_dir", "log_dir", "clean_dir", "county_ords_dir", "county_dbs_dir"],
+    ["out", "logs", "clean_files", "ordinance_files", "jurisdiction_dbs"],
 )
 AzureParams = namedtuple(
     "AzureParams",
@@ -144,7 +144,7 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
     ppe_kwargs=None,
     log_dir=None,
     clean_dir=None,
-    county_ords_dir=None,
+    ordinance_file_dir=None,
     county_dbs_dir=None,
     log_level="INFO",
 ):
@@ -234,7 +234,7 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         directory will be created if it does not exist. By default,
         ``None``, which creates a ``clean`` folder in the output
         directory for the cleaned ordinance text files.
-    county_ords_dir : path-like, optional
+    ordinance_file_dir : path-like, optional
         Path to directory for individual county ordinance file outputs.
         This directory will be created if it does not exist.
         By default, ``None``, which creates a ``county_ord_files``
@@ -259,7 +259,7 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         out_dir,
         log_dir=log_dir,
         clean_dir=clean_dir,
-        cod=county_ords_dir,
+        cod=ordinance_file_dir,
         cdd=county_dbs_dir,
     )
     ap = AzureParams(
@@ -282,7 +282,7 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
     )
 
     async with log_listener as ll:
-        _setup_main_logging(dirs.log_dir, log_level, ll)
+        _setup_main_logging(dirs.logs, log_level, ll)
         return await _process_with_logs(
             dirs=dirs,
             log_listener=ll,
@@ -355,12 +355,12 @@ async def _process_with_logs(  # noqa: PLR0914
         TempFileCache(
             td_kwargs=process_kwargs.td_kwargs, tpe_kwargs=tpe_kwargs
         ),
-        FileMover(dirs.county_ords_dir, tpe_kwargs=tpe_kwargs),
-        CleanedFileWriter(dirs.clean_dir, tpe_kwargs=tpe_kwargs),
-        OrdDBFileWriter(dirs.county_dbs_dir, tpe_kwargs=tpe_kwargs),
-        UsageUpdater(dirs.out_dir / "usage.json", tpe_kwargs=tpe_kwargs),
+        FileMover(dirs.ordinance_files, tpe_kwargs=tpe_kwargs),
+        CleanedFileWriter(dirs.clean_files, tpe_kwargs=tpe_kwargs),
+        OrdDBFileWriter(dirs.jurisdiction_dbs, tpe_kwargs=tpe_kwargs),
+        UsageUpdater(dirs.out / "usage.json", tpe_kwargs=tpe_kwargs),
         JurisdictionUpdater(
-            dirs.out_dir / "jurisdictions.json", tpe_kwargs=tpe_kwargs
+            dirs.out / "jurisdictions.json", tpe_kwargs=tpe_kwargs
         ),
         PDFLoader(**(process_kwargs.ppe_kwargs or {})),
     ]
@@ -386,7 +386,7 @@ async def _process_with_logs(  # noqa: PLR0914
             task = asyncio.create_task(
                 process_county_with_logging(
                     log_listener,
-                    dirs.log_dir,
+                    dirs.logs,
                     location,
                     text_splitter,
                     tech_specs,
@@ -405,7 +405,7 @@ async def _process_with_logs(  # noqa: PLR0914
         docs = await asyncio.gather(*tasks)
 
     db, num_docs_found = _docs_to_db(docs)
-    _save_db(db, dirs.out_dir)
+    _save_db(db, dirs.out)
     _save_run_meta(
         dirs,
         tech,
@@ -425,14 +425,14 @@ def _setup_main_logging(log_dir, level, listener):
     listener.addHandler(handler)
 
 
-def _setup_folders(out_dir, log_dir=None, clean_dir=None, cod=None, cdd=None):
+def _setup_folders(out_dir, log_dir=None, clean_dir=None, ofd=None, cdd=None):
     """Setup output directory folders"""
     out_dir = Path(out_dir)
     out_folders = Directories(
         out_dir,
         Path(log_dir) if log_dir else out_dir / "logs",
         Path(clean_dir) if clean_dir else out_dir / "cleaned_text",
-        Path(cod) if cod else out_dir / "ordinance_files",
+        Path(ofd) if ofd else out_dir / "ordinance_files",
         Path(cdd) if cdd else out_dir / "jurisdiction_dbs",
     )
     for folder in out_folders:
@@ -689,14 +689,14 @@ async def _move_file_to_out_dir(doc):
 
 
 async def _write_cleaned_text(doc):
-    """Write cleaned text to `clean_dir`"""
+    """Write cleaned text to `clean_files` dir"""
     out_fp = await CleanedFileWriter.call(doc)
     doc.attrs["cleaned_fp"] = out_fp
     return doc
 
 
 async def _write_ord_db(doc):
-    """Write cleaned text to `county_dbs_dir`"""
+    """Write cleaned text to `jurisdiction_dbs` dir"""
     out_fp = await OrdDBFileWriter.call(doc)
     doc.attrs["ord_db_fp"] = out_fp
     return doc
@@ -830,15 +830,15 @@ def _save_run_meta(
         "manifest": {},
     }
     manifest = {
-        "OUT_DIR": dirs.out_dir,
-        "LOG_DIR": dirs.log_dir,
-        "CLEAN_FILE_DIR": dirs.clean_dir,
-        "JURISDICTION_DBS_DIR": dirs.county_dbs_dir,
-        "ORDINANCE_FILES_DIR": dirs.county_ords_dir,
-        "USAGE_FILE": dirs.out_dir / "usage.json",
-        "JURISDICTION_FILE": dirs.out_dir / "jurisdictions.json",
-        "QUANT_DATA_FILE": dirs.out_dir / "quantitative_ordinances.csv",
-        "QUAL_DATA_FILE": dirs.out_dir / "quantitative_ordinances.csv",
+        "OUT_DIR": dirs.out,
+        "LOG_DIR": dirs.logs,
+        "CLEAN_FILE_DIR": dirs.clean_files,
+        "JURISDICTION_DBS_DIR": dirs.jurisdiction_dbs,
+        "ORDINANCE_FILES_DIR": dirs.ordinance_files,
+        "USAGE_FILE": dirs.out / "usage.json",
+        "JURISDICTION_FILE": dirs.out / "jurisdictions.json",
+        "QUANT_DATA_FILE": dirs.out / "quantitative_ordinances.csv",
+        "QUAL_DATA_FILE": dirs.out / "quantitative_ordinances.csv",
     }
     for name, file_path in manifest.items():
         if file_path.exists():
@@ -846,6 +846,6 @@ def _save_run_meta(
         else:
             meta_data["manifest"][name] = None
 
-    meta_data["manifest"]["META_FILE"] = str(dirs.out_dir / "meta.json")
-    with (dirs.out_dir / "meta.json").open("w", encoding="utf-8") as fh:
+    meta_data["manifest"]["META_FILE"] = str(dirs.out / "meta.json")
+    with (dirs.out / "meta.json").open("w", encoding="utf-8") as fh:
         json.dump(meta_data, fh, indent=4)
