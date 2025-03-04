@@ -852,10 +852,10 @@ def _save_run_meta(
     }
     for name, file_path in manifest.items():
         if file_path.exists():
-            meta_data["manifest"][name] = str(file_path)
+            meta_data["manifest"][name] = str(file_path.relative_to(dirs.out))
         else:
             meta_data["manifest"][name] = None
 
-    meta_data["manifest"]["META_FILE"] = str(dirs.out / "meta.json")
+    meta_data["manifest"]["META_FILE"] = "meta.json"
     with (dirs.out / "meta.json").open("w", encoding="utf-8") as fh:
         json.dump(meta_data, fh, indent=4)
