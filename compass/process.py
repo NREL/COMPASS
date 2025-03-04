@@ -4,6 +4,7 @@ import time
 import json
 import asyncio
 import logging
+import getpass
 from pathlib import Path
 from functools import partial
 from collections import namedtuple
@@ -118,7 +119,6 @@ PARSED_COLS = [
 ]
 QUANT_OUT_COLS = PARSED_COLS[:-1]
 QUAL_OUT_COLS = PARSED_COLS[:4] + PARSED_COLS[-5:-1]
-CHECK_COLS = PARSED_COLS[4:10]
 
 
 async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
@@ -252,7 +252,6 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         DataFrame of parsed ordinance information. This file will also
         be stored in the output directory under "wind_db.csv".
     """
-    start_time = time.monotonic()
     log_listener = LogListener(["compass", "elm"], level=log_level)
     dirs = _setup_folders(
         out_dir,
@@ -282,7 +281,7 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
 
     async with log_listener as ll:
         _setup_main_logging(dirs.log_dir, log_level, ll)
-        db = await _process_with_logs(
+        return await _process_with_logs(
             dirs=dirs,
             log_listener=ll,
             azure_params=ap,
@@ -293,10 +292,6 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
             process_kwargs=pk,
             log_level=log_level,
         )
-    _record_total_time(
-        dirs.out_dir / "usage.json", time.monotonic() - start_time
-    )
-    return db
 
 
 async def _process_with_logs(  # noqa: PLR0914
@@ -595,14 +590,14 @@ async def process_county(
         tech_specs,
         county,
         text_splitter,
-        start_time,
         num_urls=num_urls,
         file_loader_kwargs=file_loader_kwargs,
         browser_semaphore=browser_semaphore,
         **kwargs,
     )
     if doc is None:
-        await _record_jurisdiction_info(county, doc)
+        await _record_usage(**kwargs)
+        await _record_jurisdiction_info(county, doc, start_time)
         return doc
 
     doc = await _extract_ordinance_text(
@@ -612,8 +607,8 @@ async def process_county(
         doc, parser_class=tech_specs.structured_parser, **kwargs
     )
     doc = await _move_files(doc, county)
-    await _record_time_and_usage(start_time, **kwargs)
-    await _record_jurisdiction_info(county, doc)
+    await _record_usage(**kwargs)
+    await _record_jurisdiction_info(county, doc, start_time)
     return doc
 
 
@@ -621,7 +616,6 @@ async def _find_document(
     tech_specs,
     county,
     text_splitter,
-    start_time,
     num_urls=5,
     file_loader_kwargs=None,
     browser_semaphore=None,
@@ -639,7 +633,6 @@ async def _find_document(
         **kwargs,
     )
     if doc is None:
-        await _record_time_and_usage(start_time, **kwargs)
         return None
 
     doc.attrs["location"] = county
@@ -686,23 +679,6 @@ async def _move_files(doc, county):
     return doc
 
 
-async def _record_usage(**kwargs):
-    """Dump usage to file if tracker found in kwargs"""
-    usage_tracker = kwargs.get("usage_tracker")
-    if usage_tracker:
-        await UsageUpdater.call(usage_tracker)
-
-
-async def _record_time_and_usage(start_time, **kwargs):
-    """Add elapsed time before updating usage to file"""
-    seconds_elapsed = time.monotonic() - start_time
-    usage_tracker = kwargs.get("usage_tracker")
-    if usage_tracker:
-        usage_tracker["total_time_seconds"] = seconds_elapsed
-        usage_tracker["total_time"] = str(timedelta(seconds=seconds_elapsed))
-        await UsageUpdater.call(usage_tracker)
-
-
 async def _move_file_to_out_dir(doc):
     """Move PDF or HTML text file to output directory"""
     out_fp = await FileMover.call(doc)
@@ -724,9 +700,17 @@ async def _write_ord_db(doc):
     return doc
 
 
-async def _record_jurisdiction_info(county, doc):
+async def _record_usage(**kwargs):
+    """Dump usage to file if tracker found in kwargs"""
+    usage_tracker = kwargs.get("usage_tracker")
+    if usage_tracker:
+        await UsageUpdater.call(usage_tracker)
+
+
+async def _record_jurisdiction_info(county, doc, start_time):
     """Record info about jurisdiction"""
-    await JurisdictionUpdater.call(county, doc)
+    seconds_elapsed = time.monotonic() - start_time
+    await JurisdictionUpdater.call(county, doc, seconds_elapsed)
 
 
 def _setup_pytesseract(exe_fp):
@@ -735,25 +719,6 @@ def _setup_pytesseract(exe_fp):
 
     logger.debug("Setting `tesseract_cmd` to %s", exe_fp)
     pytesseract.pytesseract.tesseract_cmd = exe_fp
-
-
-def _record_total_time(fp, seconds_elapsed):
-    """Dump usage to an existing file."""
-    fp = Path(fp)
-    if not fp.exists():
-        usage_info = {}
-    else:
-        with fp.open(encoding="utf-8") as fh:
-            usage_info = json.load(fh)
-
-    total_time_str = str(timedelta(seconds=seconds_elapsed))
-    usage_info["total_time_seconds"] = seconds_elapsed
-    usage_info["total_time"] = total_time_str
-
-    with fp.open("w", encoding="utf-8") as fh:
-        json.dump(usage_info, fh, indent=4)
-
-    logger.info("Total processing time: %s", total_time_str)
 
 
 def _docs_to_db(docs):
@@ -787,7 +752,6 @@ def _db_results(doc):
 
     results["source"] = doc.attrs.get("source")
     results["ord_year"] = extract_ord_year_from_doc_attrs(doc)
-    results["last_updated"] = datetime.now().strftime("%m/%d/%Y")
 
     location = doc.attrs["location"]
     results["FIPS"] = location.fips
@@ -852,8 +816,8 @@ def _save_run_meta(
         username = "Unknown"
 
     meta_data = {
-        "technology": tech,
         "username": username,
+        "technology": tech,
         "datetime_start": start_date,
         "datetime_end": end_date,
         "total_time_seconds": seconds_elapsed,
