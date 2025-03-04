@@ -51,6 +51,7 @@ from compass.utilities import (
     load_all_county_info,
     load_counties_from_fp,
     extract_ord_year_from_doc_attrs,
+    num_ordinances_in_doc,
 )
 from compass.utilities.location import County
 from compass.utilities.queued_logging import (
@@ -660,7 +661,7 @@ async def _extract_ordinances_from_text(doc, parser_class, **kwargs):
 
 async def _move_files(doc, county):
     """Move files to output folders, if applicable"""
-    ord_count = _num_ords_in_doc(doc)
+    ord_count = num_ordinances_in_doc(doc)
     if ord_count == 0:
         logger.info("No ordinances found for %s.", county.full_name)
         return doc
@@ -746,25 +747,6 @@ def _record_total_time(fp, seconds_elapsed):
     logger.info("Total processing time: %s", total_time_str)
 
 
-def _num_ords_in_doc(doc):
-    """Check if doc contains any scraped ordinance values"""
-    if doc is None:
-        return 0
-
-    if "ordinance_values" not in doc.attrs:
-        return 0
-
-    ord_vals = doc.attrs["ordinance_values"]
-    if ord_vals.empty:
-        return 0
-
-    check_cols = [col for col in CHECK_COLS if col in ord_vals]
-    if not check_cols:
-        return 0
-
-    return (~ord_vals[check_cols].isna()).to_numpy().sum(axis=1).sum()
-
-
 def _docs_to_db(docs):
     """Convert list of docs to output database"""
     db = []
@@ -772,7 +754,7 @@ def _docs_to_db(docs):
         if doc is None or isinstance(doc, Exception):
             continue
 
-        if _num_ords_in_doc(doc) == 0:
+        if num_ordinances_in_doc(doc) == 0:
             continue
 
         results = _db_results(doc)
