@@ -375,8 +375,8 @@ def _dump_jurisdiction_info(fp, county, doc, seconds_elapsed):
         "subdivision_type": None,
         "FIPS": county.fips,
         "found": False,
-        "total_time_seconds": seconds_elapsed,
-        "total_runtime": str(timedelta(seconds=seconds_elapsed)),
+        "total_time": seconds_elapsed,
+        "total_time_string": str(timedelta(seconds=seconds_elapsed)),
     }
     if num_ordinances_in_doc(doc) > 0:
         new_info["found"] = True
