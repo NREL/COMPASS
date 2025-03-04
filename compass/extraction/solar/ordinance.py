@@ -42,8 +42,9 @@ class SolarHeuristic(Heuristic):
 
     NOT_TECH_WORDS = ["solaris"]
     GOOD_TECH_KEYWORDS = ["solar", "setback"]
-    GOOD_TECH_ACRONYMS = ["secs", "sef", "ses"]
+    GOOD_TECH_ACRONYMS = ["secs", "sef", "ses", "cses"]
     GOOD_TECH_PHRASES = [
+        "commercial solar energy system",
         "solar energy conversion",
         "solar energy system",
         "solar panel",
