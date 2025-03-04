@@ -106,7 +106,7 @@ class SolarOrdinanceValidator(ValidationWithMemory):
         "systems (SES) may also be referred to as solar panels, solar energy "
         "conversion systems (SECS), solar energy facilities (SEF), solar "
         "energy farms (SEF), solar farms (SF), utility-scale solar energy "
-        "systems (USES), commercial solar energy systems, or similar. "
+        "systems (USES), commercial solar energy systems (CSES), or similar. "
         "Your client is a commercial solar developer that does not "
         "care about ordinances related to private, micro, small, or medium "
         "sized solar energy systems. Ignore any text related to such systems. "
