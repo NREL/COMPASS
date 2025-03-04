@@ -374,6 +374,8 @@ async def _process_with_logs(  # noqa: PLR0914
         else None
     )
 
+    start_date = datetime.now().isoformat()
+    start_time = time.monotonic()
     async with RunningAsyncServices(services):
         tasks = []
         trackers = []
@@ -405,8 +407,16 @@ async def _process_with_logs(  # noqa: PLR0914
             tasks.append(task)
         docs = await asyncio.gather(*tasks)
 
-    db = _docs_to_db(docs)
+    db, num_docs_found = _docs_to_db(docs)
     _save_db(db, dirs.out_dir)
+    _save_run_meta(
+        dirs,
+        tech,
+        start_time,
+        start_date,
+        num_jurisdictions_searched=len(counties),
+        num_jurisdictions_found=num_docs_found,
+    )
     return db
 
 
@@ -761,11 +771,12 @@ def _docs_to_db(docs):
         db.append(results)
 
     if not db:
-        return pd.DataFrame(columns=PARSED_COLS)
+        return pd.DataFrame(columns=PARSED_COLS), 0
 
+    num_jurisdictions_found = len(db)
     db = pd.concat(db)
     db = _empirical_adjustments(db)
-    return _formatted_db(db)
+    return _formatted_db(db), num_jurisdictions_found
 
 
 def _db_results(doc):
@@ -820,3 +831,54 @@ def _save_db(db, out_dir):
     quant_db = db[db["quantitative"]][QUANT_OUT_COLS]
     qual_db.to_csv(out_dir / "qualitative_ordinances.csv", index=False)
     quant_db.to_csv(out_dir / "quantitative_ordinances.csv", index=False)
+
+
+def _save_run_meta(
+    dirs,
+    tech,
+    start_time,
+    start_date,
+    num_jurisdictions_searched,
+    num_jurisdictions_found,
+):
+    """Write out meta information about ordinance collection run"""
+    end_date = datetime.now().isoformat()
+    end_time = time.monotonic()
+    seconds_elapsed = end_time - start_time
+
+    try:
+        username = getpass.getuser()
+    except OSError:
+        username = "Unknown"
+
+    meta_data = {
+        "technology": tech,
+        "username": username,
+        "datetime_start": start_date,
+        "datetime_end": end_date,
+        "total_time_seconds": seconds_elapsed,
+        "total_runtime": str(timedelta(seconds=seconds_elapsed)),
+        "num_jurisdictions_searched": num_jurisdictions_searched,
+        "num_jurisdictions_found": num_jurisdictions_found,
+        "manifest": {},
+    }
+    manifest = {
+        "OUT_DIR": dirs.out_dir,
+        "LOG_DIR": dirs.log_dir,
+        "CLEAN_FILE_DIR": dirs.clean_dir,
+        "JURISDICTION_DBS_DIR": dirs.county_dbs_dir,
+        "ORDINANCE_FILES_DIR": dirs.county_ords_dir,
+        "USAGE_FILE": dirs.out_dir / "usage.json",
+        "JURISDICTION_FILE": dirs.out_dir / "jurisdictions.json",
+        "QUANT_DATA_FILE": dirs.out_dir / "quantitative_ordinances.csv",
+        "QUAL_DATA_FILE": dirs.out_dir / "quantitative_ordinances.csv",
+    }
+    for name, file_path in manifest.items():
+        if file_path.exists():
+            meta_data["manifest"][name] = str(file_path)
+        else:
+            meta_data["manifest"][name] = None
+
+    meta_data["manifest"]["META_FILE"] = str(dirs.out_dir / "meta.json")
+    with (dirs.out_dir / "meta.json").open("w", encoding="utf-8") as fh:
+        json.dump(meta_data, fh, indent=4)
