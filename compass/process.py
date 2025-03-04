@@ -259,7 +259,7 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         out_dir,
         log_dir=log_dir,
         clean_dir=clean_dir,
-        cod=ordinance_file_dir,
+        ofd=ordinance_file_dir,
         cdd=county_dbs_dir,
     )
     ap = AzureParams(
