@@ -368,7 +368,7 @@ def _dump_jurisdiction_info(fp, county, doc, seconds_elapsed):
             jurisdiction_info = json.load(fh)
 
     new_info = {
-        "name": county.full_name,
+        "full_name": county.full_name,
         "county": county.name,
         "state": county.state,
         "subdivision": None,
