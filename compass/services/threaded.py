@@ -4,6 +4,7 @@ import json
 import shutil
 import asyncio
 from pathlib import Path
+from datetime import datetime
 from functools import partial
 from abc import abstractmethod
 from tempfile import TemporaryDirectory
@@ -12,7 +13,10 @@ from concurrent.futures import ThreadPoolExecutor
 from elm.web.utilities import write_url_doc_to_file
 
 from compass.services.base import Service
-from compass.utilities import extract_ord_year_from_doc_attrs
+from compass.utilities import (
+    extract_ord_year_from_doc_attrs,
+    num_ordinances_in_doc,
+)
 
 
 def _move_file(doc, out_dir):
@@ -22,7 +26,9 @@ def _move_file(doc, out_dir):
         return None
 
     cached_fp = Path(cached_fp)
+    date = datetime.now().strftime("%m-%d-%Y")
     out_fn = doc.attrs.get("location_name", cached_fp.name)
+    out_fn = f"{out_fn} (downloaded {date})"
     if not out_fn.endswith(cached_fp.suffix):
         out_fn = f"{out_fn}{cached_fp.suffix}"
 
@@ -359,9 +365,10 @@ def _dump_jurisdiction_info(fp, county, doc):
         "county": county.name,
         "state": county.state,
         "FIPS": county.fips,
-        "found": doc is not None,
+        "found": False,
     }
-    if doc is not None:
+    if num_ordinances_in_doc(doc) > 0:
+        new_info["found"] = True
         new_info["num_pages"] = len(doc.pages)
         new_info["source"] = doc.attrs.get("source")
         new_info["ord_year"] = extract_ord_year_from_doc_attrs(doc)
