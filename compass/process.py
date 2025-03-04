@@ -8,7 +8,7 @@ import getpass
 from pathlib import Path
 from functools import partial
 from collections import namedtuple
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 
 import openai
 import pandas as pd
@@ -369,7 +369,7 @@ async def _process_with_logs(  # noqa: PLR0914
         else None
     )
 
-    start_date = datetime.now().isoformat()
+    start_date = datetime.now(UTC).isoformat()
     start_time = time.monotonic()
     async with RunningAsyncServices(services):
         tasks = []
@@ -806,7 +806,7 @@ def _save_run_meta(
     num_jurisdictions_found,
 ):
     """Write out meta information about ordinance collection run"""
-    end_date = datetime.now().isoformat()
+    end_date = datetime.now(UTC).isoformat()
     end_time = time.monotonic()
     seconds_elapsed = end_time - start_time
 
@@ -818,8 +818,8 @@ def _save_run_meta(
     meta_data = {
         "username": username,
         "technology": tech,
-        "datetime_start": start_date,
-        "datetime_end": end_date,
+        "datetime_start_utc": start_date,
+        "datetime_end_utc": end_date,
         "total_time_seconds": seconds_elapsed,
         "total_runtime": str(timedelta(seconds=seconds_elapsed)),
         "num_jurisdictions_searched": num_jurisdictions_searched,
