@@ -841,7 +841,6 @@ def _save_run_meta(
         "manifest": {},
     }
     manifest = {
-        "OUT_DIR": dirs.out,
         "LOG_DIR": dirs.logs,
         "CLEAN_FILE_DIR": dirs.clean_files,
         "JURISDICTION_DBS_DIR": dirs.jurisdiction_dbs,
