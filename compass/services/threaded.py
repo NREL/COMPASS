@@ -4,10 +4,10 @@ import json
 import shutil
 import asyncio
 from pathlib import Path
-from datetime import datetime
 from functools import partial
 from abc import abstractmethod
 from tempfile import TemporaryDirectory
+from datetime import datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor
 
 from elm.web.utilities import write_url_doc_to_file
@@ -305,7 +305,7 @@ class JurisdictionUpdater(ThreadedService):
         """bool: ``True`` if file not currently being written to"""
         return not self._is_processing
 
-    async def process(self, county, doc=None):
+    async def process(self, county, doc, seconds_elapsed):
         """Add usage from tracker to file
 
         Any existing usage info in the file will remain unchanged
@@ -316,18 +316,25 @@ class JurisdictionUpdater(ThreadedService):
         ----------
         county : compass.utilities.location.Location
             County to record.
-        doc : elm.web.document.Document, optional
+        doc : elm.web.document.Document
             Document containing meta information about the jurisdiction.
             Must have relevant processing keys in the ``attrs`` dict,
             otherwise the jurisdiction may not be recorded properly.
             If ``None``, the jurisdiction is assumed not to have been
-            found. By default, ``None``.
+            found.
+        seconds_elapsed : int | float
+            Total number of seconds it took to look for (and possibly
+            parse) this document.
         """
         self._is_processing = True
         await _run_func_in_pool(
             self.pool,
             partial(
-                _dump_jurisdiction_info, self.jurisdiction_fp, county, doc
+                _dump_jurisdiction_info,
+                self.jurisdiction_fp,
+                county,
+                doc,
+                seconds_elapsed,
             ),
         )
         self._is_processing = False
@@ -352,7 +359,7 @@ def _dump_usage(fp, tracker):
         json.dump(usage_info, fh, indent=4)
 
 
-def _dump_jurisdiction_info(fp, county, doc):
+def _dump_jurisdiction_info(fp, county, doc, seconds_elapsed):
     """Dump jurisdiction info to an existing file"""
     if not Path(fp).exists():
         jurisdiction_info = {"jurisdictions": []}
@@ -366,6 +373,8 @@ def _dump_jurisdiction_info(fp, county, doc):
         "state": county.state,
         "FIPS": county.fips,
         "found": False,
+        "total_time_seconds": seconds_elapsed,
+        "total_runtime": str(timedelta(seconds=seconds_elapsed)),
     }
     if num_ordinances_in_doc(doc) > 0:
         new_info["found"] = True
