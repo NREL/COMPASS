@@ -280,31 +280,13 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         text_splitter_chunk_overlap,
     )
 
-    if tech.casefold() == "wind":
-        ts = TechSpec(
-            WIND_QUESTION_TEMPLATES,
-            WindOrdinanceValidator,
-            WindOrdinanceTextExtractor,
-            StructuredWindOrdinanceParser,
-        )
-    elif tech.casefold() == "solar":
-        ts = TechSpec(
-            SOLAR_QUESTION_TEMPLATES,
-            SolarOrdinanceValidator,
-            SolarOrdinanceTextExtractor,
-            StructuredSolarOrdinanceParser,
-        )
-    else:
-        msg = f"Unknown tech input: {tech}"
-        raise COMPASSValueError(msg)
-
     async with log_listener as ll:
         _setup_main_logging(dirs.log_dir, log_level, ll)
         db = await _process_with_logs(
             dirs=dirs,
             log_listener=ll,
             azure_params=ap,
-            tech_specs=ts,
+            tech=tech,
             county_fp=county_fp,
             llm_parse_args=lpa,
             web_search_params=wsp,
@@ -321,7 +303,7 @@ async def _process_with_logs(  # noqa: PLR0914
     dirs,
     log_listener,
     azure_params,
-    tech_specs,
+    tech,
     county_fp=None,
     llm_parse_args=None,
     web_search_params=None,
@@ -353,6 +335,23 @@ async def _process_with_logs(  # noqa: PLR0914
         api_version=azure_params.azure_version,
         azure_endpoint=azure_params.azure_endpoint,
     )
+    if tech.casefold() == "wind":
+        tech_specs = TechSpec(
+            WIND_QUESTION_TEMPLATES,
+            WindOrdinanceValidator,
+            WindOrdinanceTextExtractor,
+            StructuredWindOrdinanceParser,
+        )
+    elif tech.casefold() == "solar":
+        tech_specs = TechSpec(
+            SOLAR_QUESTION_TEMPLATES,
+            SolarOrdinanceValidator,
+            SolarOrdinanceTextExtractor,
+            StructuredSolarOrdinanceParser,
+        )
+    else:
+        msg = f"Unknown tech input: {tech}"
+        raise COMPASSValueError(msg)
 
     services = [
         OpenAIService(client, rate_limit=lpa.llm_service_rate_limit),
