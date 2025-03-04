@@ -413,6 +413,7 @@ async def _process_with_logs(  # noqa: PLR0914
         start_date,
         num_jurisdictions_searched=len(counties),
         num_jurisdictions_found=num_docs_found,
+        llm_parse_args=lpa,
     )
     return db
 
@@ -806,6 +807,7 @@ def _save_run_meta(
     start_date,
     num_jurisdictions_searched,
     num_jurisdictions_found,
+    llm_parse_args,
 ):
     """Write out meta information about ordinance collection run"""
     end_date = datetime.now(UTC).isoformat()
@@ -821,6 +823,15 @@ def _save_run_meta(
         "username": username,
         "versions": {"elm": elm_version, "compass": compass_version},
         "technology": tech,
+        "llm_parse_args": {
+            "llm_call_kwargs": llm_parse_args.llm_call_kwargs,
+            "text_splitter_chunk_size": (
+                llm_parse_args.text_splitter_chunk_size
+            ),
+            "text_splitter_chunk_overlap": (
+                llm_parse_args.text_splitter_chunk_overlap
+            ),
+        },
         "time_start_utc": start_date,
         "time_end_utc": end_date,
         "total_time_seconds": seconds_elapsed,
