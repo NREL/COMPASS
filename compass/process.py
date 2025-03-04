@@ -13,9 +13,11 @@ from datetime import datetime, timedelta, UTC
 import openai
 import pandas as pd
 from elm import ApiBase
+from elm.version import __version__ as elm_version
 from elm.utilities import validate_azure_api_params
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
+from compass import __version__ as compass_version
 from compass.download import download_county_ordinance
 from compass.exceptions import COMPASSValueError
 from compass.extraction import (
@@ -817,9 +819,10 @@ def _save_run_meta(
 
     meta_data = {
         "username": username,
+        "versions": {"elm": elm_version, "compass": compass_version},
         "technology": tech,
-        "datetime_start_utc": start_date,
-        "datetime_end_utc": end_date,
+        "time_start_utc": start_date,
+        "time_end_utc": end_date,
         "total_time_seconds": seconds_elapsed,
         "total_runtime": str(timedelta(seconds=seconds_elapsed)),
         "num_jurisdictions_searched": num_jurisdictions_searched,
