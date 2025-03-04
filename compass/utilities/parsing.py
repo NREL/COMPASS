@@ -5,6 +5,7 @@ import logging
 
 
 logger = logging.getLogger(__name__)
+_ORD_CHECK_COLS = ["value", "adder", "min_dist", "max_dist", "summary"]
 
 
 def llm_response_as_json(content):
@@ -92,3 +93,34 @@ def extract_ord_year_from_doc_attrs(doc):
     """
     year = doc.attrs.get("date", (None, None, None))[0]
     return year if year is not None and year > 0 else None
+
+
+def num_ordinances_in_doc(doc):
+    """Count number of ordinances found in document
+
+    Parameters
+    ----------
+    doc : elm.web.document.Document
+        Document potentially containing ordinances for a jurisdiction.
+        If no ordinance values are found, this function returns ``0``.
+
+    Returns
+    -------
+    int
+        Number of unique ordinance values extracted from this document.
+    """
+    if doc is None:
+        return 0
+
+    if "ordinance_values" not in doc.attrs:
+        return 0
+
+    ord_vals = doc.attrs["ordinance_values"]
+    if ord_vals.empty:
+        return 0
+
+    check_cols = [col for col in _ORD_CHECK_COLS if col in ord_vals]
+    if not check_cols:
+        return 0
+
+    return (~ord_vals[check_cols].isna()).to_numpy().sum(axis=1).sum()
