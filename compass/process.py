@@ -106,6 +106,8 @@ WebSearchParams = namedtuple(
 PARSED_COLS = [
     "county",
     "state",
+    "subdivision",
+    "subdivision_type",
     "FIPS",
     "feature",
     "value",
@@ -120,7 +122,7 @@ PARSED_COLS = [
     "quantitative",
 ]
 QUANT_OUT_COLS = PARSED_COLS[:-1]
-QUAL_OUT_COLS = PARSED_COLS[:4] + PARSED_COLS[-5:-1]
+QUAL_OUT_COLS = PARSED_COLS[:6] + PARSED_COLS[-5:-1]
 
 
 async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
