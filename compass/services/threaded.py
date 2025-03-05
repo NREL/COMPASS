@@ -3,6 +3,7 @@
 import json
 import shutil
 import asyncio
+import hashlib
 from pathlib import Path
 from functools import partial
 from abc import abstractmethod
@@ -17,6 +18,28 @@ from compass.utilities import (
     extract_ord_year_from_doc_attrs,
     num_ordinances_in_doc,
 )
+
+
+def _cache_file_with_hash(doc, file_content, out_dir, make_name_unique=False):
+    """Cache file and compute its hash"""
+    cache_fp = write_url_doc_to_file(
+        doc=doc,
+        file_content=file_content,
+        out_dir=out_dir,
+        make_name_unique=make_name_unique,
+    )
+    return cache_fp, _compute_sha256(file_content)
+
+
+def _compute_sha256(file_content):
+    """Compute sha256 checksum for string or byte input"""
+    m = hashlib.sha256()
+    try:
+        m.update(file_content.encode("utf-8"))
+    except AttributeError:
+        m.update(file_content)
+
+    return f"sha256:{m.hexdigest()}"
 
 
 def _move_file(doc, out_dir):
@@ -153,16 +176,16 @@ class TempFileCache(ThreadedService):
             Path to output file.
         """
         loop = asyncio.get_running_loop()
-        return await loop.run_in_executor(
+        cache_fp, checksum = await loop.run_in_executor(
             self.pool,
-            partial(
-                write_url_doc_to_file,
-                doc,
-                file_content,
-                self._td.name,
-                make_name_unique=make_name_unique,
-            ),
+            _cache_file_with_hash,
+            doc,
+            file_content,
+            self._td.name,
+            make_name_unique,
         )
+        doc.attrs["checksum"] = checksum
+        return cache_fp
 
 
 class StoreFileOnDisk(ThreadedService):
