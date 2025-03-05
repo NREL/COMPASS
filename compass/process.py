@@ -107,7 +107,7 @@ PARSED_COLS = [
     "county",
     "state",
     "subdivision",
-    "subdivision_type",
+    "jurisdiction_type",
     "FIPS",
     "feature",
     "value",

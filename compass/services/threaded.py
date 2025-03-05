@@ -388,7 +388,7 @@ def _dump_jurisdiction_info(fp, county, doc, seconds_elapsed):
         "county": county.name,
         "state": county.state,
         "subdivision": None,
-        "subdivision_type": None,
+        "jurisdiction_type": None,
         "FIPS": county.fips,
         "found": False,
         "total_time": seconds_elapsed,
