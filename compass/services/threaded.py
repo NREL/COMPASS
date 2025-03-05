@@ -396,14 +396,19 @@ def _dump_jurisdiction_info(fp, county, doc, seconds_elapsed):
     }
     if num_ordinances_in_doc(doc) > 0:
         new_info["found"] = True
-        new_info["num_pages"] = len(doc.pages)
-        new_info["source"] = doc.attrs.get("source")
-        new_info["ord_year"] = extract_ord_year_from_doc_attrs(doc)
-        new_info["ord_filename"] = Path(
-            doc.attrs.get("out_fp", "Unknown")
-        ).name
-        new_info["checksum"] = doc.attrs.get("checksum")
+        new_info["documents"] = [_compile_doc_info(doc)]
 
     jurisdiction_info["jurisdictions"].append(new_info)
     with Path.open(fp, "w", encoding="utf-8") as fh:
         json.dump(jurisdiction_info, fh, indent=4)
+
+
+def _compile_doc_info(doc):
+    """Put together meta information about a single document"""
+    return {
+        "source": doc.attrs.get("source"),
+        "ord_year": extract_ord_year_from_doc_attrs(doc),
+        "ord_filename": Path(doc.attrs.get("out_fp", "Unknown")).name,
+        "num_pages": len(doc.pages),
+        "checksum": doc.attrs.get("checksum"),
+    }
