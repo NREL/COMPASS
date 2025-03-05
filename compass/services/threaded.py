@@ -409,6 +409,7 @@ def _dump_jurisdiction_info(fp, county, doc, seconds_elapsed):
         new_info["ord_filename"] = Path(
             doc.attrs.get("out_fp", "Unknown")
         ).name
+        new_info["checksum"] = doc.attrs.get("checksum")
 
     jurisdiction_info["jurisdictions"].append(new_info)
     with Path.open(fp, "w", encoding="utf-8") as fh:
