@@ -5,7 +5,6 @@ import shutil
 import asyncio
 import hashlib
 from pathlib import Path
-from functools import partial
 from abc import abstractmethod
 from tempfile import TemporaryDirectory
 from datetime import datetime, timedelta
@@ -230,9 +229,9 @@ class StoreFileOnDisk(ThreadedService):
         Path | None
             Path to output file, or `None` if no file was stored.
         """
-        return await _run_func_in_pool(
-            self.pool,
-            partial(_PROCESSING_FUNCTIONS[self._PROCESS], doc, self.out_dir),
+        loop = asyncio.get_running_loop()
+        return await loop.run_in_executor(
+            self.pool, _PROCESSING_FUNCTIONS[self._PROCESS], doc, self.out_dir
         )
 
     @property
@@ -298,8 +297,9 @@ class UsageUpdater(ThreadedService):
             added to output file.
         """
         self._is_processing = True
-        await _run_func_in_pool(
-            self.pool, partial(_dump_usage, self.usage_fp, tracker)
+        loop = asyncio.get_running_loop()
+        await loop.run_in_executor(
+            self.pool, _dump_usage, self.usage_fp, tracker
         )
         self._is_processing = False
 
@@ -350,23 +350,16 @@ class JurisdictionUpdater(ThreadedService):
             parse) this document.
         """
         self._is_processing = True
-        await _run_func_in_pool(
+        loop = asyncio.get_running_loop()
+        await loop.run_in_executor(
             self.pool,
-            partial(
-                _dump_jurisdiction_info,
-                self.jurisdiction_fp,
-                county,
-                doc,
-                seconds_elapsed,
-            ),
+            _dump_jurisdiction_info,
+            self.jurisdiction_fp,
+            county,
+            doc,
+            seconds_elapsed,
         )
         self._is_processing = False
-
-
-async def _run_func_in_pool(pool, callable_fn):
-    """Run a callable in process pool"""
-    loop = asyncio.get_running_loop()
-    return await loop.run_in_executor(pool, callable_fn)
 
 
 def _dump_usage(fp, tracker):
