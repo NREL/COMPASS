@@ -328,6 +328,7 @@ async def _process_with_logs(  # noqa: PLR0914
         chunk_size=lpa.text_splitter_chunk_size,
         chunk_overlap=lpa.text_splitter_chunk_overlap,
         length_function=partial(ApiBase.count_tokens, model=lpa.model),
+        is_separator_regex=True,
     )
     client = openai.AsyncAzureOpenAI(
         api_key=azure_params.azure_api_key,
