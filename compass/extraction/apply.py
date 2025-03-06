@@ -112,7 +112,7 @@ async def extract_ordinance_text_with_ngram_validation(
     """Extract ordinance text for a single document with known ord info
 
     This extraction includes an "ngram" check, which attempts to detect
-    wether or not the cleaned text was extracted from the original
+    whether or not the cleaned text was extracted from the original
     ordinance text. The processing will attempt to re-extract the text
     if the validation does not pass a certain threshold until the
     maximum number of attempts is reached. If the text still does not

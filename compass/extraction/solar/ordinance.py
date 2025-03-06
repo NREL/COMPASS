@@ -58,10 +58,10 @@ class SolarOrdinanceValidator(ValidationWithMemory):
     """Check document text for solar ordinances
 
     Purpose:
-        Determine wether a document contains relevant ordinance
+        Determine whether a document contains relevant ordinance
         information.
     Responsibilities:
-        1. Determine wether a document contains relevant (e.g.
+        1. Determine whether a document contains relevant (e.g.
         utility-scale solar zoning) ordinance information by splitting
         the text into chunks and parsing them individually using LLMs.
     Key Relationships:
@@ -103,7 +103,7 @@ class SolarOrdinanceValidator(ValidationWithMemory):
 
     IS_UTILITY_SCALE_PROMPT = (
         "You are a legal scholar that reads ordinance text and determines "
-        "wether it applies to large solar energy systems. Large solar energy "
+        "whether it applies to large solar energy systems. Large solar energy "
         "systems (SES) may also be referred to as solar panels, solar energy "
         "conversion systems (SECS), solar energy facilities (SEF), solar "
         "energy farms (SEF), solar farms (SF), utility-scale solar energy "

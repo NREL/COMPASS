@@ -81,10 +81,10 @@ class WindOrdinanceValidator(ValidationWithMemory):
     """Check document text for wind ordinances
 
     Purpose:
-        Determine wether a document contains relevant ordinance
+        Determine whether a document contains relevant ordinance
         information.
     Responsibilities:
-        1. Determine wether a document contains relevant (e.g.
+        1. Determine whether a document contains relevant (e.g.
         utility-scale wind zoning) ordinance information by splitting
         the text into chunks and parsing them individually using LLMs.
     Key Relationships:
