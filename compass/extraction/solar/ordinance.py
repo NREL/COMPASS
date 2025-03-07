@@ -34,7 +34,6 @@ RESTRICTIONS = """- buildings / structures / residences
 - glare limits
 - visual impact assessment requirements
 """
-MIN_CHARS_IN_VALID_CHUNK = 20
 _LARGE_SEF_DESCRIPTION = (
     "Large solar energy systems (SES) may also be referred to as solar "
     "panels, solar energy conversion systems (SECS), solar energy "
@@ -371,7 +370,7 @@ class SolarOrdinanceTextExtractor:
         return await self._process(
             text_chunks=text_chunks,
             instructions=self.MODEL_INSTRUCTIONS_RESTRICTIONS,
-            valid_chunk=_valid_chunk_not_short,
+            valid_chunk=_valid_chunk,
         )
 
     async def check_for_correct_size(self, text_chunks):
@@ -414,8 +413,3 @@ class SolarOrdinanceTextExtractor:
 def _valid_chunk(chunk):
     """True if chunk has content"""
     return chunk and "no relevant text" not in chunk.lower()
-
-
-def _valid_chunk_not_short(chunk):
-    """True if chunk has content and is not too short"""
-    return _valid_chunk(chunk) and len(chunk) > MIN_CHARS_IN_VALID_CHUNK

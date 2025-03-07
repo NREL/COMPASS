@@ -35,7 +35,6 @@ RESTRICTIONS = """- buildings / structures / residences
 - blade ground clearance limits
 - visual impact assessment requirements
 """
-MIN_CHARS_IN_VALID_CHUNK = 20
 _LARGE_WES_DESCRIPTION = (
     "Large wind energy systems (WES) may also be referred to as wind "
     "turbines, wind energy conversion systems (WECS), wind energy "
@@ -392,7 +391,7 @@ class WindOrdinanceTextExtractor:
         return await self._process(
             text_chunks=text_chunks,
             instructions=self.MODEL_INSTRUCTIONS_RESTRICTIONS,
-            valid_chunk=_valid_chunk_not_short,
+            valid_chunk=_valid_chunk,
         )
 
     async def check_for_correct_size(self, text_chunks):
@@ -435,8 +434,3 @@ class WindOrdinanceTextExtractor:
 def _valid_chunk(chunk):
     """True if chunk has content"""
     return chunk and "no relevant text" not in chunk.lower()
-
-
-def _valid_chunk_not_short(chunk):
-    """True if chunk has content and is not too short"""
-    return _valid_chunk(chunk) and len(chunk) > MIN_CHARS_IN_VALID_CHUNK
