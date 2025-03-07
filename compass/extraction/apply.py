@@ -203,7 +203,7 @@ async def _extract_with_ngram_check(
 
     best_score = 0
     best_summary = ""
-    for attempt in range(num_tries):
+    for attempt in range(num_tries, start=1):
         doc = await extract_ordinance_text_with_llm(
             doc, text_splitter, extractor
         )
@@ -245,8 +245,8 @@ async def _extract_with_ngram_check(
     else:
         doc.attrs["cleaned_ordinance_text"] = best_summary
         msg = (
-            f"Ngram check failed after {num_tries}. LLM hallucination in "
-            "cleaned ordinance text is extremely likely! Proceed with "
+            f"Ngram check failed after {num_tries} tries. LLM hallucination "
+            "in cleaned ordinance text is extremely likely! Proceed with "
             f"caution!! (Document source: {best_score})"
         )
         logger.warning(msg)
