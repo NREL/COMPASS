@@ -56,6 +56,11 @@ async def check_for_ordinance_info(
     if doc.attrs["contains_ord_info"]:
         doc.attrs["date"] = await DateExtractor(llm_caller).parse(doc)
         doc.attrs["ordinance_text"] = validator.ordinance_text
+        logger.debug(
+            "Ordinance text for %s is:\n%s",
+            doc.attrs.get("source", "unknown source"),
+            doc.attrs["ordinance_text"],
+        )
 
     return doc
 
