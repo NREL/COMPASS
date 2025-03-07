@@ -182,6 +182,8 @@ class WindOrdinanceValidator(ValidationWithMemory):
     @property
     def ordinance_text(self):
         """str: Combined ordinance text from the individual chunks"""
+        logger.debug("Ordinance chunk inds: %s", self._ordinance_chunk_inds)
+
         inds_to_grab = set()
         for ind in self._ordinance_chunk_inds:
             inds_to_grab |= {ind + x for x in range(1 - self.num_to_recall, 2)}
@@ -191,6 +193,11 @@ class WindOrdinanceValidator(ValidationWithMemory):
             for ind in sorted(inds_to_grab)
             if 0 <= ind < len(self.text_chunks)
         ]
+        logger.debug(
+            "Grabbing %d chunk(s) from original text at these indices: %s",
+            len(inds_to_grab),
+            inds_to_grab,
+        )
 
         text = [self.text_chunks[ind] for ind in inds_to_grab]
         return merge_overlapping_texts(text)
