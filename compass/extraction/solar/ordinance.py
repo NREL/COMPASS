@@ -35,6 +35,25 @@ RESTRICTIONS = """- buildings / structures / residences
 - visual impact assessment requirements
 """
 MIN_CHARS_IN_VALID_CHUNK = 20
+_LARGE_SEF_DESCRIPTION = (
+    "Large solar energy systems (SES) may also be referred to as solar "
+    "panels, solar energy conversion systems (SECS), solar energy "
+    "facilities (SEF), solar energy farms (SEF), solar farms (SF), "
+    "utility-scale solar energy systems (USES), commercial solar energy "
+    "systems (CSES), or similar. "
+)
+_SEARCH_TERMS_AND = (
+    "zoning, special permitting, siting and setback, system design, and "
+    "operational requirements/restrictions"
+)
+_SEARCH_TERMS_OR = (
+    "zoning, special permitting, siting and setback, system design, or "
+    "operational requirements/restrictions"
+)
+_IGNORE_TYPES = "private, residential, micro, small, or medium sized"
+_TRACK_BANS = (
+    "Note that solar energy bans are an important restriction to track. "
+)
 
 
 class SolarHeuristic(Heuristic):
@@ -87,37 +106,30 @@ class SolarOrdinanceValidator(ValidationWithMemory):
 
     CONTAINS_ORD_PROMPT = (
         "You extract structured data from text. Return your answer in JSON "
-        "format (not markdown). Your JSON file must include exactly three "
+        "format (not markdown). Your JSON file must include exactly two "
         "keys. The first key is 'solar_reqs', which is a string that "
-        "summarizes the setbacks or other siting requirements (if any) given "
-        "in the text for solar energy systems. The second key is 'reqs', "
-        "which lists the quantitative values from the text excerpt that can "
-        "be used to compute setbacks or other siting requirements for a "
-        "solar energy system (empty list if none exist in the text). The "
-        "last key is '{key}', which is a boolean that is set to True if the "
-        "text excerpt provides enough info to compute quantitative setbacks "
-        "or other siting requirements for a solar energy system and False "
-        "otherwise. Siting is impacted by any of the following:\n"
-        f"{RESTRICTIONS}"
+        f"summarizes all {_SEARCH_TERMS_AND} (if given) "
+        "in the text for solar energy systems. "
+        f"{_TRACK_BANS}"
+        "The last key is '{key}', which is a boolean that is set to True if "
+        f"the text excerpt describes {_SEARCH_TERMS_OR} for "
+        "a solar energy system and False otherwise."
     )
 
     IS_UTILITY_SCALE_PROMPT = (
         "You are a legal scholar that reads ordinance text and determines "
-        "whether it applies to large solar energy systems. Large solar energy "
-        "systems (SES) may also be referred to as solar panels, solar energy "
-        "conversion systems (SECS), solar energy facilities (SEF), solar "
-        "energy farms (SEF), solar farms (SF), utility-scale solar energy "
-        "systems (USES), commercial solar energy systems (CSES), or similar. "
+        f"whether it applies to {_SEARCH_TERMS_OR} for "
+        f"large solar energy systems. {_LARGE_SEF_DESCRIPTION}"
         "Your client is a commercial solar developer that does not "
-        "care about ordinances related to private, micro, small, or medium "
-        "sized solar energy systems. Ignore any text related to such systems. "
+        f"care about ordinances related to {_IGNORE_TYPES} solar energy "
+        "systems. Ignore any text related to such systems. "
         "Return your answer in JSON format (not markdown). Your JSON file "
         "must include exactly two keys. The first key is 'summary' which "
         "contains a string that summarizes the types of solar energy systems "
         "the text applies to (if any). The second key is '{key}', which is a "
-        "boolean that is set to True if any part of the text excerpt is "
-        "applicable to the large solar energy conversion systems that the "
-        "client is interested in and False otherwise."
+        "boolean that is set to True if any part of the text excerpt mentions "
+        f"{_SEARCH_TERMS_OR} for the large solar energy conversion "
+        "systems that the client is interested in and False otherwise."
     )
 
     def __init__(self, structured_llm_caller, text_chunks, num_to_recall=2):

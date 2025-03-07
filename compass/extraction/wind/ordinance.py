@@ -36,6 +36,25 @@ RESTRICTIONS = """- buildings / structures / residences
 - visual impact assessment requirements
 """
 MIN_CHARS_IN_VALID_CHUNK = 20
+_LARGE_WES_DESCRIPTION = (
+    "Large wind energy systems (WES) may also be referred to as wind "
+    "turbines, wind energy conversion systems (WECS), wind energy "
+    "facilities (WEF), wind energy turbines (WET), large wind energy "
+    "turbines (LWET), utility-scale wind energy turbines (UWET), "
+    "commercial wind energy systems, or similar. "
+)
+_SEARCH_TERMS_AND = (
+    "zoning, special permitting, siting and setback, system design, and "
+    "operational requirements/restrictions"
+)
+_SEARCH_TERMS_OR = (
+    "zoning, special permitting, siting and setback, system design, or "
+    "operational requirements/restrictions"
+)
+_IGNORE_TYPES = "private, residential, micro, small, or medium sized"
+_TRACK_BANS = (
+    "Note that wind energy bans are an important restriction to track. "
+)
 
 
 class WindHeuristic(Heuristic):
@@ -110,37 +129,30 @@ class WindOrdinanceValidator(ValidationWithMemory):
 
     CONTAINS_ORD_PROMPT = (
         "You extract structured data from text. Return your answer in JSON "
-        "format (not markdown). Your JSON file must include exactly three "
+        "format (not markdown). Your JSON file must include exactly two "
         "keys. The first key is 'wind_reqs', which is a string that "
-        "summarizes the setbacks or other geospatial siting requirements (if "
-        "any) given in the text for a wind turbine. The second key is 'reqs', "
-        "which lists the quantitative values from the text excerpt that can "
-        "be used to compute setbacks or other geospatial siting requirements "
-        "for a wind turbine/tower (empty list if none exist in the text). The "
-        "last key is '{key}', which is a boolean that is set to True if the "
-        "text excerpt provides enough quantitative info to compute setbacks "
-        "or other geospatial siting requirements for a wind turbine/tower "
-        "and False otherwise. Geospatial siting is impacted by any of the "
-        f"following:\n{RESTRICTIONS}"
+        f"summarizes all {_SEARCH_TERMS_AND} (if given) "
+        "in the text for a wind energy system (or wind turbine/tower). "
+        f"{_TRACK_BANS}"
+        "The last key is '{key}', which is a boolean that is set to True if "
+        f"the text excerpt describes {_SEARCH_TERMS_OR} for "
+        "a wind energy system (or wind turbine/tower) and False otherwise. "
     )
 
     IS_UTILITY_SCALE_PROMPT = (
         "You are a legal scholar that reads ordinance text and determines "
-        "wether it applies to large wind energy systems. Large wind energy "
-        "systems (WES) may also be referred to as wind turbines, wind energy "
-        "conversion systems (WECS), wind energy facilities (WEF), wind energy "
-        "turbines (WET), large wind energy turbines (LWET), utility-scale "
-        "wind energy turbines (UWET), commercial wind energy systems, or "
-        "similar. Your client is a commercial wind developer that does not "
-        "care about ordinances related to private, micro, small, or medium "
-        "sized wind energy systems. Ignore any text related to such systems. "
+        f"whether any of it applies to {_SEARCH_TERMS_OR} for "
+        f"large wind energy systems. {_LARGE_WES_DESCRIPTION}"
+        "Your client is a commercial wind developer that does not "
+        f"care about ordinances related to {_IGNORE_TYPES} wind energy "
+        "systems. Ignore any text related to such systems. "
         "Return your answer in JSON format (not markdown). Your JSON file "
         "must include exactly two keys. The first key is 'summary' which "
-        "contains a string that summarizes the types of wind energy systems "
+        "contains a string that lists all of the types of wind energy systems "
         "the text applies to (if any). The second key is '{key}', which is a "
-        "boolean that is set to True if any part of the text excerpt is "
-        "applicable to the large wind energy conversion systems that the "
-        "client is interested in and False otherwise."
+        "boolean that is set to True if any part of the text excerpt mentions "
+        f"{_SEARCH_TERMS_OR} for the large wind energy conversion "
+        "systems that the client is interested in and False otherwise."
     )
 
     def __init__(self, structured_llm_caller, text_chunks, num_to_recall=2):
