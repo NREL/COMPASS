@@ -313,14 +313,13 @@ class WindOrdinanceTextExtractor:
         '"No relevant text."'
     )
 
-    MODEL_INSTRUCTIONS_RESTRICTIONS = (
-        "Extract all portions of the text related to the restrictions "
-        "of large wind energy systems with respect to any of the following:\n"
-        f"{RESTRICTIONS}"
-        "Include section headers (if any) for the text excerpts. Also include "
-        "any text excerpts that define what kind of large wind energy "
-        "conversion system the restriction applies to. If there is no text "
-        "related to siting restrictions of large wind systems, simply say: "
+    WIND_ENERGY_SYSTEM_FILTER_PROMPT = (
+        "Extract the full text for all sections pertaining to wind "
+        "energy conversion systems. Remove sections that definitely do "
+        "not pertain to wind energy conversion systems. "
+        f"{_TRACK_BANS}"
+        "If there is no text that pertains to wind energy conversion "
+        "systems, simply say: "
         '"No relevant text."'
     )
     MODEL_INSTRUCTIONS_SIZE = (
@@ -403,6 +402,27 @@ class WindOrdinanceTextExtractor:
             valid_chunk=_valid_chunk,
         )
 
+    async def extract_wind_energy_system_text(self, text_chunks):
+        """Extract ordinance text from input text chunks for WES
+
+        Parameters
+        ----------
+        text_chunks : list of str
+            List of strings, each of which represent a chunk of text.
+            The order of the strings should be the order of the text
+            chunks.
+
+        Returns
+        -------
+        str
+            Ordinance text extracted from text chunks.
+        """
+        return await self._process(
+            text_chunks=text_chunks,
+            instructions=self.WIND_ENERGY_SYSTEM_FILTER_PROMPT,
+            valid_chunk=_valid_chunk,
+        )
+
     async def check_for_restrictions(self, text_chunks):
         """Extract restriction ordinance text from input text chunks
 
@@ -458,6 +478,7 @@ class WindOrdinanceTextExtractor:
             text.
         """
         yield "energy_systems_text", self.extract_energy_system_text
+        yield "wind_energy_systems_text", self.check_for_wind_energy_system
         yield "restrictions_ordinance_text", self.check_for_restrictions
         yield "cleaned_ordinance_text", self.check_for_correct_size
 

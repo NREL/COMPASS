@@ -291,6 +291,15 @@ class SolarOrdinanceTextExtractor:
         "that pertains to energy conversion systems, simply say: "
         '"No relevant text."'
     )
+    SOLAR_ENERGY_SYSTEM_FILTER_PROMPT = (
+        "Extract the full text for all sections pertaining to solar energy"
+        "conversion systems (or solar farms). Remove sections that "
+        "definitely do not pertain to solar energy conversion systems. "
+        f"{_TRACK_BANS}"
+        "If there is no text that pertains to solar energy conversion "
+        "systems, simply say: "
+        '"No relevant text."'
+    )
     MODEL_INSTRUCTIONS_RESTRICTIONS = (
         "Extract all portions of the text related to the restrictions "
         "of large solar energy systems with respect to any of the following:\n"
@@ -381,6 +390,27 @@ class SolarOrdinanceTextExtractor:
             valid_chunk=_valid_chunk,
         )
 
+    async def extract_solar_energy_system_text(self, text_chunks):
+        """Extract ordinance text from input text chunks for SEF
+
+        Parameters
+        ----------
+        text_chunks : list of str
+            List of strings, each of which represent a chunk of text.
+            The order of the strings should be the order of the text
+            chunks.
+
+        Returns
+        -------
+        str
+            Ordinance text extracted from text chunks.
+        """
+        return await self._process(
+            text_chunks=text_chunks,
+            instructions=self.SOLAR_ENERGY_SYSTEM_FILTER_PROMPT,
+            valid_chunk=_valid_chunk,
+        )
+
     async def check_for_restrictions(self, text_chunks):
         """Extract restriction ordinance text from input text chunks
 
@@ -436,6 +466,10 @@ class SolarOrdinanceTextExtractor:
             text.
         """
         yield "energy_systems_text", self.extract_energy_system_text
+        yield (
+            "solar_energy_systems_text",
+            self.extract_solar_energy_system_text,
+        )
         yield "restrictions_ordinance_text", self.check_for_restrictions
         yield "cleaned_ordinance_text", self.check_for_correct_size
 
