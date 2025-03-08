@@ -155,10 +155,8 @@ class SolarOrdinanceValidator(ValidationWithMemory):
         logger.debug("Ordinance chunk inds: %s", self._ordinance_chunk_inds)
 
         inds_to_grab = set()
-        for info in self._ordinance_chunk_inds:
-            inds_to_grab |= {
-                info["ind"] + x for x in range(1 - self.num_to_recall, 2)
-            }
+        for ind in self._ordinance_chunk_inds:
+            inds_to_grab |= {ind + x for x in range(1 - self.num_to_recall, 2)}
 
         inds_to_grab = [
             ind
@@ -450,7 +448,10 @@ class SolarOrdinanceTextExtractor:
             "large_solar_energy_systems_text",
             self.extract_large_solar_energy_system_section,
         )
-        yield "cleaned_ordinance_text", self.check_for_correct_size
+        yield (
+            "cleaned_ordinance_text",
+            self.extract_large_solar_energy_system_text,
+        )
 
 
 def _valid_chunk(chunk):
