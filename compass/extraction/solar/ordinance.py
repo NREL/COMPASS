@@ -16,24 +16,6 @@ from compass.utilities.parsing import merge_overlapping_texts
 logger = logging.getLogger(__name__)
 
 
-RESTRICTIONS = """- buildings / structures / residences
-- property lines / parcels / subdivisions
-- roads / rights-of-way
-- railroads
-- overhead electrical transmission wires
-- bodies of water including wetlands, lakes, reservoirs, streams, and rivers
-- natural, wildlife, and environmental conservation areas
-- noise limits
-- density limits
-- height limits
-- minimum/maximum lot size
-- maximum project size
-- moratorium or bans
-- decommissioning plans/requirements
-- land coverage limits
-- glare limits
-- visual impact assessment requirements
-"""
 _LARGE_SEF_DESCRIPTION = (
     "Large solar energy systems (SES) may also be referred to as solar "
     "panels, solar energy conversion systems (SECS), solar energy "

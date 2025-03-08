@@ -16,25 +16,6 @@ from compass.utilities.parsing import merge_overlapping_texts
 logger = logging.getLogger(__name__)
 
 
-RESTRICTIONS = """- buildings / structures / residences
-- property lines / parcels / subdivisions
-- roads / rights-of-way
-- railroads
-- overhead electrical transmission wires
-- bodies of water including wetlands, lakes, reservoirs, streams, and rivers
-- natural, wildlife, and environmental conservation areas
-- noise limits
-- shadow flicker limits
-- density limits
-- turbine height limits
-- minimum/maximum lot size
-- maximum project size
-- moratorium or bans
-- decommissioning requirements
-- lighting requirements
-- blade ground clearance limits
-- visual impact assessment requirements
-"""
 _LARGE_WES_DESCRIPTION = (
     "Large wind energy systems (WES) may also be referred to as wind "
     "turbines, wind energy conversion systems (WECS), wind energy "
