@@ -322,11 +322,20 @@ class WindOrdinanceTextExtractor:
         "systems, simply say: "
         '"No relevant text."'
     )
-    LARGE_WIND_ENERGY_SYSTEM_FILTER_PROMPT = (
+    LARGE_WIND_ENERGY_SYSTEM_SECTION_FILTER_PROMPT = (
         "Extract the full text for all sections pertaining to large wind "
         "energy systems.  "
         f"{_TRACK_BANS}{_LARGE_WES_DESCRIPTION}"
         f"Remove all sections that explicitly only apply to {_IGNORE_TYPES} "
+        "wind energy systems. Keep section headers (if any). If there is "
+        "no text pertaining to large wind systems, simply say: "
+        '"No relevant text."'
+    )
+    LARGE_WIND_ENERGY_SYSTEM_TEXT_FILTER_PROMPT = (
+        "Extract all portions of the text that apply to large wind energy "
+        "systems."
+        f"{_TRACK_BANS}{_LARGE_WES_DESCRIPTION}"
+        f"Remove all text that explicitly only applies to {_IGNORE_TYPES} "
         "wind energy systems. Keep section headers (if any). If there is "
         "no text pertaining to large wind systems, simply say: "
         '"No relevant text."'
@@ -376,7 +385,7 @@ class WindOrdinanceTextExtractor:
         )
         return text_summary
 
-    async def extract_energy_system_text(self, text_chunks):
+    async def extract_energy_system_section(self, text_chunks):
         """Extract ordinance text from input text chunks for energy sys
 
         Parameters
@@ -397,7 +406,7 @@ class WindOrdinanceTextExtractor:
             valid_chunk=_valid_chunk,
         )
 
-    async def extract_wind_energy_system_text(self, text_chunks):
+    async def extract_wind_energy_system_section(self, text_chunks):
         """Extract ordinance text from input text chunks for WES
 
         Parameters
@@ -418,7 +427,7 @@ class WindOrdinanceTextExtractor:
             valid_chunk=_valid_chunk,
         )
 
-    async def extract_large_wind_energy_system_text(self, text_chunks):
+    async def extract_large_wind_energy_system_section(self, text_chunks):
         """Extract large WES ordinance text from input text chunks
 
         Parameters
@@ -435,11 +444,11 @@ class WindOrdinanceTextExtractor:
         """
         return await self._process(
             text_chunks=text_chunks,
-            instructions=self.LARGE_WIND_ENERGY_SYSTEM_FILTER_PROMPT,
+            instructions=self.LARGE_WIND_ENERGY_SYSTEM_SECTION_FILTER_PROMPT,
             valid_chunk=_valid_chunk,
         )
 
-    async def check_for_correct_size(self, text_chunks):
+    async def extract_large_wind_energy_system_text(self, text_chunks):
         """Extract ordinance text from input text chunks for large WES
 
         Parameters
@@ -456,7 +465,7 @@ class WindOrdinanceTextExtractor:
         """
         return await self._process(
             text_chunks=text_chunks,
-            instructions=self.MODEL_INSTRUCTIONS_SIZE,
+            instructions=self.LARGE_WIND_ENERGY_SYSTEM_TEXT_FILTER_PROMPT,
             valid_chunk=_valid_chunk,
         )
 
@@ -472,13 +481,19 @@ class WindOrdinanceTextExtractor:
             Parser that takes a `text_chunks` input and outputs parsed
             text.
         """
-        yield "energy_systems_text", self.extract_energy_system_text
-        yield "wind_energy_systems_text", self.extract_wind_energy_system_text
+        yield "energy_systems_text", self.extract_energy_system_section
+        yield (
+            "wind_energy_systems_text",
+            self.extract_wind_energy_system_section,
+        )
         yield (
             "large_wind_energy_systems_text",
+            self.extract_large_wind_energy_system_section,
+        )
+        yield (
+            "cleaned_ordinance_text",
             self.extract_large_wind_energy_system_text,
         )
-        yield "cleaned_ordinance_text", self.check_for_correct_size
 
 
 def _valid_chunk(chunk):
