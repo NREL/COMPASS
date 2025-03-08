@@ -300,6 +300,15 @@ class SolarOrdinanceTextExtractor:
         "systems, simply say: "
         '"No relevant text."'
     )
+    LARGE_SOLAR_ENERGY_SYSTEM_FILTER_PROMPT = (
+        "Extract the full text for all sections pertaining to large solar "
+        "energy systems (or solar farms). "
+        f"{_TRACK_BANS}{_LARGE_SEF_DESCRIPTION}"
+        f"Remove all sections that explicitly only apply to {_IGNORE_TYPES} "
+        "solar energy systems. Keep section headers (if any). If there is "
+        "no text pertaining to large solar systems, simply say: "
+        '"No relevant text."'
+    )
     MODEL_INSTRUCTIONS_RESTRICTIONS = (
         "Extract all portions of the text related to the restrictions "
         "of large solar energy systems with respect to any of the following:\n"
@@ -411,8 +420,8 @@ class SolarOrdinanceTextExtractor:
             valid_chunk=_valid_chunk,
         )
 
-    async def check_for_restrictions(self, text_chunks):
-        """Extract restriction ordinance text from input text chunks
+    async def extract_large_solar_energy_system_text(self, text_chunks):
+        """Extract large SEF ordinance text from input text chunks
 
         Parameters
         ----------
@@ -428,7 +437,7 @@ class SolarOrdinanceTextExtractor:
         """
         return await self._process(
             text_chunks=text_chunks,
-            instructions=self.MODEL_INSTRUCTIONS_RESTRICTIONS,
+            instructions=self.LARGE_SOLAR_ENERGY_SYSTEM_FILTER_PROMPT,
             valid_chunk=_valid_chunk,
         )
 
@@ -470,7 +479,10 @@ class SolarOrdinanceTextExtractor:
             "solar_energy_systems_text",
             self.extract_solar_energy_system_text,
         )
-        yield "restrictions_ordinance_text", self.check_for_restrictions
+        yield (
+            "large_solar_energy_systems_text",
+            self.extract_large_solar_energy_system_text,
+        )
         yield "cleaned_ordinance_text", self.check_for_correct_size
 
 
