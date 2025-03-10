@@ -100,7 +100,7 @@ pdoc = { features = ["python-doc", "doc"], solve-group = "python" }
 
 [tool.pixi.feature.rust-dev.dependencies]
 rust = ">=1.85.0,<1.86"
-cxx-compiler = ">=1.8.0,<2"
+cxx-compiler = ">=1.9.0,<2"
 
 [tool.pixi.feature.python-default.dependencies]
 aiohttp = ">=3.11.6,<4"
