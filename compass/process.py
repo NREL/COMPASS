@@ -31,7 +31,8 @@ from compass.extraction.solar import (
     SOLAR_QUESTION_TEMPLATES,
 )
 from compass.extraction.wind import (
-    WindOrdinanceValidator,
+    WindHeuristic,
+    WindOrdinanceTextCollector,
     WindOrdinanceTextExtractor,
     StructuredWindOrdinanceParser,
     WIND_QUESTION_TEMPLATES,
@@ -67,7 +68,13 @@ from compass.utilities.queued_logging import (
 logger = logging.getLogger(__name__)
 TechSpec = namedtuple(
     "TechSpec",
-    ["questions", "document_validator", "text_extractor", "structured_parser"],
+    [
+        "questions",
+        "heuristic",
+        "ordinance_text_collector",
+        "text_extractor",
+        "structured_parser",
+    ],
 )
 ProcessKwargs = namedtuple(
     "ProcessKwargs",
@@ -338,7 +345,8 @@ async def _process_with_logs(  # noqa: PLR0914
     if tech.casefold() == "wind":
         tech_specs = TechSpec(
             WIND_QUESTION_TEMPLATES,
-            WindOrdinanceValidator,
+            WindHeuristic(),
+            WindOrdinanceTextCollector,
             WindOrdinanceTextExtractor,
             StructuredWindOrdinanceParser,
         )
@@ -649,7 +657,8 @@ async def _find_documents_with_location_attr(
         tech_specs.questions,
         county,
         text_splitter,
-        validator_class=tech_specs.document_validator,
+        heuristic=tech_specs.heuristic,
+        ordinance_text_collector_class=tech_specs.ordinance_text_collector,
         num_urls=num_urls,
         file_loader_kwargs=file_loader_kwargs,
         browser_semaphore=browser_semaphore,
