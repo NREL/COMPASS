@@ -185,7 +185,6 @@ class WindOrdinanceTextCollector:
 
         self._ordinance_chunk_inds.append(ind)
         logger.debug("Added text at ind %d to ordinances", ind)
-        # mask, since we got a good result
 
         return True
 
