@@ -5,8 +5,12 @@ from .ordinance import (
     WindOrdinanceTextCollector,
     WindOrdinanceTextExtractor,
     WindPermittedUseDistrictsTextCollector,
+    WindPermittedUseDistrictsTextExtractor,
 )
-from .parse import StructuredWindOrdinanceParser
+from .parse import (
+    StructuredWindOrdinanceParser,
+    StructuredWindPermittedUseDistrictsParser,
+)
 
 
 WIND_QUESTION_TEMPLATES = [
