@@ -333,7 +333,7 @@ class SolarOrdinanceTextExtractor:
             chunk for chunk in summary_chunks if valid_chunk(chunk)
         ]
 
-        text_summary = "\n".join(summary_chunks)
+        text_summary = merge_overlapping_texts(summary_chunks)
         logger.debug(
             "Final summary contains %d tokens",
             ApiBase.count_tokens(
