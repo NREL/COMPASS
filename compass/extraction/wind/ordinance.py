@@ -4,11 +4,9 @@ These are primarily used to validate that a legal document applies to a
 particular technology (e.g. Large Wind Energy Conversion Systems).
 """
 
-import asyncio
 import logging
 
-from elm import ApiBase
-
+from compass.extraction.common import BaseTextExtractor
 from compass.validation.content import Heuristic
 from compass.utilities.parsing import merge_overlapping_texts
 
@@ -249,7 +247,7 @@ class WindPermittedUseDistrictsTextCollector:
         return merge_overlapping_texts(text)
 
 
-class WindOrdinanceTextExtractor:
+class WindOrdinanceTextExtractor(BaseTextExtractor):
     """Extract succinct ordinance text from input
 
     Purpose:
@@ -263,14 +261,6 @@ class WindOrdinanceTextExtractor:
         LLM queries.
     """
 
-    SYSTEM_MESSAGE = (
-        "You extract one or more direct excerpts from a given text based on "
-        "the user's request. Maintain all original formatting and characters "
-        "without any paraphrasing. If the relevant text is inside of a "
-        "space-delimited table, return the entire table with the original "
-        "space-delimited formatting. Never paraphrase! Only return portions "
-        "of the original text directly."
-    )
     ENERGY_SYSTEM_FILTER_PROMPT = (
         "Extract the full text for all sections pertaining to energy "
         "conversion systems. Remove sections that definitely do not pertain "
@@ -308,50 +298,6 @@ class WindOrdinanceTextExtractor:
         '"No relevant text."'
     )
 
-    def __init__(self, llm_caller):
-        """
-
-        Parameters
-        ----------
-        llm_caller : compass.llm.LLMCaller
-            LLM Caller instance used to extract ordinance info with.
-        """
-        self.llm_caller = llm_caller
-
-    async def _process(self, text_chunks, instructions, valid_chunk):
-        """Perform extraction processing"""
-        logger.info(
-            "Extracting ordinance text from %d text chunks asynchronously...",
-            len(text_chunks),
-        )
-        logger.debug("Model instructions are:\n%s", instructions)
-        outer_task_name = asyncio.current_task().get_name()
-        summaries = [
-            asyncio.create_task(
-                self.llm_caller.call(
-                    sys_msg=self.SYSTEM_MESSAGE,
-                    content=f"Text:\n{chunk}\n{instructions}",
-                    usage_sub_label="document_ordinance_summary",
-                ),
-                name=outer_task_name,
-            )
-            for chunk in text_chunks
-        ]
-        summary_chunks = await asyncio.gather(*summaries)
-        summary_chunks = [
-            chunk for chunk in summary_chunks if valid_chunk(chunk)
-        ]
-
-        text_summary = merge_overlapping_texts(summary_chunks)
-        logger.debug(
-            "Final summary contains %d tokens",
-            ApiBase.count_tokens(
-                text_summary,
-                model=self.llm_caller.kwargs.get("model", "gpt-4"),
-            ),
-        )
-        return text_summary
-
     async def extract_energy_system_section(self, text_chunks):
         """Extract ordinance text from input text chunks for energy sys
 
@@ -370,7 +316,7 @@ class WindOrdinanceTextExtractor:
         return await self._process(
             text_chunks=text_chunks,
             instructions=self.ENERGY_SYSTEM_FILTER_PROMPT,
-            valid_chunk=_valid_chunk,
+            is_valid_chunk=_valid_chunk,
         )
 
     async def extract_wind_energy_system_section(self, text_chunks):
@@ -391,7 +337,7 @@ class WindOrdinanceTextExtractor:
         return await self._process(
             text_chunks=text_chunks,
             instructions=self.WIND_ENERGY_SYSTEM_FILTER_PROMPT,
-            valid_chunk=_valid_chunk,
+            is_valid_chunk=_valid_chunk,
         )
 
     async def extract_large_wind_energy_system_section(self, text_chunks):
@@ -412,7 +358,7 @@ class WindOrdinanceTextExtractor:
         return await self._process(
             text_chunks=text_chunks,
             instructions=self.LARGE_WIND_ENERGY_SYSTEM_SECTION_FILTER_PROMPT,
-            valid_chunk=_valid_chunk,
+            is_valid_chunk=_valid_chunk,
         )
 
     async def extract_large_wind_energy_system_text(self, text_chunks):
@@ -433,7 +379,7 @@ class WindOrdinanceTextExtractor:
         return await self._process(
             text_chunks=text_chunks,
             instructions=self.LARGE_WIND_ENERGY_SYSTEM_TEXT_FILTER_PROMPT,
-            valid_chunk=_valid_chunk,
+            is_valid_chunk=_valid_chunk,
         )
 
     @property
