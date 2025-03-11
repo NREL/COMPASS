@@ -25,6 +25,7 @@ async def download_county_ordinance(
     text_splitter,
     heuristic,
     ordinance_text_collector_class,
+    permitted_use_text_collector_class,
     num_urls=5,
     file_loader_kwargs=None,
     browser_semaphore=None,
@@ -92,6 +93,7 @@ async def download_county_ordinance(
         text_splitter=text_splitter,
         heuristic=heuristic,
         ordinance_text_collector_class=ordinance_text_collector_class,
+        permitted_use_text_collector_class=permitted_use_text_collector_class,
         **kwargs,
     )
     logger.info(
