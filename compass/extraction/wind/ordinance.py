@@ -220,6 +220,96 @@ class WindOrdinanceTextCollector:
         return merge_overlapping_texts(text)
 
 
+class WindPermittedUseDistrictsTextCollector:
+    """Check text chunks for permitted wind districts; collect them"""
+
+    DISTRICT_PROMPT = (
+        "You are a legal scholar that reads ordinance text and determines "
+        "whether the text explicitly details the districts where large "
+        "wind energy systems are a permitted use. "
+        "Do not make any inferences; only answer based on information that "
+        "is explicitly outlined in the text. "
+        "Note that relevant information may sometimes be found in tables. "
+        "Return your answer in JSON format (not markdown). Your JSON file "
+        "must include exactly two keys. The first key is 'districts' which "
+        "contains a string that lists all of the district names for which "
+        "the text explicitly permits large wind energy systems (if any). "
+        "The last key is "
+        "'{key}', which is a boolean that is set to True if any part of the "
+        "text excerpt mentions districts where large wind energy systems"
+        "are a permitted use and False otherwise."
+    )
+
+    def __init__(self, chunk_parser):
+        """
+
+        Parameters
+        ----------
+        chunk_parser : ParseChunksWithMemory
+            Instance of `ParseChunksWithMemory` that contains a
+            `parse_from_ind` method.
+        """
+        self.chunk_parser = chunk_parser
+        self._district_chunk_inds = []
+
+    async def check_chunk(self, ind):
+        """Check a chunk at a given ind to see if it contains ordinance
+
+        Parameters
+        ----------
+        ind : int
+            Index of the chunk to check.
+
+        Returns
+        -------
+        bool
+            Boolean flag indicating whether or not the text in the chunk
+            contains large wind energy conversion system ordinance text.
+        """
+
+        self.num_to_recall = 1
+        contains_district_info = await self.parse_from_ind(
+            ind, self.DISTRICT_PROMPT, key="contains_district_info"
+        )
+        self._district_chunk_inds.append(ind)
+        if contains_district_info:
+            logger.debug("Text at ind %d contains district info", ind)
+            return True
+
+        logger.debug("Text at ind %d does not contain district info", ind)
+        return False
+
+    @property
+    def contains_district_info(self):
+        """bool: Flag indicating whether text contains district info"""
+        return bool(self._district_chunk_inds)
+
+    @property
+    def permitted_use_district_text(self):
+        """str: Combined permitted use districts text from the chunks"""
+        logger.debug("District chunk inds: %s", self._district_chunk_inds)
+
+        inds_to_grab = set()
+        for ind in self._district_chunk_inds:
+            inds_to_grab |= {
+                ind + x for x in range(1 - self.chunk_parser.num_to_recall, 2)
+            }
+
+        inds_to_grab = [
+            ind
+            for ind in sorted(inds_to_grab)
+            if 0 <= ind < len(self.chunk_parser.text_chunks)
+        ]
+        logger.debug(
+            "Grabbing %d chunk(s) from original text at these indices: %s",
+            len(inds_to_grab),
+            inds_to_grab,
+        )
+
+        text = [self.chunk_parser.text_chunks[ind] for ind in inds_to_grab]
+        return merge_overlapping_texts(text)
+
+
 class WindOrdinanceTextExtractor:
     """Extract succinct ordinance text from input
 
