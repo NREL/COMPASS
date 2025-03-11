@@ -409,6 +409,105 @@ class WindOrdinanceTextExtractor(BaseTextExtractor):
         )
 
 
+class WindPermittedUseDistrictsTextExtractor(BaseTextExtractor):
+    """Extract succinct ordinance text from input
+
+    Purpose:
+        Extract relevant ordinance text from document.
+    Responsibilities:
+        1. Extract portions from chunked document text relevant to
+           particular ordinance type (e.g. wind zoning for utility-scale
+           systems).
+    Key Relationships:
+        Uses a :class:`~compass.llm.calling.StructuredLLMCaller` for
+        LLM queries.
+    """
+
+    _USAGE_LABEL = "document_permitted_use_districts_summary"
+
+    PERMITTED_USES_FILTER_PROMPT = (
+        "Remove all text that does not pertain to permitted use(s) for a "
+        "district."
+        "Consider all permitted use kinds, including but not limited to "
+        "Primary, Special, Accessory, etc. "
+        "Note that relevant information may sometimes be found in tables. "
+        "If there is no text that pertains ro permitted use(s) for a "
+        "district, simply say: "
+        '"No relevant text."'
+    )
+
+    WES_PERMITTED_USES_FILTER_PROMPT = (
+        "Extract all text that explicitly lists "
+        "large wind energy conversion systems as permitted use in a district. "
+        f"{_LARGE_WES_DESCRIPTION}"
+        "Consider all use kinds, including but not limited to "
+        "Primary, Special, Accessory, etc. "
+        "Note that relevant information may sometimes be found in tables. "
+        "Keep all headers that explain the permitted "
+        "use kind and the wind energy conversion system it applies to. "
+        "If there is no text that pertains to wind energy conversion "
+        "systems, simply say: "
+        '"No relevant text."'
+    )
+
+    async def extract_permitted_uses(self, text_chunks):
+        """Extract permitted uses text from input text chunks
+
+        Parameters
+        ----------
+        text_chunks : list of str
+            List of strings, each of which represent a chunk of text.
+            The order of the strings should be the order of the text
+            chunks.
+
+        Returns
+        -------
+        str
+            Ordinance text extracted from text chunks.
+        """
+        return await self._process(
+            text_chunks=text_chunks,
+            instructions=self.PERMITTED_USES_FILTER_PROMPT,
+            is_valid_chunk=_valid_chunk,
+        )
+
+    async def extract_wes_permitted_uses(self, text_chunks):
+        """Extract permitted uses text for large WES from input text
+
+        Parameters
+        ----------
+        text_chunks : list of str
+            List of strings, each of which represent a chunk of text.
+            The order of the strings should be the order of the text
+            chunks.
+
+        Returns
+        -------
+        str
+            Ordinance text extracted from text chunks.
+        """
+        return await self._process(
+            text_chunks=text_chunks,
+            instructions=self.WES_PERMITTED_USES_FILTER_PROMPT,
+            is_valid_chunk=_valid_chunk,
+        )
+
+    @property
+    def parsers(self):
+        """Iterable of parsers provided by this extractor
+
+        Yields
+        ------
+        name : str
+            Name describing the type of text output by the parser.
+        parser
+            Parser that takes a `text_chunks` input and outputs parsed
+            text.
+        """
+        yield "permitted_use_only_text", self.extract_permitted_uses
+        yield "districts_text", self.extract_wes_permitted_uses
+
+
 def _valid_chunk(chunk):
     """True if chunk has content"""
     return chunk and "no relevant text" not in chunk.lower()
