@@ -279,3 +279,77 @@ class LegalTextValidator:
         else:
             logger.debug("Text at ind %d is not legal text", ind)
         return is_legal_text
+
+
+async def parse_by_chunks(
+    chunk_parser,
+    heuristic,
+    legal_text_validator,
+    callbacks=None,
+    min_chunks_to_process=3,
+):
+    """Parse text by chunks, passing to callbacks if it's legal text
+
+    This method goes through the chunks one by one, and passes them to
+    the callback parsers if the `legal_text_validator` check passes. If
+    `min_chunks_to_process` number of chunks fail the legal text check,
+    parsing is aborted.
+
+    Parameters
+    ----------
+    chunk_parser : ParseChunksWithMemory
+        Instance of `ParseChunksWithMemory` that contains the attributes
+        `text_chunks` and `num_to_recall`. The chunks in the
+        `text_chunks` attribute will be iterated over.
+    heuristic : Heuristic
+        Instance of `Heuristic` with a `check` method. This should be a
+        fast check meant to quickly dispose of chunks of text. Any chunk
+        that fails this check will NOT be passed to the callback
+        parsers.
+    legal_text_validator : LegalTextValidator
+        Instance of `LegalTextValidator` that can be used to validate
+        each chunk for legal text.
+    callbacks : list, optional
+        List of async callbacks that take an index as input and return a
+        boolean determining whether the text chunk was parsed
+        successfully or not. By default, ``None``, which does not use
+        any callbacks.
+    min_chunks_to_process : int, optional
+        Minimum number of chunks to process before aborting due to text
+        not being legal. By default, ``3``.
+    """
+    passed_heuristic_mem = []
+    callbacks = callbacks or []
+    outer_task_name = asyncio.current_task().get_name()
+
+    for ind, text in enumerate(chunk_parser.text_chunks):
+        passed_heuristic_mem.append(heuristic.check(text))
+        if ind < min_chunks_to_process:
+            is_legal = await legal_text_validator.check_chunk(ind)
+            if not is_legal:  # don't bother checking this chunk
+                continue
+
+        # don't bother checking this document
+        elif not legal_text_validator.is_legal_text:
+            return
+
+        # hasn't passed heuristic, so don't pass it to callbacks
+        elif not any(passed_heuristic_mem[-chunk_parser.num_to_recall :]):
+            continue
+
+        logger.debug("Processing text at ind %d", ind)
+        logger.debug("Text:\n%s", text)  # TODO: trace
+
+        if not callbacks:
+            continue
+
+        callbacks = [
+            asyncio.create_task(cb(ind), name=outer_task_name)
+            for cb in callbacks
+        ]
+        cb_results = await asyncio.gather(*callbacks)
+
+        # mask this chunk if we got a good result - this avoids forcing
+        # the following chunk to be checked (it will only be checked if
+        # it itself passes the heuristic)
+        passed_heuristic_mem[-1] = not any(cb_results)
