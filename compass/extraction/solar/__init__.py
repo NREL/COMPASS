@@ -4,6 +4,8 @@ from .ordinance import (
     SolarHeuristic,
     SolarOrdinanceTextCollector,
     SolarOrdinanceTextExtractor,
+    SolarPermittedUseDistrictsTextCollector,
+    SolarPermittedUseDistrictsTextExtractor,
 )
 from .parse import StructuredSolarOrdinanceParser
 
