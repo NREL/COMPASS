@@ -293,7 +293,7 @@ class SolarOrdinanceTextExtractor(BaseTextExtractor):
         return await self._process(
             text_chunks=text_chunks,
             instructions=self.ENERGY_SYSTEM_FILTER_PROMPT,
-            valid_chunk=_valid_chunk,
+            is_valid_chunk=_valid_chunk,
         )
 
     async def extract_solar_energy_system_section(self, text_chunks):
@@ -314,7 +314,7 @@ class SolarOrdinanceTextExtractor(BaseTextExtractor):
         return await self._process(
             text_chunks=text_chunks,
             instructions=self.SOLAR_ENERGY_SYSTEM_FILTER_PROMPT,
-            valid_chunk=_valid_chunk,
+            is_valid_chunk=_valid_chunk,
         )
 
     async def extract_large_solar_energy_system_section(self, text_chunks):
@@ -335,7 +335,7 @@ class SolarOrdinanceTextExtractor(BaseTextExtractor):
         return await self._process(
             text_chunks=text_chunks,
             instructions=self.LARGE_SOLAR_ENERGY_SYSTEM_SECTION_FILTER_PROMPT,
-            valid_chunk=_valid_chunk,
+            is_valid_chunk=_valid_chunk,
         )
 
     async def extract_large_solar_energy_system_text(self, text_chunks):
@@ -356,7 +356,7 @@ class SolarOrdinanceTextExtractor(BaseTextExtractor):
         return await self._process(
             text_chunks=text_chunks,
             instructions=self.LARGE_SOLAR_ENERGY_SYSTEM_TEXT_FILTER_PROMPT,
-            valid_chunk=_valid_chunk,
+            is_valid_chunk=_valid_chunk,
         )
 
     @property
