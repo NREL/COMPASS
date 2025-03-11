@@ -52,7 +52,9 @@ def merge_overlapping_texts(text_chunks, n=300):
         consecutive overlapping portions.
     n : int, optional
         Number of characters to check at the beginning of each message
-        for overlap with the previous message. By default, ``100``.
+        for overlap with the previous message. Will always be reduced to
+        be less than or equal to half of the length of the previous
+        chunk. By default, ``300``.
 
     Returns
     -------
