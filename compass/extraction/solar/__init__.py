@@ -7,7 +7,10 @@ from .ordinance import (
     SolarPermittedUseDistrictsTextCollector,
     SolarPermittedUseDistrictsTextExtractor,
 )
-from .parse import StructuredSolarOrdinanceParser
+from .parse import (
+    StructuredSolarOrdinanceParser,
+    StructuredSolarPermittedUseDistrictsParser,
+)
 
 
 SOLAR_QUESTION_TEMPLATES = [
