@@ -5,6 +5,11 @@ from warnings import warn
 
 from compass.llm import StructuredLLMCaller
 from compass.extraction.date import DateExtractor
+from compass.validation import (
+    ParseChunksWithMemory,
+    LegalTextValidator,
+    parse_by_chunks,
+)
 from compass.warnings import COMPASSWarning
 
 
@@ -12,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 async def check_for_ordinance_info(
-    doc, text_splitter, validator_class, **kwargs
+    doc, text_splitter, heuristic, ordinance_text_collector_class, **kwargs
 ):
     """Parse a single document for ordinance information
 
@@ -52,11 +57,22 @@ async def check_for_ordinance_info(
 
     llm_caller = StructuredLLMCaller(**kwargs)
     chunks = text_splitter.split_text(doc.text)
-    validator = validator_class(llm_caller, chunks)
-    doc.attrs["contains_ord_info"] = await validator.parse()
+    chunk_parser = ParseChunksWithMemory(llm_caller, chunks, num_to_recall=2)
+    legal_text_validator = LegalTextValidator(chunk_parser)
+    ordinance_text_collector = ordinance_text_collector_class(chunk_parser)
+
+    doc.attrs["is_legal_text"] = await parse_by_chunks(
+        chunk_parser,
+        heuristic,
+        legal_text_validator,
+        callbacks=[ordinance_text_collector.check_chunk],
+        min_chunks_to_process=3,
+    )
+
+    doc.attrs["contains_ord_info"] = ordinance_text_collector.contains_ord_info
     if doc.attrs["contains_ord_info"]:
         doc.attrs["date"] = await DateExtractor(llm_caller).parse(doc)
-        doc.attrs["ordinance_text"] = validator.ordinance_text
+        doc.attrs["ordinance_text"] = ordinance_text_collector.ordinance_text
         logger.debug(
             "Ordinance text for %s is:\n%s",
             doc.attrs.get("source", "unknown source"),
