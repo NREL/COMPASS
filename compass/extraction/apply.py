@@ -58,8 +58,8 @@ async def check_for_ordinance_info(
     llm_caller = StructuredLLMCaller(**kwargs)
     chunks = text_splitter.split_text(doc.text)
     chunk_parser = ParseChunksWithMemory(llm_caller, chunks, num_to_recall=2)
-    legal_text_validator = LegalTextValidator(chunk_parser)
-    ordinance_text_collector = ordinance_text_collector_class(chunk_parser)
+    legal_text_validator = LegalTextValidator()
+    ordinance_text_collector = ordinance_text_collector_class()
 
     doc.attrs["is_legal_text"] = await parse_by_chunks(
         chunk_parser,

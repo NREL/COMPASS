@@ -237,16 +237,7 @@ class LegalTextValidator:
         "application, public notice, etc."
     )
 
-    def __init__(self, chunk_parser):
-        """
-
-        Parameters
-        ----------
-        chunk_parser : ParseChunksWithMemory
-            Instance of `ParseChunksWithMemory` that contains a
-            `parse_from_ind` method.
-        """
-        self.chunk_parser = chunk_parser
+    def __init__(self):
         self._legal_text_mem = []
 
     @property
@@ -256,11 +247,14 @@ class LegalTextValidator:
             return False
         return sum(self._legal_text_mem) >= 0.5 * len(self._legal_text_mem)
 
-    async def check_chunk(self, ind):
+    async def check_chunk(self, chunk_parser, ind):
         """Check a chunk at a given ind to see if it contains legal text
 
         Parameters
         ----------
+        chunk_parser : ParseChunksWithMemory
+            Instance of `ParseChunksWithMemory` that contains a
+            `parse_from_ind` method.
         ind : int
             Index of the chunk to check.
 
@@ -270,7 +264,7 @@ class LegalTextValidator:
             Boolean flag indicating whether or not the text in the chunk
             resembles legal text.
         """
-        is_legal_text = await self.chunk_parser.parse_from_ind(
+        is_legal_text = await chunk_parser.parse_from_ind(
             ind, self.IS_LEGAL_TEXT_PROMPT, key="legal_text"
         )
         self._legal_text_mem.append(is_legal_text)
@@ -310,10 +304,10 @@ async def parse_by_chunks(
         Instance of `LegalTextValidator` that can be used to validate
         each chunk for legal text.
     callbacks : list, optional
-        List of async callbacks that take an index as input and return a
-        boolean determining whether the text chunk was parsed
-        successfully or not. By default, ``None``, which does not use
-        any callbacks.
+        List of async callbacks that take a `chunk_parser` and `index`
+        as inputs and return a boolean determining whether the text
+        chunk was parsed successfully or not. By default, ``None``,
+        which does not use any callbacks.
     min_chunks_to_process : int, optional
         Minimum number of chunks to process before aborting due to text
         not being legal. By default, ``3``.
@@ -325,7 +319,9 @@ async def parse_by_chunks(
     for ind, text in enumerate(chunk_parser.text_chunks):
         passed_heuristic_mem.append(heuristic.check(text))
         if ind < min_chunks_to_process:
-            is_legal = await legal_text_validator.check_chunk(ind)
+            is_legal = await legal_text_validator.check_chunk(
+                chunk_parser, ind
+            )
             if not is_legal:  # don't bother checking this chunk
                 continue
 
@@ -344,7 +340,7 @@ async def parse_by_chunks(
             continue
 
         callbacks = [
-            asyncio.create_task(cb(ind), name=outer_task_name)
+            asyncio.create_task(cb(chunk_parser, ind), name=outer_task_name)
             for cb in callbacks
         ]
         cb_results = await asyncio.gather(*callbacks)

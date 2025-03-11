@@ -76,38 +76,6 @@ class WindHeuristic(Heuristic):
     ]
 
 
-class WindOrdinanceValidator(ValidationWithMemory):
-    """Check document text for wind ordinances
-
-    Purpose:
-        Determine whether a document contains relevant ordinance
-        information.
-    Responsibilities:
-        1. Determine whether a document contains relevant (e.g.
-        utility-scale wind zoning) ordinance information by splitting
-        the text into chunks and parsing them individually using LLMs.
-    Key Relationships:
-        Child class of
-        :class:`~compass.validation.content.ValidationWithMemory`,
-        which allows the validation to look at neighboring chunks of
-        text.
-    """
-
-    _HEURISTIC = WindHeuristic()
-    IS_LEGAL_TEXT_PROMPT = (
-        "You extract structured data from text. Return your answer in JSON "
-        "format (not markdown). Your JSON file must include exactly three "
-        "keys. The first key is 'summary', which is a string that provides a "
-        "short summary of the text. The second key is 'type', which is a "
-        "string that best represent the type of document this text belongs "
-        "to. The third key is '{key}', which is a boolean that is set to "
-        "True if the type of the text (as you previously determined) is a "
-        "legally-binding statute or code and False if the text is an excerpt "
-        "from other non-legal text such as a news article, survey, summary, "
-        "application, public notice, etc."
-    )
-
-
 class WindOrdinanceTextCollector:
     """Check text chunks for ordinances and collect them if they do"""
 
@@ -139,23 +107,17 @@ class WindOrdinanceTextCollector:
         "systems that the client is interested in and False otherwise."
     )
 
-    def __init__(self, chunk_parser):
-        """
+    def __init__(self):
+        self._ordinance_chunks = {}
+
+    async def check_chunk(self, chunk_parser, ind):
+        """Check a chunk at a given ind to see if it contains ordinance
 
         Parameters
         ----------
         chunk_parser : ParseChunksWithMemory
             Instance of `ParseChunksWithMemory` that contains a
             `parse_from_ind` method.
-        """
-        self.chunk_parser = chunk_parser
-        self._ordinance_chunk_inds = []
-
-    async def check_chunk(self, ind):
-        """Check a chunk at a given ind to see if it contains ordinance
-
-        Parameters
-        ----------
         ind : int
             Index of the chunk to check.
 
@@ -165,7 +127,7 @@ class WindOrdinanceTextCollector:
             Boolean flag indicating whether or not the text in the chunk
             contains large wind energy conversion system ordinance text.
         """
-        contains_ord_info = await self.chunk_parser.parse_from_ind(
+        contains_ord_info = await chunk_parser.parse_from_ind(
             ind, self.CONTAINS_ORD_PROMPT, key="contains_ord_info"
         )
         if not contains_ord_info:
@@ -174,7 +136,7 @@ class WindOrdinanceTextCollector:
 
         logger.debug("Text at ind %d does contain ordinance info", ind)
 
-        is_utility_scale = await self.chunk_parser.parse_from_ind(
+        is_utility_scale = await chunk_parser.parse_from_ind(
             ind, self.IS_UTILITY_SCALE_PROMPT, key="x"
         )
         if not is_utility_scale:
@@ -183,7 +145,7 @@ class WindOrdinanceTextCollector:
 
         logger.debug("Text at ind %d is for utility-scale WECS", ind)
 
-        self._ordinance_chunk_inds.append(ind)
+        self._store_chunk(chunk_parser, ind)
         logger.debug("Added text at ind %d to ordinances", ind)
 
         return True
@@ -191,32 +153,33 @@ class WindOrdinanceTextCollector:
     @property
     def contains_ord_info(self):
         """bool: Flag indicating whether text contains ordinance info"""
-        return bool(self._ordinance_chunk_inds)
+        return bool(self._ordinance_chunks)
 
     @property
     def ordinance_text(self):
         """str: Combined ordinance text from the individual chunks"""
-        logger.debug("Ordinance chunk inds: %s", self._ordinance_chunk_inds)
-
-        inds_to_grab = set()
-        for ind in self._ordinance_chunk_inds:
-            inds_to_grab |= {
-                ind + x for x in range(1 - self.chunk_parser.num_to_recall, 2)
-            }
-
-        inds_to_grab = [
-            ind
-            for ind in sorted(inds_to_grab)
-            if 0 <= ind < len(self.chunk_parser.text_chunks)
-        ]
         logger.debug(
             "Grabbing %d chunk(s) from original text at these indices: %s",
-            len(inds_to_grab),
-            inds_to_grab,
+            len(self._ordinance_chunks),
+            list(self._ordinance_chunks),
         )
 
-        text = [self.chunk_parser.text_chunks[ind] for ind in inds_to_grab]
+        text = [
+            self._ordinance_chunks[ind]
+            for ind in sorted(self._ordinance_chunks)
+        ]
         return merge_overlapping_texts(text)
+
+    def _store_chunk(self, parser, chunk_ind):
+        """Store chunk and its neighbors if it is not already stored"""
+        for offset in range(1 - parser.num_to_recall, 2):
+            ind_to_grab = chunk_ind + offset
+            if ind_to_grab < 0 or ind_to_grab >= len(parser.text_chunks):
+                continue
+
+            self._ordinance_chunks.setdefault(
+                ind_to_grab, parser.text_chunks[ind_to_grab]
+            )
 
 
 class WindPermittedUseDistrictsTextCollector:
