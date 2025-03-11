@@ -17,7 +17,12 @@ logger = logging.getLogger(__name__)
 
 
 async def check_for_ordinance_info(
-    doc, text_splitter, heuristic, ordinance_text_collector_class, **kwargs
+    doc,
+    text_splitter,
+    heuristic,
+    ordinance_text_collector_class,
+    permitted_use_text_collector_class,
+    **kwargs,
 ):
     """Parse a single document for ordinance information
 
@@ -60,18 +65,21 @@ async def check_for_ordinance_info(
     chunk_parser = ParseChunksWithMemory(llm_caller, chunks, num_to_recall=2)
     legal_text_validator = LegalTextValidator()
     ordinance_text_collector = ordinance_text_collector_class()
+    permitted_use_text_collector = permitted_use_text_collector_class()
 
     doc.attrs["is_legal_text"] = await parse_by_chunks(
         chunk_parser,
         heuristic,
         legal_text_validator,
-        callbacks=[ordinance_text_collector.check_chunk],
+        callbacks=[
+            ordinance_text_collector.check_chunk,
+            permitted_use_text_collector.check_chunk,
+        ],
         min_chunks_to_process=3,
     )
 
     doc.attrs["contains_ord_info"] = ordinance_text_collector.contains_ord_info
     if doc.attrs["contains_ord_info"]:
-        doc.attrs["date"] = await DateExtractor(llm_caller).parse(doc)
         doc.attrs["ordinance_text"] = ordinance_text_collector.ordinance_text
         logger.debug(
             "Ordinance text for %s is:\n%s",
@@ -79,10 +87,30 @@ async def check_for_ordinance_info(
             doc.attrs["ordinance_text"],
         )
 
+    doc.attrs["contains_district_info"] = (
+        permitted_use_text_collector.contains_district_info
+    )
+    if doc.attrs["contains_district_info"]:
+        doc.attrs["permitted_use_text"] = (
+            permitted_use_text_collector.permitted_use_district_text
+        )
+        logger.debug(
+            "Permitted use text for %s is:\n%s",
+            doc.attrs.get("source", "unknown source"),
+            doc.attrs["permitted_use_text"],
+        )
+
+    if any(
+        [doc.attrs["contains_ord_info"], doc.attrs["contains_district_info"]]
+    ):
+        doc.attrs["date"] = await DateExtractor(llm_caller).parse(doc)
+
     return doc
 
 
-async def extract_ordinance_text_with_llm(doc, text_splitter, extractor):
+async def extract_ordinance_text_with_llm(
+    doc, text_splitter, extractor, original_text_key
+):
     """Extract ordinance text from document using LLM
 
     Parameters
@@ -104,17 +132,21 @@ async def extract_ordinance_text_with_llm(doc, text_splitter, extractor):
         Instance of
         :class:`~compass.extraction.ordinance.WindOrdinanceTextExtractor`
         used for ordinance text extraction.
+    original_text_key : str
+        String corresponding to the `doc.attrs` key containing the
+        original text (before extraction).
 
     Returns
     -------
     elm.web.document.BaseDocument
         Document that has been parsed for ordinance text. The results of
-        the extraction are stored in the document's attrs. In
-        particular, the attrs will contain a
-        ``"cleaned_ordinance_text"`` key that will contain the cleaned
-        ordinance text.
+        the extraction are stored in the document's attrs.
+    str
+        Key corresponding to the cleaned ordinance text stored in the
+        `doc.attrs` dictionary.
+
     """
-    prev_meta_name = "ordinance_text"
+    prev_meta_name = original_text_key  # "ordinance_text"
     for meta_name, parser in extractor.parsers:
         doc.attrs[meta_name] = await _parse_if_input_text_not_empty(
             doc.attrs[prev_meta_name],
@@ -125,13 +157,14 @@ async def extract_ordinance_text_with_llm(doc, text_splitter, extractor):
         )
         prev_meta_name = meta_name
 
-    return doc
+    return doc, prev_meta_name
 
 
 async def extract_ordinance_text_with_ngram_validation(
     doc,
     text_splitter,
     extractor,
+    original_text_key,
     n=4,
     num_extraction_attempts=3,
     ngram_fraction_threshold=0.95,
@@ -161,6 +194,9 @@ async def extract_ordinance_text_with_ngram_validation(
         The method should take text as input (str) and return a list
         of text chunks. Langchain's text splitters should work for this
         input.
+    original_text_key : str
+        String corresponding to the `doc.attrs` key containing the
+        original text (before extraction).
     n : int, optional
         Number of words to include per ngram for the ngram validation,
         which helps ensure that the LLM did not hallucinate.
@@ -180,16 +216,13 @@ async def extract_ordinance_text_with_ngram_validation(
     -------
     elm.web.document.BaseDocument
         Document that has been parsed for ordinance text. The results of
-        the extraction are stored in the document's attrs. In
-        particular, the attrs will contain a
-        ``"cleaned_ordinance_text"`` key that will contain the cleaned
-        ordinance text.
+        the extraction are stored in the document's attrs.
     """
-    if not doc.attrs.get("ordinance_text"):
+    if not doc.attrs.get(original_text_key):
         msg = (
-            "Input document has no 'ordinance_text' key or string does not "
-            "contain information. Please run `check_for_ordinance_info` "
-            "prior to calling this method."
+            f"Input document has no {original_text_key!r} key or string "
+            "does not contain information. Please run "
+            "`check_for_ordinance_info` prior to calling this method."
         )
         logger.warning(msg)
         warn(msg, UserWarning)
@@ -199,6 +232,7 @@ async def extract_ordinance_text_with_ngram_validation(
         doc,
         text_splitter,
         extractor,
+        original_text_key,
         n=max(1, n),
         num_tries=max(1, num_extraction_attempts),
         ngram_fraction_threshold=max(0, min(1, ngram_fraction_threshold)),
@@ -209,6 +243,7 @@ async def _extract_with_ngram_check(
     doc,
     text_splitter,
     extractor,
+    original_text_key,
     n=4,
     num_tries=3,
     ngram_fraction_threshold=0.95,
@@ -217,8 +252,8 @@ async def _extract_with_ngram_check(
     from compass.extraction.ngrams import sentence_ngram_containment  # noqa
 
     source = doc.attrs.get("source", "Unknown")
-    og_text = doc.attrs["ordinance_text"]
-    if not og_text:
+    original_text = doc.attrs[original_text_key]
+    if not original_text:
         msg = (
             "Document missing original ordinance text! No extraction "
             "performed (Document source: %s)",
@@ -230,11 +265,12 @@ async def _extract_with_ngram_check(
 
     best_score = 0
     best_summary = ""
+    out_text_key = "extracted_text"
     for attempt in range(1, num_tries + 1):
-        doc = await extract_ordinance_text_with_llm(
-            doc, text_splitter, extractor
+        doc, out_text_key = await extract_ordinance_text_with_llm(
+            doc, text_splitter, extractor, original_text_key
         )
-        cleaned_text = doc.attrs["cleaned_ordinance_text"]
+        cleaned_text = doc.attrs[out_text_key]
         if not cleaned_text:
             logger.debug(
                 "No cleaned text found after extraction on attempt %d "
@@ -245,7 +281,7 @@ async def _extract_with_ngram_check(
             continue
 
         ngram_frac = sentence_ngram_containment(
-            original=og_text, test=cleaned_text, n=n
+            original=original_text, test=cleaned_text, n=n
         )
         if ngram_frac >= ngram_fraction_threshold:
             logger.debug(
@@ -270,7 +306,7 @@ async def _extract_with_ngram_check(
             source,
         )
     else:
-        doc.attrs["cleaned_ordinance_text"] = best_summary
+        doc.attrs[out_text_key] = best_summary
         msg = (
             f"Ngram check failed after {num_tries} tries. LLM hallucination "
             "in cleaned ordinance text is extremely likely! Proceed with "
@@ -283,7 +319,9 @@ async def _extract_with_ngram_check(
     return doc
 
 
-async def extract_ordinance_values(doc, parser):
+async def extract_ordinance_values(
+    doc, parser, text_key, out_key="ordinance_values"
+):
     """Extract ordinance values for a single document
 
     Document must be known to contain ordinance text.
@@ -292,13 +330,15 @@ async def extract_ordinance_values(doc, parser):
     ----------
     doc : elm.web.document.BaseDocument
         A document known to contain ordinance text. This means it must
-        contain an ``"cleaned_ordinance_text"`` key in the attrs. You
-        can run
+        contain an `text_key` key in the attrs. You can run
         :func:`~compass.extraction.apply.extract_ordinance_text_with_llm`
         to have this attribute populated automatically for documents
         that are found to contain ordinance data. Note that if the
-        document's attrs does not contain the
-        ``"cleaned_ordinance_text"`` key, it will not be processed.
+        document's attrs does not contain the `text_key` key, it will
+        not be processed.
+    text_key : str
+        Name of the key under which cleaned text is stored in
+        `doc.attrs`. This text should be ready for extraction.
 
     Returns
     -------
@@ -308,9 +348,9 @@ async def extract_ordinance_values(doc, parser):
         particular, the attrs will contain an ``"ordinance_values"``
         key that will contain the DataFame with ordinance values.
     """
-    if not doc.attrs.get("cleaned_ordinance_text"):
+    if not doc.attrs.get(text_key):
         msg = (
-            "Input document has no 'cleaned_ordinance_text' key or string "
+            f"Input document has no {text_key!r} key or string "
             "does not contain info. Please run "
             "`extract_ordinance_text_with_llm` prior to calling this method."
         )
@@ -318,8 +358,7 @@ async def extract_ordinance_values(doc, parser):
         warn(msg, UserWarning)
         return doc
 
-    text = doc.attrs["cleaned_ordinance_text"]
-    doc.attrs["ordinance_values"] = await parser.parse(text)
+    doc.attrs[out_key] = await parser.parse(doc.attrs[text_key])
     return doc
 
 
