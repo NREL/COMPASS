@@ -107,6 +107,10 @@ class WindOrdinanceValidator(ValidationWithMemory):
         "application, public notice, etc."
     )
 
+
+class WindOrdinanceTextCollector:
+    """Check text chunks for ordinances and collect them if they do"""
+
     CONTAINS_ORD_PROMPT = (
         "You extract structured data from text. Return your answer in JSON "
         "format (not markdown). Your JSON file must include exactly two "
@@ -135,41 +139,60 @@ class WindOrdinanceValidator(ValidationWithMemory):
         "systems that the client is interested in and False otherwise."
     )
 
-    def __init__(self, structured_llm_caller, text_chunks, num_to_recall=2):
+    def __init__(self, chunk_parser):
         """
 
         Parameters
         ----------
-        structured_llm_caller : compass.llm.StructuredLLMCaller
-            StructuredLLMCaller instance. Used for structured validation
-            queries.
-        text_chunks : list of str
-            List of strings, each of which represent a chunk of text.
-            The order of the strings should be the order of the text
-            chunks. This validator may refer to previous text chunks to
-            answer validation questions.
-        num_to_recall : int, optional
-            Number of chunks to check for each validation call. This
-            includes the original chunk! For example, if
-            `num_to_recall=2`, the validator will first check the chunk
-            at the requested index, and then the previous chunk as well.
-            By default, ``2``.
+        chunk_parser : ParseChunksWithMemory
+            Instance of `ParseChunksWithMemory` that contains a
+            `parse_from_ind` method.
         """
-        super().__init__(
-            structured_llm_caller=structured_llm_caller,
-            text_chunks=text_chunks,
-            num_to_recall=num_to_recall,
-        )
-        self._legal_text_mem = []
-        self._wind_mention_mem = []
+        self.chunk_parser = chunk_parser
         self._ordinance_chunk_inds = []
 
-    @property
-    def is_legal_text(self):
-        """bool: ``True`` if text was found to be from a legal source"""
-        if not self._legal_text_mem:
+    async def check_chunk(self, ind):
+        """Check a chunk at a given ind to see if it contains ordinance
+
+        Parameters
+        ----------
+        ind : int
+            Index of the chunk to check.
+
+        Returns
+        -------
+        bool
+            Boolean flag indicating whether or not the text in the chunk
+            contains large wind energy conversion system ordinance text.
+        """
+        contains_ord_info = await self.chunk_parser.parse_from_ind(
+            ind, self.CONTAINS_ORD_PROMPT, key="contains_ord_info"
+        )
+        if not contains_ord_info:
+            logger.debug("Text at ind %d does not contain ordinance info", ind)
             return False
-        return sum(self._legal_text_mem) >= 0.5 * len(self._legal_text_mem)
+
+        logger.debug("Text at ind %d does contain ordinance info", ind)
+
+        is_utility_scale = await self.chunk_parser.parse_from_ind(
+            ind, self.IS_UTILITY_SCALE_PROMPT, key="x"
+        )
+        if not is_utility_scale:
+            logger.debug("Text at ind %d is not for utility-scale WECS", ind)
+            return False
+
+        logger.debug("Text at ind %d is for utility-scale WECS", ind)
+
+        self._ordinance_chunk_inds.append(ind)
+        logger.debug("Added text at ind %d to ordinances", ind)
+        # mask, since we got a good result
+
+        return True
+
+    @property
+    def contains_ord_info(self):
+        """bool: Flag indicating whether text contains ordinance info"""
+        return bool(self._ordinance_chunk_inds)
 
     @property
     def ordinance_text(self):
@@ -178,12 +201,14 @@ class WindOrdinanceValidator(ValidationWithMemory):
 
         inds_to_grab = set()
         for ind in self._ordinance_chunk_inds:
-            inds_to_grab |= {ind + x for x in range(1 - self.num_to_recall, 2)}
+            inds_to_grab |= {
+                ind + x for x in range(1 - self.chunk_parser.num_to_recall, 2)
+            }
 
         inds_to_grab = [
             ind
             for ind in sorted(inds_to_grab)
-            if 0 <= ind < len(self.text_chunks)
+            if 0 <= ind < len(self.chunk_parser.text_chunks)
         ]
         logger.debug(
             "Grabbing %d chunk(s) from original text at these indices: %s",
@@ -191,76 +216,8 @@ class WindOrdinanceValidator(ValidationWithMemory):
             inds_to_grab,
         )
 
-        text = [self.text_chunks[ind] for ind in inds_to_grab]
+        text = [self.chunk_parser.text_chunks[ind] for ind in inds_to_grab]
         return merge_overlapping_texts(text)
-
-    async def parse(self, min_chunks_to_process=3):
-        """Parse text chunks and look for ordinance text
-
-        Parameters
-        ----------
-        min_chunks_to_process : int, optional
-            Minimum number of chunks to process before checking if
-            document resembles legal text and ignoring chunks that don't
-            pass the wind heuristic. By default, ``3``.
-
-        Returns
-        -------
-        bool
-            ``True`` if any ordinance text was found in the chunks.
-        """
-        for ind, text in enumerate(self.text_chunks):
-            self._wind_mention_mem.append(self._HEURISTIC.check(text))
-            if ind >= min_chunks_to_process:
-                if not self.is_legal_text:
-                    return False
-
-                # fmt: off
-                if not any(self._wind_mention_mem[-self.num_to_recall:]):
-                    continue
-
-            logger.debug("Processing text at ind %d", ind)
-            logger.debug("Text:\n%s", text)
-
-            if ind < min_chunks_to_process:
-                is_legal_text = await self.parse_from_ind(
-                    ind, self.IS_LEGAL_TEXT_PROMPT, key="legal_text"
-                )
-                self._legal_text_mem.append(is_legal_text)
-                if not is_legal_text:
-                    logger.debug("Text at ind %d is not legal text", ind)
-                    continue
-
-                logger.debug("Text at ind %d is legal text", ind)
-
-            contains_ord_info = await self.parse_from_ind(
-                ind, self.CONTAINS_ORD_PROMPT, key="contains_ord_info"
-            )
-            if not contains_ord_info:
-                logger.debug(
-                    "Text at ind %d does not contain ordinance info", ind
-                )
-                continue
-
-            logger.debug("Text at ind %d does contain ordinance info", ind)
-
-            is_utility_scale = await self.parse_from_ind(
-                ind, self.IS_UTILITY_SCALE_PROMPT, key="x"
-            )
-            if not is_utility_scale:
-                logger.debug(
-                    "Text at ind %d is not for utility-scale WECS", ind
-                )
-                continue
-
-            logger.debug("Text at ind %d is for utility-scale WECS", ind)
-
-            self._ordinance_chunk_inds.append(ind)
-            logger.debug("Added text at ind %d to ordinances", ind)
-            # mask, since we got a good result
-            self._wind_mention_mem[-1] = False
-
-        return bool(self._ordinance_chunk_inds)
 
 
 class WindOrdinanceTextExtractor:
