@@ -303,3 +303,62 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
             ),
         )
     return G
+
+
+def setup_graph_permitted_use_districts(**kwargs):
+    """Setup graph to extract permitted use districts for technology
+
+    Parameters
+    ----------
+    **kwargs
+        Keyword-value pairs to add to graph.
+
+    Returns
+    -------
+    nx.DiGraph
+        Graph instance that can be used to initialize an
+        `elm.tree.DecisionTree`.
+    """
+    G = setup_graph_no_nodes(**kwargs)  # noqa: N806
+
+    G.add_node(
+        "init",
+        prompt=(
+            "Does the following text explicitly outline districts where "
+            "{tech} are permitted as {use_type}? {clarifications}Do not "
+            "infer; if this use type is not explicitly mentioned then say "
+            "'No'. Pay extra attention to clarifying text found in "
+            "parentheses and footnotes. Begin your response with either "
+            "'Yes' or 'No' and explain your answer."
+            '\n\n"""\n{text}\n"""'
+        ),
+    )
+    G.add_edge(
+        "init", "district_names", condition=llm_response_starts_with_yes
+    )
+
+    G.add_node(
+        "district_names",
+        prompt=(
+            "What are all of the district names (and abbreviations if given) "
+            "where {tech} are permitted as {use_type}?"
+        ),
+    )
+    G.add_edge("district_names", "final")
+
+    G.add_node(
+        "final",
+        prompt=(
+            "Please respond based on our entire conversation so far. "
+            "Return your answer in "
+            "JSON format (not markdown). Your JSON file must include "
+            'exactly three keys. The keys are "value", "summary", '
+            'and "section". The value of the "value" key '
+            "should be a list of all district names (and abbreviations if "
+            "given) where {tech} "
+            "are permitted as {use_type}, or `null` if the text does not "
+            "mention this use type for {tech}. Use our conversation to "
+            "fill out this value. {SUMMARY_PROMPT} {SECTION_PROMPT}"
+        ),
+    )
+    return G
