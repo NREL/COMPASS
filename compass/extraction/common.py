@@ -362,3 +362,61 @@ def setup_graph_permitted_use_districts(**kwargs):
         ),
     )
     return G
+
+
+class BaseTextExtractor:
+    """Base implementation for a text extractor"""
+
+    SYSTEM_MESSAGE = (
+        "You extract one or more direct excerpts from a given text based on "
+        "the user's request. Maintain all original formatting and characters "
+        "without any paraphrasing. If the relevant text is inside of a "
+        "space-delimited table, return the entire table with the original "
+        "space-delimited formatting. Never paraphrase! Only return portions "
+        "of the original text directly."
+    )
+    _USAGE_LABEL = "document_ordinance_summary"
+
+    def __init__(self, llm_caller):
+        """
+
+        Parameters
+        ----------
+        llm_caller : compass.llm.LLMCaller
+            LLM Caller instance used to extract ordinance info with.
+        """
+        self.llm_caller = llm_caller
+
+    async def _process(self, text_chunks, instructions, is_valid_chunk):
+        """Perform extraction processing"""
+        logger.info(
+            "Extracting summary text from %d text chunks asynchronously...",
+            len(text_chunks),
+        )
+        logger.debug("Model instructions are:\n%s", instructions)
+        outer_task_name = asyncio.current_task().get_name()
+        summaries = [
+            asyncio.create_task(
+                self.llm_caller.call(
+                    sys_msg=self.SYSTEM_MESSAGE,
+                    content=f"Text:\n{chunk}\n{instructions}",
+                    usage_sub_label=self._USAGE_LABEL,
+                ),
+                name=outer_task_name,
+            )
+            for chunk in text_chunks
+        ]
+        summary_chunks = await asyncio.gather(*summaries)
+        summary_chunks = [
+            chunk for chunk in summary_chunks if is_valid_chunk(chunk)
+        ]
+
+        text_summary = merge_overlapping_texts(summary_chunks)
+        logger.debug(
+            "Final summary contains %d tokens",
+            ApiBase.count_tokens(
+                text_summary,
+                model=self.llm_caller.kwargs.get("model", "gpt-4"),
+            ),
+        )
+        return text_summary
