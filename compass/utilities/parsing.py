@@ -67,12 +67,16 @@ def merge_overlapping_texts(text_chunks, n=300):
 
     out_text = text_chunks[0]
     for next_text in text_chunks[1:]:
-        start_ind = out_text[-2 * n:].find(next_text[:n])  # fmt: off
-        if start_ind == -1:
+        half_chunk_len = len(out_text) // 2
+        check_len = min(n, half_chunk_len)
+        next_chunks_start_ind = out_text[half_chunk_len:].find(
+            next_text[:check_len]
+        )
+        if next_chunks_start_ind == -1:
             out_text = f"{out_text}\n{next_text}"
             continue
-        start_ind = 2 * n - start_ind
-        out_text = "".join([out_text, next_text[start_ind:]])
+        next_chunks_start_ind += half_chunk_len
+        out_text = "".join([out_text[:next_chunks_start_ind], next_text])
     return out_text
 
 
