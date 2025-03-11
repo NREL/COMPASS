@@ -61,6 +61,7 @@ def merge_overlapping_texts(text_chunks, n=300):
     str
         Merged text.
     """
+    text_chunks = list(filter(None, text_chunks))
     if not text_chunks:
         return ""
 
