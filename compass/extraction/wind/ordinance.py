@@ -9,7 +9,7 @@ import logging
 
 from elm import ApiBase
 
-from compass.validation.content import Heuristic, ParseChunksWithMemory
+from compass.validation.content import Heuristic
 from compass.utilities.parsing import merge_overlapping_texts
 
 
