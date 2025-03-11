@@ -207,7 +207,8 @@ class WindPermittedUseDistrictsTextCollector:
         -------
         bool
             Boolean flag indicating whether or not the text in the chunk
-            contains large wind energy conversion system ordinance text.
+            contains large wind energy conversion system permitted use
+            text.
         """
 
         key = "contains_district_info"
