@@ -1,8 +1,10 @@
 """Wind ordinance extraction utilities"""
 
 from .ordinance import (
+    WindHeuristic,
+    WindOrdinanceTextCollector,
     WindOrdinanceTextExtractor,
-    WindOrdinanceValidator,
+    WindPermittedUseDistrictsTextCollector,
 )
 from .parse import StructuredWindOrdinanceParser
 
