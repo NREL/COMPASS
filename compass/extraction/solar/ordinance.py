@@ -9,7 +9,7 @@ import logging
 
 from elm import ApiBase
 
-from compass.validation.content import Heuristic, ValidationWithMemory
+from compass.validation.content import Heuristic, CheckContentWithMemory
 from compass.utilities.parsing import merge_overlapping_texts
 
 
@@ -54,7 +54,7 @@ class SolarHeuristic(Heuristic):
     ]
 
 
-class SolarOrdinanceValidator(ValidationWithMemory):
+class SolarOrdinanceValidator(CheckContentWithMemory):
     """Check document text for solar ordinances
 
     Purpose:
@@ -66,7 +66,7 @@ class SolarOrdinanceValidator(ValidationWithMemory):
         the text into chunks and parsing them individually using LLMs.
     Key Relationships:
         Child class of
-        :class:`~compass.validation.content.ValidationWithMemory`,
+        :class:`~compass.validation.content.CheckContentWithMemory`,
         which allows the validation to look at neighboring chunks of
         text.
     """

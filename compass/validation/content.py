@@ -11,8 +11,15 @@ from abc import ABC, abstractmethod
 logger = logging.getLogger(__name__)
 
 
-class ValidationWithMemory:
-    """Validate text chunks by sometimes looking at previous chunks"""
+class CheckContentWithMemory:
+    """Check text chunks by sometimes looking at previous chunks
+
+    The idea behind this approach is that sometimes the context for a
+    setback or other ordinances is found in a previous chunk, so it may
+    be worthwhile (especially for validation purposes) to check a few
+    text chunks back for some validation pieces. In order to do this
+    semi-efficiently, we make use of a cache that's labeled "memory".
+    """
 
     def __init__(self, structured_llm_caller, text_chunks, num_to_recall=2):
         """
