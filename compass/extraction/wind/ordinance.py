@@ -266,12 +266,17 @@ class WindPermittedUseDistrictsTextCollector:
             contains large wind energy conversion system ordinance text.
         """
 
-        self.num_to_recall = 1
-        contains_district_info = await self.parse_from_ind(
-            ind, self.DISTRICT_PROMPT, key="contains_district_info"
+        key = "contains_district_info"
+        content = await self.chunk_parser.slc.call(
+            sys_msg=self.DISTRICT_PROMPT.format(key=key),
+            content=self.chunk_parser.text_chunks[ind],
+            usage_sub_label="document_content_validation",
         )
-        self._district_chunk_inds.append(ind)
+        logger.debug("LLM response: %s", str(content))  # TODO: trace
+        contains_district_info = content.get(key, False)
+
         if contains_district_info:
+            self._district_chunk_inds.append(ind)
             logger.debug("Text at ind %d contains district info", ind)
             return True
 
