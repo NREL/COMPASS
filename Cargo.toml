@@ -1,7 +1,7 @@
 [workspace]
 members = [ "crates/cli","crates/compass"]
 default-members = ["crates/compass"]
-resolver = "3"
+resolver = "2"
 
 [workspace.package]
 version = "0.0.3"
@@ -9,9 +9,9 @@ authors = [
   "Guilherme Castelão <gpimenta@nrel.gov>",
   "Paul Pinchuk <Pavlo.Pinchuk@nrel.gov>",
   ]
-edition = "2024"
+edition = "2021"
 license = "MIT OR Apache-2.0"
-rust-version = "1.85.0"
+rust-version = "1.80.0"
 
 [workspace.dependencies]
 clap = { version = "4.5.21" }
