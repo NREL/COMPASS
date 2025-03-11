@@ -78,6 +78,14 @@ async def download_county_ordinance(
     docs = await _down_select_docs_correct_location(
         docs, location=location, **kwargs
     )
+    logger.info(
+        "%d documents remaining after location filter for %s\n\t- %s",
+        len(docs),
+        location.full_name,
+        "\n\t- ".join(
+            [doc.attrs.get("source", "Unknown source") for doc in docs]
+        ),
+    )
     docs = await _down_select_docs_correct_content(
         docs,
         location=location,
@@ -87,9 +95,12 @@ async def download_county_ordinance(
         **kwargs,
     )
     logger.info(
-        "Found %d potential ordinance documents for %s",
+        "Found %d potential ordinance documents for %s\n\t- %s",
         len(docs),
         location.full_name,
+        "\n\t- ".join(
+            [doc.attrs.get("source", "Unknown source") for doc in docs]
+        ),
     )
     return _sort_final_ord_docs(docs)
 
