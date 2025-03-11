@@ -23,7 +23,8 @@ async def download_county_ordinance(
     question_templates,
     location,
     text_splitter,
-    validator_class,
+    heuristic,
+    ordinance_text_collector_class,
     num_urls=5,
     file_loader_kwargs=None,
     browser_semaphore=None,
@@ -81,7 +82,8 @@ async def download_county_ordinance(
         docs,
         location=location,
         text_splitter=text_splitter,
-        validator_class=validator_class,
+        heuristic=heuristic,
+        ordinance_text_collector_class=ordinance_text_collector_class,
         **kwargs,
     )
     logger.info(
