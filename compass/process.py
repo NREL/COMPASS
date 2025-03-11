@@ -35,7 +35,10 @@ from compass.extraction.wind import (
     WindHeuristic,
     WindOrdinanceTextCollector,
     WindOrdinanceTextExtractor,
+    WindPermittedUseDistrictsTextCollector,
+    WindPermittedUseDistrictsTextExtractor,
     StructuredWindOrdinanceParser,
+    StructuredWindPermittedUseDistrictsParser,
     WIND_QUESTION_TEMPLATES,
 )
 from compass.llm import LLMCaller
@@ -73,8 +76,11 @@ TechSpec = namedtuple(
         "questions",
         "heuristic",
         "ordinance_text_collector",
-        "text_extractor",
-        "structured_parser",
+        "ordinance_text_extractor",
+        "permitted_use_text_collector",
+        "permitted_use_text_extractor",
+        "structured_ordinance_parser",
+        "structured_permitted_use_parser",
     ],
 )
 ProcessKwargs = namedtuple(
@@ -349,7 +355,10 @@ async def _process_with_logs(  # noqa: PLR0914
             WindHeuristic(),
             WindOrdinanceTextCollector,
             WindOrdinanceTextExtractor,
+            WindPermittedUseDistrictsTextCollector,
+            WindPermittedUseDistrictsTextExtractor,
             StructuredWindOrdinanceParser,
+            StructuredWindPermittedUseDistrictsParser,
         )
     elif tech.casefold() == "solar":
         tech_specs = TechSpec(
@@ -619,18 +628,8 @@ async def process_county(
         return None
 
     for possible_ord_doc in docs:
-        logger.debug(
-            "Checking for ordinances in doc from %s",
-            possible_ord_doc.attrs.get("source", "unknown source"),
-        )
-        doc = await _extract_ordinance_text(
-            possible_ord_doc,
-            text_splitter,
-            extractor_class=tech_specs.text_extractor,
-            **kwargs,
-        )
-        doc = await _extract_ordinances_from_text(
-            doc, parser_class=tech_specs.structured_parser, **kwargs
+        doc = await _try_extract_all_ordinances(
+            possible_ord_doc, text_splitter, tech_specs, county, **kwargs
         )
         if num_ordinances_in_doc(doc) > 0:
             logger.debug(
@@ -661,6 +660,9 @@ async def _find_documents_with_location_attr(
         text_splitter,
         heuristic=tech_specs.heuristic,
         ordinance_text_collector_class=tech_specs.ordinance_text_collector,
+        permitted_use_text_collector_class=(
+            tech_specs.permitted_use_text_collector
+        ),
         num_urls=num_urls,
         file_loader_kwargs=file_loader_kwargs,
         browser_semaphore=browser_semaphore,
@@ -677,24 +679,100 @@ async def _find_documents_with_location_attr(
     return docs
 
 
+async def _try_extract_all_ordinances(
+    possible_ord_doc, text_splitter, tech_specs, county, **kwargs
+):
+    """Try to extract ordinance values and permitted districts"""
+    extraction_info = [
+        (
+            tech_specs.ordinance_text_extractor,
+            "ordinance_text",
+            "cleaned_ordinance_text",
+            tech_specs.structured_ordinance_parser,
+            "ordinance_values",
+        ),
+        (
+            tech_specs.permitted_use_text_extractor,
+            "permitted_use_text",
+            "districts_text",
+            tech_specs.structured_permitted_use_parser,
+            "permitted_district_values",
+        ),
+    ]
+    tasks = [
+        asyncio.create_task(
+            _try_extract_ordinances(
+                possible_ord_doc,
+                text_splitter,
+                extractor_class=extractor,
+                original_text_key=o_key,
+                cleaned_text_key=c_key,
+                parser_class=parser,
+                out_key=out_key,
+                **kwargs,
+            ),
+            name=county.full_name,
+        )
+        for extractor, o_key, c_key, parser, out_key in extraction_info
+    ]
+
+    docs = await asyncio.gather(*tasks)
+    return _concat_scrape_results(docs[0])
+
+
+async def _try_extract_ordinances(
+    possible_ord_doc,
+    text_splitter,
+    extractor_class,
+    original_text_key,
+    cleaned_text_key,
+    parser_class,
+    out_key,
+    **kwargs,
+):
+    """Try applying a single extractor to the relevant legal text"""
+    logger.debug(
+        "Checking for ordinances in doc from %s",
+        possible_ord_doc.attrs.get("source", "unknown source"),
+    )
+    doc = await _extract_ordinance_text(
+        possible_ord_doc,
+        text_splitter,
+        extractor_class=extractor_class,
+        original_text_key=original_text_key,
+        **kwargs,
+    )
+    return await _extract_ordinances_from_text(
+        doc,
+        parser_class=parser_class,
+        text_key=cleaned_text_key,
+        out_key=out_key,
+        **kwargs,
+    )
+
+
 async def _extract_ordinance_text(
-    doc, text_splitter, extractor_class, **kwargs
+    doc, text_splitter, extractor_class, original_text_key, **kwargs
 ):
     """Extract text pertaining to ordinance of interest"""
     llm_caller = LLMCaller(**kwargs)
     extractor = extractor_class(llm_caller)
     doc = await extract_ordinance_text_with_ngram_validation(
-        doc, text_splitter, extractor
+        doc, text_splitter, extractor, original_text_key=original_text_key
     )
     await _record_usage(**kwargs)
 
     return await _write_cleaned_text(doc)
 
 
-async def _extract_ordinances_from_text(doc, parser_class, **kwargs):
+async def _extract_ordinances_from_text(
+    doc, parser_class, text_key, out_key, **kwargs
+):
     """Extract values from ordinance text"""
     parser = parser_class(**kwargs)
-    return await extract_ordinance_values(doc, parser)
+    return await extract_ordinance_values(
+        doc, parser, text_key=text_key, out_key=out_key
+    )
 
 
 async def _move_files(doc, county):
@@ -757,6 +835,23 @@ def _setup_pytesseract(exe_fp):
     pytesseract.pytesseract.tesseract_cmd = exe_fp
 
 
+def _concat_scrape_results(doc):
+    data = [
+        doc.attrs.pop(key, None)
+        for key in ["ordinance_values", "permitted_district_values"]
+    ]
+    data = [df for df in data if df is not None and not df.empty]
+    if len(data) == 0:
+        return doc
+
+    if len(data) == 1:
+        doc.attrs["scraped_values"] = data[0]
+        return doc
+
+    doc.attrs["scraped_values"] = pd.concat(data)
+    return doc
+
+
 def _docs_to_db(docs):
     """Convert list of docs to output database"""
     db = []
@@ -782,7 +877,7 @@ def _docs_to_db(docs):
 
 def _db_results(doc):
     """Extract results from doc attrs to DataFrame"""
-    results = doc.attrs.get("ordinance_values")
+    results = doc.attrs.get("scraped_values")
     if results is None:
         return None
 
