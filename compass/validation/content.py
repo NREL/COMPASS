@@ -11,7 +11,7 @@ from abc import ABC, abstractmethod
 logger = logging.getLogger(__name__)
 
 
-class CheckContentWithMemory:
+class ParseChunksWithMemory:
     """Check text chunks by sometimes looking at previous chunks
 
     The idea behind this approach is that sometimes the context for a
