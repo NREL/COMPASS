@@ -4,6 +4,7 @@ These are primarily used to validate that a legal document applies to a
 particular technology (e.g. Large Wind Energy Conversion Systems).
 """
 
+import asyncio
 import logging
 from abc import ABC, abstractmethod
 
@@ -105,6 +106,7 @@ class ParseChunksWithMemory:
                     content=text,
                     usage_sub_label="document_content_validation",
                 )
+                logger.debug("LLM response: %s", str(content))  # TODO: trace
                 check = mem[key] = content.get(key, False)
             if check:
                 return check
@@ -217,3 +219,63 @@ class Heuristic(ABC):
     def GOOD_TECH_PHRASES(self):  # noqa: N802
         """iter: Iterable of phrases that pertain to the tech"""
         raise NotImplementedError
+
+
+class LegalTextValidator:
+    """Parse chunks to determine if they contain legal text"""
+
+    IS_LEGAL_TEXT_PROMPT = (
+        "You extract structured data from text. Return your answer in JSON "
+        "format (not markdown). Your JSON file must include exactly three "
+        "keys. The first key is 'summary', which is a string that provides a "
+        "short summary of the text. The second key is 'type', which is a "
+        "string that best represent the type of document this text belongs "
+        "to. The third key is '{key}', which is a boolean that is set to "
+        "True if the type of the text (as you previously determined) is a "
+        "legally-binding statute or code and False if the text is an excerpt "
+        "from other non-legal text such as a news article, survey, summary, "
+        "application, public notice, etc."
+    )
+
+    def __init__(self, chunk_parser):
+        """
+
+        Parameters
+        ----------
+        chunk_parser : ParseChunksWithMemory
+            Instance of `ParseChunksWithMemory` that contains a
+            `parse_from_ind` method.
+        """
+        self.chunk_parser = chunk_parser
+        self._legal_text_mem = []
+
+    @property
+    def is_legal_text(self):
+        """bool: ``True`` if text was found to be from a legal source"""
+        if not self._legal_text_mem:
+            return False
+        return sum(self._legal_text_mem) >= 0.5 * len(self._legal_text_mem)
+
+    async def check_chunk(self, ind):
+        """Check a chunk at a given ind to see if it contains legal text
+
+        Parameters
+        ----------
+        ind : int
+            Index of the chunk to check.
+
+        Returns
+        -------
+        bool
+            Boolean flag indicating whether or not the text in the chunk
+            resembles legal text.
+        """
+        is_legal_text = await self.chunk_parser.parse_from_ind(
+            ind, self.IS_LEGAL_TEXT_PROMPT, key="legal_text"
+        )
+        self._legal_text_mem.append(is_legal_text)
+        if is_legal_text:
+            logger.debug("Text at ind %d is legal text", ind)
+        else:
+            logger.debug("Text at ind %d is not legal text", ind)
+        return is_legal_text
