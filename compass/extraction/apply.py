@@ -285,8 +285,9 @@ async def _extract_with_ngram_check(
         )
         if ngram_frac >= ngram_fraction_threshold:
             logger.debug(
-                "Document extraction passed ngram check on attempt %d "
+                "Document extraction for %r passed ngram check on attempt %d "
                 "with score %.2f (Document source: %s)",
+                out_text_key,
                 attempt + 1,
                 ngram_frac,
                 source,
@@ -299,8 +300,9 @@ async def _extract_with_ngram_check(
             best_summary = cleaned_text
 
         logger.debug(
-            "Document extraction failed ngram check on attempt %d "
+            "Document extraction for %r failed ngram check on attempt %d "
             "with score %.2f (Document source: %s). Retrying...",
+            out_text_key,
             attempt + 1,
             ngram_frac,
             source,
@@ -319,9 +321,7 @@ async def _extract_with_ngram_check(
     return doc
 
 
-async def extract_ordinance_values(
-    doc, parser, text_key, out_key="ordinance_values"
-):
+async def extract_ordinance_values(doc, parser, text_key, out_key):
     """Extract ordinance values for a single document
 
     Document must be known to contain ordinance text.
@@ -339,14 +339,15 @@ async def extract_ordinance_values(
     text_key : str
         Name of the key under which cleaned text is stored in
         `doc.attrs`. This text should be ready for extraction.
+    out_key : str
+        Name of the key under which extracted ordinances should be
+        stored.
 
     Returns
     -------
     elm.web.document.BaseDocument
         Document that has been parsed for ordinance values. The results
-        of the extraction are stored in the document's attrs. In
-        particular, the attrs will contain an ``"ordinance_values"``
-        key that will contain the DataFame with ordinance values.
+        of the extraction are stored in the document's attrs.
     """
     if not doc.attrs.get(text_key):
         msg = (
