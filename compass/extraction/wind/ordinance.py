@@ -145,7 +145,7 @@ class WindOrdinanceTextCollector:
 
         logger.debug("Text at ind %d is for utility-scale WECS", ind)
 
-        self._store_chunk(chunk_parser, ind)
+        _store_chunk(chunk_parser, ind, self._ordinance_chunks)
         logger.debug("Added text at ind %d to ordinances", ind)
 
         return True
@@ -170,17 +170,6 @@ class WindOrdinanceTextCollector:
         ]
         return merge_overlapping_texts(text)
 
-    def _store_chunk(self, parser, chunk_ind):
-        """Store chunk and its neighbors if it is not already stored"""
-        for offset in range(1 - parser.num_to_recall, 2):
-            ind_to_grab = chunk_ind + offset
-            if ind_to_grab < 0 or ind_to_grab >= len(parser.text_chunks):
-                continue
-
-            self._ordinance_chunks.setdefault(
-                ind_to_grab, parser.text_chunks[ind_to_grab]
-            )
-
 
 class WindPermittedUseDistrictsTextCollector:
     """Check text chunks for permitted wind districts; collect them"""
@@ -202,23 +191,17 @@ class WindPermittedUseDistrictsTextCollector:
         "are a permitted use and False otherwise."
     )
 
-    def __init__(self, chunk_parser):
-        """
+    def __init__(self):
+        self._district_chunks = {}
+
+    async def check_chunk(self, chunk_parser, ind):
+        """Check a chunk to see if it contains permitted uses
 
         Parameters
         ----------
         chunk_parser : ParseChunksWithMemory
             Instance of `ParseChunksWithMemory` that contains a
             `parse_from_ind` method.
-        """
-        self.chunk_parser = chunk_parser
-        self._district_chunk_inds = []
-
-    async def check_chunk(self, ind):
-        """Check a chunk at a given ind to see if it contains ordinance
-
-        Parameters
-        ----------
         ind : int
             Index of the chunk to check.
 
@@ -230,16 +213,16 @@ class WindPermittedUseDistrictsTextCollector:
         """
 
         key = "contains_district_info"
-        content = await self.chunk_parser.slc.call(
+        content = await chunk_parser.slc.call(
             sys_msg=self.DISTRICT_PROMPT.format(key=key),
-            content=self.chunk_parser.text_chunks[ind],
+            content=chunk_parser.text_chunks[ind],
             usage_sub_label="document_content_validation",
         )
         logger.debug("LLM response: %s", str(content))  # TODO: trace
         contains_district_info = content.get(key, False)
 
         if contains_district_info:
-            self._district_chunk_inds.append(ind)
+            _store_chunk(chunk_parser, ind, self._district_chunks)
             logger.debug("Text at ind %d contains district info", ind)
             return True
 
@@ -249,31 +232,20 @@ class WindPermittedUseDistrictsTextCollector:
     @property
     def contains_district_info(self):
         """bool: Flag indicating whether text contains district info"""
-        return bool(self._district_chunk_inds)
+        return bool(self._district_chunks)
 
     @property
     def permitted_use_district_text(self):
         """str: Combined permitted use districts text from the chunks"""
-        logger.debug("District chunk inds: %s", self._district_chunk_inds)
-
-        inds_to_grab = set()
-        for ind in self._district_chunk_inds:
-            inds_to_grab |= {
-                ind + x for x in range(1 - self.chunk_parser.num_to_recall, 2)
-            }
-
-        inds_to_grab = [
-            ind
-            for ind in sorted(inds_to_grab)
-            if 0 <= ind < len(self.chunk_parser.text_chunks)
-        ]
         logger.debug(
             "Grabbing %d chunk(s) from original text at these indices: %s",
-            len(inds_to_grab),
-            inds_to_grab,
+            len(self._district_chunks),
+            list(self._district_chunks),
         )
 
-        text = [self.chunk_parser.text_chunks[ind] for ind in inds_to_grab]
+        text = [
+            self._district_chunks[ind] for ind in sorted(self._district_chunks)
+        ]
         return merge_overlapping_texts(text)
 
 
@@ -494,3 +466,13 @@ class WindOrdinanceTextExtractor:
 def _valid_chunk(chunk):
     """True if chunk has content"""
     return chunk and "no relevant text" not in chunk.lower()
+
+
+def _store_chunk(parser, chunk_ind, store):
+    """Store chunk and its neighbors if it is not already stored"""
+    for offset in range(1 - parser.num_to_recall, 2):
+        ind_to_grab = chunk_ind + offset
+        if ind_to_grab < 0 or ind_to_grab >= len(parser.text_chunks):
+            continue
+
+        store.setdefault(ind_to_grab, parser.text_chunks[ind_to_grab])
