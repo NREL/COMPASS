@@ -28,7 +28,10 @@ from compass.extraction.solar import (
     SolarHeuristic,
     SolarOrdinanceTextCollector,
     SolarOrdinanceTextExtractor,
+    SolarPermittedUseDistrictsTextCollector,
+    SolarPermittedUseDistrictsTextExtractor,
     StructuredSolarOrdinanceParser,
+    StructuredSolarPermittedUseDistrictsParser,
     SOLAR_QUESTION_TEMPLATES,
 )
 from compass.extraction.wind import (
@@ -366,7 +369,10 @@ async def _process_with_logs(  # noqa: PLR0914
             SolarHeuristic(),
             SolarOrdinanceTextCollector,
             SolarOrdinanceTextExtractor,
+            SolarPermittedUseDistrictsTextCollector,
+            SolarPermittedUseDistrictsTextExtractor,
             StructuredSolarOrdinanceParser,
+            StructuredSolarPermittedUseDistrictsParser,
         )
     else:
         msg = f"Unknown tech input: {tech}"
