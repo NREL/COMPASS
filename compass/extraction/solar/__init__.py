@@ -1,8 +1,9 @@
 """Solar ordinance extraction utilities"""
 
 from .ordinance import (
+    SolarHeuristic,
+    SolarOrdinanceTextCollector,
     SolarOrdinanceTextExtractor,
-    SolarOrdinanceValidator,
 )
 from .parse import StructuredSolarOrdinanceParser
 

@@ -9,7 +9,7 @@ import logging
 
 from elm import ApiBase
 
-from compass.validation.content import Heuristic, CheckContentWithMemory
+from compass.validation.content import Heuristic
 from compass.utilities.parsing import merge_overlapping_texts
 
 
@@ -54,36 +54,8 @@ class SolarHeuristic(Heuristic):
     ]
 
 
-class SolarOrdinanceValidator(CheckContentWithMemory):
-    """Check document text for solar ordinances
-
-    Purpose:
-        Determine whether a document contains relevant ordinance
-        information.
-    Responsibilities:
-        1. Determine whether a document contains relevant (e.g.
-        utility-scale solar zoning) ordinance information by splitting
-        the text into chunks and parsing them individually using LLMs.
-    Key Relationships:
-        Child class of
-        :class:`~compass.validation.content.CheckContentWithMemory`,
-        which allows the validation to look at neighboring chunks of
-        text.
-    """
-
-    _HEURISTIC = SolarHeuristic()
-    IS_LEGAL_TEXT_PROMPT = (
-        "You extract structured data from text. Return your answer in JSON "
-        "format (not markdown). Your JSON file must include exactly three "
-        "keys. The first key is 'summary', which is a string that provides a "
-        "short summary of the text. The second key is 'type', which is a "
-        "string that best represent the type of document this text belongs "
-        "to. The third key is '{key}', which is a boolean that is set to "
-        "True if the type of the text (as you previously determined) is a "
-        "legally-binding statute or code and False if the text is an excerpt "
-        "from other non-legal text such as a news article, survey, summary, "
-        "application, public notice, etc."
-    )
+class SolarOrdinanceTextCollector:
+    """Check text chunks for ordinances and collect them if they do"""
 
     CONTAINS_ORD_PROMPT = (
         "You extract structured data from text. Return your answer in JSON "
@@ -113,132 +85,80 @@ class SolarOrdinanceValidator(CheckContentWithMemory):
         "systems that the client is interested in and False otherwise."
     )
 
-    def __init__(self, structured_llm_caller, text_chunks, num_to_recall=2):
-        """
+    def __init__(self):
+        self._ordinance_chunks = {}
+
+    async def check_chunk(self, chunk_parser, ind):
+        """Check a chunk at a given ind to see if it contains ordinance
 
         Parameters
         ----------
-        structured_llm_caller : compass.llm.StructuredLLMCaller
-            StructuredLLMCaller instance. Used for structured validation
-            queries.
-        text_chunks : list of str
-            List of strings, each of which represent a chunk of text.
-            The order of the strings should be the order of the text
-            chunks. This validator may refer to previous text chunks to
-            answer validation questions.
-        num_to_recall : int, optional
-            Number of chunks to check for each validation call. This
-            includes the original chunk! For example, if
-            `num_to_recall=2`, the validator will first check the chunk
-            at the requested index, and then the previous chunk as well.
-            By default, ``2``.
-        """
-        super().__init__(
-            structured_llm_caller=structured_llm_caller,
-            text_chunks=text_chunks,
-            num_to_recall=num_to_recall,
-        )
-        self._legal_text_mem = []
-        self._solar_mention_mem = []
-        self._ordinance_chunk_inds = []
-
-    @property
-    def is_legal_text(self):
-        """bool: ``True`` if text was found to be from a legal source"""
-        if not self._legal_text_mem:
-            return False
-        return sum(self._legal_text_mem) >= 0.5 * len(self._legal_text_mem)
-
-    @property
-    def ordinance_text(self):
-        """str: Combined ordinance text from the individual chunks"""
-        logger.debug("Ordinance chunk inds: %s", self._ordinance_chunk_inds)
-
-        inds_to_grab = set()
-        for ind in self._ordinance_chunk_inds:
-            inds_to_grab |= {ind + x for x in range(1 - self.num_to_recall, 2)}
-
-        inds_to_grab = [
-            ind
-            for ind in sorted(inds_to_grab)
-            if 0 <= ind < len(self.text_chunks)
-        ]
-        logger.debug(
-            "Grabbing %d chunk(s) from original text at these indices: %s",
-            len(inds_to_grab),
-            inds_to_grab,
-        )
-
-        text = [self.text_chunks[ind] for ind in inds_to_grab]
-        return merge_overlapping_texts(text)
-
-    async def parse(self, min_chunks_to_process=3):
-        """Parse text chunks and look for ordinance text
-
-        Parameters
-        ----------
-        min_chunks_to_process : int, optional
-            Minimum number of chunks to process before checking if
-            document resembles legal text and ignoring chunks that don't
-            pass the solar heuristic. By default, ``3``.
+        chunk_parser : ParseChunksWithMemory
+            Instance of `ParseChunksWithMemory` that contains a
+            `parse_from_ind` method.
+        ind : int
+            Index of the chunk to check.
 
         Returns
         -------
         bool
-            ``True`` if any ordinance text was found in the chunks.
+            Boolean flag indicating whether or not the text in the chunk
+            contains large solar energy conversion system ordinance
+            text.
         """
-        for ind, text in enumerate(self.text_chunks):
-            self._solar_mention_mem.append(self._HEURISTIC.check(text))
-            if ind >= min_chunks_to_process:
-                if not self.is_legal_text:
-                    return False
+        contains_ord_info = await chunk_parser.parse_from_ind(
+            ind, self.CONTAINS_ORD_PROMPT, key="contains_ord_info"
+        )
+        if not contains_ord_info:
+            logger.debug("Text at ind %d does not contain ordinance info", ind)
+            return False
 
-                # fmt: off
-                if not any(self._solar_mention_mem[-self.num_to_recall:]):
-                    continue
+        logger.debug("Text at ind %d does contain ordinance info", ind)
 
-            logger.debug("Processing text at ind %d", ind)
-            logger.debug("Text:\n%s", text)
+        is_utility_scale = await chunk_parser.parse_from_ind(
+            ind, self.IS_UTILITY_SCALE_PROMPT, key="x"
+        )
+        if not is_utility_scale:
+            logger.debug("Text at ind %d is not for utility-scale SEF", ind)
+            return False
 
-            if ind < min_chunks_to_process:
-                is_legal_text = await self.parse_from_ind(
-                    ind, self.IS_LEGAL_TEXT_PROMPT, key="legal_text"
-                )
-                self._legal_text_mem.append(is_legal_text)
-                if not is_legal_text:
-                    logger.debug("Text at ind %d is not legal text", ind)
-                    continue
+        logger.debug("Text at ind %d is for utility-scale SEF", ind)
 
-                logger.debug("Text at ind %d is legal text", ind)
+        self._store_chunk(chunk_parser, ind)
+        logger.debug("Added text at ind %d to ordinances", ind)
 
-            contains_ord_info = await self.parse_from_ind(
-                ind, self.CONTAINS_ORD_PROMPT, key="contains_ord_info"
-            )
-            if not contains_ord_info:
-                logger.debug(
-                    "Text at ind %d does not contain ordinance info", ind
-                )
+        return True
+
+    @property
+    def contains_ord_info(self):
+        """bool: Flag indicating whether text contains ordinance info"""
+        return bool(self._ordinance_chunks)
+
+    @property
+    def ordinance_text(self):
+        """str: Combined ordinance text from the individual chunks"""
+        logger.debug(
+            "Grabbing %d chunk(s) from original text at these indices: %s",
+            len(self._ordinance_chunks),
+            list(self._ordinance_chunks),
+        )
+
+        text = [
+            self._ordinance_chunks[ind]
+            for ind in sorted(self._ordinance_chunks)
+        ]
+        return merge_overlapping_texts(text)
+
+    def _store_chunk(self, parser, chunk_ind):
+        """Store chunk and its neighbors if it is not already stored"""
+        for offset in range(1 - parser.num_to_recall, 2):
+            ind_to_grab = chunk_ind + offset
+            if ind_to_grab < 0 or ind_to_grab >= len(parser.text_chunks):
                 continue
 
-            logger.debug("Text at ind %d does contain ordinance info", ind)
-
-            is_utility_scale = await self.parse_from_ind(
-                ind, self.IS_UTILITY_SCALE_PROMPT, key="x"
+            self._ordinance_chunks.setdefault(
+                ind_to_grab, parser.text_chunks[ind_to_grab]
             )
-            if not is_utility_scale:
-                logger.debug(
-                    "Text at ind %d is not for utility-scale SEF", ind
-                )
-                continue
-
-            logger.debug("Text at ind %d is for utility-scale SEF", ind)
-
-            self._ordinance_chunk_inds.append(ind)
-            logger.debug("Added text at ind %d to ordinances", ind)
-            # mask, since we got a good result
-            self._solar_mention_mem[-1] = False
-
-        return bool(self._ordinance_chunk_inds)
 
 
 class SolarOrdinanceTextExtractor:

@@ -25,7 +25,8 @@ from compass.extraction import (
     extract_ordinance_text_with_ngram_validation,
 )
 from compass.extraction.solar import (
-    SolarOrdinanceValidator,
+    SolarHeuristic,
+    SolarOrdinanceTextCollector,
     SolarOrdinanceTextExtractor,
     StructuredSolarOrdinanceParser,
     SOLAR_QUESTION_TEMPLATES,
@@ -353,7 +354,8 @@ async def _process_with_logs(  # noqa: PLR0914
     elif tech.casefold() == "solar":
         tech_specs = TechSpec(
             SOLAR_QUESTION_TEMPLATES,
-            SolarOrdinanceValidator,
+            SolarHeuristic(),
+            SolarOrdinanceTextCollector,
             SolarOrdinanceTextExtractor,
             StructuredSolarOrdinanceParser,
         )
