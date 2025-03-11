@@ -4,11 +4,9 @@ These are primarily used to validate that a legal document applies to a
 particular technology (e.g. Solar Energy Conversion System).
 """
 
-import asyncio
 import logging
 
-from elm import ApiBase
-
+from compass.extraction.common import BaseTextExtractor
 from compass.validation.content import Heuristic
 from compass.utilities.parsing import merge_overlapping_texts
 
@@ -103,8 +101,7 @@ class SolarOrdinanceTextCollector:
         -------
         bool
             Boolean flag indicating whether or not the text in the chunk
-            contains large solar energy conversion system ordinance
-            text.
+            contains large solar energy farm ordinance text.
         """
         contains_ord_info = await chunk_parser.parse_from_ind(
             ind, self.CONTAINS_ORD_PROMPT, key="contains_ord_info"
@@ -124,7 +121,7 @@ class SolarOrdinanceTextCollector:
 
         logger.debug("Text at ind %d is for utility-scale SEF", ind)
 
-        self._store_chunk(chunk_parser, ind)
+        _store_chunk(chunk_parser, ind, self._ordinance_chunks)
         logger.debug("Added text at ind %d to ordinances", ind)
 
         return True
@@ -149,19 +146,86 @@ class SolarOrdinanceTextCollector:
         ]
         return merge_overlapping_texts(text)
 
-    def _store_chunk(self, parser, chunk_ind):
-        """Store chunk and its neighbors if it is not already stored"""
-        for offset in range(1 - parser.num_to_recall, 2):
-            ind_to_grab = chunk_ind + offset
-            if ind_to_grab < 0 or ind_to_grab >= len(parser.text_chunks):
-                continue
 
-            self._ordinance_chunks.setdefault(
-                ind_to_grab, parser.text_chunks[ind_to_grab]
-            )
+class SolarPermittedUseDistrictsTextCollector:
+    """Check text chunks for permitted solar districts; collect them"""
+
+    DISTRICT_PROMPT = (
+        "You are a legal scholar that reads ordinance text and determines "
+        "whether the text explicitly details the districts where large "
+        "solar energy farms are a permitted use. "
+        "Do not make any inferences; only answer based on information that "
+        "is explicitly outlined in the text. "
+        "Note that relevant information may sometimes be found in tables. "
+        "Return your answer in JSON format (not markdown). Your JSON file "
+        "must include exactly two keys. The first key is 'districts' which "
+        "contains a string that lists all of the district names for which "
+        "the text explicitly permits large solar energy farms (if any). "
+        "The last key is "
+        "'{key}', which is a boolean that is set to True if any part of the "
+        "text excerpt mentions districts where large solar energy farms"
+        "are a permitted use and False otherwise."
+    )
+
+    def __init__(self):
+        self._district_chunks = {}
+
+    async def check_chunk(self, chunk_parser, ind):
+        """Check a chunk to see if it contains permitted uses
+
+        Parameters
+        ----------
+        chunk_parser : ParseChunksWithMemory
+            Instance of `ParseChunksWithMemory` that contains a
+            `parse_from_ind` method.
+        ind : int
+            Index of the chunk to check.
+
+        Returns
+        -------
+        bool
+            Boolean flag indicating whether or not the text in the chunk
+            contains large solar energy farm permitted use text.
+        """
+
+        key = "contains_district_info"
+        content = await chunk_parser.slc.call(
+            sys_msg=self.DISTRICT_PROMPT.format(key=key),
+            content=chunk_parser.text_chunks[ind],
+            usage_sub_label="document_content_validation",
+        )
+        logger.debug("LLM response: %s", str(content))  # TODO: trace
+        contains_district_info = content.get(key, False)
+
+        if contains_district_info:
+            _store_chunk(chunk_parser, ind, self._district_chunks)
+            logger.debug("Text at ind %d contains district info", ind)
+            return True
+
+        logger.debug("Text at ind %d does not contain district info", ind)
+        return False
+
+    @property
+    def contains_district_info(self):
+        """bool: Flag indicating whether text contains district info"""
+        return bool(self._district_chunks)
+
+    @property
+    def permitted_use_district_text(self):
+        """str: Combined permitted use districts text from the chunks"""
+        logger.debug(
+            "Grabbing %d chunk(s) from original text at these indices: %s",
+            len(self._district_chunks),
+            list(self._district_chunks),
+        )
+
+        text = [
+            self._district_chunks[ind] for ind in sorted(self._district_chunks)
+        ]
+        return merge_overlapping_texts(text)
 
 
-class SolarOrdinanceTextExtractor:
+class SolarOrdinanceTextExtractor(BaseTextExtractor):
     """Extract succinct ordinance text from input
 
     Purpose:
@@ -175,14 +239,6 @@ class SolarOrdinanceTextExtractor:
         LLM queries.
     """
 
-    SYSTEM_MESSAGE = (
-        "You extract direct excerpts from a given text based on "
-        "the user's request. Maintain all original formatting and characters "
-        "without any paraphrasing. If the relevant text is inside of a "
-        "space-delimited table, return the entire table with the original "
-        "space-delimited formatting. Never paraphrase! Only return portions "
-        "of the original text directly."
-    )
     ENERGY_SYSTEM_FILTER_PROMPT = (
         "Extract the full text for all sections pertaining to energy "
         "conversion systems. Remove sections that definitely do not pertain "
@@ -218,50 +274,6 @@ class SolarOrdinanceTextExtractor:
         "no text pertaining to large solar systems, simply say: "
         '"No relevant text."'
     )
-
-    def __init__(self, llm_caller):
-        """
-
-        Parameters
-        ----------
-        llm_caller : compass.llm.LLMCaller
-            LLM Caller instance used to extract ordinance info with.
-        """
-        self.llm_caller = llm_caller
-
-    async def _process(self, text_chunks, instructions, valid_chunk):
-        """Perform extraction processing"""
-        logger.info(
-            "Extracting ordinance text from %d text chunks asynchronously...",
-            len(text_chunks),
-        )
-        logger.debug("Model instructions are:\n%s", instructions)
-        outer_task_name = asyncio.current_task().get_name()
-        summaries = [
-            asyncio.create_task(
-                self.llm_caller.call(
-                    sys_msg=self.SYSTEM_MESSAGE,
-                    content=f"Text:\n{chunk}\n{instructions}",
-                    usage_sub_label="document_ordinance_summary",
-                ),
-                name=outer_task_name,
-            )
-            for chunk in text_chunks
-        ]
-        summary_chunks = await asyncio.gather(*summaries)
-        summary_chunks = [
-            chunk for chunk in summary_chunks if valid_chunk(chunk)
-        ]
-
-        text_summary = merge_overlapping_texts(summary_chunks)
-        logger.debug(
-            "Final summary contains %d tokens",
-            ApiBase.count_tokens(
-                text_summary,
-                model=self.llm_caller.kwargs.get("model", "gpt-4"),
-            ),
-        )
-        return text_summary
 
     async def extract_energy_system_section(self, text_chunks):
         """Extract ordinance text from input text chunks for energy sys
@@ -374,6 +386,114 @@ class SolarOrdinanceTextExtractor:
         )
 
 
+class SolarPermittedUseDistrictsTextExtractor(BaseTextExtractor):
+    """Extract succinct ordinance text from input
+
+    Purpose:
+        Extract relevant ordinance text from document.
+    Responsibilities:
+        1. Extract portions from chunked document text relevant to
+           particular ordinance type (e.g. solar zoning for
+           utility-scale systems).
+    Key Relationships:
+        Uses a :class:`~compass.llm.calling.StructuredLLMCaller` for
+        LLM queries.
+    """
+
+    _USAGE_LABEL = "document_permitted_use_districts_summary"
+
+    PERMITTED_USES_FILTER_PROMPT = (
+        "Remove all text that does not pertain to permitted use(s) for a "
+        "district."
+        "Consider all permitted use kinds, including but not limited to "
+        "Primary, Special, Accessory, etc. "
+        "Note that relevant information may sometimes be found in tables. "
+        "If there is no text that pertains ro permitted use(s) for a "
+        "district, simply say: "
+        '"No relevant text."'
+    )
+
+    SEF_PERMITTED_USES_FILTER_PROMPT = (
+        "Extract all text that explicitly lists "
+        "large solar energy farms as permitted use in a district. "
+        f"{_LARGE_SEF_DESCRIPTION}"
+        "Consider all use kinds, including but not limited to "
+        "Primary, Special, Accessory, etc. "
+        "Note that relevant information may sometimes be found in tables. "
+        "Keep all headers that explain the permitted "
+        "use kind and the solar energy farms it applies to. "
+        "If there is no text that pertains to solar energy farms, simply say: "
+        '"No relevant text."'
+    )
+
+    async def extract_permitted_uses(self, text_chunks):
+        """Extract permitted uses text from input text chunks
+
+        Parameters
+        ----------
+        text_chunks : list of str
+            List of strings, each of which represent a chunk of text.
+            The order of the strings should be the order of the text
+            chunks.
+
+        Returns
+        -------
+        str
+            Ordinance text extracted from text chunks.
+        """
+        return await self._process(
+            text_chunks=text_chunks,
+            instructions=self.PERMITTED_USES_FILTER_PROMPT,
+            is_valid_chunk=_valid_chunk,
+        )
+
+    async def extract_sef_permitted_uses(self, text_chunks):
+        """Extract permitted uses text for large SEF from input text
+
+        Parameters
+        ----------
+        text_chunks : list of str
+            List of strings, each of which represent a chunk of text.
+            The order of the strings should be the order of the text
+            chunks.
+
+        Returns
+        -------
+        str
+            Ordinance text extracted from text chunks.
+        """
+        return await self._process(
+            text_chunks=text_chunks,
+            instructions=self.SEF_PERMITTED_USES_FILTER_PROMPT,
+            is_valid_chunk=_valid_chunk,
+        )
+
+    @property
+    def parsers(self):
+        """Iterable of parsers provided by this extractor
+
+        Yields
+        ------
+        name : str
+            Name describing the type of text output by the parser.
+        parser
+            Parser that takes a `text_chunks` input and outputs parsed
+            text.
+        """
+        yield "permitted_use_only_text", self.extract_permitted_uses
+        yield "districts_text", self.extract_sef_permitted_uses
+
+
 def _valid_chunk(chunk):
     """True if chunk has content"""
     return chunk and "no relevant text" not in chunk.lower()
+
+
+def _store_chunk(parser, chunk_ind, store):
+    """Store chunk and its neighbors if it is not already stored"""
+    for offset in range(1 - parser.num_to_recall, 2):
+        ind_to_grab = chunk_ind + offset
+        if ind_to_grab < 0 or ind_to_grab >= len(parser.text_chunks):
+            continue
+
+        store.setdefault(ind_to_grab, parser.text_chunks[ind_to_grab])
