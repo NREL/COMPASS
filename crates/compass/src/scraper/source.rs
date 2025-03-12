@@ -45,4 +45,30 @@ impl Source {
 
         Ok(())
     }
+
+    pub(super) fn write(&self, conn: &duckdb::Transaction, commit_id: usize) -> Result<()> {
+        // What about return the number of rows inserted?
+
+        let origin = match &self.origin {
+            Some(origin) => origin,
+            None => {
+                trace!("Missing origin for document {}", &self.name);
+                "NULL"
+            }
+        };
+        let access_time = match &self.access_time {
+            Some(time) => time,
+            None => {
+                trace!("Missing access time for document {}", &self.name);
+                "NULL"
+            }
+        };
+        // Insert the source document into the database
+        conn.execute(
+            "INSERT INTO document (name, hash, origin, access_time) VALUES (?, ?, ?, ?)",
+            &[&self.name, &self.hash, origin, access_time],
+        )?;
+
+        Ok(())
+    }
 }
