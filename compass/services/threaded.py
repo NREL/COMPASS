@@ -90,6 +90,7 @@ def _write_cleaned_file(doc, out_dir):
 def _write_interim_cleaned_files(doc, out_dir, location_name):
     """Write intermediate output texts to file; helpful for debugging"""
     key_to_fp = {
+        "ordinance_text": f"{location_name} Ordinance Original text.txt",
         "energy_systems_text": f"{location_name} Energy Systems text.txt",
         "wind_energy_systems_text": f"{location_name} Restrictions text.txt",
         "large_wind_energy_systems_text": (
