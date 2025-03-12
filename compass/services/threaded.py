@@ -72,7 +72,7 @@ def _write_cleaned_file(doc, out_dir):
 
     key_to_fp = {
         "cleaned_ordinance_text": f"{location_name} Ordinance Summary.txt",
-        "district_text": f"{location_name} Districts.txt",
+        "districts_text": f"{location_name} Districts.txt",
     }
     out_paths = []
     for key, fn in key_to_fp.items():
