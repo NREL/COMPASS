@@ -843,7 +843,7 @@ def _setup_pytesseract(exe_fp):
 
 def _concat_scrape_results(doc):
     data = [
-        doc.attrs.pop(key, None)
+        doc.attrs.get(key, None)
         for key in ["ordinance_values", "permitted_district_values"]
     ]
     data = [df for df in data if df is not None and not df.empty]
