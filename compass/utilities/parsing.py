@@ -119,10 +119,10 @@ def num_ordinances_in_doc(doc):
     if doc is None:
         return 0
 
-    if "scraped_values" not in doc.attrs:
+    if "ordinance_values" not in doc.attrs:
         return 0
 
-    ord_vals = doc.attrs["scraped_values"]
+    ord_vals = doc.attrs["ordinance_values"]
     if ord_vals.empty:
         return 0
 
