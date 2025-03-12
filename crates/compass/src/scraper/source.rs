@@ -8,6 +8,9 @@ use crate::error::Result;
 /// Source document scrapped
 pub(super) struct Source {
     name: String,
+    hash: String,
+    origin: Option<String>,
+    access_time: Option<String>,
 }
 
 impl Source {
