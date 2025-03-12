@@ -429,7 +429,7 @@ class WindPermittedUseDistrictsTextExtractor(BaseTextExtractor):
 
     PERMITTED_USES_FILTER_PROMPT = (
         "Remove all text that does not pertain to permitted use(s) for a "
-        "district."
+        "district. "
         "Consider all permitted use kinds, including but not limited to "
         "Primary, Special, Accessory, etc. "
         "Note that relevant information may sometimes be found in tables. "
