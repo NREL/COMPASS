@@ -58,7 +58,7 @@ EXTRA_NUMERICAL_RESTRICTIONS = {
     "noise": "maximum noise level allowed",
     "max height": "maximum structure height allowed",
     "max size": "maximum project spacing allowed",
-    "min lot size": "minimum lot size allowed",
+    "min lot size": "minimum lot, parcel, or tract size allowed",
     "density": "maximum panel spacing allowed",
     "coverage": "maximum land coverage allowed",
 }
