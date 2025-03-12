@@ -57,7 +57,7 @@ def process(config, verbose):
 
     # asyncio.run(...) doesn't throw exceptions correctly for some
     # reason...
-    loop = asyncio.new_event_loop()  # Create a new loop if none exists
+    loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     loop.run_until_complete(process_counties_with_openai(**config))
 
