@@ -19,8 +19,8 @@ _LARGE_WES_DESCRIPTION = (
     "turbines, wind energy conversion systems (WECS), wind energy "
     "facilities (WEF), wind energy turbines (WET), large wind energy "
     "turbines (LWET), utility-scale wind energy turbines (UWET), "
-    "commercial wind energy systems, alternate energy systems (AES), "
-    "or similar. "
+    "commercial wind energy conversion systems (CWECS), alternate "
+    "energy systems (AES), or similar. "
 )
 _SEARCH_TERMS_AND = (
     "zoning, special permitting, siting and setback, system design, and "
