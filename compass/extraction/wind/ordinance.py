@@ -216,7 +216,7 @@ class WindPermittedUseDistrictsTextCollector:
         content = await chunk_parser.slc.call(
             sys_msg=self.DISTRICT_PROMPT.format(key=key),
             content=chunk_parser.text_chunks[ind],
-            usage_sub_label="document_content_validation",
+            usage_sub_label="document_permitted_use_content_validation",
         )
         logger.debug("LLM response: %s", str(content))  # TODO: trace
         contains_district_info = content.get(key, False)
