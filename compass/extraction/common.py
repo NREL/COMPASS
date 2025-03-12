@@ -371,12 +371,14 @@ class BaseTextExtractor:
     """Base implementation for a text extractor"""
 
     SYSTEM_MESSAGE = (
-        "You extract one or more direct excerpts from a given text based on "
-        "the user's request. Maintain all original formatting and characters "
-        "without any paraphrasing. If the relevant text is inside of a "
-        "space-delimited table, return the entire table with the original "
-        "space-delimited formatting. Never paraphrase! Only return portions "
-        "of the original text directly."
+        "You extract only the exact excerpts from a provided legal zoning "
+        "regulation text that are directly relevant to the user's request. "
+        "You must preserve all original wording, punctuation, and formatting "
+        "without any paraphrasing or modification. If the relevant content "
+        "appears within a space-delimited table, return the entire table "
+        "exactly as formatted. You must not summarize, rephrase, interpret, "
+        "or provide additional commentary. Only return the original text "
+        "excerpts as they appear in the source."
     )
     _USAGE_LABEL = "document_ordinance_summary"
 
