@@ -341,7 +341,7 @@ class StructuredSolarPermittedUseDistrictsParser(StructuredSolarParser):
         "panels, solar energy conversion systems (SECS), solar energy "
         "facilities (SEF), solar energy farms (SEF), solar farms (SF), "
         "utility-scale solar energy systems (USES), commercial solar energy "
-        "systems (CSES), or similar. "
+        "systems (CSES), alternate energy systems (AES), or similar. "
     )
     _USE_TYPES = [
         {
