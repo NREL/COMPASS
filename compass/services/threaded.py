@@ -99,7 +99,12 @@ def _write_interim_cleaned_files(doc, out_dir, location_name):
         "large_solar_energy_systems_text": (
             f"{location_name} Restrictions sections.txt"
         ),
-        "permitted_use_only_text": f"{location_name} Permitted Use text.txt",
+        "permitted_use_text": (
+            f"{location_name} Permitted Use Original text.txt"
+        ),
+        "permitted_use_only_text": (
+            f"{location_name} Permitted Use Only text.txt"
+        ),
     }
     for key, fn in key_to_fp.items():
         text = doc.attrs.get(key)
