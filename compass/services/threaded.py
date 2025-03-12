@@ -74,7 +74,7 @@ def _write_cleaned_file(doc, out_dir):
 
 def _write_ord_db(doc, out_dir):
     """Write parsed ordinance database to directory"""
-    ord_db = doc.attrs.get("ordinance_values")
+    ord_db = doc.attrs.get("scraped_values")
     location_name = doc.attrs.get("location_name")
 
     if ord_db is None or location_name is None:
