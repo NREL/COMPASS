@@ -339,11 +339,11 @@ async def parse_by_chunks(
         if not callbacks:
             continue
 
-        callbacks = [
+        cb_futures = [
             asyncio.create_task(cb(chunk_parser, ind), name=outer_task_name)
             for cb in callbacks
         ]
-        cb_results = await asyncio.gather(*callbacks)
+        cb_results = await asyncio.gather(*cb_futures)
 
         # mask this chunk if we got a good result - this avoids forcing
         # the following chunk to be checked (it will only be checked if
