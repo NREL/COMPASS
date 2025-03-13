@@ -239,14 +239,6 @@ class SolarOrdinanceTextExtractor(BaseTextExtractor):
         LLM queries.
     """
 
-    ENERGY_SYSTEM_FILTER_PROMPT = (
-        "Extract the full text for all sections pertaining to energy "
-        "conversion systems. Remove sections that definitely do not pertain "
-        "to energy conversion systems. Note that bans on energy conversion "
-        "systems are an important restriction to track. If there is no text "
-        "that pertains to energy conversion systems, simply say: "
-        '"No relevant text."'
-    )
     SOLAR_ENERGY_SYSTEM_FILTER_PROMPT = (
         "Extract the full text for all sections pertaining to solar energy"
         "conversion systems (or solar farms). Remove sections that "
@@ -265,36 +257,6 @@ class SolarOrdinanceTextExtractor(BaseTextExtractor):
         "no text pertaining to large solar systems, simply say: "
         '"No relevant text."'
     )
-    LARGE_SOLAR_ENERGY_SYSTEM_TEXT_FILTER_PROMPT = (
-        "Extract all portions of the text that apply to large solar energy "
-        "systems (or solar farms). "
-        f"{_TRACK_BANS}{_LARGE_SEF_DESCRIPTION}"
-        f"Remove all text that explicitly only applies to {_IGNORE_TYPES} "
-        "solar energy systems. Keep section headers (if any). If there is "
-        "no text pertaining to large solar systems, simply say: "
-        '"No relevant text."'
-    )
-
-    async def extract_energy_system_section(self, text_chunks):
-        """Extract ordinance text from input text chunks for energy sys
-
-        Parameters
-        ----------
-        text_chunks : list of str
-            List of strings, each of which represent a chunk of text.
-            The order of the strings should be the order of the text
-            chunks.
-
-        Returns
-        -------
-        str
-            Ordinance text extracted from text chunks.
-        """
-        return await self._process(
-            text_chunks=text_chunks,
-            instructions=self.ENERGY_SYSTEM_FILTER_PROMPT,
-            is_valid_chunk=_valid_chunk,
-        )
 
     async def extract_solar_energy_system_section(self, text_chunks):
         """Extract ordinance text from input text chunks for SEF
@@ -338,27 +300,6 @@ class SolarOrdinanceTextExtractor(BaseTextExtractor):
             is_valid_chunk=_valid_chunk,
         )
 
-    async def extract_large_solar_energy_system_text(self, text_chunks):
-        """Extract ordinance text from input text chunks for large WES
-
-        Parameters
-        ----------
-        text_chunks : list of str
-            List of strings, each of which represent a chunk of text.
-            The order of the strings should be the order of the text
-            chunks.
-
-        Returns
-        -------
-        str
-            Ordinance text extracted from text chunks.
-        """
-        return await self._process(
-            text_chunks=text_chunks,
-            instructions=self.LARGE_SOLAR_ENERGY_SYSTEM_TEXT_FILTER_PROMPT,
-            is_valid_chunk=_valid_chunk,
-        )
-
     @property
     def parsers(self):
         """Iterable of parsers provided by this extractor
@@ -371,18 +312,13 @@ class SolarOrdinanceTextExtractor(BaseTextExtractor):
             Parser that takes a `text_chunks` input and outputs parsed
             text.
         """
-        yield "energy_systems_text", self.extract_energy_system_section
         yield (
             "solar_energy_systems_text",
             self.extract_solar_energy_system_section,
         )
         yield (
-            "large_solar_energy_systems_text",
-            self.extract_large_solar_energy_system_section,
-        )
-        yield (
             "cleaned_ordinance_text",
-            self.extract_large_solar_energy_system_text,
+            self.extract_large_solar_energy_system_section,
         )
 
 
