@@ -345,6 +345,8 @@ class SolarPermittedUseDistrictsTextExtractor(BaseTextExtractor):
         "Consider all permitted use kinds, including but not limited to "
         "Primary, Special, Accessory, etc. "
         "Pay extra attention to text that mentions solar. "
+        "Keep all text that explains the permitted use kind, gives the "
+        "district name(s), and/or mentions solar. "
         "Note that relevant information may sometimes be found in tables. "
         "If there is no text that pertains to permitted use(s) for a "
         "district, simply say: "
