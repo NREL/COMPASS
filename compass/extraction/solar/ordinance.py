@@ -407,21 +407,19 @@ class SolarPermittedUseDistrictsTextExtractor(BaseTextExtractor):
         "district. "
         "Consider all permitted use kinds, including but not limited to "
         "Primary, Special, Accessory, etc. "
+        "Pay extra attention to text that mentions solar. "
         "Note that relevant information may sometimes be found in tables. "
-        "If there is no text that pertains ro permitted use(s) for a "
+        "If there is no text that pertains to permitted use(s) for a "
         "district, simply say: "
         '"No relevant text."'
     )
 
     SEF_PERMITTED_USES_FILTER_PROMPT = (
-        "Extract all text that explicitly lists "
-        "large solar energy farms as permitted use in a district. "
-        f"{_LARGE_SEF_DESCRIPTION}"
-        "Consider all use kinds, including but not limited to "
-        "Primary, Special, Accessory, etc. "
-        "Note that relevant information may sometimes be found in tables. "
-        "Keep all headers that explain the permitted "
-        "use kind and the solar energy farms it applies to. "
+        "Remove all text that does not pertain to solar energy farms. "
+        "Keep all text that explains the permitted use kind, gives the "
+        "district name(s), and/or mentions the solar energy farm. "
+        "Note that information about solar energy farms may sometimes be "
+        "found in tables; be sure to keep the entire table in such cases. "
         "If there is no text that pertains to solar energy farms, simply say: "
         '"No relevant text."'
     )
