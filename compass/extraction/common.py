@@ -7,7 +7,10 @@ import networkx as nx
 from elm import ApiBase
 
 from compass.utilities import llm_response_as_json
-from compass.utilities.parsing import merge_overlapping_texts
+from compass.utilities.parsing import (
+    merge_overlapping_texts,
+    clean_backticks_from_llm_response,
+)
 from compass.extraction.tree import AsyncDecisionTree
 
 
@@ -413,7 +416,9 @@ class BaseTextExtractor:
         ]
         summary_chunks = await asyncio.gather(*summaries)
         summary_chunks = [
-            chunk for chunk in summary_chunks if is_valid_chunk(chunk)
+            clean_backticks_from_llm_response(chunk)
+            for chunk in summary_chunks
+            if is_valid_chunk(chunk)
         ]
 
         text_summary = merge_overlapping_texts(summary_chunks)
