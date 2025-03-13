@@ -331,9 +331,8 @@ def setup_graph_permitted_use_districts(**kwargs):
         "init",
         prompt=(
             "Does the following text explicitly outline districts where "
-            "{tech} are permitted as {use_type}? {clarifications}Do not "
-            "infer; if this use type is not explicitly mentioned then say "
-            "'No'. Pay extra attention to clarifying text found in "
+            "{tech} are permitted as {use_type}? {clarifications}"
+            "Pay extra attention to clarifying text found in "
             "parentheses and footnotes. Begin your response with either "
             "'Yes' or 'No' and explain your answer."
             '\n\n"""\n{text}\n"""'
