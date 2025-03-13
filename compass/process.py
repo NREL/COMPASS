@@ -809,7 +809,7 @@ async def _move_file_to_out_dir(doc):
 async def _write_cleaned_text(doc):
     """Write cleaned text to `clean_files` dir"""
     out_fp = await CleanedFileWriter.call(doc)
-    doc.attrs["cleaned_fp"] = out_fp
+    doc.attrs["cleaned_fps"] = out_fp
     return doc
 
 
