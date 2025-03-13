@@ -177,6 +177,7 @@ class WindPermittedUseDistrictsTextCollector:
         "You are a legal scholar that reads ordinance text and determines "
         "whether the text explicitly details the districts where large "
         "wind energy systems are a permitted use. "
+        f"{_LARGE_WES_DESCRIPTION}"
         "Do not make any inferences; only answer based on information that "
         "is explicitly outlined in the text. "
         "Note that relevant information may sometimes be found in tables. "
