@@ -91,14 +91,9 @@ def _write_interim_cleaned_files(doc, out_dir, location_name):
     """Write intermediate output texts to file; helpful for debugging"""
     key_to_fp = {
         "ordinance_text": f"{location_name} Ordinance Original text.txt",
-        "energy_systems_text": f"{location_name} Energy Systems text.txt",
-        "wind_energy_systems_text": f"{location_name} Restrictions text.txt",
-        "large_wind_energy_systems_text": (
-            f"{location_name} Restrictions sections.txt"
-        ),
-        "solar_energy_systems_text": f"{location_name} Restrictions text.txt",
-        "large_solar_energy_systems_text": (
-            f"{location_name} Restrictions sections.txt"
+        "wind_energy_systems_text": f"{location_name} Wind Ordinance text.txt",
+        "solar_energy_systems_text": (
+            f"{location_name} Solar Ordinance text.txt"
         ),
         "permitted_use_text": (
             f"{location_name} Permitted Use Original text.txt"
