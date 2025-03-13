@@ -8,8 +8,26 @@ logger = logging.getLogger(__name__)
 _ORD_CHECK_COLS = ["value", "adder", "min_dist", "max_dist", "summary"]
 
 
+def clean_backticks_from_llm_response(content):
+    """Remove markdown-style backticks from an LLM response
+
+    Parameters
+    ----------
+    content : str
+        LLM response that may or may not contain markdown-style triple
+        backticks.
+
+    Returns
+    -------
+    str
+        LLM response stripped of the markdown-style backticks
+    """
+    content = content.lstrip().rstrip()
+    return content.removeprefix("```").lstrip("\n").removesuffix("```")
+
+
 def llm_response_as_json(content):
-    """LLM response to JSON.
+    """LLM response to JSON
 
     Parameters
     ----------
@@ -23,9 +41,8 @@ def llm_response_as_json(content):
         Response parsed into dictionary. This dictionary will be empty
         if the response cannot be parsed by JSON.
     """
-    content = content.lstrip().rstrip()
-    content = content.removeprefix("```").removeprefix("json").lstrip("\n")
-    content = content.removesuffix("```")
+    content = clean_backticks_from_llm_response(content)
+    content = content.removeprefix("json").lstrip("\n")
     content = content.replace("True", "true").replace("False", "false")
     try:
         content = json.loads(content)
