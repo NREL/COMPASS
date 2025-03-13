@@ -167,7 +167,7 @@ async def extract_ordinance_text_with_ngram_validation(
     original_text_key,
     n=4,
     num_extraction_attempts=3,
-    ngram_fraction_threshold=0.95,
+    ngram_fraction_threshold=0.75,
 ):
     """Extract ordinance text for a single document with known ord info
 
@@ -246,7 +246,7 @@ async def _extract_with_ngram_check(
     original_text_key,
     n=4,
     num_tries=3,
-    ngram_fraction_threshold=0.95,
+    ngram_fraction_threshold=0.75,
 ):
     """Extract ordinance info from doc and validate using ngrams."""
     from compass.extraction.ngrams import sentence_ngram_containment  # noqa
