@@ -18,7 +18,7 @@ from elm.utilities import validate_azure_api_params
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 from compass import __version__ as compass_version
-from compass.download import download_county_ordinance
+from compass.scripts.download import download_county_ordinance
 from compass.exceptions import COMPASSValueError
 from compass.extraction import (
     extract_ordinance_values,
