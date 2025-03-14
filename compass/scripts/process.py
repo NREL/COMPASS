@@ -394,7 +394,7 @@ async def _process_with_logs(  # noqa: PLR0914
     ]
 
     browser_semaphore = (
-        asyncio.Semaphore(wsp.max_num_concurrent_browsers)
+        asyncio.Semaphore(wsp.max_num_concurrent_browsers + 1)
         if wsp.max_num_concurrent_browsers
         else None
     )
