@@ -1,6 +1,8 @@
 //! Scrapped document
 //!
 
+use sha2::Digest;
+use tokio::io::AsyncReadExt;
 use tracing::{trace, error, warn};
 
 use crate::error::Result;
@@ -109,4 +111,30 @@ impl Source {
 
         Ok(())
     }
+}
+
+/// Calculate the checksum of a local file
+///
+/// # Returns
+///
+/// * The checksum of the file with a tag indicating the algorithm used
+///   (e.g. `sha256:...`)
+async fn checksum_file<P: AsRef<std::path::Path>>(path: P) -> Result<String> {
+    trace!("Calculating checksum for {:?}", path.as_ref());
+    let mut hasher = sha2::Sha256::new();
+
+    let f = tokio::fs::File::open(&path).await?;
+    let mut reader = tokio::io::BufReader::new(f);
+    let mut buffer: [u8; 1024] = [0; 1024];
+    while let Ok(n) = reader.read(&mut buffer).await {
+        if n == 0 {
+            break;
+        }
+        hasher.update(&buffer[..n]);
+    }
+    let result = hasher.finalize();
+    let checksum = format!("sha256:{:x}", result);
+
+    trace!("Checksum for {:?}: {}", path.as_ref(), checksum);
+    Ok(checksum)
 }
