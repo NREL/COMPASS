@@ -97,13 +97,13 @@ def merge_overlapping_texts(text_chunks, n=300):
     return out_text
 
 
-def extract_ord_year_from_doc_attrs(doc):
+def extract_ord_year_from_doc_attrs(doc_attrs):
     """Extract year corresponding to the ordinance from doc instance
 
     Parameters
     ----------
-    doc : elm.web.document.Document
-        Document containing meta information about the jurisdiction.
+    doc_attrs : dict
+        Document meta information about the jurisdiction.
         Must have a "date" key in the attrs that is a tuple
         corresponding to the (year, month, day) of the ordinance to
         extract year successfully. If this key is missing, this function
@@ -115,7 +115,7 @@ def extract_ord_year_from_doc_attrs(doc):
         Parsed year for ordinance (int) or ``None`` if it wasn't found
         in the document's attrs.
     """
-    year = doc.attrs.get("date", (None, None, None))[0]
+    year = doc_attrs.get("date", (None, None, None))[0]
     return year if year is not None and year > 0 else None
 
 
