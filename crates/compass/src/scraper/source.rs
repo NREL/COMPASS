@@ -50,8 +50,7 @@ impl Source {
         Ok(())
     }
 
-    //pub(super) async fn open<P: AsRef<std::path::Path>>(root: P) -> Result<Source> {
-    pub(super) async fn open<P: AsRef<std::path::Path>>(root: P) -> Result<()> {
+    pub(super) async fn open<P: AsRef<std::path::Path>>(root: P) -> Result<Vec<Source>> {
         trace!("Opening source documents");
 
         let path = root.as_ref().join("ordinance_files");
@@ -64,6 +63,7 @@ impl Source {
 
         trace!("Scanning source directory: {:?}", path);
 
+        let mut sources = vec![];
         let mut inventory = tokio::fs::read_dir(path).await?;
 
         // Should we filter which files to process, such as only PDFs?
@@ -88,7 +88,7 @@ impl Source {
         // Calculate a hash for each one.
         // Return the Source object
 
-        Ok(())
+        Ok(sources)
     }
 
     pub(super) fn write(&self, conn: &duckdb::Transaction) -> Result<()> {
