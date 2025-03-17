@@ -1,7 +1,7 @@
 //! Scrapped document
 //!
 
-use tracing::trace;
+use tracing::{trace, error};
 
 use crate::error::Result;
 
@@ -48,7 +48,25 @@ impl Source {
         Ok(())
     }
 
-    pub(super) fn write(&self, conn: &duckdb::Transaction, commit_id: usize) -> Result<()> {
+    //pub(super) async fn open<P: AsRef<std::path::Path>>(root: P) -> Result<Source> {
+    pub(super) async fn open<P: AsRef<std::path::Path>>(root: P) -> Result<()> {
+        trace!("Opening source documents");
+
+        let path = root.as_ref().join("ordinance_files");
+        if !path.exists() {
+            error!("Missing source directory: {:?}", path);
+            return Err(crate::error::Error::Undefined("Source directory does not exist".to_string()));
+        }
+
+        // Scan for files. Should I have some criteria for the files such as only PDF? Probably
+        // would want HTML, and DOC as well?
+        // Calculate a hash for each one.
+        // Return the Source object
+
+        Ok(())
+    }
+
+    pub(super) fn write(&self, conn: &duckdb::Transaction) -> Result<()> {
         // What about return the number of rows inserted?
 
         let origin = match &self.origin {
