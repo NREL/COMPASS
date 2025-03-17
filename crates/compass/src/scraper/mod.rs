@@ -57,6 +57,7 @@ pub(crate) struct ScrappedOrdinance {
     format_version: String,
     root: PathBuf,
     metadata: Metadata,
+    sources: Vec<source::Source>,
     usage: Option<Usage>,
 }
 
@@ -95,6 +96,7 @@ impl ScrappedOrdinance {
             ));
         }
         */
+        let sources = source::Source::open(&root).await?;
         let metadata = metadata::Metadata::open(&root).await?;
         let usage = usage::Usage::open(&root).await?;
 
@@ -112,6 +114,7 @@ impl ScrappedOrdinance {
             root,
             format_version: SCRAPPED_ORDINANCE_VERSION.to_string(),
             metadata,
+            sources,
             usage: Some(usage),
         })
     }
