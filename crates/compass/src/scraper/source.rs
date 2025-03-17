@@ -37,7 +37,7 @@ impl Source {
         // Register the target documents of each scrapping run
         conn.execute_batch(
             r"
-            CREATE SEQUENCE source_sequence START 1;
+            CREATE SEQUENCE IF NOT EXISTS source_sequence START 1;
             CREATE TABLE IF NOT EXISTS source (
               id INTEGER PRIMARY KEY DEFAULT NEXTVAL('source_sequence'),
               bookkeeper_lnk INTEGER REFERENCES bookkeeper(id) NOT NULL,
