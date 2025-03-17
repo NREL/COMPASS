@@ -153,8 +153,8 @@ QUAL_OUT_COLS = PARSED_COLS[:6] + PARSED_COLS[-5:-1]
 async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
     out_dir,
     tech,
-    county_fp=None,
-    model="gpt-4",
+    jurisdiction_fp=None,
+    model="gpt-4o",
     azure_api_key=None,
     azure_version=None,
     azure_endpoint=None,
@@ -187,12 +187,12 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         documents (PDFs and HTML text files). Usage information and
         default options for log/clean directories will also be stored
         here.
-    county_fp : path-like, optional
-        Path to CSV file containing a list of counties to extract
+    jurisdiction_fp : path-like, optional
+        Path to CSV file containing a list of jurisdictions to extract
         ordinance information for. This CSV should have "County" and
         "State" columns that contains the county and state names.
         By default, ``None``, which runs the extraction for all known
-        counties (this is untested and not currently recommended).
+        jurisdictions (this is untested and not currently recommended).
     model : str, optional
         Name of LLM model to perform scraping. By default, ``"gpt-4"``.
     azure_api_key : str, optional
@@ -328,7 +328,7 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
             log_listener=ll,
             azure_params=ap,
             tech=tech,
-            county_fp=county_fp,
+            jurisdiction_fp=jurisdiction_fp,
             llm_parse_args=lpa,
             web_search_params=wsp,
             process_kwargs=pk,
@@ -341,14 +341,14 @@ async def _process_with_logs(  # noqa: PLR0914
     log_listener,
     azure_params,
     tech,
-    county_fp=None,
+    jurisdiction_fp=None,
     llm_parse_args=None,
     web_search_params=None,
     process_kwargs=None,
     log_level="INFO",
 ):
     """Process counties with logging enabled."""
-    counties = _load_counties_to_process(county_fp)
+    counties = _load_counties_to_process(jurisdiction_fp)
     lpa = llm_parse_args or LLMParseArgs()
     wsp = web_search_params or WebSearchParams()
     process_kwargs = process_kwargs or ProcessKwargs()
