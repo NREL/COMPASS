@@ -76,6 +76,7 @@ impl Source {
             if file_type.is_file() {
                 trace!("Processing ordinance file: {:?}", path);
 
+                let checksum = checksum_file(&path).await?;
             } else if file_type.is_dir() {
                 warn!(
                     "Ignoring unexpected directory in ordinance files: {:?}",
