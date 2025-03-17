@@ -1,7 +1,7 @@
 //! Scrapped document
 //!
 
-use tracing::{trace, error};
+use tracing::{trace, error, warn};
 
 use crate::error::Result;
 
@@ -58,8 +58,26 @@ impl Source {
             return Err(crate::error::Error::Undefined("Source directory does not exist".to_string()));
         }
 
-        // Scan for files. Should I have some criteria for the files such as only PDF? Probably
-        // would want HTML, and DOC as well?
+        trace!("Scanning source directory: {:?}", path);
+
+        let mut content = tokio::fs::read_dir(path).await?;
+
+        // Should we filter which files to process, such as only PDFs?
+        // We probably will work with more types.
+        while let Some(entry) = content.next_entry().await? {
+            let path = entry.path();
+            let metadata = entry.metadata().await?;
+            let file_type = metadata.file_type();
+
+            if file_type.is_file() {
+                trace!("Processing ordinance file: {:?}", path);
+
+            } else if file_type.is_dir() {
+                warn!("Ignoring unexpected directory in ordinance files: {:?}", path);
+            }
+        }
+
+
         // Calculate a hash for each one.
         // Return the Source object
 
