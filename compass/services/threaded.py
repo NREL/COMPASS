@@ -28,17 +28,13 @@ def _cache_file_with_hash(doc, file_content, out_dir, make_name_unique=False):
         out_dir=out_dir,
         make_name_unique=make_name_unique,
     )
-    return cache_fp, _compute_sha256(file_content)
+    return cache_fp, _compute_sha256(cache_fp)
 
 
-def _compute_sha256(file_content):
-    """Compute sha256 checksum for string or byte input"""
+def _compute_sha256(file_path):
+    """Compute sha256 checksum for file on disk"""
     m = hashlib.sha256()
-    try:
-        m.update(file_content.encode("utf-8"))
-    except AttributeError:
-        m.update(file_content)
-
+    m.update(Path(file_path).read_bytes())
     return f"sha256:{m.hexdigest()}"
 
 
