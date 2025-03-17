@@ -159,9 +159,9 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
     azure_version=None,
     azure_endpoint=None,
     llm_call_kwargs=None,
-    llm_service_rate_limit=4000,
+    llm_service_rate_limit=10_000,
     text_splitter_chunk_size=10_000,
-    text_splitter_chunk_overlap=1000,
+    text_splitter_chunk_overlap=500,
     num_urls_to_check_per_county=5,
     max_num_concurrent_browsers=10,
     max_num_concurrent_jurisdictions=None,
@@ -210,8 +210,8 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         Keyword-value pairs used to initialize an
         `compass.llm.LLMCaller` instance. By default, ``None``.
     llm_service_rate_limit : int, optional
-        Token rate limit of LLm service being used (OpenAI).
-        By default, ``4000``.
+        Token rate limit (i.e. tokens per minute) of LLM service being
+        used (OpenAI). By default, ``10_000``.
     text_splitter_chunk_size : int, optional
         Chunk size used to split the ordinance text. Parsing is
         performed on each individual chunk. Units are in token count of
