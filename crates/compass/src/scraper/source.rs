@@ -21,9 +21,9 @@ impl Source {
         // Store all individual documents scrapped
         conn.execute_batch(
             r"
-            CREATE SEQUENCE document_sequence START 1;
-            CREATE TABLE IF NOT EXISTS document (
-              id INTEGER PRIMARY KEY DEFAULT NEXTVAL('document_sequence'),
+            CREATE SEQUENCE IF NOT EXISTS archive_sequence START 1;
+            CREATE TABLE IF NOT EXISTS archive (
+              id INTEGER PRIMARY KEY DEFAULT NEXTVAL('archive_sequence'),
               name TEXT NOT NULL,
               hash TEXT NOT NULL,
               origin TEXT,
@@ -41,7 +41,7 @@ impl Source {
             CREATE TABLE IF NOT EXISTS source (
               id INTEGER PRIMARY KEY DEFAULT NEXTVAL('source_sequence'),
               bookkeeper_lnk INTEGER REFERENCES bookkeeper(id) NOT NULL,
-              document_lnk INTEGER REFERENCES source(id) NOT NULL,
+              archive_lnk INTEGER REFERENCES source(id) NOT NULL,
               );",
         )?;
 
