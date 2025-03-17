@@ -86,7 +86,6 @@ impl Source {
                 };
                 trace!("New Source: {:?}", s);
                 sources.push(s);
-
             } else if file_type.is_dir() {
                 warn!(
                     "Ignoring unexpected directory in ordinance files: {:?}",
