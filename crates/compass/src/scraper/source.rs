@@ -7,6 +7,7 @@ use tracing::{error, trace, warn};
 
 use crate::error::Result;
 
+#[derive(Debug)]
 /// Source document scrapped
 pub(super) struct Source {
     name: String,
@@ -77,6 +78,15 @@ impl Source {
                 trace!("Processing ordinance file: {:?}", path);
 
                 let checksum = checksum_file(&path).await?;
+                let s = Source {
+                    name: path.file_name().unwrap().to_string_lossy().to_string(),
+                    hash: checksum,
+                    origin: None,
+                    access_time: None,
+                };
+                trace!("New Source: {:?}", s);
+                sources.push(s);
+
             } else if file_type.is_dir() {
                 warn!(
                     "Ignoring unexpected directory in ordinance files: {:?}",
@@ -85,8 +95,7 @@ impl Source {
             }
         }
 
-        // Calculate a hash for each one.
-        // Return the Source object
+        trace!("Found {} source documents", sources.len());
 
         Ok(sources)
     }
