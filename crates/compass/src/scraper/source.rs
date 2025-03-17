@@ -60,11 +60,11 @@ impl Source {
 
         trace!("Scanning source directory: {:?}", path);
 
-        let mut content = tokio::fs::read_dir(path).await?;
+        let mut inventory = tokio::fs::read_dir(path).await?;
 
         // Should we filter which files to process, such as only PDFs?
         // We probably will work with more types.
-        while let Some(entry) = content.next_entry().await? {
+        while let Some(entry) = inventory.next_entry().await? {
             let path = entry.path();
             let metadata = entry.metadata().await?;
             let file_type = metadata.file_type();
