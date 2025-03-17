@@ -3,7 +3,7 @@
 
 use sha2::Digest;
 use tokio::io::AsyncReadExt;
-use tracing::{trace, error, warn};
+use tracing::{error, trace, warn};
 
 use crate::error::Result;
 
@@ -57,7 +57,9 @@ impl Source {
         let path = root.as_ref().join("ordinance_files");
         if !path.exists() {
             error!("Missing source directory: {:?}", path);
-            return Err(crate::error::Error::Undefined("Source directory does not exist".to_string()));
+            return Err(crate::error::Error::Undefined(
+                "Source directory does not exist".to_string(),
+            ));
         }
 
         trace!("Scanning source directory: {:?}", path);
@@ -75,10 +77,12 @@ impl Source {
                 trace!("Processing ordinance file: {:?}", path);
 
             } else if file_type.is_dir() {
-                warn!("Ignoring unexpected directory in ordinance files: {:?}", path);
+                warn!(
+                    "Ignoring unexpected directory in ordinance files: {:?}",
+                    path
+                );
             }
         }
-
 
         // Calculate a hash for each one.
         // Return the Source object
