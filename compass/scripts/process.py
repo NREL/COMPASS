@@ -881,16 +881,43 @@ def _docs_to_db(docs):
     return _formatted_db(db), num_jurisdictions_found
 
 
-def _db_results(doc):
+def _doc_infos_to_db(doc_infos):
+    """Convert list of docs to output database"""
+    db = []
+    for doc_info in doc_infos:
+        if doc_info is None:
+            continue
+
+        ord_db_fp = doc_info.get("ord_db_fp")
+        if ord_db_fp is None:
+            continue
+
+        ord_db = pd.read_csv(ord_db_fp)
+
+        if num_ordinances_dataframe(ord_db) == 0:
+            continue
+
+        results = _db_results(ord_db, doc_info)
+        results = _formatted_db(results)
+        db.append(results)
+
+    if not db:
+        return pd.DataFrame(columns=PARSED_COLS), 0
+
+    logger.info("Compiling final database for %d jurisdictions", len(db))
+    num_jurisdictions_found = len(db)
+    db = pd.concat([df.dropna(axis=1, how="all") for df in db], axis=0)
+    db = _empirical_adjustments(db)
+    return _formatted_db(db), num_jurisdictions_found
+
+
+def _db_results(results, doc_info):
     """Extract results from doc attrs to DataFrame"""
-    results = doc.attrs.get("scraped_values")
-    if results is None:
-        return None
 
-    results["source"] = doc.attrs.get("source")
-    results["ord_year"] = extract_ord_year_from_doc_attrs(doc)
+    results["source"] = doc_info.get("source")
+    results["ord_year"] = extract_ord_year_from_doc_attrs(doc_info)
 
-    location = doc.attrs["location"]
+    location = doc_info["location"]
     results["FIPS"] = location.fips
     results["county"] = location.name
     results["state"] = location.state
