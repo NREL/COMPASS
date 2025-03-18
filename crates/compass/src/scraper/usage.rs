@@ -217,6 +217,10 @@ mod test_scrapper_usage {
     fn parse_json() {
         let usage = super::Usage::from_json(&as_text_v1()).unwrap();
 
-        assert!((usage.total_time_seconds - 294.69257712364197).abs() <= f64::EPSILON);
+        assert!(usage.jurisdiction.contains_key("Decatur County, Indiana"));
+        assert!(usage.jurisdiction["Decatur County, Indiana"]
+            .events
+            .contains_key("document_location_validation"));
+        assert_eq!(usage.jurisdiction["Decatur County, Indiana"].events.get("document_location_validation").unwrap().requests, 55);
     }
 }
