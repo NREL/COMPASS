@@ -19,7 +19,6 @@ use crate::error::Result;
 pub(super) struct Usage {
     // pub(super) total_time_seconds: f64,
     // pub(super) total_time: String,
-
     #[serde(flatten)]
     pub(super) jurisdiction: HashMap<String, UsagePerItem>,
 }
@@ -35,7 +34,6 @@ pub(super) struct Usage {
 pub(super) struct UsagePerItem {
     // total_time_seconds: f64,
     // total_time: String,
-
     #[serde(flatten)]
     events: HashMap<String, UsageValues>,
 }
@@ -221,9 +219,18 @@ mod test_scrapper_usage {
         let usage = super::Usage::from_json(&as_text_v1()).unwrap();
 
         assert!(usage.jurisdiction.contains_key("Decatur County, Indiana"));
-        assert!(usage.jurisdiction["Decatur County, Indiana"]
-            .events
-            .contains_key("document_location_validation"));
-        assert_eq!(usage.jurisdiction["Decatur County, Indiana"].events.get("document_location_validation").unwrap().requests, 55);
+        assert!(
+            usage.jurisdiction["Decatur County, Indiana"]
+                .events
+                .contains_key("document_location_validation")
+        );
+        assert_eq!(
+            usage.jurisdiction["Decatur County, Indiana"]
+                .events
+                .get("document_location_validation")
+                .unwrap()
+                .requests,
+            55
+        );
     }
 }
