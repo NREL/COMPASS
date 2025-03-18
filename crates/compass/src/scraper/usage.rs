@@ -47,6 +47,9 @@ pub(super) struct UsageValues {
     requests: u32,
     prompt_tokens: u32,
     response_tokens: u32,
+
+    #[serde(flatten)]
+    extra: HashMap<String, serde_json::Value>,
 }
 
 impl Usage {
