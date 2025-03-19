@@ -23,6 +23,7 @@ pub(super) struct Metadata {
     time_start_utc: String,
     time_end_utc: String,
     total_time: f64,
+    total_time_string: String,
     num_jurisdictions_searched: u16,
     num_jurisdictions_found: u16,
     manifest: HashMap<String, String>,
