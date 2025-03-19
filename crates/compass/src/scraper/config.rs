@@ -102,12 +102,24 @@ impl Metadata {
     pub(super) fn write(&self, conn: &duckdb::Transaction, commit_id: usize) -> Result<()> {
         tracing::trace!("Writing Metadata to the database {:?}", self);
         conn.execute(
-            "INSERT INTO scrapper_config (bookkeeper_lnk, model, llm_service_rate_limit, extra) VALUES (?, ?, ?, ?)",
+            r"INSERT INTO scrapper_metadata
+                     (bookkeeper_lnk, username, versions, technology,
+                       llm_parse_args, time_start_utc, time_end_utc,
+                       total_time, num_jurisdictions_searched,
+                       num_jurisdictions_found, manifest)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
             [
                 commit_id.to_string(),
-                self.model.to_string(),
-                self.llm_service_rate_limit.to_string(),
-                self.extra.to_string(),
+                self.username.to_string(),
+                serde_json::to_string(&self.versions).unwrap(),
+                self.technology.to_string(),
+                serde_json::to_string(&self.llm_parse_args).unwrap(),
+                self.time_start_utc.to_string(),
+                self.time_end_utc.to_string(),
+                self.total_time.to_string(),
+                self.num_jurisdictions_searched.to_string(),
+                self.num_jurisdictions_found.to_string(),
+                serde_json::to_string(&self.manifest).unwrap(),
             ],
         )?;
 
