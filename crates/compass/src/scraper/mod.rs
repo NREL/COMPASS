@@ -108,7 +108,7 @@ impl ScrappedOrdinance {
         Ok(Self {
             root,
             format_version: SCRAPPED_ORDINANCE_VERSION.to_string(),
-            config: Some(config),
+            config,
             usage: Some(usage),
         })
     }
@@ -122,12 +122,7 @@ impl ScrappedOrdinance {
 
         // Do I need to extract the hash here from the full ScrappedOutput?
         // What about username?
-        // self.config().await.unwrap().push(conn).await.unwrap();
-        self.config()
-            .await
-            .unwrap()
-            .write(&conn, commit_id)
-            .unwrap();
+        self.config.write(&conn, commit_id).unwrap();
         self.usage().await.unwrap().write(&conn, commit_id).unwrap();
         // commit transaction
 
@@ -135,22 +130,6 @@ impl ScrappedOrdinance {
         conn.commit()?;
 
         Ok(())
-    }
-
-    #[allow(dead_code)]
-    pub(crate) async fn config(&self) -> Result<Metadata> {
-        let config_file = &self.root.join("config.json");
-        if !config_file.exists() {
-            trace!("Missing config file: {:?}", config_file);
-            return Err(error::Error::Undefined(
-                "Features file does not exist".to_string(),
-            ));
-        }
-
-        let config = Metadata::from_json(&std::fs::read_to_string(config_file)?)
-            .expect("Failed to parse config file");
-
-        Ok(config)
     }
 
     #[allow(dead_code)]
