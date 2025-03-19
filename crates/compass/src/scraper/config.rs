@@ -75,15 +75,11 @@ impl Metadata {
             ));
         }
 
-        let file = std::fs::File::open(path);
-        let mut reader = std::io::BufReader::new(file.unwrap());
-        let mut buffer = String::new();
-        let _ = reader.read_to_string(&mut buffer);
+        let content = tokio::fs::read_to_string(path).await?;
+        let metadata = Self::from_json(&content)?;
+        tracing::trace!("Metadata loaded: {:?}", metadata);
 
-        let config = Self::from_json(&buffer)?;
-        tracing::trace!("ScrapperConfig loaded: {:?}", config);
-
-        Ok(config)
+        Ok(metadata)
     }
 
     #[allow(dead_code)]
