@@ -55,7 +55,7 @@ impl Metadata {
     pub(super) async fn open<P: AsRef<std::path::Path>>(root: P) -> Result<Self> {
         tracing::trace!("Opening Metadata of {:?}", root.as_ref());
 
-        let path = root.as_ref().join("config.json");
+        let path = root.as_ref().join("meta.json");
         if !path.exists() {
             tracing::error!("Missing metadata file: {:?}", path);
             return Err(crate::error::Error::Undefined(
