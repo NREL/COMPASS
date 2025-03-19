@@ -85,21 +85,9 @@ impl Metadata {
     #[allow(dead_code)]
     /// Extract the configuration from a JSON string
     pub(super) fn from_json(json: &str) -> Result<Self> {
-        let mut v: serde_json::Map<String, serde_json::Value> = serde_json::from_str(json).unwrap();
-
-        let model = v.remove("model").unwrap().as_str().unwrap().to_string();
-        let llm_service_rate_limit = v
-            .remove("llm_service_rate_limit")
-            .unwrap()
-            .as_u64()
-            .unwrap();
-        let extra = serde_json::to_string(&v).unwrap();
-
-        Ok(Self {
-            model,
-            llm_service_rate_limit,
-            extra,
-        })
+        tracing::trace!("Parsing Metadata from JSON: {:?}", json);
+        let metadata: Metadata = serde_json::from_str(json).unwrap();
+        Ok(metadata)
     }
 
     pub(super) fn write(&self, conn: &duckdb::Transaction, commit_id: usize) -> Result<()> {
