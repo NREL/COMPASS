@@ -38,13 +38,21 @@ impl Metadata {
         tracing::trace!("Initializing database for Metadata");
         conn.execute_batch(
             r"
-            CREATE SEQUENCE IF NOT EXISTS scrapper_config_sequence START 1;
-            CREATE TABLE IF NOT EXISTS scrapper_config (
+            CREATE SEQUENCE IF NOT EXISTS scrapper_metadata_sequence START 1;
+            CREATE TABLE IF NOT EXISTS scrapper_metadata (
               id INTEGER PRIMARY KEY DEFAULT
-                NEXTVAL('scrapper_config_sequence'),
+                NEXTVAL('scrapper_metadata_sequence'),
               bookkeeper_lnk INTEGER REFERENCES bookkeeper(id) NOT NULL,
-              model TEXT NOT NULL,
-              llm_service_rate_limit INTEGER,
+              username TEXT,
+              versions TEXT,
+              technology TEXT,
+              llm_parse_args TEXT,
+              time_start_utc TEXT,
+              time_end_utc TEXT,
+              total_time REAL,
+              num_jurisdictions_searched INTEGER,
+              num_jurisdictions_found INTEGER,
+              manifest TEXT,
               extra TEXT,
             );",
         )?;
