@@ -139,24 +139,30 @@ pub(crate) mod sample {
     pub(crate) fn as_text_v1() -> String {
         r#"
     {
-      "log_level": "DEBUG",
-      "out_dir": ".",
-      "county_fp": "counties.csv",
-      "model": "gpt-4",
-      "llm_call_kwargs":{
-        "temperature": 0,
-        "seed": 42,
-        "timeout": 300
+    "username": "ppinchuk",
+    "versions": {
+        "elm": "0.0.11",
+        "compass": "0.1.1.dev17+gb569353.d20250304"
         },
-      "llm_service_rate_limit": 50000,
-      "td_kwargs": {
-        "dir": "."
+    "technology": "wind",
+    "llm_parse_args": {
+        "llm_call_kwargs": {
+            "temperature": 0,
+            "seed": 42,
+            "timeout": 300
+            },
+        "text_splitter_chunk_size": 10000,
+        "text_splitter_chunk_overlap": 500
         },
-      "tpe_kwargs": {
-        "max_workers": 10
-        },
-      "ppe_kwargs": {
-        "max_workers": 4
+    "time_start_utc": "2025-03-04T05:10:52.266550+00:00",
+    "time_end_utc": "2025-03-04T05:19:49.767500+00:00",
+    "total_time": 537.5009291959941,
+    "total_time_string": "0:08:57.500929",
+    "num_jurisdictions_searched": 10,
+    "num_jurisdictions_found": 7,
+    "manifest": {
+        "LOG_DIR": "logs",
+        "META_FILE": "meta.json"
         }
     }"#
         .to_string()
@@ -170,16 +176,16 @@ pub(crate) mod sample {
 }
 
 #[cfg(test)]
-mod test_scrapper_config {
+mod test_scrapper_metadata {
     use super::Metadata;
     use super::sample::as_text_v1;
 
     #[test]
     /// Load a Metadata from a JSON string
     fn parse_json() {
-        let config = Metadata::from_json(&as_text_v1()).unwrap();
+        let metadata = Metadata::from_json(&as_text_v1()).unwrap();
 
-        assert_eq!(config.model, "gpt-4");
-        assert_eq!(config.llm_service_rate_limit, 50000);
+        assert_eq!(metadata.username, "ppinchuk");
+        assert_eq!(metadata.num_jurisdictions_searched , 10);
     }
 }
