@@ -10,7 +10,7 @@ use std::io::Read;
 use crate::error::Result;
 
 // An arbitrary limit to protect against maliciously large JSON files
-const MAX_JSON_SIZE: u64 = 5_000_000;
+const MAX_JSON_FILE_SIZE: u64 = 5_000_000;
 
 #[allow(dead_code)]
 #[derive(Debug, serde::Deserialize)]
@@ -68,7 +68,7 @@ impl Metadata {
         // These JSON files are expected to be tiny, so protect against
         // huge files that probably means some mistake.
         let filesize = tokio::fs::metadata(&path).await?.len();
-        if filesize > MAX_JSON_SIZE {
+        if filesize > MAX_JSON_FILE_SIZE {
             tracing::error!("Metadata file too large: {:?}", filesize);
             return Err(crate::error::Error::Undefined(
                 "Metadata file too large".to_string(),
