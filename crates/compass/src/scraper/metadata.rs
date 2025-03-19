@@ -186,6 +186,6 @@ mod test_scrapper_metadata {
         let metadata = Metadata::from_json(&as_text_v1()).unwrap();
 
         assert_eq!(metadata.username, "ppinchuk");
-        assert_eq!(metadata.num_jurisdictions_searched , 10);
+        assert_eq!(metadata.num_jurisdictions_searched, 10);
     }
 }
