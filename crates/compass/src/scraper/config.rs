@@ -35,7 +35,7 @@ pub(super) struct Metadata {
 impl Metadata {
     /// Initialize the database to support Metadata
     pub(super) fn init_db(conn: &duckdb::Transaction) -> Result<()> {
-        tracing::trace!("Initializing database for ScrapperConfig");
+        tracing::trace!("Initializing database for Metadata");
         conn.execute_batch(
             r"
             CREATE SEQUENCE IF NOT EXISTS scrapper_config_sequence START 1;
@@ -49,18 +49,18 @@ impl Metadata {
             );",
         )?;
 
-        tracing::trace!("Database ready for ScrapperConfig");
+        tracing::trace!("Database ready for Metadata");
         Ok(())
     }
 
     pub(super) async fn open<P: AsRef<std::path::Path>>(root: P) -> Result<Self> {
-        tracing::trace!("Opening ScrapperConfig from {:?}", root.as_ref());
+        tracing::trace!("Opening Metadata of {:?}", root.as_ref());
 
         let path = root.as_ref().join("config.json");
         if !path.exists() {
-            tracing::error!("Missing configuration file: {:?}", path);
+            tracing::error!("Missing metadata file: {:?}", path);
             return Err(crate::error::Error::Undefined(
-                "Missing configuration file".to_string(),
+                "Missing metadata file".to_string(),
             ));
         }
 
@@ -108,7 +108,7 @@ impl Metadata {
     }
 
     pub(super) fn write(&self, conn: &duckdb::Transaction, commit_id: usize) -> Result<()> {
-        tracing::trace!("Writing ScrapperConfig to the database {:?}", self);
+        tracing::trace!("Writing Metadata to the database {:?}", self);
         conn.execute(
             "INSERT INTO scrapper_config (bookkeeper_lnk, model, llm_service_rate_limit, extra) VALUES (?, ?, ?, ?)",
             [
@@ -167,13 +167,13 @@ pub(crate) mod sample {
 
 #[cfg(test)]
 mod test_scrapper_config {
-    use super::ScrapperConfig;
+    use super::Metadata;
     use super::sample::as_text_v1;
 
     #[test]
-    /// Load a ScrapperConfig from a JSON string
+    /// Load a Metadata from a JSON string
     fn parse_json() {
-        let config = ScrapperConfig::from_json(&as_text_v1()).unwrap();
+        let config = Metadata::from_json(&as_text_v1()).unwrap();
 
         assert_eq!(config.model, "gpt-4");
         assert_eq!(config.llm_service_rate_limit, 50000);
