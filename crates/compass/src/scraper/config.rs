@@ -4,17 +4,29 @@
 //! This module provides the support to work with that information, from
 //! validating and parsing to loading it in the database.
 
+use std::collections::HashMap;
 use std::io::Read;
 
 use crate::error::Result;
 
 #[allow(dead_code)]
-#[derive(Debug)]
+#[derive(Debug, serde::Deserialize)]
 /// Configuration used to run the scrapper
-pub(crate) struct ScrapperConfig {
-    pub(crate) model: String,
-    pub(crate) llm_service_rate_limit: u64,
-    pub(crate) extra: String,
+pub(super) struct Metadata {
+    username: String,
+    versions: HashMap<String, String>,
+    technology: String,
+    llm_parse_args: HashMap<String, serde_json::Value>,
+    time_start_utc: String,
+    time_end_utc: String,
+    total_time: f64,
+    total_time_string: String,
+    num_jurisdictions_searched: u16,
+    num_jurisdictions_found: u16,
+    manifest: HashMap<String, String>,
+
+    #[serde(flatten)]
+    pub(crate) extra: HashMap<String, serde_json::Value>,
 }
 
 impl ScrapperConfig {
