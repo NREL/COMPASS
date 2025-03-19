@@ -9,7 +9,7 @@ use tracing::{self, trace};
 
 use crate::error;
 use crate::error::Result;
-use config::ScrapperConfig;
+use config::Metadata;
 use usage::Usage;
 
 pub(crate) const SCRAPPED_ORDINANCE_VERSION: &str = "0.0.1";
@@ -54,14 +54,14 @@ pub(crate) const SCRAPPED_ORDINANCE_VERSION: &str = "0.0.1";
 pub(crate) struct ScrappedOrdinance {
     format_version: String,
     root: PathBuf,
-    config: Option<ScrapperConfig>,
+    config: Metadata,
     usage: Option<Usage>,
 }
 
 impl ScrappedOrdinance {
     pub(super) fn init_db(conn: &duckdb::Transaction) -> Result<()> {
         tracing::trace!("Initializing ScrappedOrdinance database");
-        config::ScrapperConfig::init_db(conn)?;
+        config::Metadata::init_db(conn)?;
         usage::Usage::init_db(conn)?;
 
         Ok(())
@@ -92,7 +92,7 @@ impl ScrappedOrdinance {
             ));
         }
         */
-        let config = config::ScrapperConfig::open(&root).await?;
+        let config = config::Metadata::open(&root).await?;
         let usage = usage::Usage::open(&root).await?;
 
         /*
@@ -138,7 +138,7 @@ impl ScrappedOrdinance {
     }
 
     #[allow(dead_code)]
-    pub(crate) async fn config(&self) -> Result<ScrapperConfig> {
+    pub(crate) async fn config(&self) -> Result<Metadata> {
         let config_file = &self.root.join("config.json");
         if !config_file.exists() {
             trace!("Missing config file: {:?}", config_file);
@@ -147,7 +147,7 @@ impl ScrappedOrdinance {
             ));
         }
 
-        let config = ScrapperConfig::from_json(&std::fs::read_to_string(config_file)?)
+        let config = Metadata::from_json(&std::fs::read_to_string(config_file)?)
             .expect("Failed to parse config file");
 
         Ok(config)

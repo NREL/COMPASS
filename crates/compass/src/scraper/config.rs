@@ -29,8 +29,8 @@ pub(super) struct Metadata {
     pub(crate) extra: HashMap<String, serde_json::Value>,
 }
 
-impl ScrapperConfig {
-    /// Initialize the database to support ScrapperConfig
+impl Metadata {
+    /// Initialize the database to support Metadata
     pub(super) fn init_db(conn: &duckdb::Transaction) -> Result<()> {
         tracing::trace!("Initializing database for ScrapperConfig");
         conn.execute_batch(
