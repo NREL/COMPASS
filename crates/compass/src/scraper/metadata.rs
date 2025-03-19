@@ -5,7 +5,6 @@
 //! validating and parsing to loading it in the database.
 
 use std::collections::HashMap;
-use std::io::Read;
 
 use crate::error::Result;
 
