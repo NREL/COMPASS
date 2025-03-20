@@ -44,7 +44,7 @@ impl Source {
             CREATE TABLE IF NOT EXISTS source (
               id INTEGER PRIMARY KEY DEFAULT NEXTVAL('source_sequence'),
               bookkeeper_lnk INTEGER REFERENCES bookkeeper(id) NOT NULL,
-              archive_lnk INTEGER REFERENCES source(id) NOT NULL,
+              archive_lnk INTEGER REFERENCES archive(id) NOT NULL,
               );",
         )?;
 
