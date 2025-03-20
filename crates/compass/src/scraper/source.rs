@@ -107,6 +107,7 @@ impl Source {
 
         // What about return the number of rows inserted?
 
+        /*
         let origin = match &self.origin {
             Some(origin) => origin,
             None => {
