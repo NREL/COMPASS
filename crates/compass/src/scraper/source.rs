@@ -11,7 +11,9 @@ use crate::error::Result;
 pub(super) struct Source {
     name: String,
     hash: String,
+    #[allow(dead_code)]
     origin: Option<String>,
+    #[allow(dead_code)]
     access_time: Option<String>,
 }
 

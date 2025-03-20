@@ -106,7 +106,7 @@ impl ScrappedOrdinance {
             format_version: SCRAPPED_ORDINANCE_VERSION.to_string(),
             metadata,
             sources,
-            usage: usage,
+            usage,
         })
     }
 
