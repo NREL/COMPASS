@@ -1,5 +1,4 @@
 //! Scrapped document
-//!
 
 use sha2::Digest;
 use tokio::io::AsyncReadExt;
@@ -32,7 +31,6 @@ impl Source {
               origin TEXT,
               access_time TIMESTAMP,
               created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-              comments TEXT
               );",
         )?;
 
