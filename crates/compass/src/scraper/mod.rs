@@ -100,6 +100,7 @@ impl ScrappedOrdinance {
         let metadata = metadata::Metadata::open(&root).await?;
         let usage = usage::Usage::open(&root).await?;
 
+        trace!("Scrapped ordinance opened successfully");
         Ok(Self {
             root,
             format_version: SCRAPPED_ORDINANCE_VERSION.to_string(),

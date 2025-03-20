@@ -82,7 +82,7 @@ impl Source {
                     origin: None,
                     access_time: None,
                 };
-                trace!("New Source: {:?}", s);
+                trace!("Identified a new source: {:?}", s);
                 sources.push(s);
             } else if file_type.is_dir() {
                 warn!(
@@ -92,7 +92,7 @@ impl Source {
             }
         }
 
-        trace!("Found {} source documents", sources.len());
+        trace!("Found a total of {} source documents", sources.len());
 
         Ok(sources)
     }
