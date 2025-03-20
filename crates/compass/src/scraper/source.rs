@@ -116,11 +116,26 @@ impl Source {
                 "NULL"
             }
         };
+        */
+
         // Insert the source document into the database
-        conn.execute(
-            "INSERT INTO document (name, hash, origin, access_time) VALUES (?, ?, ?, ?)",
-            &[&self.name, &self.hash, origin, access_time],
+        let source_id: u32 = conn.query_row(
+            "INSERT INTO archive (name, hash) VALUES (?, ?) RETURNING id",
+            [&self.name, &self.hash],
+            |row| row.get(0),
         )?;
+        trace!(
+            "Inserted source document with id: {} -> {}",
+            source_id, &self.name
+        );
+        conn.execute(
+            "INSERT INTO source (bookkeeper_lnk, archive_lnk) VALUES (?, ?)",
+            [commit_id.to_string(), source_id.to_string()],
+        )?;
+        trace!(
+            "Linked source: commit ({}) -> archive ({})",
+            commit_id, source_id
+        );
 
         Ok(())
     }
