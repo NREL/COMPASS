@@ -173,6 +173,12 @@ mod tests {
         // A sample ordinance file for now.
         let target = tempfile::tempdir().unwrap();
 
+        let ordinance_files_path = target.path().join("ordinance_files");
+        std::fs::create_dir(&ordinance_files_path).unwrap();
+        let source_filename = ordinance_files_path.join("source.pdf");
+        let mut source_file = std::fs::File::create(source_filename).unwrap();
+        writeln!(source_file, "This is a sample ordinance file").unwrap();
+
         let _metadata_file = metadata::sample::as_file(target.path().join("meta.json")).unwrap();
         let _usage_file = usage::sample::as_file(target.path().join("usage.json")).unwrap();
 
