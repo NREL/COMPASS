@@ -118,6 +118,9 @@ impl ScrappedOrdinance {
 
         // Do I need to extract the hash here from the full ScrappedOutput?
         // What about username?
+        self.sources
+            .iter()
+            .for_each(|s| s.write(&conn, commit_id).unwrap());
         self.metadata.write(&conn, commit_id).unwrap();
         self.usage().await.unwrap().write(&conn, commit_id).unwrap();
         // commit transaction
