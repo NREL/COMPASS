@@ -49,6 +49,11 @@ impl Source {
         Ok(())
     }
 
+    /// Open the source documents that were scrapped
+    ///
+    /// # Returns
+    ///
+    /// * A vector of source documents
     pub(super) async fn open<P: AsRef<std::path::Path>>(root: P) -> Result<Vec<Source>> {
         trace!("Opening source documents");
 
