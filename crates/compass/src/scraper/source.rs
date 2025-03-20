@@ -97,7 +97,9 @@ impl Source {
         Ok(sources)
     }
 
-    pub(super) fn write(&self, conn: &duckdb::Transaction) -> Result<()> {
+    pub(super) fn write(&self, conn: &duckdb::Transaction, commit_id: usize) -> Result<()> {
+        trace!("Recording source documents on database");
+
         // What about return the number of rows inserted?
 
         let origin = match &self.origin {
