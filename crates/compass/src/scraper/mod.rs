@@ -11,6 +11,7 @@ use tracing::{self, trace};
 use crate::error;
 use crate::error::Result;
 use metadata::Metadata;
+#[allow(unused_imports)]
 use source::Source;
 use usage::Usage;
 
