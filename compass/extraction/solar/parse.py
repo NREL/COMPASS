@@ -65,7 +65,7 @@ EXTRA_NUMERICAL_RESTRICTIONS = {
 EXTRA_QUALITATIVE_RESTRICTIONS = {
     "moratorium": "moratoriums or bans",
     "decommissioning": "decommissioning requirements",
-    "glare": "glare restriction",
+    "glare": "glare restrictions",
     "visual impact": "visual impact assessment requirements",
 }
 
