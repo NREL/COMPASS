@@ -265,6 +265,7 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
+    kwargs.setdefault("unit_clarification", "")
     G = setup_graph_no_nodes(**kwargs)  # noqa: N806
 
     G.add_node(
@@ -319,11 +320,10 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
                 "Ensure that:\n1) You accurately identify the unit value "
                 "associated with the restriction.\n2) The unit is "
                 "expressed using standard, conventional unit names (e.g., "
-                '"feet", "meters", "acres", "dBA", etc.)\n3) If multiple '
-                "values are mentioned, return only the units for the most "
-                "restrictive value that directly pertains to the "
-                "restriction.\n\n"
-                "Example Inputs and Outputs:\n"
+                '"feet", "meters", "acres", "dBA", etc.). {unit_clarification}'
+                "\n3) If multiple values are mentioned, return only the units "
+                "for the most restrictive value that directly pertains to the "
+                "restriction.\n\nExample Inputs and Outputs:\n"
                 'Text: "For all WES there is a limitation of overall height '
                 'of 200 feet (including blades)."\n'
                 'Output: "feet"\n'
