@@ -14,13 +14,12 @@ from compass.utilities.parsing import merge_overlapping_texts
 logger = logging.getLogger(__name__)
 
 
-_LARGE_WES_DESCRIPTION = (
-    "Large wind energy systems (WES) may also be referred to as wind "
-    "turbines, wind energy conversion systems (WECS), wind energy "
+_LARGE_WES_SYNONYMS = (
+    "wind turbines, wind energy conversion systems (WECS), wind energy "
     "facilities (WEF), wind energy turbines (WET), large wind energy "
     "turbines (LWET), utility-scale wind energy turbines (UWET), "
     "commercial wind energy conversion systems (CWECS), alternate "
-    "energy systems (AES), or similar. "
+    "energy systems (AES), or similar"
 )
 _SEARCH_TERMS_AND = (
     "zoning, special permitting, siting and setback, system design, and "
@@ -93,7 +92,8 @@ class WindOrdinanceTextCollector:
     IS_UTILITY_SCALE_PROMPT = (
         "You are a legal scholar that reads ordinance text and determines "
         f"whether any of it applies to {_SEARCH_TERMS_OR} for "
-        f"large wind energy systems. {_LARGE_WES_DESCRIPTION}"
+        "large wind energy systems. Large wind energy systems (WES) may "
+        f"also be referred to as {_LARGE_WES_SYNONYMS}. "
         "Your client is a commercial wind developer that does not "
         f"care about ordinances related to {_IGNORE_TYPES} wind energy "
         "systems. Ignore any text related to such systems. "
@@ -176,8 +176,8 @@ class WindPermittedUseDistrictsTextCollector:
     DISTRICT_PROMPT = (
         "You are a legal scholar that reads ordinance text and determines "
         "whether the text explicitly details the districts where large "
-        "wind energy systems are a permitted use. "
-        f"{_LARGE_WES_DESCRIPTION}"
+        "wind energy systems are a permitted use. Large wind energy systems "
+        f"(WES) may also be referred to as {_LARGE_WES_SYNONYMS}. "
         "Do not make any inferences; only answer based on information that "
         "is explicitly outlined in the text. "
         "Note that relevant information may sometimes be found in tables. "

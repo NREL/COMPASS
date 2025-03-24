@@ -14,12 +14,11 @@ from compass.utilities.parsing import merge_overlapping_texts
 logger = logging.getLogger(__name__)
 
 
-_LARGE_SEF_DESCRIPTION = (
-    "Large solar energy systems (SES) may also be referred to as solar "
-    "panels, solar energy conversion systems (SECS), solar energy "
+_LARGE_SEF_SYNONYMS = (
+    "solar panels, solar energy conversion systems (SECS), solar energy "
     "facilities (SEF), solar energy farms (SEF), solar farms (SF), "
     "utility-scale solar energy systems (USES), commercial solar energy "
-    "systems (CSES), alternate energy systems (AES), or similar. "
+    "systems (CSES), alternate energy systems (AES), or similar"
 )
 _SEARCH_TERMS_AND = (
     "zoning, special permitting, siting and setback, system design, and "
@@ -70,7 +69,8 @@ class SolarOrdinanceTextCollector:
     IS_UTILITY_SCALE_PROMPT = (
         "You are a legal scholar that reads ordinance text and determines "
         f"whether it applies to {_SEARCH_TERMS_OR} for "
-        f"large solar energy systems. {_LARGE_SEF_DESCRIPTION}"
+        "large solar energy systems. Large solar energy systems (SES) may "
+        f"also be referred to as {_LARGE_SEF_SYNONYMS}. "
         "Your client is a commercial solar developer that does not "
         f"care about ordinances related to {_IGNORE_TYPES} solar energy "
         "systems. Ignore any text related to such systems. "
@@ -153,8 +153,8 @@ class SolarPermittedUseDistrictsTextCollector:
     DISTRICT_PROMPT = (
         "You are a legal scholar that reads ordinance text and determines "
         "whether the text explicitly details the districts where large "
-        "solar energy farms are a permitted use. "
-        f"{_LARGE_SEF_DESCRIPTION}"
+        "solar energy farms are a permitted use. Large solar energy systems "
+        f"(SES) may also be referred to as {_LARGE_SEF_SYNONYMS}. "
         "Do not make any inferences; only answer based on information that "
         "is explicitly outlined in the text. "
         "Note that relevant information may sometimes be found in tables. "
