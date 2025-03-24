@@ -161,7 +161,12 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
         extras_parsers = [
             asyncio.create_task(
                 self._parse_extra_restriction(
-                    text, feature, r_text, largest_sef_type, is_numerical=True
+                    text,
+                    feature,
+                    r_text,
+                    largest_sef_type,
+                    is_numerical=True,
+                    unit_clarification=UNIT_CLARIFICATIONS.get(feature, ""),
                 ),
                 name=outer_task_name,
             )
@@ -181,7 +186,13 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
         return pd.DataFrame(chain.from_iterable(outputs))
 
     async def _parse_extra_restriction(
-        self, text, feature, restriction_text, largest_sef_type, is_numerical
+        self,
+        text,
+        feature,
+        restriction_text,
+        largest_sef_type,
+        is_numerical,
+        unit_clarification="",
     ):
         """Parse a non-setback restriction from the text"""
         logger.debug("Parsing extra feature %r", feature)
@@ -195,6 +206,7 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
             restriction=restriction_text,
             text=text,
             chat_llm_caller=self._init_chat_llm_caller(system_message),
+            unit_clarification=unit_clarification,
         )
         info = await run_async_tree(tree)
         info.update({"feature": feature, "quantitative": is_numerical})
