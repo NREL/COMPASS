@@ -68,6 +68,12 @@ EXTRA_QUALITATIVE_RESTRICTIONS = {
     "glare": "glare restrictions",
     "visual impact": "visual impact assessment requirements",
 }
+UNIT_CLARIFICATIONS = {
+    "noise": (
+        "For the purposes of this extraction, assume the standard units "
+        'for noise are "dBA".'
+    )
+}
 
 
 class StructuredSolarParser(BaseLLMCaller):

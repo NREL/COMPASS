@@ -71,6 +71,16 @@ EXTRA_QUALITATIVE_RESTRICTIONS = {
     "moratorium": "moratoriums or bans",
     "visual impact": "visual impact assessment requirements",
 }
+UNIT_CLARIFICATIONS = {
+    "noise": (
+        "For the purposes of this extraction, assume the standard units "
+        'for noise are "dBA".'
+    ),
+    "shadow flicker": (
+        "For the purposes of this extraction, assume the standard units "
+        'for shadow flicker are "hr/year".'
+    ),
+}
 
 
 class StructuredWindParser(BaseLLMCaller):
