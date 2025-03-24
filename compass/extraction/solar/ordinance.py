@@ -29,9 +29,6 @@ _SEARCH_TERMS_OR = (
     "operational requirements/restrictions"
 )
 _IGNORE_TYPES = "private, residential, micro, small, or medium sized"
-_TRACK_BANS = (
-    "Note that solar energy bans are an important restriction to track. "
-)
 
 
 class SolarHeuristic(Heuristic):
@@ -60,7 +57,7 @@ class SolarOrdinanceTextCollector:
         "keys. The first key is 'solar_reqs', which is a string that "
         f"summarizes all {_SEARCH_TERMS_AND} (if given) "
         "in the text for solar energy systems. "
-        f"{_TRACK_BANS}"
+        "Note that solar energy bans are an important restriction to track. "
         "The last key is '{key}', which is a boolean that is set to True if "
         f"the text excerpt describes {_SEARCH_TERMS_OR} for "
         "a solar energy system and False otherwise."

@@ -30,9 +30,6 @@ _SEARCH_TERMS_OR = (
     "operational requirements/restrictions"
 )
 _IGNORE_TYPES = "private, residential, micro, small, or medium sized"
-_TRACK_BANS = (
-    "Note that wind energy bans are an important restriction to track. "
-)
 
 
 class WindHeuristic(Heuristic):
@@ -83,7 +80,7 @@ class WindOrdinanceTextCollector:
         "keys. The first key is 'wind_reqs', which is a string that "
         f"summarizes all {_SEARCH_TERMS_AND} (if given) "
         "in the text for a wind energy system (or wind turbine/tower). "
-        f"{_TRACK_BANS}"
+        "Note that wind energy bans are an important restriction to track. "
         "The last key is '{key}', which is a boolean that is set to True if "
         f"the text excerpt describes {_SEARCH_TERMS_OR} for "
         "a wind energy system (or wind turbine/tower) and False otherwise. "
