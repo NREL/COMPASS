@@ -206,6 +206,7 @@ class CountyValidator:
             `False` otherwise.
         """
         source = doc.attrs.get("source")
+        kwargs = _add_not_county_kwargs(county, state)
         logger.debug(
             "Validating document from source: %s", source or "Unknown"
         )
@@ -214,7 +215,7 @@ class CountyValidator:
             validator=self.cj_validator,
             doc=doc,
             score_thresh=self.score_thresh,
-            county=county,
+            **kwargs,
         )
         if not jurisdiction_is_county:
             return False
@@ -250,8 +251,7 @@ class CountyValidator:
             validator=self.cn_validator,
             doc=doc,
             score_thresh=self.score_thresh,
-            county=county,
-            state=state,
+            **kwargs,
         )
 
 
@@ -298,3 +298,16 @@ def _weighted_vote(out, doc):
         verdict * weight for verdict, weight in zip(out, weights, strict=False)
     )
     return total / sum(weights)
+
+
+def _add_not_county_kwargs(county, state):
+    """Add 'not_county' and 'not_state' kwargs"""
+    kwargs = {"county": county, "state": state}
+    if county.casefold() != "decatur":
+        kwargs["not_county"] = "Decatur"
+        kwargs["not_state"] = "Indiana"
+        return kwargs
+
+    kwargs["not_county"] = "Lincoln"
+    kwargs["not_state"] = "Nebraska"
+    return kwargs
