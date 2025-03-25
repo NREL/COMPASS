@@ -61,7 +61,7 @@ EXTRA_NUMERICAL_RESTRICTIONS = {
     "max height": "maximum turbine height allowed",
     "min lot size": "minimum lot, parcel, or tract size allowed",
     "shadow flicker": "maximum shadow flicker allowed",
-    "density": "maximum turbine spacing allowed",
+    "density": "minimum turbine spacing allowed",
     "blade clearance": "minimum blade clearance allowed",
 }
 EXTRA_QUALITATIVE_RESTRICTIONS = {
@@ -79,6 +79,12 @@ UNIT_CLARIFICATIONS = {
     "shadow flicker": (
         "For the purposes of this extraction, assume the standard units "
         'for shadow flicker are "hr/year".'
+    ),
+    "density": (
+        "For the purposes of this extraction, assume the standard units "
+        "for turbine spacing are one of the following: "
+        '"tip-height-multiplier", "hub-height-multiplier", '
+        '"rotor-diameter-multiplier", "feet", or "meters".'
     ),
 }
 ER_CLARIFICATIONS = {}
