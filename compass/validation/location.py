@@ -90,24 +90,71 @@ class CountyJurisdictionValidator(FixedMessageValidator):
     """Validator that checks whether text applies at the county level"""
 
     SYSTEM_MESSAGE = (
-        "You extract structured data from legal text. Return "
-        "your answer in JSON format. Your JSON file must include exactly "
-        "three keys. The first key is 'x', which is a boolean that is set to "
-        "`True` if the text excerpt explicitly states that the legal "
-        "regulations outlined within the text are applicable to a "
-        "jurisdiction scope other than {county} County "
-        "(i.e. they apply to a subdivision like a township or a city, or "
-        "they apply more broadly, like to a state or the full country). "
-        "`False` if the regulations in the text apply at the {county} County "
-        "level, if the regulations in the text apply to all unincorporated "
-        "areas of {county} County, or if there is not enough information to "
-        "determine the answer. The second key is 'y', which is a boolean "
-        "that is set to `True` if the text excerpt explicitly mentions that "
-        "the regulations within apply to more than one county. `False` if "
-        "the regulations in the text excerpt apply to a single county only "
-        "or if there is not enough information to determine the answer. The "
-        "third key is 'explanation', which is a string that contains a short "
-        "explanation if you chose `True` for any answers above."
+        "You extract structured data from legal text. Return your answer "
+        'in JSON format with exactly three keys: `"x"`, `"y"`, and '
+        '`"explanation"`.\n'
+        '\n1. **`"x"` (boolean):**\n'
+        "- Set this to `true` **only if** the text **explicitly states** "
+        "that the legal regulations apply to a jurisdiction **other than** "
+        "{county} County.\n"
+        "- This includes cases where the regulations apply to **a "
+        "subdivision** (e.g., a township or city within {county} County) or "
+        "**a broader scope** (e.g., a state-wide or national regulation).\n"
+        "- Set this to `false` if the regulations apply specifically to "
+        "**{county} County-level governance**, to **all unincorporated "
+        "areas** of {county} County, **or** if there is **not enough "
+        "information** to determine the jurisdiction scope.\n"
+        '\n2. **`"y"` (boolean):**\n'
+        "- Set this to `true` **only if** the text **explicitly states** that "
+        "the regulations apply to **more than one county**\n"
+        "- Set this to `false` if the regulations apply to a **single county "
+        "only** or if there is **not enough information** to determine the "
+        "number of counties affected.\n"
+        '\n3. **`"explanation"` (string):**\n'
+        '- If either `"x"` or `"y"` is `true`, provide a short explanation '
+        "**citing the specific text** that led to this conclusion.\n"
+        "- If **both** are `false`, explain that there was not enough "
+        "information to determine otherwise.\n"
+        "\n### **Example Output:**\n"
+        "\n#### Correct Cases:\n"
+        "\n**Case 1 (Not Enough Information - Default to `False`)**\n"
+        'Input text: `"This ordinance applies to wind energy systems."`\n'
+        "```json\n"
+        "{{\n"
+        '  "x": false,\n'
+        '  "y": false,\n'
+        '  "explanation": "The legal text does not provide enough information '
+        "to determine whether it applies beyond {county} County or to "
+        'multiple counties."\n'
+        "}}\n"
+        "\n**Case 2 (Explicitly Applies to a City)**\n"
+        'Input text: `"This ordinance applies the city of Sturgis."`\n'
+        "```json\n"
+        "{{\n"
+        '  "x": true,\n'
+        '  "y": false,\n'
+        '  "explanation": "The legal text explicitly states that it applies '
+        'to the city of Sturgis, which is a subdivision of a county."\n'
+        "}}\n"
+        "\n**Case 3 (Explicitly Applies to Multiple Counties)**\n"
+        'Input text: `"These regulations apply to all counties in {state}.'
+        '"`\n'
+        "```json\n"
+        "{{\n"
+        '  "x": false,\n'
+        '  "y": true,\n'
+        '  "explanation": "The legal text explicitly states that it applies '
+        'to multiple (all) counties in {state}."\n'
+        "}}\n"
+        "\n**Case 4 (Explicitly Applies to {county} County, {state})**\n"
+        'Input text: `"This ordinance applies to {county} County, {state}."`\n'
+        "```json\n"
+        "{{\n"
+        '  "x": false,\n'
+        '  "y": false,\n'
+        '  "explanation": "The legal text explicitly states that it applies '
+        'to {county} County, {state}."\n'
+        "}}\n"
     )
     META_SCORE_KEY = "Jurisdiction Validation Score"
 
@@ -124,21 +171,71 @@ class CountyNameValidator(FixedMessageValidator):
     """Validator that checks whether text applies to a given county"""
 
     SYSTEM_MESSAGE = (
-        "You extract structured data from legal text. Return "
-        "your answer in JSON format. Your JSON file must include exactly "
-        "three keys. The first key is 'wrong_county', which is a boolean that "
-        "is set to `True` if the legal text is not for {county} County. Do "
-        "not infer based on any information about any US state, city, "
-        "township, or otherwise. `False` if the text applies to {county} "
-        "County or if there is not enough information to determine the "
-        "answer. The second key is 'wrong_state', which is a boolean that is "
-        "set to `True` if the legal text is not for a county in {state} "
-        "State. Do not infer based on any information about any US county, "
-        "city, township, or otherwise. `False` if the text applies to "
-        "a county in {state} State or if there is not enough information to "
-        "determine the answer. The third key is 'explanation', which is a "
-        "string that contains a short explanation if you chose `True` for "
-        "any answers above."
+        "You extract structured data from legal text. Return your answer "
+        'in JSON format with exactly three keys: `"wrong_county"`, '
+        '`"wrong_state"`, and `"explanation"`.\n'
+        '\n1. **`"wrong_county"` (boolean):**\n'
+        "- Set this to `true` **only if** the text **explicitly states** "
+        "that it does **not** apply to {county} County.\n"
+        "- Set this to `false` if the text applies to {county} County **or** "
+        "if there is **not enough information** to determine the county.\n"
+        "- Do **not** infer this based on any mention of other U.S. states, "
+        "cities, or townships.\n"
+        '\n2. **`"wrong_state"` (boolean):**\n'
+        "- Set this to `true` **only if** the text **explicitly states** that "
+        "it does **not** apply to a jurisdiction in {state}.\n"
+        "- Set this to `false` if the text applies to a jurisdiction in "
+        "{state} **or** if there is **not enough information** to determine "
+        "the state.\n"
+        "- Do **not** infer this based on any mention of other U.S. counties, "
+        "cities, or townships.\n"
+        '\n3. **`"explanation"` (string):**\n'
+        '- If either `"wrong_county"` or `"wrong_state"` is `true`, provide a '
+        "short explanation **citing the specific text** that led to this "
+        "conclusion.\n"
+        "- If **both** are `false`, explain that there was not enough "
+        "information to determine otherwise.\n"
+        "\n### **Example Output:**\n"
+        "\n#### Correct Cases:\n"
+        "\n**Case 1 (Not Enough Information - Default to `False`)**\n"
+        'Input text: `"This ordinance applies to wind energy regulations in '
+        'the county."`\n'
+        "```json\n"
+        "{{\n"
+        '  "wrong_county": false,\n'
+        '  "wrong_state": false,\n'
+        '  "explanation": "The legal text does not provide enough information '
+        'to determine whether it applies to {county} County or {state}."\n'
+        "}}\n"
+        "\n**Case 2 (Explicit Wrong County and State)**\n"
+        'Input text: `"This ordinance applies to {not_county} County, '
+        '{not_state}."`\n'
+        "```json\n"
+        "{{\n"
+        '  "wrong_county": true,\n'
+        '  "wrong_state": true,\n'
+        '  "explanation": "The legal text explicitly states that it applies '
+        "to {not_county} County, {not_state}, which is not {county} County "
+        'or in {state}."\n'
+        "}}\n"
+        "\n**Case 3 (Explicit Wrong State)**\n"
+        'Input text: `"This law applies to counties in {not_state}."`\n'
+        "```json\n"
+        "{{\n"
+        '  "wrong_county": false,\n'
+        '  "wrong_state": true,\n'
+        '  "explanation": "The legal text explicitly states it applies to '
+        'counties in {not_state}, which is not in {state}."\n'
+        "}}\n"
+        "\n**Case 4 (Explicit Wrong County)**\n"
+        'Input text: `"This law applies to {not_county} County."`\n'
+        "```json\n"
+        "{{\n"
+        '  "wrong_county": true,\n'
+        '  "wrong_state": false,\n'
+        '  "explanation": "The legal text explicitly states it applies to '
+        '{not_county} County, which is not in {county} County."\n'
+        "}}\n"
     )
     META_SCORE_KEY = "Jurisdiction Name Validation Score"
 
