@@ -264,7 +264,7 @@ class CountyValidator:
         and :class:`~compass.validation.location.URLValidator`.
     """
 
-    def __init__(self, structured_llm_caller, score_thresh=0.8):
+    def __init__(self, structured_llm_caller, score_thresh=0.9):
         """
 
         Parameters
@@ -273,8 +273,8 @@ class CountyValidator:
             StructuredLLMCaller instance. Used for structured validation
             queries.
         score_thresh : float, optional
-            Score threshold to exceed when voting on content from raw
-            pages. By default, ``0.8``.
+            Score threshold (inclusive) to exceed when voting on content
+            from raw pages. By default, ``0.9``.
         """
         self.score_thresh = score_thresh
         self.cn_validator = CountyNameValidator(structured_llm_caller)
@@ -363,7 +363,7 @@ def _heuristic_check_for_county_and_state(doc, county, state):
     )
 
 
-async def _validator_check_for_doc(validator, doc, score_thresh=0.8, **kwargs):
+async def _validator_check_for_doc(validator, doc, score_thresh=0.9, **kwargs):
     """Apply a validator check to a doc's raw pages"""
     outer_task_name = asyncio.current_task().get_name()
     validation_checks = [
@@ -380,10 +380,10 @@ async def _validator_check_for_doc(validator, doc, score_thresh=0.8, **kwargs):
         validator.META_SCORE_KEY,
         score,
         doc.attrs.get("source", "Unknown"),
-        str(score > score_thresh),
+        str(score >= score_thresh),
         score_thresh,
     )
-    return score > score_thresh
+    return score >= score_thresh
 
 
 def _weighted_vote(out, doc):
