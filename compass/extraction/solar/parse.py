@@ -74,7 +74,10 @@ UNIT_CLARIFICATIONS = {
         'for noise are "dBA".'
     )
 }
-ER_CLARIFICATIONS = {}
+ER_CLARIFICATIONS = {
+    "max size": "Maximum project size is typically specified as a maximum "
+    "system size value or as a maximum total area value.",
+}
 
 
 class StructuredSolarParser(BaseLLMCaller):
