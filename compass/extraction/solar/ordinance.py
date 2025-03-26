@@ -25,7 +25,9 @@ _SEARCH_TERMS_AND = (
     "requirements/restrictions"
 )
 _SEARCH_TERMS_OR = _SEARCH_TERMS_AND.replace("and", "or")
-_IGNORE_TYPES = "private, residential, micro, small, or medium sized"
+_IGNORE_TYPES = (
+    "private, residential, roof-mounted, micro, small, or medium sized"
+)
 
 
 class SolarHeuristic(Heuristic):
