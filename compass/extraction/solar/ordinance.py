@@ -423,7 +423,7 @@ class SolarPermittedUseDistrictsTextExtractor(BaseTextExtractor):
         '"No relevant text."'
     )
 
-    WES_PERMITTED_USES_FILTER_PROMPT = (
+    SEF_PERMITTED_USES_FILTER_PROMPT = (
         "# CONTEXT #\n"
         "We want to reduce the provided excerpt to only contain information "
         "detailing **solar energy system** permitted use(s) for a district. "
