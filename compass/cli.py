@@ -1,6 +1,5 @@
 """Ordinances CLI"""
 
-import sys
 import click
 import asyncio
 import logging
@@ -8,9 +7,65 @@ import multiprocessing
 from pathlib import Path
 
 import pyjson5
+from rich.theme import Theme
+from rich.logging import RichHandler
+from rich.console import Console
 
 from compass import __version__
 from compass.scripts.process import process_counties_with_openai
+
+
+class LocationFilter(logging.Filter):
+    """Filter that injects location information into the log record"""
+
+    def filter(self, record):  # noqa: PLR6301
+        """Add location to record
+
+        Parameters
+        ----------
+        record : logging.LogRecord
+            Log record containing the log message + default attributes.
+            This filter will add the location bing processed as a
+            ``location`` attribute. If the there is no current async
+            task (or if the task name is of the form "Task-XX"), the
+            filter sets the location to "main".
+
+        Returns
+        -------
+        bool
+            Always true since we want the record to be passed along with
+            the additional attribute.
+        """
+        try:
+            location = asyncio.current_task().get_name()
+        except RuntimeError:
+            location = ""
+
+        if not location or "Task" in location:
+            location = "main"
+
+        record.location = location
+        return True
+
+
+def _setup_cli_logging(console, log_level="INFO"):
+    """Setup logging for CLI"""
+    for lib in ["compass", "elm"]:
+        logger = logging.getLogger(lib)
+        handler = RichHandler(
+            console=console,
+            rich_tracebacks=True,
+            omit_repeated_times=True,
+            markup=True,
+        )
+        fmt = logging.Formatter(
+            fmt="[[magenta]%(location)s[/magenta]]: %(message)s",
+            defaults={"location": "main"},
+        )
+        handler.setFormatter(fmt)
+        handler.addFilter(LocationFilter())
+        logger.addHandler(handler)
+        logger.setLevel(log_level)
 
 
 @click.group()
@@ -43,11 +98,11 @@ def process(config, verbose):
     with Path(config).open(encoding="utf-8") as fh:
         config = pyjson5.decode_io(fh)
 
+    custom_theme = Theme({"logging.level.trace": "grey23"})
+    console = Console(theme=custom_theme)
+
     if verbose:
-        for lib in ["compass", "elm"]:
-            logger = logging.getLogger(lib)
-            logger.addHandler(logging.StreamHandler(stream=sys.stdout))
-            logger.setLevel(config.get("log_level", "INFO"))
+        _setup_cli_logging(console, log_level=config.get("log_level", "INFO"))
 
     # Need to set start method to "spawn" instead of "fork" for unix
     # systems. If this call is not present, software hangs when process
