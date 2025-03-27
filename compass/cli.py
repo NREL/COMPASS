@@ -7,11 +7,13 @@ import multiprocessing
 from pathlib import Path
 
 import pyjson5
+from rich.live import Live
 from rich.theme import Theme
 from rich.logging import RichHandler
-from rich.console import Console
+from rich.console import Console, Group
 
 from compass import __version__
+from compass.pb import COMPASSProgressBars
 from compass.scripts.process import process_counties_with_openai
 
 
@@ -114,7 +116,14 @@ def process(config, verbose):
     # reason...
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    loop.run_until_complete(process_counties_with_openai(**config))
+
+    cpb = COMPASSProgressBars(console)
+    progress_group = Group(cpb.main, cpb.sub)
+    config["_cpb"] = cpb
+    with Live(
+        progress_group, console=console, refresh_per_second=20, transient=False
+    ):
+        loop.run_until_complete(process_counties_with_openai(**config))
 
 
 if __name__ == "__main__":

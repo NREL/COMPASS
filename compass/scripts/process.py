@@ -72,6 +72,7 @@ from compass.utilities.queued_logging import (
     LogListener,
     NoLocationFilter,
 )
+from compass.pb import COMPASSProgressBars
 
 
 logger = logging.getLogger(__name__)
@@ -175,6 +176,7 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
     ordinance_file_dir=None,
     county_dbs_dir=None,
     log_level="INFO",
+    _cpb=None,
 ):
     """Download and extract ordinances for a list of counties
 
@@ -281,6 +283,10 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
     log_level : str, optional
         Log level to set for county retrieval and parsing loggers.
         By default, ``"INFO"``.
+    _cpb : COMPASSProgressBars, optional
+        Not intended to be a user config input. Instance of
+        `COMPASSProgressBars` used to track processing progress.
+        By default, ``None``.
 
     Returns
     -------
@@ -288,6 +294,7 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         DataFrame of parsed ordinance information. This file will also
         be stored in the output directory under "wind_db.csv".
     """
+    cpb = _cpb or COMPASSProgressBars()
     log_listener = LogListener(["compass", "elm"], level=log_level)
     dirs = _setup_folders(
         out_dir,
@@ -328,6 +335,7 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
             log_listener=ll,
             azure_params=ap,
             tech=tech,
+            cpb=cpb,
             jurisdiction_fp=jurisdiction_fp,
             llm_parse_args=lpa,
             web_search_params=wsp,
@@ -341,6 +349,7 @@ async def _process_with_logs(  # noqa: PLR0914
     log_listener,
     azure_params,
     tech,
+    cpb,
     jurisdiction_fp=None,
     llm_parse_args=None,
     web_search_params=None,
@@ -425,6 +434,7 @@ async def _process_with_logs(  # noqa: PLR0914
         else None
     )
 
+    cpb.create_main_task(num_jurisdictions=len(counties))
     start_date = datetime.now(UTC).isoformat()
     start_time = time.monotonic()
     async with RunningAsyncServices(services):
@@ -438,7 +448,8 @@ async def _process_with_logs(  # noqa: PLR0914
             )
             trackers.append(usage_tracker)
             task = asyncio.create_task(
-                _processed_county_info(
+                _processed_county_info_with_pb(
+                    cpb,
                     log_listener,
                     dirs.logs,
                     location,
@@ -516,6 +527,13 @@ def _configure_file_loader_kwargs(file_loader_kwargs):
     file_loader_kwargs = file_loader_kwargs or {}
     file_loader_kwargs.update({"pdf_read_coroutine": read_pdf_doc})
     return file_loader_kwargs
+
+
+async def _processed_county_info_with_pb(cpb, *args, **kwargs):
+    """Process county and update progress bar"""
+    doc_info = await _processed_county_info(*args, **kwargs)
+    cpb.progress_main_task()
+    return doc_info
 
 
 async def _processed_county_info(
