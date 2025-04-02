@@ -65,7 +65,7 @@ class COMPASSProgressBars:
             num_jurisdictions,
         )
         self._main_task = self.main.add_task(
-            f"[bold cyan]Searching {num_jurisdictions} Jurisdictions",
+            f"[bold cyan]Searching {num_jurisdictions} Jurisdiction(s)",
             total=num_jurisdictions,
         )
 

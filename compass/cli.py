@@ -100,7 +100,7 @@ def process(config, verbose):
     with Path(config).open(encoding="utf-8") as fh:
         config = pyjson5.decode_io(fh)
 
-    custom_theme = Theme({"logging.level.trace": "grey23"})
+    custom_theme = Theme({"logging.level.trace": "rgb(94,79,162)"})
     console = Console(theme=custom_theme)
 
     if verbose:
