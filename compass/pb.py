@@ -58,9 +58,12 @@ class _COMPASSProgressBars:
         self.console = console
         self._main = Progress(
             SpinnerColumn(style="dim"),
-            TextColumn("[cyan]{task.description}"),
+            TextColumn("{task.description}"),
             _TimeElapsedColumn(),
-            BarColumn(complete_style="yellow", finished_style="green"),
+            BarColumn(
+                complete_style="progress.elapsed",
+                finished_style="progress.spinner",
+            ),
             _MofNCompleteColumn(),
             console=console,
         )
@@ -153,9 +156,9 @@ class _COMPASSProgressBars:
         pb = Progress(
             TextColumn("    "),
             SpinnerColumn(style="dim"),
-            TextColumn(f"[magenta]{location:<30}"),
+            TextColumn(f"[progress.percentage]{location:<30}"),
             _TimeElapsedColumn(),
-            TextColumn("[grey23]{task.description}"),
+            TextColumn("[bar.back]{task.description}"),
             console=self.console,
         )
         self._jd_pbs[location] = pb
@@ -249,10 +252,12 @@ class _COMPASSProgressBars:
             TextColumn("{task.description}"),
             _TimeElapsedColumn(),
             BarColumn(
-                bar_width=30, complete_style="yellow", finished_style="green"
+                bar_width=30,
+                complete_style="progress.elapsed",
+                finished_style="progress.spinner",
             ),
             _MofNCompleteColumn(),
-            TextColumn("[grey23]{task.fields[just_parsed]}"),
+            TextColumn("[bar.back]{task.fields[just_parsed]}"),
             console=self.console,
         )
 
