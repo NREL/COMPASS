@@ -161,7 +161,7 @@ snakeviz = ">=2.2.2,<3"
 tox = ">=4.23.2,<5"
 
 [tool.pixi.feature.python-test.tasks]
-pt = "pytest --durations=20 tests/python"
+tests = "pytest --durations=20 tests/python"
 # ut = "pytest --durations=20 tests/unit"
 # it = "pytest --durations=20 tests/integration"
 
