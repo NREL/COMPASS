@@ -37,6 +37,8 @@ If you would like to install INFRA-COMPASS from source, we recommend using `pixi
 
 .. code-block:: shell
 
+    git clone git@github.com:NREL/COMPASS.git
+    cd COMPASS
     pixi shell
 
 For detailed instructions, see the `installation documentation <https://nrel.github.io/compass/misc/installation.html>`_.
