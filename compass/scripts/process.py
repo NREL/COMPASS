@@ -723,7 +723,7 @@ async def process_county(
         return None
 
     COMPASS_PB.update_jurisdiction_task(
-        county.full_name, description="Extracting ordinances..."
+        county.full_name, description="Extracting structured data..."
     )
     for possible_ord_doc in docs:
         doc = await _try_extract_all_ordinances(
