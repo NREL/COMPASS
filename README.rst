@@ -33,7 +33,7 @@ The quickest way to install INFRA-COMPASS for users is from PyPi:
 
     pip install nrel-compass
 
-If you are a developer contributing to INFRA-COMPASS, we recommend using `pixi <https://pixi.sh/latest/>`_:
+If you would like to install INFRA-COMPASS from source, we recommend using `pixi <https://pixi.sh/latest/>`_:
 
 .. code-block:: shell
 
