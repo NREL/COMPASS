@@ -8,7 +8,7 @@ build-backend = 'setuptools.build_meta'
 [project]
 name="NREL-COMPASS"
 dynamic = ["version"]
-description = "COMPASS is a tool that leverages Large Language Models (LLMs) to create and maintain an inventory of state and local codes and ordinances applicable to energy infrastructure."
+description = "INFRA-COMPASS is a tool that leverages Large Language Models (LLMs) to create and maintain an inventory of state and local codes and ordinances applicable to energy infrastructure."
 readme = "README.rst"
 authors = [
   {name = "Paul Pinchuk", email = "ppinchuk@nrel.gov"},

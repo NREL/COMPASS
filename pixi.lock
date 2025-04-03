@@ -13207,8 +13207,8 @@ packages:
   timestamp: 1733408419340
 - pypi: .
   name: nrel-compass
-  version: 0.1.1.dev60+gdb02b4d.d20250403
-  sha256: 9f1a857ac39cf35a138c26c4209ff6710b92dcb88667b0ee8f890f56dfb5a3d2
+  version: 0.1.1.dev61+g02151db.d20250403
+  sha256: cd6e4249c1d62e7bbad91132332bf03e9be61c44f8829d4e98b24e9cddb0dbba
   requires_dist:
   - click>=8.1.7,<9
   - langchain>=0.3.7,<0.4
