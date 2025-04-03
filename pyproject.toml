@@ -78,9 +78,9 @@ test = [
 compass = "compass.cli:main"
 
 [project.urls]
-# homepage = "https://www.nrel.gov/"
-documentation = "https://nrel.github.io/NREL-ordinance-DB/"
-repository = "https://github.com/NREL/NREL-ordinance-DB"
+homepage = "https://github.com/NREL/COMPASS"
+documentation = "https://nrel.github.io/COMPASS/"
+repository = "https://github.com/NREL/COMPASS"
 
 [tool.setuptools]
 packages = ["compass"]
