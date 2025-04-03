@@ -25,7 +25,9 @@ _SEARCH_TERMS_AND = (
     "requirements/restrictions"
 )
 _SEARCH_TERMS_OR = _SEARCH_TERMS_AND.replace("and", "or")
-_IGNORE_TYPES = "private, residential, micro, small, or medium sized"
+_IGNORE_TYPES = (
+    "private, residential, roof-mounted, micro, small, or medium sized"
+)
 
 
 class SolarHeuristic(Heuristic):
@@ -249,54 +251,14 @@ class SolarOrdinanceTextExtractor(BaseTextExtractor):
         "\n# RESPONSE #\n"
         "Follow these guidelines carefully:\n"
         "\n1. ## Scope of Extraction ##:\n"
-        "- Include all text that pertains to **solar energy systems**.\n"
+        "- Include **all** text that pertains to** solar energy systems**, "
+        "even if they are referred to by different names such as:\n"
+        f"\t{_LARGE_SEF_SYNONYMS.capitalize()}.\n"
         "- Explicitly include any text related to **bans or prohibitions** "
         "on solar energy systems.\n"
         "\n2. ## Exclusions ##:\n"
         "- Do **not** include text that does not pertain to solar energy "
         "systems.\n"
-        "\n3. ## Formatting & Structure ##:\n"
-        "- **Preserve all section headers and numbering** for clarity and "
-        "reference.\n"
-        "- **Maintain the original wording, formatting, and structure** to "
-        "ensure accuracy.\n"
-        "\n4. ## Output Handling ##:\n"
-        "- If **no relevant text** is found, return the response: "
-        '"No relevant text."'
-    )
-    LARGE_SOLAR_ENERGY_SYSTEM_SECTION_FILTER_PROMPT = (
-        "# CONTEXT #\n"
-        "We want to reduce the provided excerpt to only contain information "
-        "about **large solar energy systems**. The extracted text will be "
-        "used for structured data extraction, so it must be both "
-        "**comprehensive** (retaining all relevant details) and **focused** "
-        "(excluding unrelated content). Ensure that all retained information "
-        "is **directly applicable** to large solar energy systems while "
-        "preserving full context and accuracy.\n"
-        "\n# OBJECTIVE #\n"
-        "Extract all text **pertaining to large solar energy systems** from "
-        "the provided excerpt.\n"
-        "\n# RESPONSE #\n"
-        "Follow these guidelines carefully:\n"
-        "\n1. ## Scope of Extraction ##:\n"
-        "- Include all text that pertains to **large solar energy systems**, "
-        "even if they are referred to by different names such as:\n"
-        f"\t{_LARGE_SEF_SYNONYMS.capitalize()}.\n"
-        "- Explicitly include any text related to **bans or prohibitions** "
-        "on large solar energy systems.\n"
-        "- **Retain all relevant technical, operational, safety, "
-        "environmental, and infrastructure-related provisions** that apply "
-        "to the topic, such as:\n"
-        "\t- Compliance with legal or regulatory standards.\n"
-        "\t- Structural or design specifications.\n"
-        "\t- Environmental impact considerations.\n"
-        "\t- Safety and risk mitigation measures.\n"
-        "\t- Infrastructure and implementation details.\n"
-        "\n2. ## Exclusions ##:\n"
-        "- Do **not** include text that explicitly applies **only** to "
-        f"{_IGNORE_TYPES} solar energy systems.\n"
-        f"- Do **not** include text that does not pertain at all to solar "
-        "energy systems.\n"
         "\n3. ## Formatting & Structure ##:\n"
         "- **Preserve all section headers and numbering** for clarity and "
         "reference.\n"
@@ -328,27 +290,6 @@ class SolarOrdinanceTextExtractor(BaseTextExtractor):
             is_valid_chunk=_valid_chunk,
         )
 
-    async def extract_large_solar_energy_system_section(self, text_chunks):
-        """Extract large SEF ordinance text from input text chunks
-
-        Parameters
-        ----------
-        text_chunks : list of str
-            List of strings, each of which represent a chunk of text.
-            The order of the strings should be the order of the text
-            chunks.
-
-        Returns
-        -------
-        str
-            Ordinance text extracted from text chunks.
-        """
-        return await self._process(
-            text_chunks=text_chunks,
-            instructions=self.LARGE_SOLAR_ENERGY_SYSTEM_SECTION_FILTER_PROMPT,
-            is_valid_chunk=_valid_chunk,
-        )
-
     @property
     def parsers(self):
         """Iterable of parsers provided by this extractor
@@ -362,12 +303,8 @@ class SolarOrdinanceTextExtractor(BaseTextExtractor):
             text.
         """
         yield (
-            "solar_energy_systems_text",
-            self.extract_solar_energy_system_section,
-        )
-        yield (
             "cleaned_ordinance_text",
-            self.extract_large_solar_energy_system_section,
+            self.extract_solar_energy_system_section,
         )
 
 
@@ -423,7 +360,7 @@ class SolarPermittedUseDistrictsTextExtractor(BaseTextExtractor):
         '"No relevant text."'
     )
 
-    WES_PERMITTED_USES_FILTER_PROMPT = (
+    SEF_PERMITTED_USES_FILTER_PROMPT = (
         "# CONTEXT #\n"
         "We want to reduce the provided excerpt to only contain information "
         "detailing **solar energy system** permitted use(s) for a district. "

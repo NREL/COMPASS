@@ -27,6 +27,7 @@ from compass.extraction.solar.graphs import (
     setup_multiplier,
 )
 from compass.warnings import COMPASSWarning
+from compass.pb import COMPASS_PB
 
 
 logger = logging.getLogger(__name__)
@@ -57,9 +58,10 @@ PERMITTED_USE_SYSTEM_MESSAGE = (
 EXTRA_NUMERICAL_RESTRICTIONS = {
     "noise": "maximum noise level allowed",
     "max height": "maximum structure height allowed",
-    "max size": "maximum project spacing allowed",
+    "max size": "maximum project size or total installation allowed",
     "min lot size": "minimum lot, parcel, or tract size allowed",
-    "density": "maximum panel spacing allowed",
+    "max lot size": "maximum lot, parcel, or tract size allowed",
+    "density": "minimum spacing between solar panels or solar plants allowed",
     "coverage": "maximum land coverage allowed",
 }
 EXTRA_QUALITATIVE_RESTRICTIONS = {
@@ -74,7 +76,10 @@ UNIT_CLARIFICATIONS = {
         'for noise are "dBA".'
     )
 }
-ER_CLARIFICATIONS = {}
+ER_CLARIFICATIONS = {
+    "max size": "Maximum project size is typically specified as a maximum "
+    "system size value or as a maximum total area value.",
+}
 
 
 class StructuredSolarParser(BaseLLMCaller):
@@ -150,10 +155,29 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
         logger.info("Largest SEF type found in text: %s", largest_sef_type)
 
         outer_task_name = asyncio.current_task().get_name()
+        with COMPASS_PB.jurisdiction_sub_prog_bar(outer_task_name) as sub_pb:
+            task_id = sub_pb.add_task(
+                "Extracting ordinance values...",
+                total=len(SetbackFeatures.DEFAULT_FEATURE_DESCRIPTIONS)
+                + len(EXTRA_NUMERICAL_RESTRICTIONS)
+                + len(EXTRA_QUALITATIVE_RESTRICTIONS),
+                just_parsed="",
+            )
+            outputs = await self._parse_all_restrictions_with_pb(
+                sub_pb, task_id, text, largest_sef_type, outer_task_name
+            )
+            sub_pb.remove_task(task_id)
+
+        return pd.DataFrame(chain.from_iterable(outputs))
+
+    async def _parse_all_restrictions_with_pb(
+        self, sub_pb, task_id, text, largest_sef_type, outer_task_name
+    ):
+        """Parse all ordinance values"""
         feature_parsers = [
             asyncio.create_task(
                 self._parse_setback_feature(
-                    text, feature_kwargs, largest_sef_type
+                    sub_pb, task_id, text, feature_kwargs, largest_sef_type
                 ),
                 name=outer_task_name,
             )
@@ -162,6 +186,8 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
         extras_parsers = [
             asyncio.create_task(
                 self._parse_extra_restriction(
+                    sub_pb,
+                    task_id,
                     text,
                     feature,
                     r_text,
@@ -177,6 +203,8 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
         extras_parsers += [
             asyncio.create_task(
                 self._parse_extra_restriction(
+                    sub_pb,
+                    task_id,
                     text,
                     feature,
                     r_text,
@@ -188,12 +216,12 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
             )
             for feature, r_text in EXTRA_QUALITATIVE_RESTRICTIONS.items()
         ]
-        outputs = await asyncio.gather(*(feature_parsers + extras_parsers))
-
-        return pd.DataFrame(chain.from_iterable(outputs))
+        return await asyncio.gather(*(feature_parsers + extras_parsers))
 
     async def _parse_extra_restriction(
         self,
+        sub_pb,
+        task_id,
         text,
         feature,
         restriction_text,
@@ -219,10 +247,13 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
         )
         info = await run_async_tree(tree)
         info.update({"feature": feature, "quantitative": is_numerical})
+        if is_numerical:
+            info = _sanitize_output(info)
+        sub_pb.update(task_id, advance=1, just_parsed=feature)
         return [info]
 
     async def _parse_setback_feature(
-        self, text, feature_kwargs, largest_sef_type
+        self, sub_pb, task_id, text, feature_kwargs, largest_sef_type
     ):
         """Parse values for a setback feature"""
         feature = feature_kwargs["feature_id"]
@@ -232,6 +263,7 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
         base_messages = await self._base_messages(text, **feature_kwargs)
         if not found_ord(base_messages):
             logger.debug("Failed `found_ord` check for feature %r", feature)
+            sub_pb.update(task_id, advance=1, just_parsed=feature)
             return empty_output(feature)
 
         if feature not in {"struct", "prop_line"}:
@@ -243,11 +275,14 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
                     **feature_kwargs,
                 )
             )
+            sub_pb.update(task_id, advance=1, just_parsed=feature)
             return [output]
 
-        return await self._extract_setback_values_for_p_or_np(
+        output = await self._extract_setback_values_for_p_or_np(
             text, base_messages, **feature_kwargs
         )
+        sub_pb.update(task_id, advance=1, just_parsed=feature)
+        return output
 
     async def _base_messages(self, text, **feature_kwargs):
         """Get base messages for setback feature parsing"""
@@ -320,7 +355,8 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
         decision_tree_out = await self._run_setback_graph(
             setup_multiplier, text, **kwargs
         )
-        return _update_output_keys(decision_tree_out)
+        decision_tree_out = _update_output_keys(decision_tree_out)
+        return _sanitize_output(decision_tree_out)
 
     async def _run_setback_graph(
         self,
@@ -384,7 +420,7 @@ class StructuredSolarPermittedUseDistrictsParser(StructuredSolarParser):
         },
         {
             "feature_id": "accessory use districts",
-            "use_type": "accessory use or similar (e.g., when  integrated "
+            "use_type": "accessory use or similar (e.g., when integrated "
             "with an existing structure or secondary to another use)",
         },
     ]
@@ -406,22 +442,33 @@ class StructuredSolarPermittedUseDistrictsParser(StructuredSolarParser):
         largest_sef_type = await self._check_solar_farm_type(text)
         logger.info("Largest SEF type found in text: %s", largest_sef_type)
 
-        outer_task_name = asyncio.current_task().get_name()
-        feature_parsers = [
-            asyncio.create_task(
-                self._parse_permitted_use_districts(
-                    text, largest_sef_type, **use_type_kwargs
-                ),
-                name=outer_task_name,
+        loc = asyncio.current_task().get_name()
+        with COMPASS_PB.jurisdiction_sub_prog_bar(loc) as sub_pb:
+            task_id = sub_pb.add_task(
+                "Extracting permitted uses...",
+                total=len(self._USE_TYPES),
+                just_parsed="",
             )
-            for use_type_kwargs in self._USE_TYPES
-        ]
-        outputs = await asyncio.gather(*(feature_parsers))
+            feature_parsers = [
+                asyncio.create_task(
+                    self._parse_permitted_use_districts(
+                        sub_pb,
+                        task_id,
+                        text,
+                        largest_sef_type,
+                        **use_type_kwargs,
+                    ),
+                    name=loc,
+                )
+                for use_type_kwargs in self._USE_TYPES
+            ]
+            outputs = await asyncio.gather(*(feature_parsers))
+            sub_pb.remove_task(task_id)
 
         return pd.DataFrame(chain.from_iterable(outputs))
 
     async def _parse_permitted_use_districts(
-        self, text, largest_sef_type, feature_id, use_type
+        self, sub_pb, task_id, text, largest_sef_type, feature_id, use_type
     ):
         """Parse a non-setback restriction from the text"""
         logger.debug("Parsing use type: %r", feature_id)
@@ -437,6 +484,7 @@ class StructuredSolarPermittedUseDistrictsParser(StructuredSolarParser):
             chat_llm_caller=self._init_chat_llm_caller(system_message),
         )
         info = await run_async_tree(tree)
+        sub_pb.update(task_id, advance=1, just_parsed=feature_id)
         info.update({"feature": feature_id, "quantitative": True})
         return [info]
 
@@ -460,4 +508,24 @@ def _update_output_keys(output):
         warn(msg, COMPASSWarning)
     output["units"] = "structure-height-multiplier"
 
+    return output
+
+
+def _sanitize_output(output):
+    """Perform some sanitization on outputs"""
+    return _remove_units_for_empty_value(output)
+
+
+def _remove_units_for_empty_value(output):
+    """Remove units if no value found"""
+    units = output.get("units")
+    if not units:
+        return output
+
+    value = output.get("value")
+    if value:
+        return output
+
+    # at this point, we have units but no value, so remove units
+    output["units"] = None
     return output

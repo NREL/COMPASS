@@ -14,6 +14,7 @@ from compass.validation.location import (
     CountyNameValidator,
     CountyValidator,
 )
+from compass.pb import COMPASS_PB
 
 
 logger = logging.getLogger(__name__)
@@ -68,6 +69,9 @@ async def download_county_ordinance(
         containing ordinance information, or ``None`` if no ordinance
         document was found.
     """
+    COMPASS_PB.update_jurisdiction_task(
+        location.full_name, description="Downloading files..."
+    )
     docs = await _docs_from_web_search(
         question_templates,
         location,
@@ -76,16 +80,23 @@ async def download_county_ordinance(
         browser_semaphore,
         **(file_loader_kwargs or {}),
     )
+    COMPASS_PB.update_jurisdiction_task(
+        location.full_name,
+        description="Checking files for correct jurisdiction...",
+    )
     docs = await _down_select_docs_correct_location(
         docs, location=location, **kwargs
     )
     logger.info(
-        "%d documents remaining after location filter for %s\n\t- %s",
+        "%d document(s) remaining after location filter for %s\n\t- %s",
         len(docs),
         location.full_name,
         "\n\t- ".join(
             [doc.attrs.get("source", "Unknown source") for doc in docs]
         ),
+    )
+    COMPASS_PB.update_jurisdiction_task(
+        location.full_name, description="Checking files for legal text..."
     )
     docs = await _down_select_docs_correct_content(
         docs,
