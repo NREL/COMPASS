@@ -120,11 +120,7 @@ class LocalProcessQueueHandler(QueueHandler):
         ----------
         record : logging.LogRecord
             Log record containing the log message + default attributes.
-            This record will get a ``location`` attribute dynamically
-            added, with a value equal to the name of the current asyncio
-            task (i.e. ``asyncio.current_task().get_name()``).
         """
-        record.location = asyncio.current_task().get_name()
         try:
             self.enqueue(record)
         except asyncio.CancelledError:
@@ -152,6 +148,7 @@ class LogListener:
         self.level = level
         self._listener = None
         self._queue_handler = LocalProcessQueueHandler(LOGGING_QUEUE)
+        self._queue_handler.addFilter(AddLocationFilter())
 
     def _setup_listener(self):
         """Set up the queue listener"""
