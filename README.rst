@@ -2,10 +2,7 @@
 Infrastructure Continuous Ordinance Mapping for Planning and Siting Systems (INFRA-COMPASS)
 *******************************************************************************************
 
-|Docs| |PythonV| |PyPi| |Ruff| |Pixi| |License| |SWR|
-
-.. |Docs| image:: https://github.com/NREL/COMPASS/workflows/Release%20Documentation/badge.svg
-    :target: https://nrel.github.io/COMPASS/
+|PythonV| |PyPi| |Ruff| |Pixi| |License| |SWR|
 
 .. |PythonV| image:: https://badge.fury.io/py/NREL-COMPASS.svg
     :target: https://pypi.org/project/NREL-COMPASS/
