@@ -75,7 +75,7 @@ test = [
 ]
 
 [project.scripts]
-compass = "compass.cli:main"
+compass = "compass._cli:main"
 
 [project.urls]
 homepage = "https://github.com/NREL/COMPASS"

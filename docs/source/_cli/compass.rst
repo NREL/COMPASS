@@ -1,3 +1,3 @@
-.. click:: compass.cli:main
+.. click:: compass._cli:main
    :prog: compass
    :nested: none

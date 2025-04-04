@@ -67,8 +67,6 @@ intersphinx_mapping = {
     "sqlalchemy": ("https://docs.sqlalchemy.org/en/20/", None),
     "psycopg": ("https://www.psycopg.org/psycopg3/docs", None),
     "plotly": ("https://plotly.com/python-api-reference", None),
-    "rex": ("https://nrel.github.io/rex", None),
-    "xlsxwriter": ("https://xlsxwriter.readthedocs.io", None),
 }
 
 # Add any paths that contain templates here, relative to this directory.
