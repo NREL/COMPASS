@@ -1,0 +1,6 @@
+compass.scripts.process.process\_county\_with\_logging
+======================================================
+
+.. currentmodule:: compass.scripts.process
+
+.. autofunction:: process_county_with_logging

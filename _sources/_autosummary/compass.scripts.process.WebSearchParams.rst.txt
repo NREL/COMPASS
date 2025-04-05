@@ -1,0 +1,33 @@
+compass.scripts.process.WebSearchParams
+=======================================
+
+.. currentmodule:: compass.scripts.process
+
+.. autoclass:: WebSearchParams
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~WebSearchParams.count
+      ~WebSearchParams.index
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~WebSearchParams.max_num_concurrent_browsers
+      ~WebSearchParams.num_urls_to_check_per_county
+      ~WebSearchParams.pytesseract_exe_fp
+   
+   

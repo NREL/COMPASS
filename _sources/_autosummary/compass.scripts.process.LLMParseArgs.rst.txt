@@ -1,0 +1,35 @@
+compass.scripts.process.LLMParseArgs
+====================================
+
+.. currentmodule:: compass.scripts.process
+
+.. autoclass:: LLMParseArgs
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~LLMParseArgs.count
+      ~LLMParseArgs.index
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~LLMParseArgs.llm_call_kwargs
+      ~LLMParseArgs.llm_service_rate_limit
+      ~LLMParseArgs.model
+      ~LLMParseArgs.text_splitter_chunk_overlap
+      ~LLMParseArgs.text_splitter_chunk_size
+   
+   

@@ -1,0 +1,6 @@
+compass.extraction.common.setup\_graph\_no\_nodes
+=================================================
+
+.. currentmodule:: compass.extraction.common
+
+.. autofunction:: setup_graph_no_nodes

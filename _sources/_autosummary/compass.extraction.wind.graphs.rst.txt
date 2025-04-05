@@ -1,0 +1,32 @@
+compass.extraction.wind.graphs
+==============================
+
+.. automodule:: compass.extraction.wind.graphs
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      setup_conditional
+      setup_graph_wes_types
+      setup_multiplier
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

@@ -1,0 +1,30 @@
+compass.validation.location.URLValidator
+========================================
+
+.. currentmodule:: compass.validation.location
+
+.. autoclass:: URLValidator
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~URLValidator.check
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~URLValidator.SYSTEM_MESSAGE
+   
+   

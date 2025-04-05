@@ -1,0 +1,30 @@
+compass.validation.location.FixedMessageValidator
+=================================================
+
+.. currentmodule:: compass.validation.location
+
+.. autoclass:: FixedMessageValidator
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~FixedMessageValidator.check
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~FixedMessageValidator.SYSTEM_MESSAGE
+   
+   
