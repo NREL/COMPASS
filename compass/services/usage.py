@@ -144,14 +144,18 @@ class UsageTracker(UserDict):
             sub-labels.
         """
         totals = {}
-        for report in self.values():
-            try:
-                sub_label_report = report.items()
-            except AttributeError:
-                continue
+        for model, model_usage in self.items():
+            total_model_usage = totals[model] = {}
+            for report in model_usage.values():
+                try:
+                    sub_label_report = report.items()
+                except AttributeError:
+                    continue
 
-            for tracked_value, count in sub_label_report:
-                totals[tracked_value] = totals.get(tracked_value, 0) + count
+                for tracked_value, count in sub_label_report:
+                    total_model_usage[tracked_value] = (
+                        total_model_usage.get(tracked_value, 0) + count
+                    )
         return totals
 
     def update_from_model(
