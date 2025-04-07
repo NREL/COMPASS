@@ -98,6 +98,9 @@ class TimeBoundedUsageTracker:
 class UsageTracker(UserDict):
     """Rate or AIP usage tracker"""
 
+    UNKNOWN_MODEL_LABEL = "unknown_model"
+    """Label used in the usage dictionary for unknown models"""
+
     def __init__(self, label, response_parser):
         """
 
