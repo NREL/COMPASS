@@ -154,15 +154,21 @@ class UsageTracker(UserDict):
                 totals[tracked_value] = totals.get(tracked_value, 0) + count
         return totals
 
-    def update_from_model(self, response=None, sub_label="default"):
+    def update_from_model(
+        self, model=None, response=None, sub_label="default"
+    ):
         """Update usage from a model response
 
         Parameters
         ----------
+        model : str, optional
+            Name of model that usage is being recorded for. If ``None``
+            or empty string, the usage will be placed under the
+            :obj:`UsageTracker.UNKNOWN_MODEL_LABEL` label.
         response : object, optional
             Model call response, which either contains usage information
             or can be used to infer/compute usage. If ``None``, no
-            update is made.
+            update is made. By default, ``None``.
         sub_label : str, optional
             Optional label to categorize usage under. This can be used
             to track usage related to certain categories.
@@ -171,6 +177,7 @@ class UsageTracker(UserDict):
         if response is None:
             return
 
-        self[sub_label] = self.response_parser(
-            self.get(sub_label, {}), response
+        model_usage = self.setdefault(model or self.UNKNOWN_MODEL_LABEL, {})
+        model_usage[sub_label] = self.response_parser(
+            model_usage.get(sub_label, {}), response
         )
