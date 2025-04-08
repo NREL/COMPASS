@@ -518,18 +518,16 @@ class _COMPASSRunner:
         self, county, *args, **kwargs
     ):
         """Process county and update progress bar"""
-        with COMPASS_PB.jurisdiction_prog_bar(county.full_name):
-            return await self._processed_jurisdiction_info(
-                county, *args, **kwargs
-            )
+        async with self.jurisdiction_semaphore:
+            with COMPASS_PB.jurisdiction_prog_bar(county.full_name):
+                return await self._processed_jurisdiction_info(
+                    county, *args, **kwargs
+                )
 
     async def _processed_jurisdiction_info(self, county, **kwargs):
         """Drop `doc` from RAM and only keep enough info to re-build"""
 
-        async with self.jurisdiction_semaphore:
-            doc = await self._process_jurisdiction_with_logging(
-                county, **kwargs
-            )
+        doc = await self._process_jurisdiction_with_logging(county, **kwargs)
 
         if doc is None or isinstance(doc, Exception):
             return None
