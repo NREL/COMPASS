@@ -931,29 +931,6 @@ def _concat_scrape_results(doc):
     return doc
 
 
-def _docs_to_db(docs):
-    """Convert list of docs to output database"""
-    db = []
-    for doc in docs:
-        if doc is None or isinstance(doc, Exception):
-            continue
-
-        if num_ordinances_in_doc(doc) == 0:
-            continue
-
-        results = _db_results(doc)
-        results = _formatted_db(results)
-        db.append(results)
-
-    if not db:
-        return pd.DataFrame(columns=PARSED_COLS), 0
-
-    num_jurisdictions_found = len(db)
-    db = pd.concat(db)
-    db = _empirical_adjustments(db)
-    return _formatted_db(db), num_jurisdictions_found
-
-
 def _doc_infos_to_db(doc_infos):
     """Convert list of docs to output database"""
     db = []
