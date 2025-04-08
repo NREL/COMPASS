@@ -524,10 +524,10 @@ class _COMPASSRunner:
                     county, *args, **kwargs
                 )
 
-    async def _processed_jurisdiction_info(self, county, **kwargs):
+    async def _processed_jurisdiction_info(self, *args, **kwargs):
         """Drop `doc` from RAM and only keep enough info to re-build"""
 
-        doc = await self._process_jurisdiction_with_logging(county, **kwargs)
+        doc = await self._process_jurisdiction_with_logging(*args, **kwargs)
 
         if doc is None or isinstance(doc, Exception):
             return None
@@ -537,7 +537,9 @@ class _COMPASSRunner:
         logger.debug("Saving the following doc info:\n%s", str(doc_info))
         return doc_info
 
-    async def _process_jurisdiction_with_logging(self, county, **kwargs):
+    async def _process_jurisdiction_with_logging(
+        self, county, usage_tracker=None, **kwargs
+    ):
         """Retrieve ordinance document with async logs"""
         text_splitter = RecursiveCharacterTextSplitter(
             RTS_SEPARATORS,
@@ -562,6 +564,7 @@ class _COMPASSRunner:
                     self.web_search_params,
                     self.file_loader_kwargs,
                     self.browser_semaphore,
+                    usage_tracker=usage_tracker,
                 ).run(**kwargs),
                 name=county.full_name,
             )
@@ -588,6 +591,7 @@ class _SingleJurisdictionRunner:
         web_search_params,
         file_loader_kwargs,
         browser_semaphore,
+        usage_tracker=None,
     ):
         self.tech_specs = _compile_tech_specs(tech)
         self.jurisdiction = jurisdiction
@@ -595,6 +599,7 @@ class _SingleJurisdictionRunner:
         self.web_search_params = web_search_params
         self.file_loader_kwargs = file_loader_kwargs
         self.browser_semaphore = browser_semaphore
+        self.usage_tracker = usage_tracker
         self._jsp = None
 
     @contextmanager
@@ -610,7 +615,7 @@ class _SingleJurisdictionRunner:
         """Download and parse document for a single jurisdiction"""
         start_time = time.monotonic()
         doc = await self._run(**kwargs)
-        await _record_usage(**kwargs)
+        await self._record_usage()
         await _record_jurisdiction_info(self.jurisdiction, doc, start_time)
         return doc
 
@@ -642,6 +647,7 @@ class _SingleJurisdictionRunner:
             num_urls=self.web_search_params.num_urls_to_check_per_county,
             file_loader_kwargs=self.file_loader_kwargs,
             browser_semaphore=self.browser_semaphore,
+            usage_tracker=self.usage_tracker,
             **kwargs,
         )
         if docs is None:
@@ -651,7 +657,7 @@ class _SingleJurisdictionRunner:
             doc.attrs["location"] = self.jurisdiction
             doc.attrs["location_name"] = self.jurisdiction.full_name
 
-        await _record_usage(**kwargs)
+        await self._record_usage()
         return docs
 
     async def _parse_docs_for_ordinances(self, docs, **kwargs):
@@ -732,16 +738,26 @@ class _SingleJurisdictionRunner:
             text_splitter,
             extractor_class=extractor_class,
             original_text_key=original_text_key,
+            usage_tracker=self.usage_tracker,
             **kwargs,
         )
+        await self._record_usage()
         self._jsp.remove_task(task_id)
-        return await _extract_ordinances_from_text(
+        out = await _extract_ordinances_from_text(
             doc,
             parser_class=parser_class,
             text_key=cleaned_text_key,
             out_key=out_key,
+            usage_tracker=self.usage_tracker,
             **kwargs,
         )
+        await self._record_usage()
+        return out
+
+    async def _record_usage(self):
+        """Dump usage to file if tracker given"""
+        if self.usage_tracker is not None:
+            await UsageUpdater.call(self.usage_tracker)
 
 
 def _compile_tech_specs(tech):
@@ -819,24 +835,27 @@ def _configure_file_loader_kwargs(file_loader_kwargs):
 
 
 async def _extract_ordinance_text(
-    doc, text_splitter, extractor_class, original_text_key, **kwargs
+    doc,
+    text_splitter,
+    extractor_class,
+    original_text_key,
+    usage_tracker,
+    **kwargs,
 ):
     """Extract text pertaining to ordinance of interest"""
-    llm_caller = LLMCaller(**kwargs)
+    llm_caller = LLMCaller(usage_tracker=usage_tracker, **kwargs)
     extractor = extractor_class(llm_caller)
     doc = await extract_ordinance_text_with_ngram_validation(
         doc, text_splitter, extractor, original_text_key=original_text_key
     )
-    await _record_usage(**kwargs)
-
     return await _write_cleaned_text(doc)
 
 
 async def _extract_ordinances_from_text(
-    doc, parser_class, text_key, out_key, **kwargs
+    doc, parser_class, text_key, out_key, usage_tracker, **kwargs
 ):
     """Extract values from ordinance text"""
-    parser = parser_class(**kwargs)
+    parser = parser_class(usage_tracker=usage_tracker, **kwargs)
     return await extract_ordinance_values(
         doc, parser, text_key=text_key, out_key=out_key
     )
@@ -879,13 +898,6 @@ async def _write_ord_db(doc):
     out_fp = await OrdDBFileWriter.call(doc)
     doc.attrs["ord_db_fp"] = out_fp
     return doc
-
-
-async def _record_usage(**kwargs):
-    """Dump usage to file if tracker found in kwargs"""
-    usage_tracker = kwargs.get("usage_tracker")
-    if usage_tracker:
-        await UsageUpdater.call(usage_tracker)
 
 
 async def _record_jurisdiction_info(county, doc, start_time):
