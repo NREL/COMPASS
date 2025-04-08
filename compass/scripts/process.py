@@ -205,7 +205,7 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         By default, ``None``, which runs the extraction for all known
         jurisdictions (this is untested and not currently recommended).
     model : str, optional
-        Name of LLM model to perform scraping. By default, ``"gpt-4"``.
+        Name of LLM model to perform scraping. By default, ``"gpt-4o"``.
     azure_api_key : str, optional
         Azure OpenAI API key. By default, ``None``, which pulls the key
         from the environment variable ``AZURE_OPENAI_API_KEY`` instead.
@@ -277,18 +277,18 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
     clean_dir : path-like, optional
         Path to directory for cleaned ordinance text output. This
         directory will be created if it does not exist. By default,
-        ``None``, which creates a ``clean`` folder in the output
+        ``None``, which creates a ``cleaned_text`` folder in the output
         directory for the cleaned ordinance text files.
     ordinance_file_dir : path-like, optional
         Path to directory for individual county ordinance file outputs.
         This directory will be created if it does not exist.
-        By default, ``None``, which creates a ``county_ord_files``
+        By default, ``None``, which creates a ``ordinance_files``
         folder in the output directory.
     county_dbs_dir : path-like, optional
         Path to directory for individual county ordinance database
         outputs. This directory will be created if it does not exist.
-        By default, ``None``, which creates a ``county_dbs`` folder in
-        the output directory.
+        By default, ``None``, which creates a ``jurisdiction_dbs``
+        folder in the output directory.
     log_level : str, optional
         Log level to set for county retrieval and parsing loggers.
         By default, ``"INFO"``.
