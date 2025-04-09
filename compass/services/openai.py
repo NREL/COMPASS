@@ -214,8 +214,6 @@ class OpenAIService(LLMService):
     @async_retry_with_exponential_backoff()
     async def _call_gpt(self, **kwargs):
         """Query Chat GPT with user inputs"""
-        if self.model_name == "wetosa-gpt-4o":
-            logger.INFO("CALLING GPT-4o!!! Kwargs:\n%s", str(kwargs))
         try:
             return await self.client.chat.completions.create(**kwargs)
         except openai.BadRequestError:
