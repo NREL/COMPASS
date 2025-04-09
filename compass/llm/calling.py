@@ -1,15 +1,16 @@
 """Ordinances LLM Calling classes"""
 
+import os
 import logging
 from functools import partial, cached_property
 
 import openai
 from elm import ApiBase
-from elm.utilities import validate_azure_api_params
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 from compass.services.openai import OpenAIService
 from compass.utilities import llm_response_as_json, RTS_SEPARATORS
+from compass.exceptions import COMPASSValueError
 
 
 logger = logging.getLogger(__name__)
@@ -199,6 +200,11 @@ class StructuredLLMCaller(BaseLLMCaller):
 class LLMCallerArgs:
     """Arguments to set up an LLM Caller instance initializer"""
 
+    SUPPORTED_CLIENTS = {
+        "openai": openai.AsyncOpenAI,
+        "azure": openai.AsyncAzureOpenAI,
+    }
+
     def __init__(
         self,
         model="gpt-4o",
@@ -206,6 +212,7 @@ class LLMCallerArgs:
         llm_service_rate_limit=4000,
         text_splitter_chunk_size=10_000,
         text_splitter_chunk_overlap=1000,
+        client_type="azure",
         client_kwargs=None,
     ):
         """
@@ -252,7 +259,34 @@ class LLMCallerArgs:
         self.llm_service_rate_limit = llm_service_rate_limit
         self.text_splitter_chunk_size = text_splitter_chunk_size
         self.text_splitter_chunk_overlap = text_splitter_chunk_overlap
-        self.client_kwargs = client_kwargs or {}
+        self.client_type = client_type.casefold()
+        self._client_kwargs = client_kwargs or {}
+
+        self._validate_client_type()
+
+    def _validate_client_type(self):
+        """Validate that user input a known client type"""
+        if self.client_type not in self.SUPPORTED_CLIENTS:
+            msg = (
+                f"Unknown client type: {self.client_type!r}. Supported "
+                f"clients: {list(self.SUPPORTED_CLIENTS)}"
+            )
+            raise COMPASSValueError(msg)
+
+    @cached_property
+    def client_kwargs(self):
+        """dict: Parameters to pass to client initializer"""
+        if self.client_type == "azure":
+            arg_env_pairs = [
+                ("api_key", "AZURE_OPENAI_API_KEY"),
+                ("api_version", "AZURE_OPENAI_VERSION"),
+                ("azure_endpoint", "AZURE_OPENAI_ENDPOINT"),
+            ]
+            for key, env_var in arg_env_pairs:
+                if self._client_kwargs.get(key) is None:
+                    self._client_kwargs[key] = os.environ.get(env_var)
+
+        return self._client_kwargs
 
     @cached_property
     def text_splitter(self):
@@ -268,16 +302,7 @@ class LLMCallerArgs:
     @cached_property
     def llm_service(self):
         """LLMService: Object that can be used to submit calls to LLM"""
-        api_key, api_version, azure_endpoint = validate_azure_api_params(
-            self.client_kwargs.get("api_key"),
-            self.client_kwargs.get("api_version"),
-            self.client_kwargs.get("azure_endpoint"),
-        )
-        client = openai.AsyncAzureOpenAI(
-            api_key=api_key,
-            api_version=api_version,
-            azure_endpoint=azure_endpoint,
-        )
+        client = self.SUPPORTED_CLIENTS[self.client_type](**self.client_kwargs)
         return OpenAIService(
             client, self.model, rate_limit=self.llm_service_rate_limit
         )
