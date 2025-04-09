@@ -1036,3 +1036,34 @@ def _save_run_meta(
         json.dump(meta_data, fh, indent=4)
 
     return total_time_string
+
+
+async def _compute_total_cost():
+    """Compute total cost from tracked usage"""
+    total_usage = await UsageUpdater.call(None)
+    if not total_usage:
+        return 0
+
+    return _compute_total_cost_from_usage(total_usage)
+
+
+def _compute_total_cost_from_usage(tracked_usage):
+    """Compute total cost from total tracked usage"""
+
+    total_cost = 0
+    for usage in tracked_usage.values():
+        totals = usage.get("tracker_totals", {})
+        for model, total_usage in totals.items():
+            model_costs = LLM_COST_REGISTRY.get(model, {})
+            total_cost += (
+                total_usage.get("prompt_tokens", 0)
+                / 1e6
+                * model_costs.get("prompt", 0)
+            )
+            total_cost += (
+                total_usage.get("response_tokens", 0)
+                / 1e6
+                * model_costs.get("response", 0)
+            )
+
+    return total_cost
