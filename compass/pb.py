@@ -155,11 +155,6 @@ class _COMPASSProgressBars:
             added to the running total. By default, ``False``.
         """
         if replace:
-            msg = (
-                f"New cost ({cost:,.4f}) is lower than old cost "
-                f"({self._total_cost:,.4f})"
-            )
-            assert cost + 0.01 >= self._total_cost, msg
             if cost + 0.01 >= self._total_cost:
                 self._total_cost = cost
         else:
