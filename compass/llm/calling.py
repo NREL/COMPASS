@@ -249,6 +249,10 @@ class LLMCallerArgs:
             is performed on each individual chunk. Units are in token
             count of the model in charge of parsing ordinance text.
             By default, ``1000``.
+        client_type : str, default="azure"
+            Type of client to set up for this calling instance. Must be
+            one of :obj:`LLMCallerArgs.SUPPORTED_CLIENTS`.
+            By default, ``"azure"``.
         client_kwargs : dict, optional
             Keyword-value pairs to pass to underlying LLM client. These
             typically include things like API keys and endpoints.
