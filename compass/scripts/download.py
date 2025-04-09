@@ -85,7 +85,10 @@ async def download_county_ordinance(
         description="Checking files for correct jurisdiction...",
     )
     docs = await _down_select_docs_correct_location(
-        docs, location=location, **kwargs
+        docs,
+        location=location,
+        usage_tracker=usage_tracker,
+        llm_call_kwargs=llm_parser_args.llm_call_kwargs,
     )
     logger.info(
         "%d document(s) remaining after location filter for %s\n\t- %s",
@@ -146,9 +149,13 @@ async def _docs_from_web_search(
     )
 
 
-async def _down_select_docs_correct_location(docs, location, **kwargs):
+async def _down_select_docs_correct_location(
+    docs, location, usage_tracker, llm_call_kwargs
+):
     """Remove all documents not pertaining to the location"""
-    llm_caller = StructuredLLMCaller(**kwargs)
+    llm_caller = StructuredLLMCaller(
+        usage_tracker=usage_tracker, **(llm_call_kwargs or {})
+    )
     county_validator = CountyValidator(llm_caller)
     return await filter_documents(
         docs,
