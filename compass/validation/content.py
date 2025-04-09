@@ -355,7 +355,7 @@ async def parse_by_chunks(
             continue
 
         logger.debug("Processing text at ind %d", ind)
-        logger.trace("Text:\n%s", text)
+        logger.debug("Text:\n%s", text)
 
         if not callbacks:
             continue
