@@ -82,7 +82,7 @@ def process(config, verbose, no_progress):
         refresh_per_second=20,
         transient=True,
     ):
-        total_cost, runtime = loop.run_until_complete(
+        runtime, total_cost = loop.run_until_complete(
             process_counties_with_openai(**config)
         )
 
