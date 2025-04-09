@@ -6,7 +6,7 @@ import logging
 import networkx as nx
 from elm import ApiBase
 
-from compass.llm import LLMTasks
+from compass.llm import LLMUsageCategory
 from compass.extraction.tree import AsyncDecisionTree
 from compass.utilities import llm_response_as_json
 from compass.utilities.parsing import (
@@ -452,7 +452,7 @@ class BaseTextExtractor:
         "or provide additional commentary. Only return the original text "
         "excerpts as they appear in the source."
     )
-    _USAGE_LABEL = LLMTasks.DOCUMENT_ORDINANCE_SUMMARY
+    _USAGE_LABEL = LLMUsageCategory.DOCUMENT_ORDINANCE_SUMMARY
 
     def __init__(self, llm_caller):
         """

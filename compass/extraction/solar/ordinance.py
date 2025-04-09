@@ -7,7 +7,7 @@ particular technology (e.g. Solar Energy Conversion System).
 import logging
 
 from compass.extraction.common import BaseTextExtractor
-from compass.llm import LLMTasks
+from compass.llm import LLMUsageCategory
 from compass.validation.content import Heuristic
 from compass.utilities.parsing import merge_overlapping_texts
 
@@ -190,7 +190,9 @@ class SolarPermittedUseDistrictsTextCollector:
         content = await chunk_parser.slc.call(
             sys_msg=self.DISTRICT_PROMPT.format(key=key),
             content=chunk_parser.text_chunks[ind],
-            usage_sub_label=LLMTasks.DOCUMENT_PERMITTED_USE_CONTENT_VALIDATION,
+            usage_sub_label=(
+                LLMUsageCategory.DOCUMENT_PERMITTED_USE_CONTENT_VALIDATION
+            ),
         )
         logger.debug("LLM response: %s", str(content))  # TODO: trace
         contains_district_info = content.get(key, False)
@@ -325,7 +327,7 @@ class SolarPermittedUseDistrictsTextExtractor(BaseTextExtractor):
         LLM queries.
     """
 
-    _USAGE_LABEL = LLMTasks.DOCUMENT_PERMITTED_USE_DISTRICTS_SUMMARY
+    _USAGE_LABEL = LLMUsageCategory.DOCUMENT_PERMITTED_USE_DISTRICTS_SUMMARY
 
     PERMITTED_USES_FILTER_PROMPT = (
         "# CONTEXT #\n"

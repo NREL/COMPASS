@@ -8,7 +8,7 @@ import asyncio
 import logging
 from abc import ABC, abstractmethod
 
-from compass.llm import LLMTasks
+from compass.llm import LLMUsageCategory
 from compass.extraction.ngrams import convert_text_to_sentence_ngrams
 
 
@@ -56,7 +56,7 @@ class LocationValidator(ABC):
         out = await self.slc.call(
             sys_msg,
             content,
-            usage_sub_label=LLMTasks.DOCUMENT_LOCATION_VALIDATION,
+            usage_sub_label=LLMUsageCategory.DOCUMENT_LOCATION_VALIDATION,
         )
         return self._parse_output(out)
 

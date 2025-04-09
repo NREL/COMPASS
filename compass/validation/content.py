@@ -8,7 +8,7 @@ import asyncio
 import logging
 from abc import ABC, abstractmethod
 
-from compass.llm import LLMTasks
+from compass.llm import LLMUsageCategory
 
 
 logger = logging.getLogger(__name__)
@@ -106,7 +106,9 @@ class ParseChunksWithMemory:
                 content = await self.slc.call(
                     sys_msg=prompt.format(key=key),
                     content=text,
-                    usage_sub_label=LLMTasks.DOCUMENT_CONTENT_VALIDATION,
+                    usage_sub_label=(
+                        LLMUsageCategory.DOCUMENT_CONTENT_VALIDATION
+                    ),
                 )
                 logger.debug("LLM response: %s", str(content))  # TODO: trace
                 check = mem[key] = content.get(key, False)

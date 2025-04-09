@@ -2,7 +2,7 @@
 
 import logging
 
-from compass.llm import LLMTasks
+from compass.llm import LLMUsageCategory
 
 
 logger = logging.getLogger(__name__)
@@ -86,7 +86,7 @@ class DateExtractor:
                     "Please extract the date from the URL for this "
                     f"ordinance, if possible:\n{url}"
                 ),
-                usage_sub_label=LLMTasks.DATE_EXTRACTION,
+                usage_sub_label=LLMUsageCategory.DATE_EXTRACTION,
             )
             if response:
                 date = _parse_date([response])
@@ -104,7 +104,7 @@ class DateExtractor:
             response = await self.slc.call(
                 sys_msg=self.SYSTEM_MESSAGE,
                 content=f"Please extract the date for this ordinance:\n{text}",
-                usage_sub_label=LLMTasks.DATE_EXTRACTION,
+                usage_sub_label=LLMUsageCategory.DATE_EXTRACTION,
             )
             if not response:
                 continue

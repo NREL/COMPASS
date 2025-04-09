@@ -9,7 +9,7 @@ from elm import ApiBase
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 from compass.services.openai import OpenAIService
-from compass.llm import LLMTasks
+from compass.llm import LLMUsageCategory
 from compass.utilities import llm_response_as_json, RTS_SEPARATORS
 from compass.exceptions import COMPASSValueError
 
@@ -69,7 +69,9 @@ class BaseLLMCaller:
 class LLMCaller(BaseLLMCaller):
     """Simple LLM caller, with no memory and no parsing utilities."""
 
-    async def call(self, sys_msg, content, usage_sub_label=LLMTasks.DEFAULT):
+    async def call(
+        self, sys_msg, content, usage_sub_label=LLMUsageCategory.DEFAULT
+    ):
         """Call LLM.
 
         Parameters
@@ -129,7 +131,7 @@ class ChatLLMCaller(BaseLLMCaller):
         super().__init__(llm_service, usage_tracker, **kwargs)
         self.messages = [{"role": "system", "content": system_message}]
 
-    async def call(self, content, usage_sub_label=LLMTasks.CHAT):
+    async def call(self, content, usage_sub_label=LLMUsageCategory.CHAT):
         """Chat with the LLM.
 
         Parameters
@@ -164,7 +166,9 @@ class ChatLLMCaller(BaseLLMCaller):
 class StructuredLLMCaller(BaseLLMCaller):
     """Class to support structured (JSON) LLM calling functionality."""
 
-    async def call(self, sys_msg, content, usage_sub_label=LLMTasks.DEFAULT):
+    async def call(
+        self, sys_msg, content, usage_sub_label=LLMUsageCategory.DEFAULT
+    ):
         """Call LLM for structured data retrieval.
 
         Parameters
@@ -210,9 +214,9 @@ class LLMCallerArgs:
         self,
         model="gpt-4o",
         llm_call_kwargs=None,
-        llm_service_rate_limit=4000,
-        text_splitter_chunk_size=10_000,
-        text_splitter_chunk_overlap=1000,
+        llm_service_rate_limit=500000,
+        text_splitter_chunk_size=10000,
+        text_splitter_chunk_overlap=500,
         client_type="azure",
         client_kwargs=None,
     ):
