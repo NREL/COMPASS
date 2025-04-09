@@ -83,7 +83,7 @@ async def download_county_ordinance(
         docs,
         location=location,
         usage_tracker=usage_tracker,
-        llm_call_kwargs=llm_parser_args.llm_call_kwargs,
+        llm_parser_args=llm_parser_args,
     )
     logger.info(
         "%d document(s) remaining after location filter for %s\n\t- %s",
@@ -145,11 +145,13 @@ async def _docs_from_web_search(
 
 
 async def _down_select_docs_correct_location(
-    docs, location, usage_tracker, llm_call_kwargs
+    docs, location, usage_tracker, llm_parser_args
 ):
     """Remove all documents not pertaining to the location"""
     llm_caller = StructuredLLMCaller(
-        usage_tracker=usage_tracker, **(llm_call_kwargs or {})
+        llm_service=llm_parser_args.llm_service,
+        usage_tracker=usage_tracker,
+        **llm_parser_args.llm_call_kwargs,
     )
     county_validator = CountyValidator(llm_caller)
     return await filter_documents(
@@ -162,7 +164,7 @@ async def _down_select_docs_correct_location(
 
 
 async def _down_select_docs_correct_content(
-    docs, location, usage_tracker, llm_call_kwargs
+    docs, location, usage_tracker, llm_parser_args
 ):
     """Remove all documents that don't contain ordinance info"""
     return await filter_documents(
@@ -170,7 +172,7 @@ async def _down_select_docs_correct_content(
         validation_coroutine=_contains_ordinances,
         task_name=location.full_name,
         usage_tracker=usage_tracker,
-        llm_call_kwargs=llm_call_kwargs,
+        llm_parser_args=llm_parser_args,
     )
 
 
