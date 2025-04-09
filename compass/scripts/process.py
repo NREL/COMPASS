@@ -6,17 +6,13 @@ import asyncio
 import logging
 import getpass
 from pathlib import Path
-from functools import partial, cached_property
+from functools import cached_property
 from collections import namedtuple
 from contextlib import AsyncExitStack, contextmanager
 from datetime import datetime, timedelta, UTC
 
-import openai
 import pandas as pd
-from elm import ApiBase
 from elm.version import __version__ as elm_version
-from elm.utilities import validate_azure_api_params
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 from compass import __version__ as compass_version
 from compass.scripts.download import download_county_ordinance
@@ -45,10 +41,10 @@ from compass.extraction.wind import (
     StructuredWindPermittedUseDistrictsParser,
     WIND_QUESTION_TEMPLATES,
 )
-from compass.llm import LLMCaller
+from compass.llm import LLMCaller, LLMCallerArgs
 from compass.services.cpu import PDFLoader, read_pdf_doc, read_pdf_doc_ocr
 from compass.services.usage import UsageTracker
-from compass.services.openai import OpenAIService, usage_from_response
+from compass.services.openai import usage_from_response
 from compass.services.provider import RunningAsyncServices
 from compass.services.threaded import (
     TempFileCache,
@@ -59,7 +55,6 @@ from compass.services.threaded import (
     JurisdictionUpdater,
 )
 from compass.utilities import (
-    RTS_SEPARATORS,
     load_all_county_info,
     load_counties_from_fp,
     extract_ord_year_from_doc_attrs,
@@ -108,17 +103,6 @@ AzureParams = namedtuple(
     "AzureParams",
     ["azure_api_key", "azure_version", "azure_endpoint"],
     defaults=[None, None, None],
-)
-LLMParseArgs = namedtuple(
-    "LLMParseArgs",
-    [
-        "model",
-        "llm_call_kwargs",
-        "llm_service_rate_limit",
-        "text_splitter_chunk_size",
-        "text_splitter_chunk_overlap",
-    ],
-    defaults=["gpt-4", None, 4000, 10_000, 1000],
 )
 WebSearchParams = namedtuple(
     "WebSearchParams",
@@ -295,9 +279,9 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
 
     Returns
     -------
-    pd.DataFrame
-        DataFrame of parsed ordinance information. This file will also
-        be stored in the output directory under "wind_db.csv".
+    float
+        Total cost for the run. If usage is not tracked or model costs
+        are not provided, this value is 0.
     """
     log_listener = LogListener(["compass", "elm"], level=log_level)
     dirs = _setup_folders(
@@ -306,11 +290,6 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         clean_dir=clean_dir,
         ofd=ordinance_file_dir,
         cdd=county_dbs_dir,
-    )
-    ap = AzureParams(
-        *validate_azure_api_params(
-            azure_api_key, azure_version, azure_endpoint
-        )
     )
     pk = ProcessKwargs(
         file_loader_kwargs,
@@ -324,20 +303,24 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         max_num_concurrent_browsers,
         pytesseract_exe_fp,
     )
-    lpa = LLMParseArgs(
+    lca = LLMCallerArgs(
         model,
         llm_call_kwargs,
         llm_service_rate_limit,
         text_splitter_chunk_size,
         text_splitter_chunk_overlap,
+        client_kwargs={
+            "api_key": azure_api_key,
+            "api_version": azure_version,
+            "azure_endpoint": azure_endpoint,
+        },
     )
 
     runner = _COMPASSRunner(
         dirs=dirs,
         log_listener=log_listener,
         tech=tech,
-        azure_params=ap,
-        llm_parse_args=lpa,
+        llm_caller_args=lca,
         web_search_params=wsp,
         process_kwargs=pk,
         log_level=log_level,
@@ -354,18 +337,18 @@ class _COMPASSRunner:
         self,
         dirs,
         log_listener,
-        azure_params,
         tech,
-        llm_parse_args=None,
+        llm_caller_args=None,
         web_search_params=None,
         process_kwargs=None,
         log_level="INFO",
     ):
         self.dirs = dirs
         self.log_listener = log_listener
-        self.azure_params = azure_params
         self.tech = tech
-        self.llm_parse_args = llm_parse_args or LLMParseArgs()
+        self.llm_caller_args = (
+            LLMCallerArgs() if llm_caller_args is None else llm_caller_args
+        )
         self.web_search_params = web_search_params or WebSearchParams()
         self.process_kwargs = process_kwargs or ProcessKwargs()
         self.log_level = log_level
@@ -474,24 +457,14 @@ class _COMPASSRunner:
             start_date,
             num_jurisdictions_searched=num_jurisdictions,
             num_jurisdictions_found=num_docs_found,
-            llm_parse_args=self.llm_parse_args,
+            llm_caller_args=self.llm_caller_args,
         )
         return db
 
     async def _run_all(self, jurisdictions):
         """Process all counties with running services"""
-        client = openai.AsyncAzureOpenAI(
-            api_key=self.azure_params.azure_api_key,
-            api_version=self.azure_params.azure_version,
-            azure_endpoint=self.azure_params.azure_endpoint,
-        )
 
-        llm_service = OpenAIService(
-            client,
-            self.llm_parse_args.model,
-            rate_limit=self.llm_parse_args.llm_service_rate_limit,
-        )
-        services = [llm_service, *self._base_services]
+        services = [self.llm_caller_args.llm_service, *self._base_services]
         async with RunningAsyncServices(services):
             tasks = []
             for __, row in jurisdictions.iterrows():
@@ -504,10 +477,7 @@ class _COMPASSRunner:
                 )
                 task = asyncio.create_task(
                     self._processed_jurisdiction_info_with_pb(
-                        location,
-                        llm_service=llm_service,
-                        usage_tracker=usage_tracker,
-                        **(self.llm_parse_args.llm_call_kwargs or {}),
+                        location, usage_tracker=usage_tracker
                     ),
                     name=location.full_name,
                 )
@@ -538,18 +508,9 @@ class _COMPASSRunner:
         return doc_info
 
     async def _process_jurisdiction_with_logging(
-        self, county, usage_tracker=None, **kwargs
+        self, county, usage_tracker=None
     ):
         """Retrieve ordinance document with async logs"""
-        text_splitter = RecursiveCharacterTextSplitter(
-            RTS_SEPARATORS,
-            chunk_size=self.llm_parse_args.text_splitter_chunk_size,
-            chunk_overlap=self.llm_parse_args.text_splitter_chunk_overlap,
-            length_function=partial(
-                ApiBase.count_tokens, model=self.llm_parse_args.model
-            ),
-            is_separator_regex=True,
-        )
         with LocationFileLog(
             self.log_listener,
             self.dirs.logs,
@@ -560,12 +521,12 @@ class _COMPASSRunner:
                 _SingleJurisdictionRunner(
                     self.tech,
                     county,
-                    text_splitter,
+                    self.llm_caller_args,
                     self.web_search_params,
                     self.file_loader_kwargs,
                     self.browser_semaphore,
                     usage_tracker=usage_tracker,
-                ).run(**kwargs),
+                ).run(),
                 name=county.full_name,
             )
             try:
@@ -587,7 +548,7 @@ class _SingleJurisdictionRunner:
         self,
         tech,
         jurisdiction,
-        text_splitter,
+        llm_caller_args,
         web_search_params,
         file_loader_kwargs,
         browser_semaphore,
@@ -595,7 +556,7 @@ class _SingleJurisdictionRunner:
     ):
         self.tech_specs = _compile_tech_specs(tech)
         self.jurisdiction = jurisdiction
-        self.text_splitter = text_splitter
+        self.llm_parser_args = llm_caller_args
         self.web_search_params = web_search_params
         self.file_loader_kwargs = file_loader_kwargs
         self.browser_semaphore = browser_semaphore
@@ -611,17 +572,17 @@ class _SingleJurisdictionRunner:
 
         self._jsp = None
 
-    async def run(self, **kwargs):
+    async def run(self):
         """Download and parse document for a single jurisdiction"""
         start_time = time.monotonic()
-        doc = await self._run(**kwargs)
+        doc = await self._run()
         await self._record_usage()
         await _record_jurisdiction_info(self.jurisdiction, doc, start_time)
         return doc
 
-    async def _run(self, **kwargs):
+    async def _run(self):
         """Search for docs and parse them for ordinances"""
-        docs = await self._find_documents_with_location_attr(**kwargs)
+        docs = await self._find_documents_with_location_attr()
         if docs is None:
             return None
 
@@ -629,14 +590,14 @@ class _SingleJurisdictionRunner:
             self.jurisdiction.full_name,
             description="Extracting structured data...",
         )
-        return await self._parse_docs_for_ordinances(docs, **kwargs)
+        return await self._parse_docs_for_ordinances(docs)
 
-    async def _find_documents_with_location_attr(self, **kwargs):
+    async def _find_documents_with_location_attr(self):
         """Search the web for an ordinance document and construct it"""
         docs = await download_county_ordinance(
             self.tech_specs.questions,
             self.jurisdiction,
-            self.text_splitter,
+            self.llm_caller_args,
             heuristic=self.tech_specs.heuristic,
             ordinance_text_collector_class=(
                 self.tech_specs.ordinance_text_collector
@@ -648,7 +609,6 @@ class _SingleJurisdictionRunner:
             file_loader_kwargs=self.file_loader_kwargs,
             browser_semaphore=self.browser_semaphore,
             usage_tracker=self.usage_tracker,
-            **kwargs,
         )
         if docs is None:
             return None
@@ -660,12 +620,10 @@ class _SingleJurisdictionRunner:
         await self._record_usage()
         return docs
 
-    async def _parse_docs_for_ordinances(self, docs, **kwargs):
+    async def _parse_docs_for_ordinances(self, docs):
         """Parse docs (in order) for ordinances"""
         for possible_ord_doc in docs:
-            doc = await self._try_extract_all_ordinances(
-                possible_ord_doc, **kwargs
-            )
+            doc = await self._try_extract_all_ordinances(possible_ord_doc)
             if num_ordinances_in_doc(doc) > 0:
                 logger.debug(
                     "Found ordinances in doc from %s",
@@ -675,7 +633,7 @@ class _SingleJurisdictionRunner:
 
         return None
 
-    async def _try_extract_all_ordinances(self, possible_ord_doc, **kwargs):
+    async def _try_extract_all_ordinances(self, possible_ord_doc):
         """Try to extract ordinance values and permitted districts"""
         with self._tracked_progress():
             extraction_info = [
@@ -703,7 +661,6 @@ class _SingleJurisdictionRunner:
                         cleaned_text_key=c_key,
                         parser_class=parser,
                         out_key=out_key,
-                        **kwargs,
                     ),
                     name=self.jurisdiction.full_name,
                 )
@@ -722,7 +679,6 @@ class _SingleJurisdictionRunner:
         cleaned_text_key,
         parser_class,
         out_key,
-        **kwargs,
     ):
         """Try applying a single extractor to the relevant legal text"""
         logger.debug(
@@ -733,11 +689,10 @@ class _SingleJurisdictionRunner:
         task_id = self._jsp.add_task(_TEXT_EXTRACTION_TASKS[extractor_class])
         doc = await _extract_ordinance_text(
             possible_ord_doc,
-            self.text_splitter,
             extractor_class=extractor_class,
             original_text_key=original_text_key,
             usage_tracker=self.usage_tracker,
-            **kwargs,
+            llm_parser_args=self.llm_caller_args,
         )
         await self._record_usage()
         self._jsp.remove_task(task_id)
@@ -747,7 +702,7 @@ class _SingleJurisdictionRunner:
             text_key=cleaned_text_key,
             out_key=out_key,
             usage_tracker=self.usage_tracker,
-            **kwargs,
+            llm_parser_args=self.llm_caller_args,
         )
         await self._record_usage()
         return out
@@ -834,26 +789,36 @@ def _configure_file_loader_kwargs(file_loader_kwargs):
 
 async def _extract_ordinance_text(
     doc,
-    text_splitter,
     extractor_class,
     original_text_key,
     usage_tracker,
-    **kwargs,
+    llm_caller_args,
 ):
     """Extract text pertaining to ordinance of interest"""
-    llm_caller = LLMCaller(usage_tracker=usage_tracker, **kwargs)
+    llm_caller = LLMCaller(
+        llm_service=llm_caller_args.llm_service,
+        usage_tracker=usage_tracker,
+        **llm_caller_args.llm_call_kwargs,
+    )
     extractor = extractor_class(llm_caller)
     doc = await extract_ordinance_text_with_ngram_validation(
-        doc, text_splitter, extractor, original_text_key=original_text_key
+        doc,
+        llm_caller_args.text_splitter,
+        extractor,
+        original_text_key=original_text_key,
     )
     return await _write_cleaned_text(doc)
 
 
 async def _extract_ordinances_from_text(
-    doc, parser_class, text_key, out_key, usage_tracker, **kwargs
+    doc, parser_class, text_key, out_key, usage_tracker, llm_caller_args
 ):
     """Extract values from ordinance text"""
-    parser = parser_class(usage_tracker=usage_tracker, **kwargs)
+    parser = parser_class(
+        llm_service=llm_caller_args.llm_service,
+        usage_tracker=usage_tracker,
+        **llm_caller_args.llm_call_kwargs,
+    )
     return await extract_ordinance_values(
         doc, parser, text_key=text_key, out_key=out_key
     )
@@ -1016,7 +981,7 @@ def _save_run_meta(
     start_date,
     num_jurisdictions_searched,
     num_jurisdictions_found,
-    llm_parse_args,
+    llm_caller_args,
 ):
     """Write out meta information about ordinance collection run"""
     end_date = datetime.now(UTC).isoformat()
@@ -1033,12 +998,12 @@ def _save_run_meta(
         "versions": {"elm": elm_version, "compass": compass_version},
         "technology": tech,
         "llm_parse_args": {
-            "llm_call_kwargs": llm_parse_args.llm_call_kwargs,
+            "llm_call_kwargs": llm_caller_args.llm_call_kwargs,
             "text_splitter_chunk_size": (
-                llm_parse_args.text_splitter_chunk_size
+                llm_caller_args.text_splitter_chunk_size
             ),
             "text_splitter_chunk_overlap": (
-                llm_parse_args.text_splitter_chunk_overlap
+                llm_caller_args.text_splitter_chunk_overlap
             ),
         },
         "time_start_utc": start_date,
