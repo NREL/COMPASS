@@ -81,6 +81,7 @@ class _COMPASSProgressBars:
         )
         self._group = Group(self._main)
         self._main_task = None
+        self._total_cost = 0
         self._jd_pbs = {}
         self._jd_tasks = {}
 
