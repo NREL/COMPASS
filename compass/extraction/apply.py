@@ -107,7 +107,9 @@ async def check_for_ordinance_info(
     if any(
         [doc.attrs["contains_ord_info"], doc.attrs["contains_district_info"]]
     ):
-        doc.attrs["date"] = await DateExtractor(llm_caller).parse(doc)
+        doc.attrs["date"] = await DateExtractor(
+            llm_caller, llm_caller_args.text_splitter
+        ).parse(doc)
 
     return doc
 

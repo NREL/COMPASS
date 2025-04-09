@@ -153,7 +153,9 @@ async def _down_select_docs_correct_location(
         usage_tracker=usage_tracker,
         **llm_caller_args.llm_call_kwargs,
     )
-    county_validator = CountyValidator(llm_caller)
+    county_validator = CountyValidator(
+        llm_caller, text_splitter=llm_caller_args.text_splitter
+    )
     return await filter_documents(
         docs,
         validation_coroutine=county_validator.check,
