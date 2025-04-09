@@ -987,6 +987,7 @@ def _save_run_meta(
     end_date = datetime.now(UTC).isoformat()
     end_time = time.monotonic()
     seconds_elapsed = end_time - start_time
+    total_time_string = str(timedelta(seconds=seconds_elapsed))
 
     try:
         username = getpass.getuser()
@@ -1009,7 +1010,7 @@ def _save_run_meta(
         "time_start_utc": start_date,
         "time_end_utc": end_date,
         "total_time": seconds_elapsed,
-        "total_time_string": str(timedelta(seconds=seconds_elapsed)),
+        "total_time_string": total_time_string,
         "num_jurisdictions_searched": num_jurisdictions_searched,
         "num_jurisdictions_found": num_jurisdictions_found,
         "manifest": {},
@@ -1033,3 +1034,5 @@ def _save_run_meta(
     meta_data["manifest"]["META_FILE"] = "meta.json"
     with (dirs.out / "meta.json").open("w", encoding="utf-8") as fh:
         json.dump(meta_data, fh, indent=4)
+
+    return total_time_string
