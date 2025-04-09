@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 async def check_for_ordinance_info(
     doc,
-    llm_parser_args,
+    llm_caller_args,
     heuristic,
     ordinance_text_collector_class,
     permitted_use_text_collector_class,
@@ -42,17 +42,6 @@ async def check_for_ordinance_info(
     usage_tracker : compass.services.usage.UsageTracker, optional
         Optional tracker instance to monitor token usage during
         LLM calls. By default, ``None``.
-    llm_parser_args : dict, optional
-        Keyword arguments to be passed to the llm service ``call``
-        method (i.e. `llm_service.call(**kwargs)`).
-        Should *not* contain the following keys:
-
-            - usage_tracker
-            - usage_sub_label
-            - messages
-
-        These arguments are provided by this caller object. By default,
-        ``None``.
 
     Returns
     -------
@@ -72,11 +61,11 @@ async def check_for_ordinance_info(
         return doc
 
     llm_caller = StructuredLLMCaller(
-        llm_service=llm_parser_args.llm_service,
+        llm_service=llm_caller_args.llm_service,
         usage_tracker=usage_tracker,
-        **llm_parser_args.llm_call_kwargs,
+        **llm_caller_args.llm_call_kwargs,
     )
-    chunks = llm_parser_args.text_splitter.split_text(doc.text)
+    chunks = llm_caller_args.text_splitter.split_text(doc.text)
     chunk_parser = ParseChunksWithMemory(llm_caller, chunks, num_to_recall=2)
     legal_text_validator = LegalTextValidator()
     ordinance_text_collector = ordinance_text_collector_class()

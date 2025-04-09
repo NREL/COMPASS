@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 async def download_county_ordinance(
     question_templates,
     location,
-    llm_parser_args,
+    llm_caller_args,
     heuristic,
     ordinance_text_collector_class,
     permitted_use_text_collector_class,
@@ -38,7 +38,7 @@ async def download_county_ordinance(
     ----------
     location : :class:`compass.utilities.location.Location`
         Location objects representing the county.
-    llm_parser_args : obj, optional
+    llm_caller_args : obj, optional
         TBA
     num_urls : int, optional
         Number of unique Google search result URL's to check for
@@ -70,7 +70,7 @@ async def download_county_ordinance(
     docs = await _docs_from_web_search(
         question_templates,
         location,
-        llm_parser_args.text_splitter,
+        llm_caller_args.text_splitter,
         num_urls,
         browser_semaphore,
         **(file_loader_kwargs or {}),
@@ -83,7 +83,7 @@ async def download_county_ordinance(
         docs,
         location=location,
         usage_tracker=usage_tracker,
-        llm_parser_args=llm_parser_args,
+        llm_caller_args=llm_caller_args,
     )
     logger.info(
         "%d document(s) remaining after location filter for %s\n\t- %s",
@@ -99,7 +99,7 @@ async def download_county_ordinance(
     docs = await _down_select_docs_correct_content(
         docs,
         location=location,
-        llm_parser_args=llm_parser_args,
+        llm_caller_args=llm_caller_args,
         heuristic=heuristic,
         ordinance_text_collector_class=ordinance_text_collector_class,
         permitted_use_text_collector_class=permitted_use_text_collector_class,
@@ -145,13 +145,13 @@ async def _docs_from_web_search(
 
 
 async def _down_select_docs_correct_location(
-    docs, location, usage_tracker, llm_parser_args
+    docs, location, usage_tracker, llm_caller_args
 ):
     """Remove all documents not pertaining to the location"""
     llm_caller = StructuredLLMCaller(
-        llm_service=llm_parser_args.llm_service,
+        llm_service=llm_caller_args.llm_service,
         usage_tracker=usage_tracker,
-        **llm_parser_args.llm_call_kwargs,
+        **llm_caller_args.llm_call_kwargs,
     )
     county_validator = CountyValidator(llm_caller)
     return await filter_documents(
@@ -166,7 +166,7 @@ async def _down_select_docs_correct_location(
 async def _down_select_docs_correct_content(
     docs,
     location,
-    llm_parser_args,
+    llm_caller_args,
     heuristic,
     ordinance_text_collector_class,
     permitted_use_text_collector_class,
@@ -177,7 +177,7 @@ async def _down_select_docs_correct_content(
         docs,
         validation_coroutine=_contains_ordinances,
         task_name=location.full_name,
-        llm_parser_args=llm_parser_args,
+        llm_caller_args=llm_caller_args,
         heuristic=heuristic,
         ordinance_text_collector_class=ordinance_text_collector_class,
         permitted_use_text_collector_class=permitted_use_text_collector_class,
