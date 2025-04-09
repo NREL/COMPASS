@@ -71,6 +71,7 @@ class DateExtractor:
         return await self._parse(doc)
 
     async def _parse(self, doc):
+        """Extract date (year, month, day) from doc"""
         url = doc.attrs.get("source")
         can_check_url_for_date = url and not any(
             sub_str in url for sub_str in _BANNED_DATE_DOMAINS
