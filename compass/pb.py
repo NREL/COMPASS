@@ -152,20 +152,7 @@ class _COMPASSProgressBars:
             If ``True``, the `cost` input will completely replace the
             total cost. Otherwise, the `cost` input is just added to
             the total. By default, ``False``.
-
-        Raises
-        ------
-        COMPASSNotInitializedError
-            If the main task has not been set up (i.e.
-            `create_main_task` has not been called).
         """
-        if self._main_task is None:
-            msg = (
-                "Main task has not been created! Call the "
-                "`create_main_task` method first"
-            )
-            raise COMPASSNotInitializedError(msg)
-
         if replace:
             msg = (
                 f"New cost ({cost:,.4f}) is lower than old cost "
@@ -176,7 +163,8 @@ class _COMPASSProgressBars:
         else:
             self._total_cost += cost
 
-        self._main.update(self._main_task, total_cost=self._total_cost)
+        if self._main_task is not None:
+            self._main.update(self._main_task, total_cost=self._total_cost)
 
     @contextmanager
     def jurisdiction_prog_bar(self, location, progress_main=True):
