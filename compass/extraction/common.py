@@ -6,9 +6,9 @@ import logging
 import networkx as nx
 from elm import ApiBase
 
-from compass.llm import LLMUsageCategory
 from compass.extraction.tree import AsyncDecisionTree
 from compass.utilities import llm_response_as_json
+from compass.utilities.enums import LLMUsageCategory
 from compass.utilities.parsing import (
     merge_overlapping_texts,
     clean_backticks_from_llm_response,

@@ -10,6 +10,7 @@ from compass.validation import (
     LegalTextValidator,
     parse_by_chunks,
 )
+from compass.utilities.enums import LLMTasks
 from compass.warn import COMPASSWarning
 
 

@@ -6,10 +6,10 @@ import openai
 from elm.base import ApiBase
 from elm.utilities.retry import async_retry_with_exponential_backoff
 
-from compass.llm import LLMUsageCategory
 from compass.services.base import LLMService
 from compass.services.usage import TimeBoundedUsageTracker
 from compass.utilities import LLM_COST_REGISTRY
+from compass.utilities.enums import LLMUsageCategory
 from compass.pb import COMPASS_PB
 
 

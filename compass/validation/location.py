@@ -8,8 +8,8 @@ import asyncio
 import logging
 from abc import ABC, abstractmethod
 
-from compass.llm import LLMUsageCategory
 from compass.extraction.ngrams import convert_text_to_sentence_ngrams
+from compass.utilities.enums import LLMUsageCategory
 
 
 logger = logging.getLogger(__name__)

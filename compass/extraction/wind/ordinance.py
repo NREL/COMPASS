@@ -7,8 +7,8 @@ particular technology (e.g. Large Wind Energy Conversion Systems).
 import logging
 
 from compass.extraction.common import BaseTextExtractor
-from compass.llm import LLMUsageCategory
 from compass.validation.content import Heuristic
+from compass.utilities.enums import LLMUsageCategory
 from compass.utilities.parsing import merge_overlapping_texts
 
 

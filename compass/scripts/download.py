@@ -14,6 +14,7 @@ from compass.validation.location import (
     CountyNameValidator,
     CountyValidator,
 )
+from compass.utilities.enums import LLMTasks
 from compass.pb import COMPASS_PB
 
 

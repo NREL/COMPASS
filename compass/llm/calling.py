@@ -9,8 +9,8 @@ from elm import ApiBase
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 from compass.services.openai import OpenAIService
-from compass.llm import LLMUsageCategory
 from compass.utilities import llm_response_as_json, RTS_SEPARATORS
+from compass.utilities.enums import LLMUsageCategory
 from compass.exceptions import COMPASSValueError
 
 

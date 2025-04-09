@@ -5,7 +5,7 @@ import logging
 
 from elm.tree import DecisionTree
 
-from compass.llm import LLMUsageCategory
+from compass.utilities.enums import LLMUsageCategory
 
 
 logger = logging.getLogger(__name__)

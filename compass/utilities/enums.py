@@ -1,0 +1,32 @@
+"""COMPASS enum definitions"""
+
+from enum import StrEnum, auto
+
+
+class LLMUsageCategory(StrEnum):
+    """COMPASS LLM usage categories"""
+
+    CHAT = auto()
+    DATE_EXTRACTION = auto()
+    DECISION_TREE = auto()
+    DEFAULT = auto()
+    DOCUMENT_CONTENT_VALIDATION = auto()
+    DOCUMENT_ORDINANCE_SUMMARY = auto()
+    DOCUMENT_PERMITTED_USE_CONTENT_VALIDATION = auto()
+    DOCUMENT_PERMITTED_USE_DISTRICTS_SUMMARY = auto()
+    DOCUMENT_LOCATION_VALIDATION = auto()
+
+
+class LLMTasks(StrEnum):
+    """LLM-based COMPASS tasks"""
+
+    DATE_EXTRACTION = LLMUsageCategory.DATE_EXTRACTION
+    DEFAULT = LLMUsageCategory.DEFAULT
+    DOCUMENT_CONTENT_VALIDATION = LLMUsageCategory.DOCUMENT_CONTENT_VALIDATION
+    DOCUMENT_LOCATION_VALIDATION = (
+        LLMUsageCategory.DOCUMENT_LOCATION_VALIDATION
+    )
+    ORDINANCE_TEXT_EXTRACTION = auto()
+    PERMITTED_USE_TEXT_EXTRACTION = auto()
+    ORDINANCE_VALUE_EXTRACTION = auto()
+    PERMITTED_USE_VALUE_EXTRACTION = auto()
