@@ -297,19 +297,7 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         max_num_concurrent_browsers,
         pytesseract_exe_fp,
     )
-    lca = LLMCallerArgs(
-        model,
-        llm_call_kwargs,
-        llm_service_rate_limit,
-        text_splitter_chunk_size,
-        text_splitter_chunk_overlap,
-        client_kwargs={
-            "api_key": azure_api_key,
-            "api_version": azure_version,
-            "azure_endpoint": azure_endpoint,
-        },
-    )
-
+    lca = _initialize_caller_args(model)
     runner = _COMPASSRunner(
         dirs=dirs,
         log_listener=log_listener,
@@ -764,6 +752,14 @@ def _setup_folders(out_dir, log_dir=None, clean_dir=None, ofd=None, cdd=None):
     for folder in out_folders:
         folder.mkdir(exist_ok=True, parents=True)
     return out_folders
+
+
+def _initialize_caller_args(user_input):
+    """Initialize llm caller args from user input"""
+    if isinstance(user_input, str):
+        return LLMCallerArgs(model=user_input)
+
+    return LLMCallerArgs(**user_input)
 
 
 def _load_counties_to_process(county_fp):
