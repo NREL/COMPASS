@@ -709,8 +709,12 @@ class _SingleJurisdictionRunner:
 
     async def _record_usage(self):
         """Dump usage to file if tracker given"""
-        if self.usage_tracker is not None:
-            await UsageUpdater.call(self.usage_tracker)
+        if self.usage_tracker is None:
+            return
+
+        total_usage = await UsageUpdater.call(self.usage_tracker)
+        total_cost = _compute_total_cost_from_usage(total_usage)
+        COMPASS_PB.update_total_cost(total_cost, replace=True)
 
 
 def _compile_tech_specs(tech):
