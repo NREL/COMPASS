@@ -163,13 +163,13 @@ async def _down_select_docs_correct_content(docs, location, **kwargs):
     """Remove all documents that don't contain ordinance info"""
     return await filter_documents(
         docs,
-        validation_coroutine=_contains_ords,
+        validation_coroutine=_contains_ordinances,
         task_name=location.full_name,
         **kwargs,
     )
 
 
-async def _contains_ords(doc, **kwargs):
+async def _contains_ordinances(doc, **kwargs):
     """Helper coroutine that checks for ordinance info"""
     doc = await check_for_ordinance_info(doc, **kwargs)
     return doc.attrs.get("contains_ord_info", False)
