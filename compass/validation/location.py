@@ -15,7 +15,7 @@ from compass.extraction.ngrams import convert_text_to_sentence_ngrams
 logger = logging.getLogger(__name__)
 
 
-class FixedMessageValidator(ABC):
+class LocationValidator(ABC):
     """Validation base class using a static system prompt"""
 
     SYSTEM_MESSAGE = None
@@ -66,7 +66,7 @@ class FixedMessageValidator(ABC):
         raise NotImplementedError
 
 
-class URLValidator(FixedMessageValidator):
+class URLValidator(LocationValidator):
     """Validator that checks whether a URL matches a county"""
 
     SYSTEM_MESSAGE = (
@@ -89,7 +89,7 @@ class URLValidator(FixedMessageValidator):
         return all(props.get(var) for var in check_vars)
 
 
-class CountyJurisdictionValidator(FixedMessageValidator):
+class CountyJurisdictionValidator(LocationValidator):
     """Validator that checks whether text applies at the county level"""
 
     SYSTEM_MESSAGE = (
@@ -123,7 +123,7 @@ class CountyJurisdictionValidator(FixedMessageValidator):
         return not any(props.get(var) for var in check_vars)
 
 
-class CountyNameValidator(FixedMessageValidator):
+class CountyNameValidator(LocationValidator):
     """Validator that checks whether text applies to a given county"""
 
     SYSTEM_MESSAGE = (
