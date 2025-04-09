@@ -214,7 +214,6 @@ class LLMCallerArgs:
         text_splitter_chunk_overlap=1000,
         client_type="azure",
         client_kwargs=None,
-        tasks="default",
     ):
         """
 
@@ -258,11 +257,6 @@ class LLMCallerArgs:
             Keyword-value pairs to pass to underlying LLM client. These
             typically include things like API keys and endpoints.
             By default, ``None``.
-        tasks : str | set, default="default"
-            Optional label (or set of labels) for which this LLM Caller
-            should be applied. The ``"default"`` label means it will be
-            applied if a caller for a particular task is not found.
-            By default, ``"default"``.
         """
         self.model = model
         self.llm_call_kwargs = llm_call_kwargs or {}
@@ -271,7 +265,6 @@ class LLMCallerArgs:
         self.text_splitter_chunk_overlap = text_splitter_chunk_overlap
         self.client_type = client_type.casefold()
         self._client_kwargs = client_kwargs or {}
-        self.tasks = {tasks} if isinstance(tasks, str) else tasks
 
         self._validate_client_type()
 
