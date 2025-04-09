@@ -813,11 +813,7 @@ def _configure_file_loader_kwargs(file_loader_kwargs):
 
 
 async def _extract_ordinance_text(
-    doc,
-    extractor_class,
-    original_text_key,
-    usage_tracker,
-    llm_caller_args,
+    doc, extractor_class, original_text_key, usage_tracker, llm_caller_args
 ):
     """Extract text pertaining to ordinance of interest"""
     llm_caller = LLMCaller(
