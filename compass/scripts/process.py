@@ -556,7 +556,7 @@ class _SingleJurisdictionRunner:
     ):
         self.tech_specs = _compile_tech_specs(tech)
         self.jurisdiction = jurisdiction
-        self.llm_parser_args = llm_caller_args
+        self.llm_caller_args = llm_caller_args
         self.web_search_params = web_search_params
         self.file_loader_kwargs = file_loader_kwargs
         self.browser_semaphore = browser_semaphore
@@ -692,7 +692,7 @@ class _SingleJurisdictionRunner:
             extractor_class=extractor_class,
             original_text_key=original_text_key,
             usage_tracker=self.usage_tracker,
-            llm_parser_args=self.llm_caller_args,
+            llm_caller_args=self.llm_caller_args,
         )
         await self._record_usage()
         self._jsp.remove_task(task_id)
@@ -702,7 +702,7 @@ class _SingleJurisdictionRunner:
             text_key=cleaned_text_key,
             out_key=out_key,
             usage_tracker=self.usage_tracker,
-            llm_parser_args=self.llm_caller_args,
+            llm_caller_args=self.llm_caller_args,
         )
         await self._record_usage()
         return out
