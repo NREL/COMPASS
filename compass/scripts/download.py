@@ -101,11 +101,11 @@ async def download_county_ordinance(
     docs = await _down_select_docs_correct_content(
         docs,
         location=location,
-        text_splitter=text_splitter,
+        text_splitter=llm_parser_args.text_splitter,
         heuristic=heuristic,
         ordinance_text_collector_class=ordinance_text_collector_class,
         permitted_use_text_collector_class=permitted_use_text_collector_class,
-        **kwargs,
+        llm_call_kwargs=llm_parser_args.llm_call_kwargs,
     )
     logger.info(
         "Found %d potential ordinance documents for %s\n\t- %s",
@@ -159,13 +159,16 @@ async def _down_select_docs_correct_location(docs, location, **kwargs):
     )
 
 
-async def _down_select_docs_correct_content(docs, location, **kwargs):
+async def _down_select_docs_correct_content(
+    docs, location, usage_tracker, llm_call_kwargs
+):
     """Remove all documents that don't contain ordinance info"""
     return await filter_documents(
         docs,
         validation_coroutine=_contains_ordinances,
         task_name=location.full_name,
-        **kwargs,
+        usage_tracker=usage_tracker,
+        llm_call_kwargs=llm_call_kwargs,
     )
 
 
