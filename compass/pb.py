@@ -143,23 +143,25 @@ class _COMPASSProgressBars:
     def update_total_cost(self, cost, replace=False):
         """Update the total cost of the run
 
-
         Parameters
         ----------
         cost : int | float
-            COst value used for update.
+            Cost value used for update.
         replace : bool, optional
             If ``True``, the `cost` input will completely replace the
-            total cost. Otherwise, the `cost` input is just added to
-            the total. By default, ``False``.
+            total cost, but only if the `cost` value is equal to or
+            larger than the existing total cost (i.e. we never want the
+            cost to decrease). If ``False``, the `cost` input is just
+            added to the running total. By default, ``False``.
         """
         if replace:
             msg = (
                 f"New cost ({cost:,.4f}) is lower than old cost "
                 f"({self._total_cost:,.4f})"
             )
-            assert cost >= self._total_cost, msg
-            self._total_cost = cost
+            assert cost + 0.01 >= self._total_cost, msg
+            if cost + 0.01 >= self._total_cost:
+                self._total_cost = cost
         else:
             self._total_cost += cost
 
