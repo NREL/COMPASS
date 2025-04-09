@@ -184,43 +184,26 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         documents (PDFs and HTML text files). Usage information and
         default options for log/clean directories will also be stored
         here.
+    tech : {"wind", "solar"}
+        Label representing the technology being processed.
     jurisdiction_fp : path-like, optional
         Path to CSV file containing a list of jurisdictions to extract
         ordinance information for. This CSV should have "County" and
         "State" columns that contains the county and state names.
         By default, ``None``, which runs the extraction for all known
         jurisdictions (this is untested and not currently recommended).
-    model : str, optional
-        Name of LLM model to perform scraping. By default, ``"gpt-4o"``.
-    azure_api_key : str, optional
-        Azure OpenAI API key. By default, ``None``, which pulls the key
-        from the environment variable ``AZURE_OPENAI_API_KEY`` instead.
-    azure_version : str, optional
-        Azure OpenAI API version. By default, ``None``, which pulls the
-        version from the environment variable ``AZURE_OPENAI_VERSION``
-        instead.
-    azure_endpoint : str, optional
-        Azure OpenAI API endpoint. By default, ``None``, which pulls the
-        endpoint from the environment variable ``AZURE_OPENAI_ENDPOINT``
-        instead.
-    llm_call_kwargs : dict, optional
-        Keyword-value pairs used to initialize an
-        `compass.llm.LLMCaller` instance. By default, ``None``.
-    llm_service_rate_limit : int, optional
-        Token rate limit (i.e. tokens per minute) of LLM service being
-        used (OpenAI). By default, ``10_000``.
-    text_splitter_chunk_size : int, optional
-        Chunk size used to split the ordinance text. Parsing is
-        performed on each individual chunk. Units are in token count of
-        the model in charge of parsing ordinance text. Keeping this
-        value low can help reduce token usage since (free) heuristics
-        checks may be able to throw away irrelevant chunks of text
-        before passing to the LLM. By default, ``10000``.
-    text_splitter_chunk_overlap : int, optional
-        Overlap of consecutive chunks of the ordinance text. Parsing is
-        performed on each individual chunk. Units are in token count of
-        the model in charge of parsing ordinance text.
-        By default, ``1000``.
+    model : str | list, optional
+        Name of LLM model to perform scraping. If only the model name is
+        provided, then the LLM calling instance will use all default
+        arguments (e.g. it is expected API keys are stored in
+        environment variables). If list, then items should be
+        dictionaries of keyword-value pairs that can be used to
+        initialize :class:`~compass.llm.calling.LLMCallerArgs`
+        instances. This is how you can specify API keys (among other
+        things) via the config file. Note that exactly one of these
+        instances should have "default" as a task - this will be the
+        instance that is used to query LLMs when the LLM args are not
+        specified for a given task. By default, ``"gpt-4o"``.
     num_urls_to_check_per_county : int, optional
         Number of unique Google search result URL's to check for
         ordinance document. By default, ``5``.
