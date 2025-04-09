@@ -698,7 +698,6 @@ class _SingleJurisdictionRunner:
                 asyncio.create_task(
                     self._try_extract_ordinances(
                         possible_ord_doc,
-                        self.text_splitter,
                         extractor_class=extractor,
                         original_text_key=o_key,
                         cleaned_text_key=c_key,
@@ -718,7 +717,6 @@ class _SingleJurisdictionRunner:
     async def _try_extract_ordinances(
         self,
         possible_ord_doc,
-        text_splitter,
         extractor_class,
         original_text_key,
         cleaned_text_key,
@@ -735,7 +733,7 @@ class _SingleJurisdictionRunner:
         task_id = self._jsp.add_task(_TEXT_EXTRACTION_TASKS[extractor_class])
         doc = await _extract_ordinance_text(
             possible_ord_doc,
-            text_splitter,
+            self.text_splitter,
             extractor_class=extractor_class,
             original_text_key=original_text_key,
             usage_tracker=self.usage_tracker,
