@@ -10,8 +10,8 @@ from .calling import (
 )
 
 
-class LLMTasks(StrEnum):
-    """LLM-based COMPASS tasks"""
+class LLMUsageCategory(StrEnum):
+    """COMPASS LLM usage categories"""
 
     CHAT = auto()
     DATE_EXTRACTION = auto()
