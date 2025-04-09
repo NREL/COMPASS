@@ -31,7 +31,7 @@ class DateExtractor:
         "ordinance was enacted/updated"
     )
 
-    def __init__(self, structured_llm_caller):
+    def __init__(self, structured_llm_caller, text_splitter=None):
         """
 
         Parameters
@@ -39,8 +39,13 @@ class DateExtractor:
         structured_llm_caller : compass.llm.StructuredLLMCaller
             StructuredLLMCaller instance. Used for structured validation
             queries.
+        text_splitter : langchain.text_splitter.TextSplitter, optional
+            Optional text splitter instance to attach to doc (used for
+            splitting out pages in an HTML document).
+            By default, ``None``.
         """
         self.slc = structured_llm_caller
+        self.text_splitter = text_splitter
 
     async def parse(self, doc):
         """Extract date (year, month, day) from doc
@@ -56,6 +61,16 @@ class DateExtractor:
             3-tuple containing year, month, day, or ``None`` if any of
             those are not found.
         """
+        if hasattr(doc, "text_splitter") and self.text_splitter is not None:
+            old_splitter = doc.text_splitter
+            doc.text_splitter = self.text_splitter
+            out = await self._parse(doc)
+            doc.text_splitter = old_splitter
+            return out
+
+        return await self._parse(doc)
+
+    async def _parse(self, doc):
         url = doc.attrs.get("source")
         can_check_url_for_date = url and not any(
             sub_str in url for sub_str in _BANNED_DATE_DOMAINS
