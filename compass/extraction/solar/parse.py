@@ -26,7 +26,7 @@ from compass.extraction.solar.graphs import (
     setup_graph_sef_types,
     setup_multiplier,
 )
-from compass.warnings import COMPASSWarning
+from compass.warn import COMPASSWarning
 from compass.pb import COMPASS_PB
 
 
@@ -125,15 +125,6 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
         :class:`~compass.extraction.tree.AsyncDecisionTree` instances
         to guide the extraction of individual values.
     """
-
-    def _init_chat_llm_caller(self, system_message):
-        """Initialize a ChatLLMCaller instance for the DecisionTree"""
-        return ChatLLMCaller(
-            self.llm_service,
-            system_message=system_message,
-            usage_tracker=self.usage_tracker,
-            **self.kwargs,
-        )
 
     async def parse(self, text):
         """Parse text and extract structure ordinance data

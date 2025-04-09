@@ -6,8 +6,10 @@ import openai
 from elm.base import ApiBase
 from elm.utilities.retry import async_retry_with_exponential_backoff
 
-from compass.services.base import RateLimitedService
+from compass.services.base import LLMService
 from compass.services.usage import TimeBoundedUsageTracker
+from compass.utilities import LLM_COST_REGISTRY
+from compass.pb import COMPASS_PB
 
 
 logger = logging.getLogger(__name__)
@@ -75,7 +77,7 @@ def count_tokens(messages, model):
     return message_total + 3
 
 
-class OpenAIService(RateLimitedService):
+class OpenAIService(LLMService):
     """OpenAI Chat GPT query service
 
     Purpose:
@@ -93,7 +95,14 @@ class OpenAIService(RateLimitedService):
         context.
     """
 
-    def __init__(self, client, rate_limit=1e3, rate_tracker=None):
+    def __init__(
+        self,
+        client,
+        model_name,
+        rate_limit=1e3,
+        rate_tracker=None,
+        service_tag=None,
+    ):
         """
 
         Parameters
@@ -101,6 +110,8 @@ class OpenAIService(RateLimitedService):
         client : openai.AsyncOpenAI | openai.AsyncAzureOpenAI
             Async OpenAI client instance. Must have an async
             `client.chat.completions.create` method.
+        model_name : str
+            Name of model being used.
         rate_limit : int | float, optional
             Token rate limit (typically per minute, but the time
             interval is ultimately controlled by the `rate_tracker`
@@ -110,12 +121,21 @@ class OpenAIService(RateLimitedService):
             track usage per time interval and compare to `rate_limit`.
             If ``None``, a `TimeBoundedUsageTracker` instance is created
             with default parameters. By default, ``None``.
+        service_tag : str, optional
+            optional tag to use to distinguish service (i.e. make unique
+            from other services). Must set this if multiple models with
+            the same name are run concurrently. By default, ``None``.
         """
-        super().__init__(rate_limit, rate_tracker or TimeBoundedUsageTracker())
+        super().__init__(
+            model_name=model_name,
+            rate_limit=rate_limit,
+            rate_tracker=rate_tracker or TimeBoundedUsageTracker(),
+            service_tag=service_tag,
+        )
         self.client = client
 
     async def process(
-        self, usage_tracker=None, usage_sub_label="default", *, model, **kwargs
+        self, usage_tracker=None, usage_sub_label="default", **kwargs
     ):
         """Process a call to OpenAI Chat GPT
 
@@ -144,30 +164,48 @@ class OpenAIService(RateLimitedService):
             Chat GPT response as a string, or ``None`` if the call
             failed.
         """
-        self._record_prompt_tokens(model, kwargs)
-        response = await self._call_gpt(model=model, **kwargs)
+        self._record_prompt_tokens(kwargs)
+        response = await self._call_gpt(model=self.model_name, **kwargs)
         self._record_completion_tokens(response)
         self._record_usage(response, usage_tracker, usage_sub_label)
+        self._update_pb_cost(response)
         return _get_response_message(response)
 
-    def _record_prompt_tokens(self, model, kwargs):
+    def _record_prompt_tokens(self, kwargs):
         """Add prompt token count to rate tracker"""
-        num_tokens = count_tokens(kwargs.get("messages", []), model)
+        num_tokens = count_tokens(kwargs.get("messages", []), self.model_name)
         self.rate_tracker.add(num_tokens)
-
-    def _record_usage(  # noqa: PLR6301
-        self, response, usage_tracker, usage_sub_label
-    ):
-        """Record token usage for user"""
-        if usage_tracker is None:
-            return
-        usage_tracker.update_from_model(response, sub_label=usage_sub_label)
 
     def _record_completion_tokens(self, response):
         """Add completion token count to rate tracker"""
         if response is None:
             return
         self.rate_tracker.add(response.usage.completion_tokens)
+
+    def _record_usage(self, response, usage_tracker, usage_sub_label):
+        """Record token usage for user"""
+        if usage_tracker is None:
+            return
+
+        usage_tracker.update_from_model(
+            model=self.model_name, response=response, sub_label=usage_sub_label
+        )
+
+    def _update_pb_cost(self, response):
+        """Update the cost displayed on the progress bar"""
+        if response is None:
+            return
+
+        model_costs = LLM_COST_REGISTRY.get(self.model_name, {})
+        prompt_cost = (
+            response.usage.prompt_tokens / 1e6 * model_costs.get("prompt", 0)
+        )
+        response_cost = (
+            response.usage.completion_tokens
+            / 1e6
+            * model_costs.get("response", 0)
+        )
+        COMPASS_PB.update_total_cost(prompt_cost + response_cost)
 
     @async_retry_with_exponential_backoff()
     async def _call_gpt(self, **kwargs):
