@@ -51,7 +51,7 @@ class _TotalCostColumn(ProgressColumn):
         total_cost = task.fields.get("total_cost", 0)
         if not total_cost:
             return Text("")
-        return Text(f"(${total_cost:.2f})")
+        return Text.assemble("(", (f"${total_cost:.2f}", "#71906e"), ")")
 
 
 class _COMPASSProgressBars:
