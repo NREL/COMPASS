@@ -43,6 +43,17 @@ class _MofNCompleteColumn(ProgressColumn):
         return Text(f"   {completed:{total_width}d}/{total}", style="white")
 
 
+class _TotalCostColumn(ProgressColumn):
+    """Renders total cost '($1.23)'"""
+
+    def render(self, task):  # noqa: PLR6301
+        """Show completed/total"""
+        total_cost = task.fields.get("total_cost", 0)
+        if not total_cost:
+            return Text("")
+        return Text(f"(${total_cost:.2f})")
+
+
 class _COMPASSProgressBars:
     """COMPASS progress bar configurations"""
 
@@ -65,6 +76,7 @@ class _COMPASSProgressBars:
                 finished_style="progress.spinner",
             ),
             _MofNCompleteColumn(),
+            _TotalCostColumn(),
             console=console,
         )
         self._group = Group(self._main)
