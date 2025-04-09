@@ -320,7 +320,7 @@ class _COMPASSRunner:
         dirs,
         log_listener,
         tech,
-        llm_caller_args=None,
+        llm_caller_args,
         web_search_params=None,
         process_kwargs=None,
         log_level="INFO",
@@ -328,9 +328,7 @@ class _COMPASSRunner:
         self.dirs = dirs
         self.log_listener = log_listener
         self.tech = tech
-        self.llm_caller_args = (
-            LLMCallerArgs() if llm_caller_args is None else llm_caller_args
-        )
+        self.llm_caller_args = llm_caller_args
         self.web_search_params = web_search_params or WebSearchParams()
         self.process_kwargs = process_kwargs or ProcessKwargs()
         self.log_level = log_level
