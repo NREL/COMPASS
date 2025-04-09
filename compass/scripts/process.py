@@ -55,6 +55,7 @@ from compass.services.threaded import (
     JurisdictionUpdater,
 )
 from compass.utilities import (
+    LLM_COST_REGISTRY,
     load_all_county_info,
     load_counties_from_fp,
     extract_ord_year_from_doc_attrs,
@@ -279,6 +280,8 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
 
     Returns
     -------
+    str
+        Total runtime as a human readable string.
     float
         Total cost for the run. If usage is not tracked or model costs
         are not provided, this value is 0.
@@ -446,11 +449,11 @@ class _COMPASSRunner:
         start_date = datetime.now(UTC).isoformat()
         start_time = time.monotonic()
 
-        doc_infos = await self._run_all(jurisdictions)
+        doc_infos, total_cost = await self._run_all(jurisdictions)
 
         db, num_docs_found = _doc_infos_to_db(doc_infos)
         _save_db(db, self.dirs.out)
-        _save_run_meta(
+        total_time_string = _save_run_meta(
             self.dirs,
             self.tech,
             start_time,
@@ -459,7 +462,7 @@ class _COMPASSRunner:
             num_jurisdictions_found=num_docs_found,
             llm_caller_args=self.llm_caller_args,
         )
-        return db
+        return total_time_string, total_cost
 
     async def _run_all(self, jurisdictions):
         """Process all counties with running services"""
@@ -482,7 +485,10 @@ class _COMPASSRunner:
                     name=location.full_name,
                 )
                 tasks.append(task)
-            return await asyncio.gather(*tasks)
+            doc_infos = await asyncio.gather(*tasks)
+            total_cost = await _compute_total_cost()
+
+        return doc_infos, total_cost
 
     async def _processed_jurisdiction_info_with_pb(
         self, county, *args, **kwargs
