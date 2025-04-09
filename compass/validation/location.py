@@ -8,6 +8,7 @@ import asyncio
 import logging
 from abc import ABC, abstractmethod
 
+from compass.llm import LLMTasks
 from compass.extraction.ngrams import convert_text_to_sentence_ngrams
 
 
@@ -53,7 +54,9 @@ class FixedMessageValidator(ABC):
             return False
         sys_msg = self.SYSTEM_MESSAGE.format(**fmt_kwargs)
         out = await self.slc.call(
-            sys_msg, content, usage_sub_label="document_location_validation"
+            sys_msg,
+            content,
+            usage_sub_label=LLMTasks.DOCUMENT_LOCATION_VALIDATION,
         )
         return self._parse_output(out)
 

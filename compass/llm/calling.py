@@ -9,6 +9,7 @@ from elm import ApiBase
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 from compass.services.openai import OpenAIService
+from compass.llm import LLMTasks
 from compass.utilities import llm_response_as_json, RTS_SEPARATORS
 from compass.exceptions import COMPASSValueError
 
@@ -68,7 +69,7 @@ class BaseLLMCaller:
 class LLMCaller(BaseLLMCaller):
     """Simple LLM caller, with no memory and no parsing utilities."""
 
-    async def call(self, sys_msg, content, usage_sub_label="default"):
+    async def call(self, sys_msg, content, usage_sub_label=LLMTasks.DEFAULT):
         """Call LLM.
 
         Parameters
@@ -128,7 +129,7 @@ class ChatLLMCaller(BaseLLMCaller):
         super().__init__(llm_service, usage_tracker, **kwargs)
         self.messages = [{"role": "system", "content": system_message}]
 
-    async def call(self, content, usage_sub_label="chat"):
+    async def call(self, content, usage_sub_label=LLMTasks.CHAT):
         """Chat with the LLM.
 
         Parameters
@@ -163,7 +164,7 @@ class ChatLLMCaller(BaseLLMCaller):
 class StructuredLLMCaller(BaseLLMCaller):
     """Class to support structured (JSON) LLM calling functionality."""
 
-    async def call(self, sys_msg, content, usage_sub_label="default"):
+    async def call(self, sys_msg, content, usage_sub_label=LLMTasks.DEFAULT):
         """Call LLM for structured data retrieval.
 
         Parameters

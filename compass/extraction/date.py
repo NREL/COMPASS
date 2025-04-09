@@ -2,8 +2,10 @@
 
 import logging
 
-logger = logging.getLogger(__name__)
+from compass.llm import LLMTasks
 
+
+logger = logging.getLogger(__name__)
 
 # These domains contain the collection date in URL, not enactment date
 _BANNED_DATE_DOMAINS = ["https://energyzoning.org"]
@@ -84,7 +86,7 @@ class DateExtractor:
                     "Please extract the date from the URL for this "
                     f"ordinance, if possible:\n{url}"
                 ),
-                usage_sub_label="date_extraction",
+                usage_sub_label=LLMTasks.DATE_EXTRACTION,
             )
             if response:
                 date = _parse_date([response])
@@ -102,7 +104,7 @@ class DateExtractor:
             response = await self.slc.call(
                 sys_msg=self.SYSTEM_MESSAGE,
                 content=f"Please extract the date for this ordinance:\n{text}",
-                usage_sub_label="date_extraction",
+                usage_sub_label=LLMTasks.DATE_EXTRACTION,
             )
             if not response:
                 continue
