@@ -170,6 +170,7 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
     clean_dir=None,
     ordinance_file_dir=None,
     county_dbs_dir=None,
+    llm_costs=None,
     log_level="INFO",
 ):
     """Download and extract ordinances for a list of counties
@@ -274,6 +275,19 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         outputs. This directory will be created if it does not exist.
         By default, ``None``, which creates a ``jurisdiction_dbs``
         folder in the output directory.
+    llm_costs : dict, optional
+        Optional dictionary mapping model names to a dictionary that
+        contains the cost (in $/million tokens) for both prompt and
+        response tokens. This is only used to display a running cost
+        total for the processing. For example::
+
+            llm_costs = {"my_gpt": {"prompt": 1.5, "response": 3.7}}
+
+        would register the model named "my_gpt" as costing $1.5 per
+        million input (prompt) tokens and $3.7 per million output
+        (response) tokens. If ``None``, no new model costs are
+        registered, and costs are not tracked in the progress bar.
+        By default, ``None``.
     log_level : str, optional
         Log level to set for county retrieval and parsing loggers.
         By default, ``"INFO"``.
@@ -287,6 +301,7 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         are not provided, this value is 0.
     """
     log_listener = LogListener(["compass", "elm"], level=log_level)
+    LLM_COST_REGISTRY.update(llm_costs or {})
     dirs = _setup_folders(
         out_dir,
         log_dir=log_dir,
