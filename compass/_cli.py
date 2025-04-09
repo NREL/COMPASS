@@ -82,9 +82,13 @@ def process(config, verbose, no_progress):
         refresh_per_second=20,
         transient=True,
     ):
-        out = loop.run_until_complete(process_counties_with_openai(**config))
+        total_cost, runtime = loop.run_until_complete(
+            process_counties_with_openai(**config)
+        )
 
-    print(f"✅ Scraping complete! Final database contains {len(out):,} rows.")
+    total_cost = f" Total cost: ${total_cost:,.2f}." if total_cost else ""
+
+    print(f"✅ Scraping complete! Total runtime: {runtime}.{total_cost}")
     COMPASS_PB.console = None
 
 
