@@ -214,9 +214,9 @@ class LLMCallerArgs:
         self,
         model="gpt-4o",
         llm_call_kwargs=None,
-        llm_service_rate_limit=500000,
-        text_splitter_chunk_size=10000,
-        text_splitter_chunk_overlap=500,
+        llm_service_rate_limit=4000,
+        text_splitter_chunk_size=10_000,
+        text_splitter_chunk_overlap=1000,
         client_type="azure",
         client_kwargs=None,
     ):
