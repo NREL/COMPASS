@@ -23,14 +23,14 @@ logger = logging.getLogger(__name__)
 async def download_county_ordinance(
     question_templates,
     location,
-    text_splitter,
+    llm_parser_args,
     heuristic,
     ordinance_text_collector_class,
     permitted_use_text_collector_class,
     num_urls=5,
     file_loader_kwargs=None,
     browser_semaphore=None,
-    **kwargs,
+    usage_tracker=None,
 ):
     """Download the ordinance document(s) for a single county
 
@@ -38,13 +38,8 @@ async def download_county_ordinance(
     ----------
     location : :class:`compass.utilities.location.Location`
         Location objects representing the county.
-    text_splitter : obj, optional
-        Instance of an object that implements a `split_text` method.
-        The method should take text as input (str) and return a list
-        of text chunks. Raw text from HTML pages will be passed through
-        this splitter to split the single wep page into multiple pages
-        for the output document. Langchain's text splitters should work
-        for this input.
+    llm_parser_args : obj, optional
+        TBA
     num_urls : int, optional
         Number of unique Google search result URL's to check for
         ordinance document. By default, ``5``.
@@ -58,9 +53,9 @@ async def download_county_ordinance(
         Semaphore instance that can be used to limit the number of
         playwright browsers open concurrently. If ``None``, no limits
         are applied. By default, ``None``.
-    **kwargs
-        Keyword-value pairs used to initialize an
-        `compass.llm.LLMCaller` instance.
+    usage_tracker : compass.services.usage.UsageTracker, optional
+            Optional tracker instance to monitor token usage during
+            LLM calls. By default, ``None``.
 
     Returns
     -------
@@ -75,7 +70,7 @@ async def download_county_ordinance(
     docs = await _docs_from_web_search(
         question_templates,
         location,
-        text_splitter,
+        llm_parser_args.text_splitter,
         num_urls,
         browser_semaphore,
         **(file_loader_kwargs or {}),
