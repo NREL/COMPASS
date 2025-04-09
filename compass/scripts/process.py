@@ -294,9 +294,9 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
 
     Returns
     -------
-    str
-        Total runtime as a human readable string.
-    float
+    seconds_elapsed : float
+        Total seconds elapsed during runtime of this function.
+    cost : float
         Total cost for the run. If usage is not tracked or model costs
         are not provided, this value is 0.
     """
@@ -468,7 +468,7 @@ class _COMPASSRunner:
 
         db, num_docs_found = _doc_infos_to_db(doc_infos)
         _save_db(db, self.dirs.out)
-        total_time_string = _save_run_meta(
+        total_time = _save_run_meta(
             self.dirs,
             self.tech,
             start_time,
@@ -477,7 +477,7 @@ class _COMPASSRunner:
             num_jurisdictions_found=num_docs_found,
             llm_caller_args=self.llm_caller_args,
         )
-        return total_time_string, total_cost
+        return total_time, total_cost
 
     async def _run_all(self, jurisdictions):
         """Process all counties with running services"""
@@ -1012,7 +1012,6 @@ def _save_run_meta(
     end_date = datetime.now(UTC).isoformat()
     end_time = time.monotonic()
     seconds_elapsed = end_time - start_time
-    total_time_string = str(timedelta(seconds=seconds_elapsed))
 
     try:
         username = getpass.getuser()
@@ -1035,7 +1034,7 @@ def _save_run_meta(
         "time_start_utc": start_date,
         "time_end_utc": end_date,
         "total_time": seconds_elapsed,
-        "total_time_string": total_time_string,
+        "total_time_string": str(timedelta(seconds=seconds_elapsed)),
         "num_jurisdictions_searched": num_jurisdictions_searched,
         "num_jurisdictions_found": num_jurisdictions_found,
         "manifest": {},
@@ -1060,7 +1059,7 @@ def _save_run_meta(
     with (dirs.out / "meta.json").open("w", encoding="utf-8") as fh:
         json.dump(meta_data, fh, indent=4)
 
-    return total_time_string
+    return seconds_elapsed
 
 
 async def _compute_total_cost():
