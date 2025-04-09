@@ -325,7 +325,7 @@ class SolarPermittedUseDistrictsTextExtractor(BaseTextExtractor):
         LLM queries.
     """
 
-    _USAGE_LABEL = "document_permitted_use_districts_summary"
+    _USAGE_LABEL = LLMTasks.DOCUMENT_PERMITTED_USE_DISTRICTS_SUMMARY
 
     PERMITTED_USES_FILTER_PROMPT = (
         "# CONTEXT #\n"
