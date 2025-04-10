@@ -1,5 +1,5 @@
 [package]
-name = "nrel-ordinance-cli"
+name = "nrel-compass-cli"
 version = "0.0.4"
 authors.workspace = true
 edition.workspace = true
