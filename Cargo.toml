@@ -10,7 +10,7 @@ authors = [
   "Paul Pinchuk <Pavlo.Pinchuk@nrel.gov>",
   ]
 edition = "2024"
-license = "MIT OR Apache-2.0"
+license = "BSD-3-Clause"
 rust-version = "1.85.0"
 
 [workspace.dependencies]
