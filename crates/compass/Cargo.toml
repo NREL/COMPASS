@@ -3,8 +3,11 @@ name = "infra-compass-db"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
-license.workspace = true
 rust-version.workspace = true
+description = "Parse and manage the NREL's INFRA-COMPASS data"
+homepage = "https://github.com/NREL/COMPASS"
+repository = "https://github.com/NREL/COMPASS"
+license.workspace = true
 
 [dependencies]
 csv = { workspace = true }
