@@ -7,7 +7,7 @@ license.workspace = true
 rust-version.workspace = true
 
 [dependencies]
-clap = { workspace = true, features = ["cargo"] }
+clap = { workspace = true }
 duckdb = { workspace = true }
 nrel-compass-db = { workspace = true }
 tracing = { workspace = true }
