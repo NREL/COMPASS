@@ -1,5 +1,5 @@
 [package]
-name = "nrel-compass-cli"
+name = "infra-compass-cli"
 version = "0.0.4"
 authors.workspace = true
 edition.workspace = true
@@ -9,6 +9,6 @@ rust-version.workspace = true
 [dependencies]
 clap = { workspace = true }
 duckdb = { workspace = true }
-nrel-compass-db = { workspace = true }
+infra-compass-db = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }

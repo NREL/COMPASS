@@ -1,5 +1,5 @@
 [package]
-name = "nrel-compass-db"
+name = "infra-compass-db"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
