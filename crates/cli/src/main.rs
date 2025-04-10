@@ -92,7 +92,7 @@ fn main() {
             // that already creates a session with the username, and hance
             // handle ahead permissions/authorization.
             let conn: Connection = Connection::open(&db).expect("Failed to open database");
-            infra_compass_db::load_ordinance(conn, username, path);
+            let _ = infra_compass_db::load_ordinance(conn, username, path);
         }
         Some("log") => {
             trace!("Showing log for database at {:?}", &db);
