@@ -469,6 +469,7 @@ class _COMPASSRunner:
             start_date,
             num_jurisdictions_searched=num_jurisdictions,
             num_jurisdictions_found=num_docs_found,
+            total_cost=total_cost,
             models=self.models,
         )
         return total_time, total_cost
@@ -1038,6 +1039,7 @@ def _save_run_meta(
     start_date,
     num_jurisdictions_searched,
     num_jurisdictions_found,
+    total_cost,
     models,
 ):
     """Write out meta information about ordinance collection run"""
@@ -1061,6 +1063,7 @@ def _save_run_meta(
         "total_time_string": str(timedelta(seconds=seconds_elapsed)),
         "num_jurisdictions_searched": num_jurisdictions_searched,
         "num_jurisdictions_found": num_jurisdictions_found,
+        "cost": total_cost or None,
         "manifest": {},
     }
     manifest = {
