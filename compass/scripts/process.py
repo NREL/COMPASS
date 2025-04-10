@@ -62,6 +62,7 @@ from compass.utilities import (
     num_ordinances_in_doc,
     num_ordinances_dataframe,
 )
+from compass.utilities.enums import LLMTasks
 from compass.utilities.location import County
 from compass.utilities.logs import (
     LocationFileLog,
@@ -193,10 +194,41 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         dictionaries of keyword-value pairs that can be used to
         initialize :class:`~compass.llm.calling.LLMCallerArgs`
         instances. This is how you can specify API keys (among other
-        things) via the config file. Note that exactly one of these
-        instances should have "default" as a task - this will be the
-        instance that is used to query LLMs when the LLM args are not
-        specified for a given task. By default, ``"gpt-4o"``.
+        things) via the config file. You can (and should) specify one
+        additional key per dictionary: ``tasks``. This key should be
+        a string or a set of strings representing the labels of the
+        tasks that this LLM caller should be used for. Exactly one of
+        these instances should have "default" as a task - this will be
+        the instance that is used to query LLMs when the LLM args are
+        not specified for a given task. All of the available task
+        options are enumerated in
+        :obj:`~compass.utilities.enums.LLMTasks`. For example, here is a
+        valid input::
+
+            "model": [
+                {
+                    "model": "gpt-4o-mini",
+                    "llm_call_kwargs": {
+                        "temperature": 0,
+                        "timeout": 300,
+                    },
+                    "client_kwargs": {
+                        "api_key": <your_api_key>,
+                        "api_version": <your_api_version>,
+                        "azure_endpoint": <your_azure_endpoint>,
+
+                    },
+                    "tasks": ["default", "date_extraction"],
+                },
+                {
+                    "model": "gpt-4o",
+                    "client_type": "openai",
+                    "tasks": ["ordinance_text_extraction"],
+                }
+            ]
+
+
+        By default, ``"gpt-4o"``.
     num_urls_to_check_per_county : int, optional
         Number of unique Google search result URL's to check for
         ordinance document. By default, ``5``.
@@ -297,12 +329,12 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         max_num_concurrent_browsers,
         pytesseract_exe_fp,
     )
-    lca = _initialize_caller_args(model)
+    models = _initialize_model_params(model)
     runner = _COMPASSRunner(
         dirs=dirs,
         log_listener=log_listener,
         tech=tech,
-        llm_caller_args=lca,
+        models=models,
         web_search_params=wsp,
         process_kwargs=pk,
         log_level=log_level,
@@ -320,7 +352,7 @@ class _COMPASSRunner:
         dirs,
         log_listener,
         tech,
-        llm_caller_args,
+        models,
         web_search_params=None,
         process_kwargs=None,
         log_level="INFO",
@@ -328,7 +360,7 @@ class _COMPASSRunner:
         self.dirs = dirs
         self.log_listener = log_listener
         self.tech = tech
-        self.llm_caller_args = llm_caller_args
+        self.models = models
         self.web_search_params = web_search_params or WebSearchParams()
         self.process_kwargs = process_kwargs or ProcessKwargs()
         self.log_level = log_level
@@ -437,14 +469,14 @@ class _COMPASSRunner:
             start_date,
             num_jurisdictions_searched=num_jurisdictions,
             num_jurisdictions_found=num_docs_found,
-            llm_caller_args=self.llm_caller_args,
+            models=self.models,
         )
         return total_time, total_cost
 
     async def _run_all(self, jurisdictions):
         """Process all counties with running services"""
-
-        services = [self.llm_caller_args.llm_service, *self._base_services]
+        services = [model.llm_service for model in set(self.models.values())]
+        services += self._base_services
         async with RunningAsyncServices(services):
             tasks = []
             for __, row in jurisdictions.iterrows():
@@ -504,7 +536,7 @@ class _COMPASSRunner:
                 _SingleJurisdictionRunner(
                     self.tech,
                     county,
-                    self.llm_caller_args,
+                    self.models,
                     self.web_search_params,
                     self.file_loader_kwargs,
                     self.browser_semaphore,
@@ -531,7 +563,7 @@ class _SingleJurisdictionRunner:
         self,
         tech,
         jurisdiction,
-        llm_caller_args,
+        models,
         web_search_params,
         file_loader_kwargs,
         browser_semaphore,
@@ -539,7 +571,7 @@ class _SingleJurisdictionRunner:
     ):
         self.tech_specs = _compile_tech_specs(tech)
         self.jurisdiction = jurisdiction
-        self.llm_caller_args = llm_caller_args
+        self.models = models
         self.web_search_params = web_search_params
         self.file_loader_kwargs = file_loader_kwargs
         self.browser_semaphore = browser_semaphore
@@ -580,7 +612,7 @@ class _SingleJurisdictionRunner:
         docs = await download_county_ordinance(
             self.tech_specs.questions,
             self.jurisdiction,
-            self.llm_caller_args,
+            self.models,
             heuristic=self.tech_specs.heuristic,
             ordinance_text_collector_class=(
                 self.tech_specs.ordinance_text_collector
@@ -619,40 +651,56 @@ class _SingleJurisdictionRunner:
     async def _try_extract_all_ordinances(self, possible_ord_doc):
         """Try to extract ordinance values and permitted districts"""
         with self._tracked_progress():
-            extraction_info = [
-                (
-                    self.tech_specs.ordinance_text_extractor,
-                    "ordinance_text",
-                    "cleaned_ordinance_text",
-                    self.tech_specs.structured_ordinance_parser,
-                    "ordinance_values",
-                ),
-                (
-                    self.tech_specs.permitted_use_text_extractor,
-                    "permitted_use_text",
-                    "districts_text",
-                    self.tech_specs.structured_permitted_use_parser,
-                    "permitted_district_values",
-                ),
-            ]
             tasks = [
                 asyncio.create_task(
-                    self._try_extract_ordinances(
-                        possible_ord_doc,
-                        extractor_class=extractor,
-                        original_text_key=o_key,
-                        cleaned_text_key=c_key,
-                        parser_class=parser,
-                        out_key=out_key,
-                    ),
+                    self._try_extract_ordinances(possible_ord_doc, **kwargs),
                     name=self.jurisdiction.full_name,
                 )
-                for extractor, o_key, c_key, parser, out_key in extraction_info
+                for kwargs in self.extraction_task_kwargs
             ]
 
             docs = await asyncio.gather(*tasks)
 
         return _concat_scrape_results(docs[0])
+
+    @property
+    def extraction_task_kwargs(self):
+        return [
+            {
+                "extractor_class": self.tech_specs.ordinance_text_extractor,
+                "original_text_key": "ordinance_text",
+                "cleaned_text_key": "cleaned_ordinance_text",
+                "text_model": self.models.get(
+                    LLMTasks.ORDINANCE_TEXT_EXTRACTION,
+                    self.models[LLMTasks.DEFAULT],
+                ),
+                "parser_class": self.tech_specs.structured_ordinance_parser,
+                "out_key": "ordinance_values",
+                "value_model": self.models.get(
+                    LLMTasks.ORDINANCE_VALUE_EXTRACTION,
+                    self.models[LLMTasks.DEFAULT],
+                ),
+            },
+            {
+                "extractor_class": (
+                    self.tech_specs.permitted_use_text_extractor
+                ),
+                "original_text_key": "permitted_use_text",
+                "cleaned_text_key": "districts_text",
+                "text_model": self.models.get(
+                    LLMTasks.PERMITTED_USE_TEXT_EXTRACTION,
+                    self.models[LLMTasks.DEFAULT],
+                ),
+                "parser_class": (
+                    self.tech_specs.structured_permitted_use_parser
+                ),
+                "out_key": "permitted_district_values",
+                "value_model": self.models.get(
+                    LLMTasks.PERMITTED_USE_VALUE_EXTRACTION,
+                    self.models[LLMTasks.DEFAULT],
+                ),
+            },
+        ]
 
     async def _try_extract_ordinances(
         self,
@@ -662,6 +710,8 @@ class _SingleJurisdictionRunner:
         cleaned_text_key,
         parser_class,
         out_key,
+        text_model,
+        value_model,
     ):
         """Try applying a single extractor to the relevant legal text"""
         logger.debug(
@@ -675,7 +725,7 @@ class _SingleJurisdictionRunner:
             extractor_class=extractor_class,
             original_text_key=original_text_key,
             usage_tracker=self.usage_tracker,
-            llm_caller_args=self.llm_caller_args,
+            llm_caller_args=text_model,
         )
         await self._record_usage()
         self._jsp.remove_task(task_id)
@@ -685,7 +735,7 @@ class _SingleJurisdictionRunner:
             text_key=cleaned_text_key,
             out_key=out_key,
             usage_tracker=self.usage_tracker,
-            llm_caller_args=self.llm_caller_args,
+            llm_caller_args=value_model,
         )
         await self._record_usage()
         return out
@@ -752,12 +802,28 @@ def _setup_folders(out_dir, log_dir=None, clean_dir=None, ofd=None, cdd=None):
     return out_folders
 
 
-def _initialize_caller_args(user_input):
-    """Initialize llm caller args from user input"""
+def _initialize_model_params(user_input):
+    """Initialize llm caller args for models from user input"""
     if isinstance(user_input, str):
-        return LLMCallerArgs(model=user_input)
+        return {LLMTasks.DEFAULT: LLMCallerArgs(model=user_input)}
 
-    return LLMCallerArgs(**user_input)
+    caller_instances = {}
+    for kwargs in user_input:
+        tasks = kwargs.pop("tasks", LLMTasks.DEFAULT)
+        if isinstance(tasks, str):
+            tasks = [tasks]
+
+        llm_arg_instance = LLMCallerArgs(**kwargs)
+        for task in tasks:
+            if task in caller_instances:
+                msg = (
+                    f"Found duplicated task: {task!r}. Please ensure each "
+                    "LLM caller definition has uniquely-assigned tasks."
+                )
+                raise COMPASSValueError(msg)
+            caller_instances[task] = llm_arg_instance
+
+    return caller_instances
 
 
 def _load_counties_to_process(county_fp):
@@ -972,7 +1038,7 @@ def _save_run_meta(
     start_date,
     num_jurisdictions_searched,
     num_jurisdictions_found,
-    llm_caller_args,
+    models,
 ):
     """Write out meta information about ordinance collection run"""
     end_date = datetime.now(UTC).isoformat()
@@ -988,15 +1054,7 @@ def _save_run_meta(
         "username": username,
         "versions": {"elm": elm_version, "compass": compass_version},
         "technology": tech,
-        "llm_parse_args": {
-            "llm_call_kwargs": llm_caller_args.llm_call_kwargs,
-            "text_splitter_chunk_size": (
-                llm_caller_args.text_splitter_chunk_size
-            ),
-            "text_splitter_chunk_overlap": (
-                llm_caller_args.text_splitter_chunk_overlap
-            ),
-        },
+        "models": _extract_model_info_from_all_models(models),
         "time_start_utc": start_date,
         "time_end_utc": end_date,
         "total_time": seconds_elapsed,
@@ -1026,6 +1084,28 @@ def _save_run_meta(
         json.dump(meta_data, fh, indent=4)
 
     return seconds_elapsed
+
+
+def _extract_model_info_from_all_models(models):
+    """Group model info together"""
+    models_to_tasks = {}
+    for task, caller_args in models.items():
+        models_to_tasks.setdefault(caller_args, []).append(task)
+
+    return [
+        {
+            "model": caller_args.model,
+            "llm_call_kwargs": caller_args.llm_call_kwargs,
+            "llm_service_rate_limit": caller_args.llm_service_rate_limit,
+            "text_splitter_chunk_size": caller_args.text_splitter_chunk_size,
+            "text_splitter_chunk_overlap": (
+                caller_args.text_splitter_chunk_overlap
+            ),
+            "client_type": caller_args.client_type,
+            "tasks": tasks,
+        }
+        for caller_args, tasks in models_to_tasks.items()
+    ]
 
 
 async def _compute_total_cost():
