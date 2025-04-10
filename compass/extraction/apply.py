@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 async def check_for_ordinance_info(
     doc,
-    llm_caller_args,
+    llm_callers,
     heuristic,
     ordinance_text_collector_class,
     permitted_use_text_collector_class,
@@ -61,6 +61,10 @@ async def check_for_ordinance_info(
     if "contains_ord_info" in doc.attrs:
         return doc
 
+    llm_caller_args = llm_callers.get(
+        LLMTasks.DOCUMENT_CONTENT_VALIDATION,
+        llm_callers[LLMTasks.DEFAULT],
+    )
     llm_caller = StructuredLLMCaller(
         llm_service=llm_caller_args.llm_service,
         usage_tracker=usage_tracker,
@@ -108,8 +112,16 @@ async def check_for_ordinance_info(
     if any(
         [doc.attrs["contains_ord_info"], doc.attrs["contains_district_info"]]
     ):
+        date_llm_caller_args = llm_callers.get(
+            LLMTasks.DATE_EXTRACTION, llm_callers[LLMTasks.DEFAULT]
+        )
+        date_llm_caller = StructuredLLMCaller(
+            llm_service=date_llm_caller_args.llm_service,
+            usage_tracker=usage_tracker,
+            **date_llm_caller_args.llm_call_kwargs,
+        )
         doc.attrs["date"] = await DateExtractor(
-            llm_caller, llm_caller_args.text_splitter
+            date_llm_caller, date_llm_caller_args.text_splitter
         ).parse(doc)
 
     return doc

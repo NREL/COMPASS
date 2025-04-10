@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 async def download_county_ordinance(
     question_templates,
     location,
-    llm_caller_args,
+    llm_callers,
     heuristic,
     ordinance_text_collector_class,
     permitted_use_text_collector_class,
@@ -39,8 +39,9 @@ async def download_county_ordinance(
     ----------
     location : :class:`compass.utilities.location.Location`
         Location objects representing the county.
-    llm_caller_args : obj, optional
-        TBA
+    llm_callers : dict
+        Dictionary of LLMCallerArgs instances. Should have at minium a
+        "default" key that is used as a fallback for all tasks.
     num_urls : int, optional
         Number of unique Google search result URL's to check for
         ordinance document. By default, ``5``.
@@ -71,7 +72,6 @@ async def download_county_ordinance(
     docs = await _docs_from_web_search(
         question_templates,
         location,
-        llm_caller_args.text_splitter,
         num_urls,
         browser_semaphore,
         **(file_loader_kwargs or {}),
@@ -84,7 +84,10 @@ async def download_county_ordinance(
         docs,
         location=location,
         usage_tracker=usage_tracker,
-        llm_caller_args=llm_caller_args,
+        llm_caller_args=llm_callers.get(
+            LLMTasks.DOCUMENT_LOCATION_VALIDATION,
+            llm_callers[LLMTasks.DEFAULT],
+        ),
     )
     logger.info(
         "%d document(s) remaining after location filter for %s\n\t- %s",
@@ -100,7 +103,7 @@ async def download_county_ordinance(
     docs = await _down_select_docs_correct_content(
         docs,
         location=location,
-        llm_caller_args=llm_caller_args,
+        llm_callers=llm_callers,
         heuristic=heuristic,
         ordinance_text_collector_class=ordinance_text_collector_class,
         permitted_use_text_collector_class=permitted_use_text_collector_class,
@@ -120,7 +123,6 @@ async def download_county_ordinance(
 async def _docs_from_web_search(
     question_templates,
     location,
-    text_splitter,
     num_urls,
     browser_semaphore,
     **file_loader_kwargs,
@@ -130,12 +132,7 @@ async def _docs_from_web_search(
         question.format(location=location.full_name)
         for question in question_templates
     ]
-    file_loader_kwargs.update(
-        {
-            "html_read_kwargs": {"text_splitter": text_splitter},
-            "file_cache_coroutine": TempFileCache.call,
-        }
-    )
+    file_loader_kwargs.update({"file_cache_coroutine": TempFileCache.call})
     return await web_search_links_as_docs(
         queries,
         num_urls=num_urls,
@@ -169,7 +166,7 @@ async def _down_select_docs_correct_location(
 async def _down_select_docs_correct_content(
     docs,
     location,
-    llm_caller_args,
+    llm_callers,
     heuristic,
     ordinance_text_collector_class,
     permitted_use_text_collector_class,
@@ -180,7 +177,7 @@ async def _down_select_docs_correct_content(
         docs,
         validation_coroutine=_contains_ordinances,
         task_name=location.full_name,
-        llm_caller_args=llm_caller_args,
+        llm_callers=llm_callers,
         heuristic=heuristic,
         ordinance_text_collector_class=ordinance_text_collector_class,
         permitted_use_text_collector_class=permitted_use_text_collector_class,
