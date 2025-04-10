@@ -365,7 +365,7 @@ class JurisdictionUpdater(ThreadedService):
         """bool: ``True`` if file not currently being written to"""
         return not self._is_processing
 
-    async def process(self, county, doc, seconds_elapsed, usage_tracker):
+    async def process(self, county, doc, seconds_elapsed, usage_tracker=None):
         """Add usage from tracker to file
 
         Any existing usage info in the file will remain unchanged
@@ -385,9 +385,9 @@ class JurisdictionUpdater(ThreadedService):
         seconds_elapsed : int | float
             Total number of seconds it took to look for (and possibly
             parse) this document.
-        usage_tracker : compass.services.usage.UsageTracker | None
+        usage_tracker : compass.services.usage.UsageTracker, optional
             Optional tracker instance to monitor token usage during
-            LLM calls.
+            LLM calls. By default, ``None``.
         """
         self._is_processing = True
         loop = asyncio.get_running_loop()
