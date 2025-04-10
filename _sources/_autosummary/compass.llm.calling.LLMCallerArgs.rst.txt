@@ -1,0 +1,32 @@
+compass.llm.calling.LLMCallerArgs
+=================================
+
+.. currentmodule:: compass.llm.calling
+
+.. autoclass:: LLMCallerArgs
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~LLMCallerArgs.SUPPORTED_CLIENTS
+      ~LLMCallerArgs.client_kwargs
+      ~LLMCallerArgs.llm_service
+      ~LLMCallerArgs.text_splitter
+   
+   

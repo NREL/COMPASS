@@ -1,0 +1,6 @@
+compass.extraction.common.empty\_output
+=======================================
+
+.. currentmodule:: compass.extraction.common
+
+.. autofunction:: empty_output

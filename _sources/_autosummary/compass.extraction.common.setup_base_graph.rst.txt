@@ -1,0 +1,6 @@
+compass.extraction.common.setup\_base\_graph
+============================================
+
+.. currentmodule:: compass.extraction.common
+
+.. autofunction:: setup_base_graph
