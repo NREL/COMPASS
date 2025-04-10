@@ -593,7 +593,9 @@ class _SingleJurisdictionRunner:
         start_time = time.monotonic()
         doc = await self._run()
         await self._record_usage()
-        await _record_jurisdiction_info(self.jurisdiction, doc, start_time)
+        await _record_jurisdiction_info(
+            self.jurisdiction, doc, start_time, self.usage_tracker
+        )
         return doc
 
     async def _run(self):
@@ -921,10 +923,10 @@ async def _write_ord_db(doc):
     return doc
 
 
-async def _record_jurisdiction_info(county, doc, start_time):
+async def _record_jurisdiction_info(county, doc, start_time, usage_tracker):
     """Record info about jurisdiction"""
     seconds_elapsed = time.monotonic() - start_time
-    await JurisdictionUpdater.call(county, doc, seconds_elapsed)
+    await JurisdictionUpdater.call(county, doc, seconds_elapsed, usage_tracker)
 
 
 def _setup_pytesseract(exe_fp):
