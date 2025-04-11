@@ -39,4 +39,4 @@ single county to be processed. Finally, the ``"tech"`` key should be a string re
 infrastructure that you are running INFRA-COMPASS for.
 
 .. include:: config_bare_minimum.json5
-    code: json
+
