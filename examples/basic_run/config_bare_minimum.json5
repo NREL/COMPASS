@@ -1,0 +1,8 @@
+{
+    "out_dir": "./outputs",
+    "jurisdiction_fp": "jurisdictions.csv",
+    "tech": "solar",
+
+    // Note that this assumes your have your LLM API keys and endpoints configured
+    // as environment variables!!
+}
