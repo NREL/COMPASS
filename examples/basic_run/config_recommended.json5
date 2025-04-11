@@ -5,7 +5,7 @@
     "tech": "solar",
     "model": [
         {
-            "model": "gpt-4o-mini",
+            "name": "gpt-4o-mini",
             "llm_call_kwargs":{
                 "temperature": 0,
                 "timeout": 300
