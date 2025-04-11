@@ -46,4 +46,20 @@ As mentioned in the comment in the config file, this does assume that your LLM e
 been configured using environment variables (i.e. if you are using Azure OpenAI, then you have set
 ``AZURE_OPENAI_API_KEY``, ``AZURE_OPENAI_VERSION``, and ``AZURE_OPENAI_ENDPOINT`` to point to your OpenAI
 deployment). This also assumes that you have deployed and would like to use the default LLM that we have
-used for testing this tool, which is ``"gpt-4o"`` as of April 11, 2025.
+used for testing this tool, which is ``"gpt-4o"`` as of April 11, 2025. If you'd like to use a different model,
+simply add ``"model": "gpt-4o-mini"`` to your config, replacing the value with the name of the model you would
+like to use.
+
+
+Typical Setup
+-------------
+In most cases, you'll want more control over some of the parameters of the execution (often pertaining to the
+LLM configuration). You can always refer to the parameters of the
+to the
+`process_counties_with_openai <https://nrel.github.io/COMPASS/_autosummary/compass.scripts.process.process_counties_with_openai.html#compass.scripts.process.process_counties_with_openai>`_
+for all available inputs, but our recommended configuration is shown in
+`config_recommended.json5 <https://github.com/NREL/COMPASS/blob/main/examples/basic_run/config_recommended.json5>`_.
+
+
+.. include:: config_recommended.json5
+    :code:
