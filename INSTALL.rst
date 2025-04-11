@@ -42,7 +42,7 @@ Instead, it is highly recommended to use an isolated environment, such as one cr
 `Miniconda <https://www.anaconda.com/docs/getting-started/miniconda/main>`__, for package and dependency updates.
 
 
-Installing from source
+Installing from Source
 ----------------------
 
 If you would like to install and run INFRA-COMPASS from source, we recommend using
@@ -81,7 +81,7 @@ You are welcome to use a different environment manager (e.g. ``conda``, ``mamba`
 but we make no promises to provide support on environment-related issues/bugs in this case.
 
 
-Preparing for web search
+Preparing for Web Search
 ------------------------
 Before you can perform any automated web search, you will need to install the browser
 drivers that will be used to control this process. To do so, in your active conda environment
