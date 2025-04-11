@@ -109,7 +109,7 @@ AzureParams = namedtuple(
 WebSearchParams = namedtuple(
     "WebSearchParams",
     [
-        "num_urls_to_check_per_county",
+        "num_urls_to_check_per_jurisdiction",
         "max_num_concurrent_browsers",
         "pytesseract_exe_fp",
     ],
@@ -152,7 +152,7 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
     tech,
     jurisdiction_fp,
     model="gpt-4o",
-    num_urls_to_check_per_county=5,
+    num_urls_to_check_per_jurisdiction=5,
     max_num_concurrent_browsers=10,
     max_num_concurrent_jurisdictions=None,
     file_loader_kwargs=None,
@@ -227,9 +227,10 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
 
 
         By default, ``"gpt-4o"``.
-    num_urls_to_check_per_county : int, optional
+    num_urls_to_check_per_jurisdiction : int, optional
         Number of unique Google search result URL's to check for
-        ordinance document. By default, ``5``.
+        each jurisdiction to find the ordinance document.
+        By default, ``5``.
     max_num_concurrent_browsers : int, optional
         Number of unique concurrent browser instances to open when
         performing Google search. Setting this number too high on a
@@ -323,7 +324,7 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         max_num_concurrent_jurisdictions,
     )
     wsp = WebSearchParams(
-        num_urls_to_check_per_county,
+        num_urls_to_check_per_jurisdiction,
         max_num_concurrent_browsers,
         pytesseract_exe_fp,
     )
@@ -621,7 +622,7 @@ class _SingleJurisdictionRunner:
             permitted_use_text_collector_class=(
                 self.tech_specs.permitted_use_text_collector
             ),
-            num_urls=self.web_search_params.num_urls_to_check_per_county,
+            num_urls=self.web_search_params.num_urls_to_check_per_jurisdiction,
             file_loader_kwargs=self.file_loader_kwargs,
             browser_semaphore=self.browser_semaphore,
             usage_tracker=self.usage_tracker,
