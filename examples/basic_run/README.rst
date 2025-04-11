@@ -35,7 +35,9 @@ The simplest INFRA-COMPASS configuration requires just three keys: ``"out_dir"``
 The ``"out_dir"`` key should point to a directory where the outputs of the scraping and parsing routines should
 go. This directory does not have it exist; it will be created if missing. The ``"jurisdiction_fp"`` should
 point to a CSV file with ``County`` and ``State`` columns. Each row of this CSV file should be populated with a
-single county to be processed. Finally, the ``"tech"`` key should be a string representing the technology or
+single county to be processed. See the
+`example CSV <https://github.com/NREL/elm/blob/main/examples/basic_run/jurisdictions.csv>`_
+file for reference. Finally, the ``"tech"`` key should be a string representing the technology or
 infrastructure that you are running INFRA-COMPASS for. A basic example config is given in
 `config_bare_minimum.json5 <https://github.com/NREL/COMPASS/blob/main/examples/basic_run/config_bare_minimum.json5>`_.
 
