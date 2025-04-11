@@ -163,7 +163,7 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
     log_dir=None,
     clean_dir=None,
     ordinance_file_dir=None,
-    county_dbs_dir=None,
+    jurisdiction_dbs_dir=None,
     llm_costs=None,
     log_level="INFO",
 ):
@@ -273,12 +273,12 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         ``None``, which creates a ``cleaned_text`` folder in the output
         directory for the cleaned ordinance text files.
     ordinance_file_dir : path-like, optional
-        Path to directory for individual county ordinance file outputs.
-        This directory will be created if it does not exist.
+        Path to directory for individual jurisdiction ordinance file
+        outputs. This directory will be created if it does not exist.
         By default, ``None``, which creates a ``ordinance_files``
         folder in the output directory.
-    county_dbs_dir : path-like, optional
-        Path to directory for individual county ordinance database
+    jurisdiction_dbs_dir : path-like, optional
+        Path to directory for individual jurisdiction ordinance database
         outputs. This directory will be created if it does not exist.
         By default, ``None``, which creates a ``jurisdiction_dbs``
         folder in the output directory.
@@ -314,7 +314,7 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         log_dir=log_dir,
         clean_dir=clean_dir,
         ofd=ordinance_file_dir,
-        cdd=county_dbs_dir,
+        jdd=jurisdiction_dbs_dir,
     )
     pk = ProcessKwargs(
         file_loader_kwargs,
@@ -789,7 +789,7 @@ def _setup_main_logging(log_dir, level, listener):
     listener.addHandler(handler)
 
 
-def _setup_folders(out_dir, log_dir=None, clean_dir=None, ofd=None, cdd=None):
+def _setup_folders(out_dir, log_dir=None, clean_dir=None, ofd=None, jdd=None):
     """Setup output directory folders"""
     out_dir = Path(out_dir)
     out_folders = Directories(
@@ -797,7 +797,7 @@ def _setup_folders(out_dir, log_dir=None, clean_dir=None, ofd=None, cdd=None):
         Path(log_dir) if log_dir else out_dir / "logs",
         Path(clean_dir) if clean_dir else out_dir / "cleaned_text",
         Path(ofd) if ofd else out_dir / "ordinance_files",
-        Path(cdd) if cdd else out_dir / "jurisdiction_dbs",
+        Path(jdd) if jdd else out_dir / "jurisdiction_dbs",
     )
     for folder in out_folders:
         folder.mkdir(exist_ok=True, parents=True)
