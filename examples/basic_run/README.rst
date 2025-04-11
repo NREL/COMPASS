@@ -2,93 +2,89 @@
 Running INFRA-COMPASS
 *********************
 
-This example walks you through the setup of your first INFRA-COMPASS execution.
+This example walks you through setting up and executing your first INFRA-COMPASS run.
 
 
 Prerequisites
 =============
-We recommend executing the pipeline with Optical Character Recognition (OCR) enabled for PDF parsing, which
-allows the program to parse scanned documents. To enable this option, you will need to install ``pytesseract``.
-If you installed COMPASS from PyPi, you may need to install a few additional dependencies:
+We recommend enabling Optical Character Recognition (OCR) for PDF parsing, which
+allows the program to process scanned documents. To enable OCR, you'll need to install ``pytesseract``.
+If you installed COMPASS via PyPI, you may need to install a few additional dependencies:
 
 .. code-block:: shell
 
     $ pip install pytesseract pdf2image
 
-If you plan to execute the pipeline with ``pixi`` (recommended), then you will have access to these libraries
-by default. In either case, you may need to follow a few additional installation steps if this is your first
-time using Google's ``tesseract`` utility on your machine. Please follow the installation instructions
+If you're using ``pixi`` to run the pipeline (recommended), these libraries are included by default.
+
+In either case, you may still need to complete a few additional setup steps if this is your first time
+installing Google's ``tesseract`` utility. Follow the installation instructions
 `here <https://pypi.org/project/pytesseract/#:~:text=lang%5D%20image_file-,INSTALLATION,-Prerequisites%3A>`_.
 
 
-Setting up the Run Configuration
+Setting Up the Run Configuration
 ================================
-The INFRA-COMPASS configuration file (``JSON`` or ``JSON5`` format) is a simple config that describes the
-parameters of the process execution. All of the keys in this configuration file should be arguments to the
-`process_counties_with_openai <https://nrel.github.io/COMPASS/_autosummary/compass.scripts.process.process_counties_with_openai.html#compass.scripts.process.process_counties_with_openai>`_
-function. Please refer to the documentation for more detailed and up-to-date explanations of each input.
+The INFRA-COMPASS configuration file—written in either ``JSON`` or ``JSON5`` format—is a simple config that
+defines parameters for running the process. Each key in the config corresponds to an argument for the function
+`process_counties_with_openai <https://nrel.github.io/COMPASS/_autosummary/compass.scripts.process.process_counties_with_openai.html#compass.scripts.process.process_counties_with_openai>`_.
+Refer to the linked documentation for detailed and up-to-date descriptions of each input.
 
 
 Minimal Setup
 -------------
-The simplest INFRA-COMPASS configuration requires just three keys: ``"out_dir"``, ``"jurisdiction_fp"``, and ``"tech"``.
-The ``"out_dir"`` key should point to a directory where the outputs of the scraping and parsing routines should
-go. This directory does not have it exist; it will be created if missing. The ``"jurisdiction_fp"`` should
-point to a CSV file with ``County`` and ``State`` columns. Each row of this CSV file should be populated with a
-single county to be processed. See the
-`example CSV <https://github.com/NREL/elm/blob/main/examples/basic_run/jurisdictions.csv>`_
-file for reference. Finally, the ``"tech"`` key should be a string representing the technology or
-infrastructure that you are running INFRA-COMPASS for. A basic example config is given in
-`config_bare_minimum.json5 <https://github.com/NREL/COMPASS/blob/main/examples/basic_run/config_bare_minimum.json5>`_.
+At a minimum, the INFRA-COMPASS config file requires three keys: ``"out_dir"``, ``"jurisdiction_fp"``, and ``"tech"``.
+
+- ``"out_dir"``: Path to the output directory for results. This directory will be created if it doesn't already exist.
+- ``"jurisdiction_fp"``: Path to a CSV file containing ``County`` and ``State`` columns. Each row represents a county to be processed. See the `example CSV <https://github.com/NREL/elm/blob/main/examples/basic_run/jurisdictions.csv>`_ for reference.
+- ``"tech"``: A string specifying the technology or infrastructure focus of this run.
+
+You can view a minimal working configuration in `config_bare_minimum.json5 <https://github.com/NREL/COMPASS/blob/main/examples/basic_run/config_bare_minimum.json5>`_.
 
 .. literalinclude:: config_bare_minimum.json5
     :language: json5
 
-As mentioned in the comment in the config file, this does assume that your LLM endpoints and API keys have
-been configured using environment variables (i.e. if you are using Azure OpenAI, then you have set
-``AZURE_OPENAI_API_KEY``, ``AZURE_OPENAI_VERSION``, and ``AZURE_OPENAI_ENDPOINT`` to point to your OpenAI
-deployment). This also assumes that you have deployed and would like to use the default LLM that we have
-used for testing this tool, which is ``"gpt-4o"`` as of April 11, 2025. If you'd like to use a different model,
-simply add ``"model": "gpt-4o-mini"`` to your config, replacing the value with the name of the model you would
-like to use.
+As noted in the file comments, this setup assumes your LLM credentials and endpoints are configured via environment variables.
+For example, if you're using Azure OpenAI, you should have the following set:
+
+- ``AZURE_OPENAI_API_KEY``
+- ``AZURE_OPENAI_VERSION``
+- ``AZURE_OPENAI_ENDPOINT``
+
+This minimal setup also assumes you're using the default LLM model configured for this tool - ``"gpt-4o"`` as of April 11, 2025.
+To use a different model, simply add ``"model": "your-model-name"`` to your config (e.g., ``"gpt-4o-mini"``).
 
 
 Typical Setup
 -------------
-In most cases, you'll want more control over some of the parameters of the execution (often pertaining to the
-LLM configuration). You can always refer to the parameters of the
-to the
+In most cases, you'll want more control over the execution parameters, especially those related to the LLM configuration.
+You can review all available inputs in the
 `process_counties_with_openai <https://nrel.github.io/COMPASS/_autosummary/compass.scripts.process.process_counties_with_openai.html#compass.scripts.process.process_counties_with_openai>`_
-for all available inputs, but our recommended configuration is shown in
-`config_recommended.json5 <https://github.com/NREL/COMPASS/blob/main/examples/basic_run/config_recommended.json5>`_.
+documentation. Our recommended configuration is shown in `config_recommended.json5 <https://github.com/NREL/COMPASS/blob/main/examples/basic_run/config_recommended.json5>`_.
 
 .. literalinclude:: config_recommended.json5
     :language: json5
 
-In this configuration, we specified quite a few more specifics about the LLM we would like to use, notably setting
-the rate limit (in tokens/min) to be quite large in order to process the documents as quickly as possible. We also
-increase the text splitter chunk size (compared to the default) in order to fit more context per query.
+In this configuration, we define several LLM-related settings, including an increased token rate limit to speed up processing
+and a larger text splitter chunk size (compared to the default) to include more context per query.
 
-.. WARNING:: Be careful when setting the setting the ``"text_splitter_chunk_size"``. A larger chunk size will
-             cost more per query, since a lot more tokens are being used for the context.
+.. WARNING::
 
-By specifying the model details this way, we can also provide the LLM endpoint and API key information directly in
-the config file via the ``client_kwargs`` input. Note that it typically not a good idea to keep credentials like
-this in an unencrypted plaintext file; however, this can be useful for quick-and-dirty test runs.
+   Be cautious when adjusting the ``"text_splitter_chunk_size"``. Larger chunk sizes increase token usage, which may result in higher costs per query.
 
-We also specified ``"verify_ssl": false`` under ``"file_loader_kwargs"`` to avoid some certificate errors when running
-on the NREL VPN. If you are running outside of NREL, you should consider leaving this argument set as the default
-(``true``).
+You can also specify LLM credentials and endpoint details directly in the config under the ``client_kwargs`` key.
+Note that while this can be convenient for quick testing, storing credentials in plaintext is not recommended for production environments.
 
-Finally, as mentioned in the `Prerequisites`_ section, we recommend setting up OCR via ``pytesseract``. If you have
-chosen to do so, you should specify the path to the ``tesseract`` executable via the ``pytesseract_exe_fp`` key.
-You can find the path to the ``tesseract`` executable by running the following command (after installing):
+We also set ``"verify_ssl": false`` under ``"file_loader_kwargs"`` to avoid SSL certificate errors commonly encountered on the NREL VPN.
+If you're not using the VPN, it's best to leave this value as the default (``true``).
+
+Finally, as noted in the `Prerequisites`_ section, we recommend enabling OCR using ``pytesseract``. If you choose to do so, you must specify the
+path to the ``tesseract`` executable using the ``pytesseract_exe_fp`` key. You can locate the path by running:
 
 .. code-block:: shell
 
     $ which tesseract
 
-To completely opt out of OCR, simply remove the ``pytesseract_exe_fp`` key from the config.
+To completely disable OCR, simply omit the ``pytesseract_exe_fp`` key from your config.
 
 
 Kitchen Sink Config
