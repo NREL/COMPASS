@@ -212,7 +212,7 @@ class LLMCallerArgs:
 
     def __init__(
         self,
-        model="gpt-4o",
+        name="gpt-4o",
         llm_call_kwargs=None,
         llm_service_rate_limit=4000,
         text_splitter_chunk_size=10_000,
@@ -224,7 +224,7 @@ class LLMCallerArgs:
 
         Parameters
         ----------
-        model : str, optional
+        name : str, optional
             Name of LLM model to perform scraping.
             By default, ``"gpt-4o"``.
         llm_call_kwargs : dict, optional
@@ -263,7 +263,7 @@ class LLMCallerArgs:
             typically include things like API keys and endpoints.
             By default, ``None``.
         """
-        self.model = model
+        self.name = name
         self.llm_call_kwargs = llm_call_kwargs or {}
         self.llm_service_rate_limit = llm_service_rate_limit
         self.text_splitter_chunk_size = text_splitter_chunk_size
@@ -304,7 +304,7 @@ class LLMCallerArgs:
             RTS_SEPARATORS,
             chunk_size=self.text_splitter_chunk_size,
             chunk_overlap=self.text_splitter_chunk_overlap,
-            length_function=partial(ApiBase.count_tokens, model=self.model),
+            length_function=partial(ApiBase.count_tokens, model=self.name),
             is_separator_regex=True,
         )
 
@@ -313,7 +313,7 @@ class LLMCallerArgs:
         """LLMService: Object that can be used to submit calls to LLM"""
         client = self.SUPPORTED_CLIENTS[self.client_type](**self.client_kwargs)
         return OpenAIService(
-            client, self.model, rate_limit=self.llm_service_rate_limit
+            client, self.name, rate_limit=self.llm_service_rate_limit
         )
 
 

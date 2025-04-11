@@ -806,7 +806,7 @@ def _setup_folders(out_dir, log_dir=None, clean_dir=None, ofd=None, cdd=None):
 def _initialize_model_params(user_input):
     """Initialize llm caller args for models from user input"""
     if isinstance(user_input, str):
-        return {LLMTasks.DEFAULT: LLMCallerArgs(model=user_input)}
+        return {LLMTasks.DEFAULT: LLMCallerArgs(name=user_input)}
 
     caller_instances = {}
     for kwargs in user_input:
@@ -1097,7 +1097,7 @@ def _extract_model_info_from_all_models(models):
 
     return [
         {
-            "model": caller_args.model,
+            "name": caller_args.name,
             "llm_call_kwargs": caller_args.llm_call_kwargs,
             "llm_service_rate_limit": caller_args.llm_service_rate_limit,
             "text_splitter_chunk_size": caller_args.text_splitter_chunk_size,
