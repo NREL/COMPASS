@@ -209,6 +209,7 @@ class LLMCallerArgs:
         "openai": openai.AsyncOpenAI,
         "azure": openai.AsyncAzureOpenAI,
     }
+    """Currently-supported LLM clients"""
 
     def __init__(
         self,
