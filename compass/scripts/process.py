@@ -150,7 +150,7 @@ _TEXT_EXTRACTION_TASKS = {
 async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
     out_dir,
     tech,
-    jurisdiction_fp=None,
+    jurisdiction_fp,
     model="gpt-4o",
     num_urls_to_check_per_county=5,
     max_num_concurrent_browsers=10,
@@ -180,12 +180,10 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         here.
     tech : {"wind", "solar"}
         Label representing the technology being processed.
-    jurisdiction_fp : path-like, optional
+    jurisdiction_fp : path-like
         Path to CSV file containing a list of jurisdictions to extract
         ordinance information for. This CSV should have "County" and
         "State" columns that contains the county and state names.
-        By default, ``None``, which runs the extraction for all known
-        jurisdictions (this is untested and not currently recommended).
     model : str | list, optional
         Name of LLM model to perform scraping. If only the model name is
         provided, then the LLM calling instance will use all default
