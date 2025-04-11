@@ -63,3 +63,16 @@ for all available inputs, but our recommended configuration is shown in
 
 .. include:: config_recommended.json5
     :code:
+
+
+
+Execution
+=========
+Once you are happy with the configuration parameters, you can kick off the processing using
+
+.. code-block:: bash
+
+    $ compass process -c config.json
+
+You may also wish to add a ``-v`` option to print logs to the terminal (however, keep in mind that the code runs
+asynchronously, so the the logs will not print in order).
