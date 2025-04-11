@@ -41,8 +41,8 @@ file for reference. Finally, the ``"tech"`` key should be a string representing 
 infrastructure that you are running INFRA-COMPASS for. A basic example config is given in
 `config_bare_minimum.json5 <https://github.com/NREL/COMPASS/blob/main/examples/basic_run/config_bare_minimum.json5>`_.
 
-.. include:: config_bare_minimum.json5
-    :code:
+.. literalinclude:: config_bare_minimum.json5
+    :language: json5
 
 As mentioned in the comment in the config file, this does assume that your LLM endpoints and API keys have
 been configured using environment variables (i.e. if you are using Azure OpenAI, then you have set
@@ -62,10 +62,8 @@ to the
 for all available inputs, but our recommended configuration is shown in
 `config_recommended.json5 <https://github.com/NREL/COMPASS/blob/main/examples/basic_run/config_recommended.json5>`_.
 
-
-.. include:: config_recommended.json5
-    :code:
-
+.. literalinclude:: config_recommended.json5
+    :language: json5
 
 In this configuration, we specified quite a few more specifics about the LLM we would like to use, notably setting
 the rate limit (in tokens/min) to be quite large in order to process the documents as quickly as possible. We also
@@ -90,6 +88,22 @@ You can find the path to the ``tesseract`` executable by running the following c
 
     $ which tesseract
 
+To completely opt out of OCR, simply remove the ``pytesseract_exe_fp`` key from the config.
+
+
+Kitchen Sink Config
+-------------------
+
+In `config_kitchen_sink.json5 <https://github.com/NREL/COMPASS/blob/main/examples/basic_run/config_recommended.json5>`_,
+we show what a configuration might look like that utilizes all available parameters.
+
+.. literalinclude:: config_kitchen_sink.json5
+    :language: json5
+
+We will not go into detail into all of the possible options here. Instead, we hope that the combination of this example
+and the documentation will be enough to
+
+.. NOTE:: Be sure to provide full paths to all files/directories unless you are executing the program from your working folder.
 
 
 Execution
