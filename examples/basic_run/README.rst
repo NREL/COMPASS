@@ -23,8 +23,8 @@ time using Google's ``tesseract`` utility on your machine. Please follow the ins
 
 Setting up the Run Configuration
 ================================
-The INFRA-COMPASS configuration file (JSON or JSON5 format) is a simple config that describes the parameters of
-the process execution. All of the keys in this configuration file should be arguments to the
+The INFRA-COMPASS configuration file (``JSON`` or ``JSON5`` format) is a simple config that describes the
+parameters of the process execution. All of the keys in this configuration file should be arguments to the
 `process_counties_with_openai <https://nrel.github.io/COMPASS/_autosummary/compass.scripts.process.process_counties_with_openai.html#compass.scripts.process.process_counties_with_openai>`_
 function. Please refer to the documentation for more detailed and up-to-date explanations of each input.
 
@@ -36,7 +36,14 @@ The ``"out_dir"`` key should point to a directory where the outputs of the scrap
 go. This directory does not have it exist; it will be created if missing. The ``"jurisdiction_fp"`` should
 point to a CSV file with ``County`` and ``State`` columns. Each row of this CSV file should be populated with a
 single county to be processed. Finally, the ``"tech"`` key should be a string representing the technology or
-infrastructure that you are running INFRA-COMPASS for.
+infrastructure that you are running INFRA-COMPASS for. Here is a sample minimalistic config file:
+
 
 .. include:: config_bare_minimum.json5
+    :code:
 
+As mentioned in the comment in the config file, this does assume that your LLM endpoints and API keys have
+been configured using environment variables (i.e. if you are using Azure OpenAI, then you have set
+``AZURE_OPENAI_API_KEY``, ``AZURE_OPENAI_VERSION``, and ``AZURE_OPENAI_ENDPOINT`` to point to your OpenAI
+deployment). This also assumes that you have deployed and would like to use the default LLM that we have
+used for testing this tool, which is ``"gpt-4o"`` as of April 11, 2025.
