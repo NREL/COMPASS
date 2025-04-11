@@ -67,6 +67,30 @@ for all available inputs, but our recommended configuration is shown in
     :code:
 
 
+In this configuration, we specified quite a few more specifics about the LLM we would like to use, notably setting
+the rate limit (in tokens/min) to be quite large in order to process the documents as quickly as possible. We also
+increase the text splitter chunk size (compared to the default) in order to fit more context per query.
+
+.. WARNING:: Be careful when setting the setting the ``"text_splitter_chunk_size"``. A larger chunk size will
+             cost more per query, since a lot more tokens are being used for the context.
+
+By specifying the model details this way, we can also provide the LLM endpoint and API key information directly in
+the config file via the ``client_kwargs`` input. Note that it typically not a good idea to keep credentials like
+this in an unencrypted plaintext file; however, this can be useful for quick-and-dirty test runs.
+
+We also specified ``"verify_ssl": false`` under ``"file_loader_kwargs"`` to avoid some certificate errors when running
+on the NREL VPN. If you are running outside of NREL, you should consider leaving this argument set as the default
+(``true``).
+
+Finally, as mentioned in the `Prerequisites`_ section, we recommend setting up OCR via ``pytesseract``. If you have
+chosen to do so, you should specify the path to the ``tesseract`` executable via the ``pytesseract_exe_fp`` key.
+You can find the path to the ``tesseract`` executable by running the following command (after installing):
+
+.. code-block:: shell
+
+    $ which tesseract
+
+
 
 Execution
 =========
