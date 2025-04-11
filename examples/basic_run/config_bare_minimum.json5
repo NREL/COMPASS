@@ -1,3 +1,4 @@
+// config_bare_minimum.json5
 {
     "out_dir": "./outputs",
     "jurisdiction_fp": "jurisdictions.csv",
