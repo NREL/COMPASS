@@ -191,6 +191,7 @@ You may also wish to add a ``-v`` option to print logs to the terminal (however,
 asynchronously, so the the logs will not print in order).
 
 During execution, INFRA-COMPASS will:
+
 1. Load and validate the jurisdiction CSV.
 2. Attempt to locate and download relevant ordinance documents for each jurisdiction.
 3. Parse and validate the documents.
