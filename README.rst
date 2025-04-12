@@ -34,13 +34,13 @@ Installing INFRA-COMPASS
 ========================
 The quickest way to install INFRA-COMPASS for users is from PyPi:
 
-.. code-block:: shell
+.. code-block:: bash
 
     pip install nrel-compass
 
 If you would like to install and run INFRA-COMPASS from source, we recommend using `pixi <https://pixi.sh/latest/>`_:
 
-.. code-block:: shell
+.. code-block:: bash
 
     git clone git@github.com:NREL/COMPASS.git; cd COMPASS
     pixi run compass
