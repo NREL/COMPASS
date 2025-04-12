@@ -30,8 +30,8 @@ defines parameters for running the process. Each key in the config corresponds t
 Refer to the linked documentation for detailed and up-to-date descriptions of each input.
 
 
-Minimal Setup
--------------
+Minimal Config
+--------------
 At a minimum, the INFRA-COMPASS config file requires three keys: ``"out_dir"``, ``"jurisdiction_fp"``, and ``"tech"``.
 
 - ``"out_dir"``: Path to the output directory for results. This directory will be created if it doesn't already exist.
@@ -54,8 +54,8 @@ This minimal setup also assumes you're using the default LLM model configured fo
 To use a different model, simply add ``"model": "your-model-name"`` to your config (e.g., ``"gpt-4o-mini"``).
 
 
-Typical Setup
--------------
+Typical Config
+--------------
 In most cases, you'll want more control over the execution parameters, especially those related to the LLM configuration.
 You can review all available inputs in the
 `process_counties_with_openai <https://nrel.github.io/COMPASS/_autosummary/compass.scripts.process.process_counties_with_openai.html#compass.scripts.process.process_counties_with_openai>`_
