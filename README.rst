@@ -51,7 +51,7 @@ Before performing any web searches (i.e. running the COMPASS pipeline), you will
 
     rebrowser_playwright install
 
-If you are using pixi, don't forget to prefix this command with ``pixi run`` or initialize a shell using ``pixi shell``.
+If you are using ``pixi``, don't forget to prefix this command with ``pixi run`` or initialize a shell using ``pixi shell``.
 For detailed instructions, see the `installation documentation <https://nrel.github.io/COMPASS/misc/installation.html>`_.
 
 

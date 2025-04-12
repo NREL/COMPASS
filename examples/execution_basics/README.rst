@@ -179,7 +179,7 @@ If you're using ``pixi``, activate the shell first:
     pixi shell
     compass process -c config.json5
 
-or run with pixi directly:
+or run with ``pixi`` directly:
 
 .. code-block:: shell
 

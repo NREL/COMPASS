@@ -117,7 +117,7 @@ Test coverage
 Pull requests (PRs) that modify code should either have new tests, or modify existing
 tests to fail before the PR and pass afterwards.
 
-You can run python COMPASS tests locally using pixi:
+You can run python COMPASS tests locally using ``pixi``:
 
 .. code-block:: shell
 

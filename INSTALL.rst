@@ -60,7 +60,7 @@ Start by cloning the ``COMPASS`` repository:
 - Using ssh: :code:`git clone git@github.com:NREL/COMPASS.git`
 - Using https: :code:`git clone https://github.com/NREL/COMPASS.git`
 
-If you don't already have pixi installed on your system, follow the (simple) `installation
+If you don't already have ``pixi`` installed on your system, follow the (simple) `installation
 instructions <https://pixi.sh/latest/#installation>`_.
 
 Once you have both ``pixi`` and the ``COMPASS`` source code, simply run:
