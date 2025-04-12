@@ -14,4 +14,4 @@ Alternatively, you can run this demo using ``pixi``:
 
 .. code-block:: shell
 
-    pixi run openai-solar-demo "<your API key>"
+    pixi run openai-solar-demo <your API key>
