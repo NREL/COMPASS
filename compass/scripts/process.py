@@ -311,6 +311,8 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
     cost : float
         Total estimated cost for the LLM calls made during this run. If
         no cost info is provided, this will be 0.
+    output_directory : path-like
+        Path to output directory containing data.
     """
     log_listener = LogListener(["compass", "elm"], level=log_level)
     LLM_COST_REGISTRY.update(llm_costs or {})
@@ -476,7 +478,7 @@ class _COMPASSRunner:
             total_cost=total_cost,
             models=self.models,
         )
-        return total_time, total_cost
+        return total_time, total_cost, self.dirs.out
 
     async def _run_all(self, jurisdictions):
         """Process all counties with running services"""
