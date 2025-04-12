@@ -186,7 +186,6 @@ As such, please adhere to these guidelines:
 
 To check your docstring additions/updates, you can build a local version of the HTML documentation:
 
-
 .. code-block:: shell
 
     pixi r -e pdoc make-html
