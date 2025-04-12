@@ -42,17 +42,16 @@ If you would like to install and run INFRA-COMPASS from source, we recommend usi
 
 .. code-block:: shell
 
-    git clone git@github.com:NREL/COMPASS.git
-    cd COMPASS
+    git clone git@github.com:NREL/COMPASS.git; cd COMPASS
     pixi run compass
 
-Before performing any web searches (i.e. running the COMPASS pipeline), you will need to run the following command
-(one time installation only):
+Before performing any web searches (i.e. running the COMPASS pipeline), you will need to run the following command:
 
 .. code-block:: shell
 
     rebrowser_playwright install
 
+If you are using pixi, don't forget to prefix this command with ``pixi run`` or initialize a shell using ``pixi shell``.
 For detailed instructions, see the `installation documentation <https://nrel.github.io/COMPASS/misc/installation.html>`_.
 
 
