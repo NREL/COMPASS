@@ -110,7 +110,7 @@ Once you are happy with the configuration parameters, you can kick off the proce
 
     $ compass process -c config.json
 
-If you're using ``pixi``, activate the environment first:
+If you're using ``pixi``, activate the shell first:
 
 .. code-block:: shell
 
