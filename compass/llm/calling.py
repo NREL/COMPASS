@@ -85,7 +85,7 @@ class LLMCaller(BaseLLMCaller):
 
         Returns
         -------
-        str | None
+        str or None
             The LLM response, as a string, or ``None`` if something went
             wrong during the call.
         """
@@ -143,7 +143,7 @@ class ChatLLMCaller(BaseLLMCaller):
 
         Returns
         -------
-        str | None
+        str or None
             The LLM response, as a string, or ``None`` if something went
             wrong during the call.
         """

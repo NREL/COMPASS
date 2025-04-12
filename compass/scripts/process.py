@@ -176,7 +176,7 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         does not exist. This directory will contain the structured
         ordinance output CSV as well as all of the scraped ordinance
         documents (PDFs and HTML text files). Usage information and
-        default options for log/clean directories will also be stored
+        default options for other output directories will also be stored
         here.
     tech : {"wind", "solar"}
         Label representing the technology being processed.
@@ -184,7 +184,7 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         Path to CSV file containing a list of jurisdictions to extract
         ordinance information for. This CSV should have "County" and
         "State" columns that contains the county and state names.
-    model : str | list, optional
+    model : str or list, optional
         Name of LLM model to perform scraping. If only the model name is
         provided, then the LLM calling instance will use all default
         arguments (e.g. it is expected API keys are stored in
@@ -288,13 +288,13 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         response tokens. This is only used to display a running cost
         total for the processing. For example::
 
-            llm_costs = {"my_gpt": {"prompt": 1.5, "response": 3.7}}
+            "llm_costs": {"my_gpt": {"prompt": 1.5, "response": 3.7}}
 
-        would register the model named "my_gpt" as costing $1.5 per
+        would register the model named ``"my_gpt"`` as costing $1.5 per
         million input (prompt) tokens and $3.7 per million output
-        (response) tokens. If ``None``, no new model costs are
-        registered, and costs are not tracked in the progress bar.
-        By default, ``None``.
+        (response) tokens for the current processing run. If ``None``,
+        no custom model costs are registered, and costs may not be
+        tracked in the progress bar. By default, ``None``.
     log_level : str, optional
         Log level to set for county retrieval and parsing loggers.
         By default, ``"INFO"``.
@@ -366,7 +366,7 @@ class _COMPASSRunner:
 
     @cached_property
     def browser_semaphore(self):
-        """asyncio.Semaphore | None: Sem to limit # of browsers"""
+        """asyncio.Semaphore or None: Sem to limit # of browsers"""
         return (
             asyncio.Semaphore(
                 self.web_search_params.max_num_concurrent_browsers
@@ -377,7 +377,7 @@ class _COMPASSRunner:
 
     @cached_property
     def _jurisdiction_semaphore(self):
-        """asyncio.Semaphore | None: Sem to limit # of processes"""
+        """asyncio.Semaphore or None: Sem to limit # of processes"""
         return (
             asyncio.Semaphore(
                 self.process_kwargs.max_num_concurrent_jurisdictions
@@ -388,7 +388,7 @@ class _COMPASSRunner:
 
     @property
     def jurisdiction_semaphore(self):
-        """asyncio.Semaphore | AsyncExitStack: Sem to limit processes"""
+        """asyncio.Semaphore or AsyncExitStack: Sem to limit processes"""
         if self._jurisdiction_semaphore is None:
             return AsyncExitStack()
         return self._jurisdiction_semaphore
