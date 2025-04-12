@@ -138,3 +138,18 @@ During execution, INFRA-COMPASS will:
 
 The runtime duration varies depending on the number of jurisdictions, the number of documents found for each jurisdiction,
 and the rate limit/output token rate of the LLM(s) used.
+
+
+Outputs
+=======
+
+After completion, you'll find several outputs in the ``out_dir``:
+
+- **Extracted Ordinances**: Structured CSV files containing parsed ordinance values.
+- **Ordinance Documents**: PDF or text (HTML) documents containing the legal ordinance.
+- **Cleaned Text Files**: Text files containing the ordinance-specific text excerpts portions of the downloaded documents.
+- **Metadata Files**: JSON files describing metadata parameters corresponding to your run.
+- **Logs and Debug Files**: Helpful for reviewing LLM prompts and tracing any issues.
+
+You can now use these outputs for downstream analysis, visualization, or integration with other NREL tools like
+`reVX setbacks <https://nrel.github.io/reVX/misc/examples.setbacks.html>`_.
