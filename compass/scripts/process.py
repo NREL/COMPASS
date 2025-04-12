@@ -214,7 +214,6 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
                         "api_key": <your_api_key>,
                         "api_version": <your_api_version>,
                         "azure_endpoint": <your_azure_endpoint>,
-
                     },
                     "tasks": ["default", "date_extraction"],
                 },
@@ -224,7 +223,6 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
                     "tasks": ["ordinance_text_extraction"],
                 }
             ]
-
 
         By default, ``"gpt-4o"``.
     num_urls_to_check_per_jurisdiction : int, optional
@@ -388,7 +386,7 @@ class _COMPASSRunner:
 
     @property
     def jurisdiction_semaphore(self):
-        """asyncio.Semaphore or AsyncExitStack: Sem to limit processes"""
+        """asyncio.Semaphore or AsyncExitStack: Jurisdictions limit"""
         if self._jurisdiction_semaphore is None:
             return AsyncExitStack()
         return self._jurisdiction_semaphore
