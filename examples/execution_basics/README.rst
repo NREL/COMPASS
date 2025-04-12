@@ -35,7 +35,7 @@ Minimal Config
 At a minimum, the INFRA-COMPASS config file requires three keys: ``"out_dir"``, ``"jurisdiction_fp"``, and ``"tech"``.
 
 - ``out_dir``: Path to the output directory. Will be created if it does not exist.
-- ``jurisdiction_fp``: Path to a CSV file containing ``County`` and ``State`` columns. Each row defines a jurisdiction to process. See the `example CSV <https://github.com/NREL/elm/blob/main/examples/execution_basics/jurisdictions.csv>`_.
+- ``jurisdiction_fp``: Path to a CSV file containing ``County`` and ``State`` columns. Each row defines a jurisdiction to process. See the `example CSV <https://github.com/NREL/COMPASS/blob/main/examples/execution_basics/jurisdictions.csv>`_.
 - ``tech``: A string representing the infrastructure or technology focus for the run.
 
 In `config_bare_minimum.json5 <https://github.com/NREL/COMPASS/blob/main/examples/execution_basics/config_bare_minimum.json5>`_,
