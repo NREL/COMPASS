@@ -55,6 +55,19 @@ If you are using pixi, don't forget to prefix this command with ``pixi run`` or 
 For detailed instructions, see the `installation documentation <https://nrel.github.io/COMPASS/misc/installation.html>`_.
 
 
+Quickstart
+==========
+To run a quick INFRA-COMPASS demo, set up a personal OpenAI API key and run:
+
+.. code-block:: shell
+
+    pixi run openai-solar-demo <your API key>
+
+This will run a full extraction pipeline for two counties using ``gpt-4o-mini`` (costs ~$0.35).
+For more information on configuring an INFRA-COMPASS run, see the
+`execution basics example <https://nrel.github.io/COMPASS/examples/execution_basics/README.html>`_.
+
+
 Development
 ===========
 Please see the `Development Guidelines <https://nrel.github.io/COMPASS/dev/index.html>`_
