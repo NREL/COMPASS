@@ -112,6 +112,7 @@ pdoc = { features = ["python-default", "python-doc", "doc"], solve-group = "pyth
 pbuild = { features = ["python-build"], solve-group = "python" }
 
 [tool.pixi.tasks]
+openai-solar-demo = { cmd = "compass process -c config.json5", args = ["api_key"], env = { OPENAI_API_KEY = "{{ api_key }}"}, cwd = "examples/openai_solar_demo"}
 
 [tool.pixi.feature.python-test.tasks]
 tests = "pytest --durations=20 tests/python"
