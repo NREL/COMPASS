@@ -106,9 +106,24 @@ Execution
 =========
 Once you are happy with the configuration parameters, you can kick off the processing using
 
-.. code-block:: bash
+.. code-block:: shell
 
     $ compass process -c config.json
+
+If you're using ``pixi``, activate the environment first:
+
+.. code-block:: shell
+
+    $ pixi shell
+    $ compass process -c config.json5
+
+or run with pixi directly:
+
+.. code-block:: shell
+
+    $ pixi run compass process -c config.json5
+
+Replace ``config.json5`` with the path to your actual configuration file.
 
 You may also wish to add a ``-v`` option to print logs to the terminal (however, keep in mind that the code runs
 asynchronously, so the the logs will not print in order).
