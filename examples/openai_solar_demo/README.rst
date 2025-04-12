@@ -8,10 +8,10 @@ calls), and then tun the following command:
 
 .. code-block:: shell
 
-    $ export OPENAI_API_KEY="<your API key>"; compass process -c config.json5
+    export OPENAI_API_KEY="<your API key>"; compass process -c config.json5
 
 Alternatively, you can run this demo using ``pixi``:
 
 .. code-block:: shell
 
-    $ pixi run openai-solar-demo "<your API key>"
+    pixi run openai-solar-demo "<your API key>"

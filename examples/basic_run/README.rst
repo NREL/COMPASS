@@ -13,7 +13,7 @@ If you installed COMPASS via PyPI, you may need to install a few additional depe
 
 .. code-block:: shell
 
-    $ pip install pytesseract pdf2image
+    pip install pytesseract pdf2image
 
 If you're using ``pixi`` to run the pipeline (recommended), these libraries are included by default.
 
@@ -104,7 +104,7 @@ You can locate the executable path by running:
 
 .. code-block:: shell
 
-    $ which tesseract
+    which tesseract
 
 Omit the ``pytesseract_exe_fp`` key to disable OCR functionality.
 
@@ -170,20 +170,20 @@ Once you are happy with the configuration parameters, you can kick off the proce
 
 .. code-block:: shell
 
-    $ compass process -c config.json
+    compass process -c config.json
 
 If you're using ``pixi``, activate the shell first:
 
 .. code-block:: shell
 
-    $ pixi shell
-    $ compass process -c config.json5
+    pixi shell
+    compass process -c config.json5
 
 or run with pixi directly:
 
 .. code-block:: shell
 
-    $ pixi run compass process -c config.json5
+    pixi run compass process -c config.json5
 
 Replace ``config.json5`` with the path to your actual configuration file.
 
