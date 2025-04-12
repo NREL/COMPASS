@@ -127,3 +127,14 @@ Replace ``config.json5`` with the path to your actual configuration file.
 
 You may also wish to add a ``-v`` option to print logs to the terminal (however, keep in mind that the code runs
 asynchronously, so the the logs will not print in order).
+
+During execution, INFRA-COMPASS will:
+1. Load and validate the jurisdiction CSV.
+2. Attempt to locate and download relevant ordinance documents for each jurisdiction.
+3. Parse and validate the documents.
+4. Extract relevant ordinance text from the documents.
+5. Parse the extracted text to determine the quantitative and qualitative ordinance values within, using decision tree-based LLM queries.
+6. Output structured results to your configured ``out_dir``.
+
+The runtime duration varies depending on the number of jurisdictions, the number of documents found for each jurisdiction,
+and the rate limit/output token rate of the LLM(s) used.
