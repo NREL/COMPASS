@@ -32,16 +32,15 @@ and ordinances pertaining to energy infrastructure.
 
 Installing INFRA-COMPASS
 ========================
-
 The quickest way to install INFRA-COMPASS for users is from PyPi:
 
-.. code-block:: bash
+.. prompt:: bash
 
     pip install nrel-compass
 
 If you would like to install and run INFRA-COMPASS from source, we recommend using `pixi <https://pixi.sh/latest/>`_:
 
-.. code-block:: bash
+.. prompt:: bash
 
     git clone git@github.com:NREL/COMPASS.git
     cd COMPASS
@@ -50,7 +49,7 @@ If you would like to install and run INFRA-COMPASS from source, we recommend usi
 Before performing any web searches (i.e. running the COMPASS pipeline), you will need to run the following command
 (one time installation only):
 
-.. code-block:: bash
+.. prompt:: bash
 
     $ rebrowser_playwright install
 
