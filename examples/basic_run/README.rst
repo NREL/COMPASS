@@ -34,24 +34,34 @@ Minimal Config
 --------------
 At a minimum, the INFRA-COMPASS config file requires three keys: ``"out_dir"``, ``"jurisdiction_fp"``, and ``"tech"``.
 
-- ``"out_dir"``: Path to the output directory for results. This directory will be created if it doesn't already exist.
-- ``"jurisdiction_fp"``: Path to a CSV file containing ``County`` and ``State`` columns. Each row represents a county to be processed. See the `example CSV <https://github.com/NREL/elm/blob/main/examples/basic_run/jurisdictions.csv>`_ for reference.
-- ``"tech"``: A string specifying the technology or infrastructure focus of this run.
+- ``out_dir``: Path to the output directory. Will be created if it does not exist.
+- ``jurisdiction_fp``: Path to a CSV file containing ``County`` and ``State`` columns. Each row defines a jurisdiction to process. See the `example CSV <https://github.com/NREL/elm/blob/main/examples/basic_run/jurisdictions.csv>`_.
+- ``tech``: A string representing the infrastructure or technology focus for the run.
 
-You can view a minimal working configuration in `config_bare_minimum.json5 <https://github.com/NREL/COMPASS/blob/main/examples/basic_run/config_bare_minimum.json5>`_.
+In `config_bare_minimum.json5 <https://github.com/NREL/COMPASS/blob/main/examples/basic_run/config_bare_minimum.json5>`_,
+we show a minimal working configuration that includes only the required keys.
 
 .. literalinclude:: config_bare_minimum.json5
     :language: json5
 
-As noted in the file comments, this setup assumes your LLM credentials and endpoints are configured via environment variables.
-For example, if you're using Azure OpenAI, you should have the following set:
+This configuration is sufficient for a basic run using default settings and assumes the following:
+
+**Environment Configuration**
+
+Your LLM credentials and endpoints should be configured as environment variables. For example, when using Azure OpenAI:
 
 - ``AZURE_OPENAI_API_KEY``
 - ``AZURE_OPENAI_VERSION``
 - ``AZURE_OPENAI_ENDPOINT``
 
-This minimal setup also assumes you're using the default LLM model configured for this tool - ``"gpt-4o"`` as of April 11, 2025.
-To use a different model, simply add ``"model": "your-model-name"`` to your config (e.g., ``"gpt-4o-mini"``).
+**LLM Model Defaults**
+
+This minimal setup uses the default LLM model for INFRA-COMPASS — ``gpt-4o`` as of April 11, 2025.
+To override this default, add a ``model`` key to your config:
+
+.. code-block:: json
+
+    "model": "gpt-4o-mini"
 
 
 Typical Config
@@ -59,32 +69,44 @@ Typical Config
 In most cases, you'll want more control over the execution parameters, especially those related to the LLM configuration.
 You can review all available inputs in the
 `process_counties_with_openai <https://nrel.github.io/COMPASS/_autosummary/compass.scripts.process.process_counties_with_openai.html#compass.scripts.process.process_counties_with_openai>`_
-documentation. Our recommended configuration is shown in `config_recommended.json5 <https://github.com/NREL/COMPASS/blob/main/examples/basic_run/config_recommended.json5>`_.
+documentation.
+In `config_recommended.json5 <https://github.com/NREL/COMPASS/blob/main/examples/basic_run/config_recommended.json5>`_, we
+demonstrate a typical configuration that balances simplicity with additional control over execution parameters.
 
 .. literalinclude:: config_recommended.json5
     :language: json5
 
-In this configuration, we define several LLM-related settings, including an increased token rate limit to speed up processing
-and a larger text splitter chunk size (compared to the default) to include more context per query.
+This setup supports most users' needs while providing flexibility for key configurations:
+
+**LLM Configuration**
+Customize the LLM behavior and performance using:
+
+- ``llm_call_kwargs``: Sets LLM-specific query parameters like ``temperature`` and ``timeout``.
+- ``llm_service_rate_limit``: Controls how many tokens can be processed per minute. Set this as high as your deployment will allow to speed up processing.
+- ``text_splitter_chunk_size`` and ``text_splitter_chunk_overlap``: Controls how large each text chunk sent to the model is.
 
 .. WARNING::
 
    Be cautious when adjusting the ``"text_splitter_chunk_size"``. Larger chunk sizes increase token usage, which may result in higher costs per query.
 
+**LLM Credentials**
 You can also specify LLM credentials and endpoint details directly in the config under the ``client_kwargs`` key.
 Note that while this can be convenient for quick testing, storing credentials in plaintext is not recommended for production environments.
 
-We also set ``"verify_ssl": false`` under ``"file_loader_kwargs"`` to avoid SSL certificate errors commonly encountered on the NREL VPN.
+**SSL Configuration**
+Set ``verify_ssl`` to ``false`` in ``file_loader_kwargs`` to bypass certificate verification errors, especially useful when running behind the NREL VPN.
 If you're not using the VPN, it's best to leave this value as the default (``true``).
 
-Finally, as noted in the `Prerequisites`_ section, we recommend enabling OCR using ``pytesseract``. If you choose to do so, you must specify the
-path to the ``tesseract`` executable using the ``pytesseract_exe_fp`` key. You can locate the path by running:
+**OCR Integration**
+As noted in the `Prerequisites`_ section, we recommend enabling OCR using ``pytesseract``. To enable OCR for scanned PDFs,
+you must provide the path to the ``tesseract`` executable using the ``pytesseract_exe_fp`` input.
+You can locate the executable path by running:
 
 .. code-block:: shell
 
     $ which tesseract
 
-To completely disable OCR, simply omit the ``pytesseract_exe_fp`` key from your config.
+Omit the ``pytesseract_exe_fp`` key to disable OCR functionality.
 
 
 Kitchen Sink Config
@@ -96,10 +118,50 @@ we show what a configuration might look like that utilizes all available paramet
 .. literalinclude:: config_kitchen_sink.json5
     :language: json5
 
-We will not go into detail into all of the possible options here. Instead, we hope that the combination of this example
-and the documentation will be enough to
+This setup provides maximum flexibility and is suitable for power users who need fine-grained control
+over processing behavior, model assignment, cost monitoring, and concurrency. Below are descriptions of
+the most notable components:
+
+**Multiple Model Definitions**
+You can specify multiple LLMs under the ``"model"`` key, each with a unique name and a list of associated tasks.
+Every task must be handled by exactly one model, and one of the entries must have ``"tasks": "default"`` to catch anything unspecified.
+The full list of assignable tasks are found as ``Attributes`` of the :class:`~compass.utilities.enums.LLMTasks` enum.
+
+**LLM Configuration**
+Each model includes:
+
+- ``llm_call_kwargs``: Sets LLM-specific query parameters like ``temperature`` or ``timeout``.
+- ``llm_service_rate_limit``: Controls how many tokens can be processed per minute (useful for avoiding rate limit errors from the LLM provider). Set this as high as your deployment will allow to speed up processing.
+- ``text_splitter_chunk_size`` / ``text_splitter_chunk_overlap``: Controls how large each text chunk sent to the model is. Larger chunks increase context at the cost of higher token usage.
+- ``client_type``: Specifies the API provider (e.g., ``"azure"`` or ``"openai"``).
+- ``client_kwargs``: Holds credentials and endpoint configuration for the model client, if not specified using environment variables.
+
+**Concurrency Settings**
+The following settings allow tuning for system resource usage and rate limits:
+
+- ``max_num_concurrent_browsers``: Limits the number of headless browsers launched for document discovery.
+- ``max_num_concurrent_jurisdictions``: Controls how many jurisdictions are processed in parallel.
+
+**OCR Integration**
+Set the ``pytesseract_exe_fp`` key to enable OCR support for scanned PDFs. Omit this key if OCR is not needed.
+
+**Directories**
+Several directory names are configurable to manage where outputs and intermediate files are stored:
+
+- ``out_dir``: Final results and processed outputs.
+- ``log_dir``: Execution logs.
+- ``clean_dir``: Cleaned text files.
+- ``ordinance_file_dir``: Raw ordinance documents.
+- ``jurisdiction_dbs_dir``: Internal DBs for tracking progress.
 
 .. NOTE:: Be sure to provide full paths to all files/directories unless you are executing the program from your working folder.
+
+
+**LLM Cost Reporting**
+The ``llm_costs`` block provides per-million-token pricing for each model.
+This allows the script to display real-time and final cost estimates based on tracked usage.
+Any model not found in the ``llm_costs`` block will not contribute to the final cost estimate.
+
 
 
 Execution
