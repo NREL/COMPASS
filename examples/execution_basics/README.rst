@@ -1,6 +1,6 @@
-*********************
-Running INFRA-COMPASS
-*********************
+******************************
+INFRA-COMPASS Execution Basics
+******************************
 
 This example walks you through setting up and executing your first INFRA-COMPASS run.
 
