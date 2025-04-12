@@ -35,10 +35,10 @@ Minimal Config
 At a minimum, the INFRA-COMPASS config file requires three keys: ``"out_dir"``, ``"jurisdiction_fp"``, and ``"tech"``.
 
 - ``out_dir``: Path to the output directory. Will be created if it does not exist.
-- ``jurisdiction_fp``: Path to a CSV file containing ``County`` and ``State`` columns. Each row defines a jurisdiction to process. See the `example CSV <https://github.com/NREL/elm/blob/main/examples/basic_run/jurisdictions.csv>`_.
+- ``jurisdiction_fp``: Path to a CSV file containing ``County`` and ``State`` columns. Each row defines a jurisdiction to process. See the `example CSV <https://github.com/NREL/elm/blob/main/examples/execution_basics/jurisdictions.csv>`_.
 - ``tech``: A string representing the infrastructure or technology focus for the run.
 
-In `config_bare_minimum.json5 <https://github.com/NREL/COMPASS/blob/main/examples/basic_run/config_bare_minimum.json5>`_,
+In `config_bare_minimum.json5 <https://github.com/NREL/COMPASS/blob/main/examples/execution_basics/config_bare_minimum.json5>`_,
 we show a minimal working configuration that includes only the required keys.
 
 .. literalinclude:: config_bare_minimum.json5
@@ -70,7 +70,7 @@ In most cases, you'll want more control over the execution parameters, especiall
 You can review all available inputs in the
 `process_counties_with_openai <https://nrel.github.io/COMPASS/_autosummary/compass.scripts.process.process_counties_with_openai.html#compass.scripts.process.process_counties_with_openai>`_
 documentation.
-In `config_recommended.json5 <https://github.com/NREL/COMPASS/blob/main/examples/basic_run/config_recommended.json5>`_, we
+In `config_recommended.json5 <https://github.com/NREL/COMPASS/blob/main/examples/execution_basics/config_recommended.json5>`_, we
 demonstrate a typical configuration that balances simplicity with additional control over execution parameters.
 
 .. literalinclude:: config_recommended.json5
@@ -112,7 +112,7 @@ Omit the ``pytesseract_exe_fp`` key to disable OCR functionality.
 Kitchen Sink Config
 -------------------
 
-In `config_kitchen_sink.json5 <https://github.com/NREL/COMPASS/blob/main/examples/basic_run/config_recommended.json5>`_,
+In `config_kitchen_sink.json5 <https://github.com/NREL/COMPASS/blob/main/examples/execution_basics/config_recommended.json5>`_,
 we show what a configuration might look like that utilizes all available parameters.
 
 .. literalinclude:: config_kitchen_sink.json5
