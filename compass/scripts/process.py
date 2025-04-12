@@ -290,9 +290,16 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
 
         registers a model named `"my_gpt"` with a cost of $1.5 per
         million input (prompt) tokens and $3.7 per million output
-        (response) tokens for the current processing run. If set to
-        ``None``, no custom model costs are recorded, and cost tracking
-        may be unavailable in the progress bar. By default, ``None``.
+        (response) tokens for the current processing run.
+
+        .. NOTE::
+
+            The displayed total cost does not track cached tokens, so
+            treat it like an estimate. Your final API costs may vary.
+
+        If set to ``None``, no custom model costs are recorded, and
+        cost tracking may be unavailable in the progress bar.
+        By default, ``None``.
     log_level : str, optional
         Logging level for ordinance scraping and parsing (e.g., "TRACE",
         "DEBUG", "INFO", "WARNING", or "ERROR"). By default, ``"INFO"``.
