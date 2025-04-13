@@ -1,6 +1,7 @@
 //! Support for the ordinance scrapper output
 
 mod metadata;
+mod ordinance;
 mod source;
 mod usage;
 
