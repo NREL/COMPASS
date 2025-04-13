@@ -69,6 +69,7 @@ impl ScrappedOrdinance {
         metadata::Metadata::init_db(conn)?;
         source::Source::init_db(conn)?;
         usage::Usage::init_db(conn)?;
+        ordinance::Ordinance::init_db(conn)?;
 
         Ok(())
     }
