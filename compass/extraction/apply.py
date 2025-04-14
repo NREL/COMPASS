@@ -344,7 +344,7 @@ async def _extract_with_ngram_check(
         msg = (
             f"Ngram check failed after {num_tries} tries. LLM hallucination "
             "in cleaned ordinance text is extremely likely! Proceed with "
-            f"caution!! (Document source: {best_score})"
+            f"caution!! (Document score: {best_score}; source: {source})"
         )
         logger.warning(msg)
         warn(msg, UserWarning)
