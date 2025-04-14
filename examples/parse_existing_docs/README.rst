@@ -7,8 +7,7 @@ extraction pipeline. In this example, we will show you how to apply just the ord
 your existing documents. (For a basic example on just downloading the documents without extraction, see the
 `ELM tutorial <https://github.com/NREL/elm/blob/main/examples/web_scraping_pipeline/example_scrape_wiki.ipynb>`_).
 
-We will start by going over some components that we will need for extraction and the we'll put them all together
-into a final script.
+We'll begin by reviewing the components needed for extraction, and then we'll combine them into a final script.
 
 
 Extraction Components
@@ -18,11 +17,11 @@ Document Class
 --------------
 The first important component we will discuss is the :class:`elm.web.document.PDFDocument` class. This class
 (and the corresponding :class:`elm.web.document.HTMLDocument`) are used to represent individual documents that
-are being parsed for ordinance information. They contain important information about the document like the
-text contents as well as some helpful processing routines (i.e. clean out headers, etc.). These classes also
-have an ``attrs`` attribute that tracks metadata associated with the document. This attribute is used by
-``COMPASS`` to track things like the documents' source URL, the document date, the ordinance text, the
-structured ordinance values, etc. Many of the ``COMPASS`` functions require a document as an input.
+are being parsed for ordinance information. They contain key information such as the document's text and include
+helpful processing routines (e.g., removing headers). These classes also
+have an ``attrs`` attribute that tracks metadata associated with the document. This attribute helps
+``COMPASS`` track metadata such as the source URL, document date, ordinance text, and extracted structured values.
+Many of the ``COMPASS`` functions require a document as an input.
 
 To create a document class that we can use for ordinance extraction, we can use the following code:
 
@@ -68,7 +67,7 @@ and version in the code directly (in practice, it's best to set these as environ
 `Executing the Script`_).
 
 You can create multiple ``LLMCallerArgs`` instances and have them be responsible for different parts of
-of the extraction process. In this example, we will use only one LLM for the entire processing pipeline.
+of the extraction process. In this example, we will use only one LLM for the entire extraction pipeline.
 
 
 COMPASS Services
@@ -81,7 +80,7 @@ available (e.g. we have not hit a rate limit for querying an LLM).
 
 The price you have to pay for these services is to make sure their queue is initialized and that each service
 is watching the queue and ready to process it. In practice, this means you need to use the
-:class:`~compass.services.provider.RunningAsyncServices` context manager, like so:
+:class:`~compass.services.provider.RunningAsyncServices` context manager, as shown below:
 
 .. code-block:: python
 
@@ -95,8 +94,8 @@ is watching the queue and ready to process it. In practice, this means you need 
 
 Checking the Document for Ordinances
 ------------------------------------
-The first thing we need to do to process out document is to verify that it contains ordinance information at all.
-Even if you *know* your document contains ordinances, you will need to run this process since it stores the
+The first thing we need to do to process our document is to verify that it contains ordinance information at all.
+Even if you're certain the document contains ordinances, this step is necessary since it stores the
 text chunks from the document text that actually contain the ordinance info and allows us to run the next step -
 ordinance text extraction. To run ordinance validation, we pass the document through the
 :func:`~compass.extraction.apply.check_for_ordinance_info` function:
@@ -152,8 +151,8 @@ can do this using the :func:`~compass.extraction.apply.extract_ordinance_text_wi
 
 
 The first argument to this function is our ordinance document, which should contain the ``"ordinance_text"``
-key in it's ``doc.attrs`` dictionary. This key contains the (concatenated) text chunks known to contain
-ordinances, and is automatically added for us by the
+key in its ``doc.attrs`` dictionary. This key contains the (concatenated) text chunks known to contain
+ordinances and is automatically added for us by the
 :func:`~from compass.extraction.apply.check_for_ordinance_info` function (assuming the text does indeed contain
 ordinance text). Next, we pass the text splitter instance that will be used to split the concatenated chunks.
 We also pass in a :class:`~compass.extraction.solar.SolarOrdinanceTextExtractor` instance which will be used
@@ -185,9 +184,9 @@ Finally we are ready to extract structured ordinance values from the ordinance t
 
 
 The first argument to this function is our ordinance document, which should contain the ``ord_text_key``
-key in it's ``doc.attrs`` dictionary (the value of this key depends on the text extractor instance we used
-in `Extracting the Ordinance Text`_). This key contains ordinance text that we can use as context in the
-decision trees that are executed to extract ordinance values. Next, we pass a
+key in its ``doc.attrs`` dictionary (the value of this key depends on the text extractor instance we used
+in `Extracting the Ordinance Text`_). This key holds the ordinance text used as context for running decision
+trees that extract structured values. Next, we pass a
 :class:`~compass.extraction.solar.StructuredSolarOrdinanceParser` instance, which is responsible for setting
 up and running the decision trees and returning the results in structured format (typically CSV). Finally,
 we tell the function which keys the input ordinance text and output structured values should go under in
@@ -196,9 +195,9 @@ the ``doc.attrs`` dictionary.
 
 Putting it All Together
 =======================
-We can combine all these steps into one simple script to run from the command line. We'll add some logging
-setup and calls to help us track the state of the processing on the terminal. Below is a sample script with
-all of the aforementioned components:
+We can combine all these steps into one simple script to run from the command line. We'll also set up logging
+to track processing progress directly in the terminal. Below is a sample script with all of the aforementioned
+components:
 
 .. literalinclude:: parse_pdf.py
     :language: python
