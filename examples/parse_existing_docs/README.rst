@@ -132,7 +132,7 @@ in the document. Here's how that might look:
 
     doc = await check_for_ordinance_info(
         doc,
-        llm_callers={"default": caller_args},
+        llm_callers=caller_args,
         heuristic=SolarHeuristic(),
         ordinance_text_collector_class=SolarOrdinanceTextCollector,
         permitted_use_text_collector_class=None,
@@ -141,9 +141,7 @@ in the document. Here's how that might look:
 
 What this function does is scan the text for solar-related ordinance language. If it finds any, it stores the relevant
 (concatenated) chunks in ``doc.attrs["ordinance_text"]``. To call this function, we passed in the document along with
-a dictionary indicating that the default LLM calling arguments should be used for all processing
-(``{"default": caller_args}``). If we wanted to use different LLMs for specific tasks — such as using a separate model for
-date extraction during the validation process — we could specify that in the dictionary.
+the LLM calling arguments that we set up in `Setting Up the LLM Caller`_.
 
 We also specified the use of the :class:`~compass.extraction.solar.ordinance.SolarHeuristic`, which helps reduce LLM costs
 by applying a simple keyword-based heuristic to each document chunk before sending it to the LLM.
