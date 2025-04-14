@@ -57,10 +57,12 @@ PERMITTED_USE_SYSTEM_MESSAGE = (
 )
 EXTRA_NUMERICAL_RESTRICTIONS = {
     "noise": "maximum noise level allowed",
-    "max height": "maximum structure height allowed",
-    "max project size": "maximum project size or total installation allowed",
+    "maximum height": "maximum structure height allowed",
+    "maximum project size": (
+        "maximum project size or total installation allowed"
+    ),
     "min lot size": "minimum lot, parcel, or tract size allowed",
-    "max lot size": "maximum lot, parcel, or tract size allowed",
+    "maximum lot size": "maximum lot, parcel, or tract size allowed",
     "density": "minimum spacing between solar panels or solar plants allowed",
     "coverage": "maximum land coverage allowed",
 }
@@ -77,7 +79,7 @@ UNIT_CLARIFICATIONS = {
     )
 }
 ER_CLARIFICATIONS = {
-    "max project size": (
+    "maximum project size": (
         "Maximum project size is typically specified as a maximum system "
         "size value or as a maximum total area value."
     ),
