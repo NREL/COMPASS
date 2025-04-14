@@ -56,5 +56,51 @@ impl Ordinance {
         trace!("Database ready for Ordinance");
         Ok(())
     }
-}
 
+    /// Open the quantiative ordinance from scrapped output
+    pub(super) async fn open<P: AsRef<std::path::Path>>(root: P) -> Result<Vec<Self>> {
+        trace!("Opening quantitative ordinance of {:?}", root.as_ref());
+
+        let path = root.as_ref().join("quantitative_ordinances.csv");
+        if !path.exists() {
+            trace!("Missing quantitative ordinance file: {:?}", path);
+            return Err(crate::error::Error::Undefined(
+                "Missing quantitative ordinance file".to_string(),
+            ));
+        }
+
+        trace!("Identified quantitative ordinance at {:?}", path);
+
+        /*
+        let df = CsvReadOptions::default()
+            .with_has_header(true)
+            .try_into_reader_with_file_path(path.into()).unwrap()
+            .finish()
+            .unwrap();
+        */
+
+        let mut rdr = csv::ReaderBuilder::new()
+            .has_headers(true)
+            .delimiter(b',')
+            .from_path(&path).unwrap();
+
+        trace!("Quantitative reader {:?}", rdr);
+
+        let mut output = Vec::new();
+        for result in rdr.deserialize() {
+            let record: Ordinance = match result {
+                Ok(record) => record,
+                Err(_) => {
+                    trace!("Error {:?}", result);
+                    continue;
+                }
+            };
+            output.push(record);
+
+            //println!("{:?}", record);
+        }
+        trace!("Quantitative ordinance records {:?}", output);
+
+        Ok(output)
+    }
+}
