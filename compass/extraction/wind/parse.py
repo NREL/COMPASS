@@ -265,7 +265,7 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
             sub_pb.update(task_id, advance=1, just_parsed=feature)
             return empty_output(feature)
 
-        if feature not in {"struct", "property line"}:
+        if feature not in {"structures", "property line"}:
             output = {"feature": feature}
             output.update(
                 await self._extract_setback_values(
