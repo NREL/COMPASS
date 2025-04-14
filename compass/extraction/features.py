@@ -14,7 +14,7 @@ class SetbackFeatures:
         "property line": ["property lines", "parcels", "subdivisions"],
         "roads": ["roads"],  # , "rights-of-way"],
         "railroads": ["railroads"],
-        "trans": [
+        "transmission": [
             "overhead electrical transmission lines",
             "overhead utility lines",
             "utility easements",
@@ -30,7 +30,7 @@ class SetbackFeatures:
         "property line": "property lines",
         "roads": "roads",
         "railroads": "railroads",
-        "trans": "transmission lines",
+        "transmission": "transmission lines",
         "water": "wetlands",
     }
     FEATURE_CLARIFICATIONS = {
@@ -38,7 +38,7 @@ class SetbackFeatures:
         "property line": "",
         "roads": "Roads may also be labeled as rights-of-way. ",
         "railroads": "",
-        "trans": "",
+        "transmission": "",
         "water": "",
     }
 
