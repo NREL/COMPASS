@@ -112,14 +112,20 @@ async def download_county_ordinance(
         permitted_use_text_collector_class=permitted_use_text_collector_class,
         usage_tracker=usage_tracker,
     )
-    logger.info(
-        "Found %d potential ordinance documents for %s\n\t- %s",
-        len(docs),
-        location.full_name,
-        "\n\t- ".join(
-            [doc.attrs.get("source", "Unknown source") for doc in docs]
-        ),
-    )
+    if not docs:
+        logger.info(
+            "Did not find any potential ordinance documents for %s",
+            location.full_name,
+        )
+    else:
+        logger.info(
+            "Found %d potential ordinance documents for %s\n\t- %s",
+            len(docs),
+            location.full_name,
+            "\n\t- ".join(
+                [doc.attrs.get("source", "Unknown source") for doc in docs]
+            ),
+        )
     return _sort_final_ord_docs(docs)
 
 
