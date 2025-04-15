@@ -7,7 +7,7 @@ use crate::error::Result;
 #[derive(Debug)]
 pub(super) struct Ordinance(Vec<OrdinanceRecord>);
 
-#[allow(non_snake_case)]
+#[allow(dead_code, non_snake_case)]
 #[derive(Debug, serde::Deserialize)]
 pub(super) struct OrdinanceRecord {
     county: String,
