@@ -270,7 +270,6 @@ class _COMPASSProgressBars:
         """
         pb = Progress(
             TextColumn("        "),
-            SpinnerColumn(style="dim"),
             TextColumn("{task.description}"),
             _TimeElapsedColumn(),
             console=self.console,
@@ -305,7 +304,6 @@ class _COMPASSProgressBars:
         """
         pb = Progress(
             TextColumn("        "),
-            SpinnerColumn(style="dim"),
             TextColumn("{task.description}"),
             _TimeElapsedColumn(),
             BarColumn(
@@ -358,15 +356,13 @@ class _COMPASSProgressBars:
             raise COMPASSValueError(msg)
 
         pb = Progress(
-            TextColumn("        "),
-            SpinnerColumn(style="dim"),
-            _TimeElapsedColumn(),
+            TextColumn("       "),
+            _MofNCompleteColumn(),
             BarColumn(
                 bar_width=30,
                 complete_style="progress.elapsed",
                 finished_style="progress.spinner",
             ),
-            _MofNCompleteColumn(),
             console=self.console,
         )
 
