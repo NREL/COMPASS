@@ -160,6 +160,6 @@ class AsyncDecisionTree(DecisionTree):
             else:
                 break
 
-        logger.info("Output: %s", out)
+        logger.info("Final decision tree output: %s", out)
 
         return out
