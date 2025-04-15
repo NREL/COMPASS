@@ -61,7 +61,7 @@ EXTRA_NUMERICAL_RESTRICTIONS = {
     "maximum project size": (
         "maximum project size or total installation allowed"
     ),
-    "min lot size": "minimum lot, parcel, or tract size allowed",
+    "minimum lot size": "minimum lot, parcel, or tract size allowed",
     "maximum lot size": "maximum lot, parcel, or tract size allowed",
     "density": "minimum spacing between solar panels or solar plants allowed",
     "coverage": "maximum land coverage allowed",

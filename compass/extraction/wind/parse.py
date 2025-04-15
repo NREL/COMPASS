@@ -59,7 +59,7 @@ PERMITTED_USE_SYSTEM_MESSAGE = (
 EXTRA_NUMERICAL_RESTRICTIONS = {
     "noise": "maximum noise level allowed",
     "maximum height": "maximum turbine height allowed",
-    "min lot size": "minimum lot, parcel, or tract size allowed",
+    "minimum lot size": "minimum lot, parcel, or tract size allowed",
     "shadow flicker": "maximum shadow flicker allowed",
     "tower density": "minimum turbine spacing allowed",
     "blade clearance": "minimum blade clearance allowed",
