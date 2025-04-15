@@ -4,6 +4,7 @@ import json
 import shutil
 import asyncio
 import hashlib
+import logging
 from pathlib import Path
 from abc import abstractmethod
 from tempfile import TemporaryDirectory
@@ -19,6 +20,9 @@ from compass.utilities import (
     extract_ord_year_from_doc_attrs,
     num_ordinances_in_doc,
 )
+
+
+logger = logging.getLogger(__name__)
 
 
 def _cache_file_with_hash(doc, file_content, out_dir, make_name_unique=False):
@@ -219,6 +223,8 @@ class TempFileCache(ThreadedService):
             self._td.name,
             make_name_unique,
         )
+        logger.debug("Cached doc from %s", doc.attrs.get("source", "Unknown"))
+        logger.trace("    ↪ checksum=%s", str(checksum))
         doc.attrs["checksum"] = checksum
         return cache_fp
 
