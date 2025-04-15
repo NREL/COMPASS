@@ -46,7 +46,7 @@ impl Ordinance {
               feature TEXT,
               value REAL,
               units TEXT,
-              offset REAL,
+              adder REAL,
               min_dist REAL,
               max_dist REAL,
               summary TEXT,
