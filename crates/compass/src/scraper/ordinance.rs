@@ -5,7 +5,7 @@ use tracing::trace;
 use crate::error::Result;
 
 #[derive(Debug)]
-pub(super) struct Ordinance (Vec<OrdinanceRecord>);
+pub(super) struct Ordinance(Vec<OrdinanceRecord>);
 
 #[allow(non_snake_case)]
 #[derive(Debug, serde::Deserialize)]
@@ -85,7 +85,8 @@ impl Ordinance {
         let mut rdr = csv::ReaderBuilder::new()
             .has_headers(true)
             .delimiter(b',')
-            .from_path(&path).unwrap();
+            .from_path(&path)
+            .unwrap();
 
         trace!("Quantitative reader {:?}", rdr);
 
@@ -99,7 +100,6 @@ impl Ordinance {
                 }
             };
             output.push(record);
-
         }
         trace!("Quantitative ordinance records {:?}", output);
 
@@ -112,27 +112,31 @@ pub(super) mod samples {
     pub(super) fn basic() -> String {
         let mut output = String::new();
         output.push_str("county,state,subdivison,jurisdiction_type,FIPS,feature,value,units,offset,min_dist,max_dist,summary,ord_year,section,source\n");
-        output.push_str("county-1,state-1,,jurisdiction_type-1,11111,feature-1,,,,,,,2001,,source-1\n");
-        output.push_str("county-2,state-2,,jurisdiction_type-2,22222,feature-2,,,,,,,2002,,source-2\n");
+        output.push_str(
+            "county-1,state-1,,jurisdiction_type-1,11111,feature-1,,,,,,,2001,,source-1\n",
+        );
+        output.push_str(
+            "county-2,state-2,,jurisdiction_type-2,22222,feature-2,,,,,,,2002,,source-2\n",
+        );
         output
     }
 }
 
 #[cfg(test)]
 mod test {
-    use std::io::Write;
     use super::*;
+    use std::io::Write;
 
     #[tokio::test]
     async fn dev() {
         let tmp = tempfile::tempdir().unwrap();
 
-        let mut file = std::fs::File::create(tmp.path().join("quantitative_ordinances.csv")).unwrap();
+        let mut file =
+            std::fs::File::create(tmp.path().join("quantitative_ordinances.csv")).unwrap();
         write!(file, "{}", samples::basic()).unwrap();
 
         let ord = Ordinance::open(&tmp).await.unwrap();
         assert_eq!(&ord.0[0].county, "county-1");
         assert_eq!(&ord.0[0].feature, "feature-1");
-
     }
 }
