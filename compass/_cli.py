@@ -100,11 +100,22 @@ def process(config, verbose, no_progress):
     COMPASS_PB.console = None
 
 
-def _setup_cli_logging(console, log_level="INFO"):
+def _setup_cli_logging(console, verbosity_level, log_level="INFO"):
     """Setup logging for CLI"""
-    for lib in ["compass", "elm"]:
+    libs = []
+    if verbosity_level >= 1:
+        libs.append("compass")
+    if verbosity_level >= 2:  # noqa: PLR2004
+        libs.append("elm")
+    if verbosity_level >= 3:  # noqa: PLR2004
+        libs.append("openai")
+    if verbosity_level >= 4:  # noqa: PLR2004
+        libs.extend(("networkx", "pytesseract", "pdf2image", "pdftotext"))
+
+    for lib in libs:
         logger = logging.getLogger(lib)
         handler = RichHandler(
+            level=log_level,
             console=console,
             rich_tracebacks=True,
             omit_repeated_times=True,
