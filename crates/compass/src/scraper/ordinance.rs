@@ -16,7 +16,7 @@ pub(super) struct OrdinanceRecord {
     jurisdiction_type: Option<String>,
     FIPS: u32,
     feature: String,
-    value: Option<f64>,
+    value: f64,
     units: Option<String>,
     offset: Option<f64>,
     min_dist: Option<f64>,
