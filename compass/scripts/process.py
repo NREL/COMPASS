@@ -828,7 +828,7 @@ def _initialize_model_params(user_input):
         if isinstance(tasks, str):
             tasks = [tasks]
 
-        llm_arg_instance = OpenAIConfig(**kwargs)
+        model_config = OpenAIConfig(**kwargs)
         for task in tasks:
             if task in caller_instances:
                 msg = (
@@ -836,7 +836,7 @@ def _initialize_model_params(user_input):
                     "LLM caller definition has uniquely-assigned tasks."
                 )
                 raise COMPASSValueError(msg)
-            caller_instances[task] = llm_arg_instance
+            caller_instances[task] = model_config
 
     return caller_instances
 
