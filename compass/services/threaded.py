@@ -20,6 +20,7 @@ from compass.utilities import (
     extract_ord_year_from_doc_attrs,
     num_ordinances_in_doc,
 )
+from compass.pb import COMPASS_PB
 
 
 logger = logging.getLogger(__name__)
@@ -227,6 +228,41 @@ class TempFileCache(ThreadedService):
         logger.trace("    ↪ checksum=%s", str(checksum))
         doc.attrs["checksum"] = checksum
         return cache_fp
+
+
+class TempFileCachePB(TempFileCache):
+    """Service that locally caches files downloaded from the internet"""
+
+    async def process(self, doc, file_content, make_name_unique=False):
+        """Write URL doc to file asynchronously
+
+        Parameters
+        ----------
+        doc : elm.web.document.Document
+            Document containing meta information about the file. Must
+            have a "source" key in the ``attrs`` dict containing the
+            URL, which will be converted to a file name using
+            :func:`compute_fn_from_url`.
+        file_content : str or bytes
+            File content, typically string text for HTML files and bytes
+            for PDF file.
+        make_name_unique : bool, optional
+            Option to make file name unique by adding a UUID at the end
+            of the file name. By default, ``False``.
+
+        Returns
+        -------
+        Path
+            Path to output file.
+        """
+        out = await super().process(
+            doc=doc,
+            file_content=file_content,
+            make_name_unique=make_name_unique,
+        )
+        location = asyncio.current_task().get_name()
+        COMPASS_PB.update_download_task(location, advance=1)
+        return out
 
 
 class StoreFileOnDisk(ThreadedService):
