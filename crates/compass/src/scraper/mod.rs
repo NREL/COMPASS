@@ -15,6 +15,7 @@ use metadata::Metadata;
 #[allow(unused_imports)]
 use source::Source;
 use usage::Usage;
+use ordinance::Ordinance;
 
 pub(crate) const SCRAPPED_ORDINANCE_VERSION: &str = "0.0.1";
 
@@ -61,6 +62,7 @@ pub(crate) struct ScrappedOrdinance {
     metadata: Metadata,
     sources: Vec<source::Source>,
     usage: Usage,
+    ordinance: Ordinance,
 }
 
 impl ScrappedOrdinance {
@@ -102,6 +104,7 @@ impl ScrappedOrdinance {
         let sources = source::Source::open(&root).await?;
         let metadata = metadata::Metadata::open(&root).await?;
         let usage = usage::Usage::open(&root).await?;
+        let ordinance = ordinance::Ordinance::open(&root).await?;
 
         trace!("Scrapped ordinance opened successfully");
         Ok(Self {
@@ -110,6 +113,7 @@ impl ScrappedOrdinance {
             metadata,
             sources,
             usage,
+            ordinance,
         })
     }
 
@@ -157,6 +161,7 @@ mod tests {
     use super::ScrappedOrdinance;
     use super::metadata;
     use super::usage;
+    use super::ordinance;
     use std::io::Write;
 
     #[tokio::test]
@@ -184,12 +189,7 @@ mod tests {
 
         let _metadata_file = metadata::sample::as_file(target.path().join("meta.json")).unwrap();
         let _usage_file = usage::sample::as_file(target.path().join("usage.json")).unwrap();
-
-        let ordinance_filename = target.path().join("ord_db.csv");
-        let mut ordinance_file = std::fs::File::create(ordinance_filename).unwrap();
-        writeln!(ordinance_file, "county,state,FIPS,feature,fixed_value,mult_value,mult_type,adder,min_dist,max_dist,value,units,ord_year,last_updated,section,source,comment").unwrap();
-        writeln!(ordinance_file, "county-1,state-1,FIPS-1,feature-1,fixed_value-1,mult_value-1,mult_type-1,adder-1,min_dist-1,max_dist-1,value-1,units-1,ord_year-1,last_updated-1,section-1,source-1,comment-1").unwrap();
-        writeln!(ordinance_file, "county-2,state-2,FIPS-2,feature-2,fixed_value-2,mult_value-2,mult_type-2,adder-2,min_dist-2,max_dist-2,value-2,units-2,ord_year-2,last_updated-2,section-2,source-2,comment-2").unwrap();
+        let _ordinance_file = ordinance::sample::as_file(target.path().join("quantitative_ordinances.csv")).unwrap();
 
         let demo = ScrappedOrdinance::open(target).await.unwrap();
         dbg!(&demo);

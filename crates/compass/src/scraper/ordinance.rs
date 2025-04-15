@@ -108,8 +108,12 @@ impl Ordinance {
 }
 
 #[cfg(test)]
-pub(super) mod samples {
-    pub(super) fn basic() -> String {
+/// Samples of quantitative ordinance to support testing
+pub(crate) mod sample {
+    use crate::error::Result;
+    use std::io::Write;
+
+    pub(crate) fn basic() -> String {
         let mut output = String::new();
         output.push_str("county,state,subdivison,jurisdiction_type,FIPS,feature,value,units,offset,min_dist,max_dist,summary,ord_year,section,source\n");
         output.push_str(
@@ -119,6 +123,12 @@ pub(super) mod samples {
             "county-2,state-2,,jurisdiction_type-2,22222,feature-2,,,,,,,2002,,source-2\n",
         );
         output
+    }
+
+    pub(crate) fn as_file<P: AsRef<std::path::Path>>(path: P) -> Result<std::fs::File> {
+        let mut file = std::fs::File::create(path)?;
+        writeln!(file, "{}", basic())?;
+        Ok(file)
     }
 }
 
@@ -133,7 +143,7 @@ mod test {
 
         let mut file =
             std::fs::File::create(tmp.path().join("quantitative_ordinances.csv")).unwrap();
-        write!(file, "{}", samples::basic()).unwrap();
+        write!(file, "{}", sample::basic()).unwrap();
 
         let ord = Ordinance::open(&tmp).await.unwrap();
         assert_eq!(&ord.0[0].county, "county-1");
