@@ -4,9 +4,12 @@ use tracing::trace;
 
 use crate::error::Result;
 
+#[derive(Debug)]
+pub(super) struct Ordinance (Vec<OrdinanceRecord>);
+
 #[allow(non_snake_case)]
 #[derive(Debug, serde::Deserialize)]
-pub(super) struct Ordinance {
+pub(super) struct OrdinanceRecord {
     county: String,
     state: String,
     subdivison: Option<String>,
@@ -58,7 +61,7 @@ impl Ordinance {
     }
 
     /// Open the quantiative ordinance from scrapped output
-    pub(super) async fn open<P: AsRef<std::path::Path>>(root: P) -> Result<Vec<Self>> {
+    pub(super) async fn open<P: AsRef<std::path::Path>>(root: P) -> Result<Ordinance> {
         trace!("Opening quantitative ordinance of {:?}", root.as_ref());
 
         let path = root.as_ref().join("quantitative_ordinances.csv");
@@ -88,7 +91,7 @@ impl Ordinance {
 
         let mut output = Vec::new();
         for result in rdr.deserialize() {
-            let record: Ordinance = match result {
+            let record: OrdinanceRecord = match result {
                 Ok(record) => record,
                 Err(_) => {
                     trace!("Error {:?}", result);
@@ -97,7 +100,6 @@ impl Ordinance {
             };
             output.push(record);
 
-            //println!("{:?}", record);
         }
         trace!("Quantitative ordinance records {:?}", output);
 
