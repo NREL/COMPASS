@@ -107,7 +107,7 @@ impl Ordinance {
     }
 
     pub(super) fn write(&self, conn: &duckdb::Transaction, commit_id: usize) -> Result<()> {
-        warn!("Writing ordinance to database");
+        trace!("Writing ordinance to database");
 
         let mut stmt = conn
             .prepare(
@@ -121,7 +121,7 @@ impl Ordinance {
             .expect("Failed to prepare ordinance statement");
 
         for record in &self.0 {
-            warn!("Writing ordinance record {:?}", &record);
+            trace!("Writing ordinance record {:?}", &record);
             stmt.execute(duckdb::params![
                 commit_id,
                 record.county,
@@ -142,7 +142,7 @@ impl Ordinance {
             ])?;
         }
 
-        warn!("Ordinance written to database");
+        trace!("Ordinance written to database");
         Ok(())
     }
 }
