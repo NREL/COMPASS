@@ -36,12 +36,30 @@ class _TimeElapsedColumn(ProgressColumn):
 class _MofNCompleteColumn(ProgressColumn):
     """Renders completed count/total, e.g. '   10/1000'"""
 
-    def render(self, task):  # noqa: PLR6301
+    def __init__(self, style="white", table_column=None):
+        """
+
+        Parameters
+        ----------
+        style : str, optional
+            Style to use for `count/total` text.
+            By default, ``"white"``.
+        table_column : rich.Column, optional
+            Table column for this progress indicator.
+            By default, ``None``.
+        """
+        super().__init__(table_column=table_column)
+        self.complete_text_style = style
+
+    def render(self, task):
         """Show completed/total"""
         completed = int(task.completed)
         total = int(task.total) if task.total is not None else "?"
         total_width = len(str(total))
-        return Text(f"   {completed:{total_width}d}/{total}", style="white")
+        return Text(
+            f"   {completed:{total_width}d}/{total}",
+            style=self.complete_text_style,
+        )
 
 
 class _TotalCostColumn(ProgressColumn):
@@ -252,7 +270,6 @@ class _COMPASSProgressBars:
         """
         pb = Progress(
             TextColumn("        "),
-            SpinnerColumn(style="dim"),
             TextColumn("{task.description}"),
             _TimeElapsedColumn(),
             console=self.console,
@@ -287,7 +304,6 @@ class _COMPASSProgressBars:
         """
         pb = Progress(
             TextColumn("        "),
-            SpinnerColumn(style="dim"),
             TextColumn("{task.description}"),
             _TimeElapsedColumn(),
             BarColumn(
@@ -340,15 +356,13 @@ class _COMPASSProgressBars:
             raise COMPASSValueError(msg)
 
         pb = Progress(
-            TextColumn("        "),
-            SpinnerColumn(style="dim"),
-            _TimeElapsedColumn(),
+            TextColumn("       "),
+            _MofNCompleteColumn(),
             BarColumn(
                 bar_width=30,
                 complete_style="progress.elapsed",
                 finished_style="progress.spinner",
             ),
-            _MofNCompleteColumn(),
             console=self.console,
         )
 
