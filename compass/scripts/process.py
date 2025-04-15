@@ -488,7 +488,7 @@ class _COMPASSRunner:
         services = [model.llm_service for model in set(self.models.values())]
         services += self._base_services
         _ = self.file_loader_kwargs  # init loader kwargs once
-        logger.info("Processing %d jurisdictions", len(jurisdictions))
+        logger.info("Processing %d jurisdiction(s)", len(jurisdictions))
         async with RunningAsyncServices(services):
             tasks = []
             for __, row in jurisdictions.iterrows():
@@ -995,7 +995,7 @@ def _doc_infos_to_db(doc_infos):
     if not db:
         return pd.DataFrame(columns=PARSED_COLS), 0
 
-    logger.info("Compiling final database for %d jurisdictions", len(db))
+    logger.info("Compiling final database for %d jurisdiction(s)", len(db))
     num_jurisdictions_found = len(db)
     db = pd.concat([df.dropna(axis=1, how="all") for df in db], axis=0)
     db = _empirical_adjustments(db)
