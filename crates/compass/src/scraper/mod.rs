@@ -131,6 +131,7 @@ impl ScrappedOrdinance {
             .for_each(|s| s.write(&conn, commit_id).unwrap());
         self.metadata.write(&conn, commit_id).unwrap();
         self.usage().await.unwrap().write(&conn, commit_id).unwrap();
+        self.ordinance.write(&conn, commit_id).unwrap();
         // commit transaction
 
         tracing::trace!("Committing transaction");
