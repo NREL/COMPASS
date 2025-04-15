@@ -314,6 +314,9 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
     output_directory : path-like
         Path to output directory containing data.
     """
+    if log_level == "DEBUG":
+        log_level = "DEBUG_TO_FILE"
+
     log_listener = LogListener(["compass", "elm"], level=log_level)
     LLM_COST_REGISTRY.update(llm_costs or {})
     dirs = _setup_folders(
