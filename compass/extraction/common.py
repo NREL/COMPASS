@@ -158,7 +158,7 @@ def empty_output(feature):
     return [{"feature": feature}]
 
 
-def setup_base_graph(**kwargs):
+def setup_base_setback_graph(**kwargs):
     """Setup graph to get setback ordinance text for a given feature
 
     Parameters
