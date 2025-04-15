@@ -8,7 +8,7 @@ from elm.web.utilities import filter_documents
 
 from compass.llm import StructuredLLMCaller
 from compass.extraction import check_for_ordinance_info, extract_date
-from compass.services.threaded import TempFileCache
+from compass.services.threaded import TempFileCachePB
 from compass.validation.location import (
     CountyJurisdictionValidator,
     CountyNameValidator,
@@ -70,13 +70,15 @@ async def download_county_ordinance(
     COMPASS_PB.update_jurisdiction_task(
         location.full_name, description="Downloading files..."
     )
-    docs = await _docs_from_web_search(
-        question_templates,
-        location,
-        num_urls,
-        browser_semaphore,
-        **(file_loader_kwargs or {}),
-    )
+    async with COMPASS_PB.file_download_prog_bar(location.full_name, num_urls):
+        docs = await _docs_from_web_search(
+            question_templates,
+            location,
+            num_urls,
+            browser_semaphore,
+            **(file_loader_kwargs or {}),
+        )
+
     COMPASS_PB.update_jurisdiction_task(
         location.full_name,
         description="Checking files for correct jurisdiction...",
@@ -133,7 +135,7 @@ async def _docs_from_web_search(
         question.format(location=location.full_name)
         for question in question_templates
     ]
-    file_loader_kwargs.update({"file_cache_coroutine": TempFileCache.call})
+    file_loader_kwargs.update({"file_cache_coroutine": TempFileCachePB.call})
     return await web_search_links_as_docs(
         queries,
         num_urls=num_urls,

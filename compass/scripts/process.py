@@ -47,7 +47,7 @@ from compass.services.usage import UsageTracker
 from compass.services.openai import usage_from_response
 from compass.services.provider import RunningAsyncServices
 from compass.services.threaded import (
-    TempFileCache,
+    TempFileCachePB,
     FileMover,
     CleanedFileWriter,
     OrdDBFileWriter,
@@ -422,7 +422,7 @@ class _COMPASSRunner:
     def _base_services(self):
         """list: List of required services to run for processing"""
         return [
-            TempFileCache(
+            TempFileCachePB(
                 td_kwargs=self.process_kwargs.td_kwargs,
                 tpe_kwargs=self.tpe_kwargs,
             ),
