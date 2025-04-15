@@ -104,7 +104,7 @@ class StructuredWindParser(BaseLLMCaller):
 
     async def _check_wind_turbine_type(self, text):
         """Get the largest turbine size mentioned in the text"""
-        logger.debug("Checking turbine_types")
+        logger.info("Checking turbine types...")
         tree = setup_async_decision_tree(
             setup_graph_wes_types,
             text=text,
@@ -151,7 +151,7 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
             DataFrame containing parsed-out ordinance values.
         """
         largest_wes_type = await self._check_wind_turbine_type(text)
-        logger.info("Largest WES type found in text: %s", largest_wes_type)
+        logger.info("Largest WES type found in text: %r", largest_wes_type)
 
         outer_task_name = asyncio.current_task().get_name()
         num_to_process = (
@@ -454,7 +454,7 @@ class StructuredWindPermittedUseDistrictsParser(StructuredWindParser):
             DataFrame containing parsed-out allowed-use district names.
         """
         largest_wes_type = await self._check_wind_turbine_type(text)
-        logger.info("Largest WES type found in text: %s", largest_wes_type)
+        logger.info("Largest WES type found in text: %r", largest_wes_type)
 
         outer_task_name = asyncio.current_task().get_name()
         with COMPASS_PB.jurisdiction_sub_prog_bar(outer_task_name) as sub_pb:

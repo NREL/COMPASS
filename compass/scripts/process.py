@@ -892,6 +892,7 @@ async def _extract_ordinances_from_text(
         usage_tracker=usage_tracker,
         **model_config.llm_call_kwargs,
     )
+    logger.info("Extracting %s...", out_key.replace("_", " "))
     return await extract_ordinance_values(
         doc, parser, text_key=text_key, out_key=out_key
     )
