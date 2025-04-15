@@ -12,10 +12,10 @@ use tracing::{self, trace};
 use crate::error;
 use crate::error::Result;
 use metadata::Metadata;
+use ordinance::Ordinance;
 #[allow(unused_imports)]
 use source::Source;
 use usage::Usage;
-use ordinance::Ordinance;
 
 pub(crate) const SCRAPPED_ORDINANCE_VERSION: &str = "0.0.1";
 
@@ -160,8 +160,8 @@ impl ScrappedOrdinance {
 mod tests {
     use super::ScrappedOrdinance;
     use super::metadata;
-    use super::usage;
     use super::ordinance;
+    use super::usage;
     use std::io::Write;
 
     #[tokio::test]
@@ -189,7 +189,8 @@ mod tests {
 
         let _metadata_file = metadata::sample::as_file(target.path().join("meta.json")).unwrap();
         let _usage_file = usage::sample::as_file(target.path().join("usage.json")).unwrap();
-        let _ordinance_file = ordinance::sample::as_file(target.path().join("quantitative_ordinances.csv")).unwrap();
+        let _ordinance_file =
+            ordinance::sample::as_file(target.path().join("quantitative_ordinances.csv")).unwrap();
 
         let demo = ScrappedOrdinance::open(target).await.unwrap();
         dbg!(&demo);
