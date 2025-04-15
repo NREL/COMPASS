@@ -67,9 +67,6 @@ async def download_county_ordinance(
         containing ordinance information, or ``None`` if no ordinance
         document was found.
     """
-    logger.info(
-        "Downloading %d document(s) for %s", num_urls, location.full_name
-    )
     COMPASS_PB.update_jurisdiction_task(
         location.full_name, description="Downloading files..."
     )

@@ -488,6 +488,7 @@ class _COMPASSRunner:
         services = [model.llm_service for model in set(self.models.values())]
         services += self._base_services
         _ = self.file_loader_kwargs  # init loader kwargs once
+        logger.info("Processing %d jurisdictions", len(jurisdictions))
         async with RunningAsyncServices(services):
             tasks = []
             for __, row in jurisdictions.iterrows():
