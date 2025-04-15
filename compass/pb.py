@@ -1,8 +1,9 @@
 """COMPASS CLI progress bars"""
 
+import asyncio
 import logging
 from datetime import timedelta
-from contextlib import contextmanager
+from contextlib import asynccontextmanager, contextmanager
 
 from rich.progress import (
     Progress,
@@ -84,6 +85,8 @@ class _COMPASSProgressBars:
         self._total_cost = 0
         self._jd_pbs = {}
         self._jd_tasks = {}
+        self._dl_pbs = {}
+        self._dl_tasks = {}
 
     @property
     def group(self):
@@ -309,6 +312,84 @@ class _COMPASSProgressBars:
             yield pb
         finally:
             self._group.renderables.remove(pb)
+
+    @asynccontextmanager
+    async def file_download_prog_bar(self, location, num_downloads):
+        """Set a progress bar for download of files for one jurisdiction
+
+        Parameters
+        ----------
+        location : str
+            Name of jurisdiction being processed.
+        num_downloads : int
+            Total number of downloads being processed.
+
+        Yields
+        ------
+        rich.progress.Progress
+            `rich` progress bar initialized for this jurisdiction.
+
+        Raises
+        ------
+        COMPASSValueError
+            If a progress bar already exists for fine downloads for this
+            location.
+        """
+        if location in self._dl_pbs:
+            msg = f"Download progress bar already exists for {location}"
+            raise COMPASSValueError(msg)
+
+        pb = Progress(
+            TextColumn("        "),
+            SpinnerColumn(style="dim"),
+            _TimeElapsedColumn(),
+            BarColumn(
+                bar_width=30,
+                complete_style="progress.elapsed",
+                finished_style="progress.spinner",
+            ),
+            _MofNCompleteColumn(),
+            console=self.console,
+        )
+
+        jd_pb = self._jd_pbs.get(location)
+        if jd_pb:
+            insert_index = self._group.renderables.index(jd_pb) + 1
+        else:
+            insert_index = len(self._group.renderables)
+
+        self._group.renderables.insert(insert_index, pb)
+        self._dl_pbs[location] = pb
+        self._dl_tasks[location] = task = pb.add_task("", total=num_downloads)
+
+        try:
+            yield pb
+        finally:
+            pb.update(task, completed=num_downloads)
+            await asyncio.sleep(1)
+            self._remove_download_prog_bar(location)
+
+    def _remove_download_prog_bar(self, location):
+        """Remove download prog bar and associated task (if any)"""
+        pb = self._dl_pbs.pop(location)
+        if task_id := self._dl_tasks.get(location):
+            pb.remove_task(task_id)
+
+        self._group.renderables.remove(pb)
+
+    def update_download_task(self, location, *args, **kwargs):
+        """Update the task corresponding to the jurisdiction download
+
+        Parameters
+        ----------
+        location : str
+            Name of jurisdiction being processed.
+        *args, **kwargs
+            Parameters to pass to the `task.update` function in the
+            `rich` python library.
+        """
+        task_id = self._dl_tasks[location]
+        self._dl_pbs[location].update(task_id, *args, **kwargs)
 
 
 COMPASS_PB = _COMPASSProgressBars()

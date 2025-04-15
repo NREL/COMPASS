@@ -86,7 +86,7 @@ async def check_for_ordinance_info(
     doc.attrs["contains_ord_info"] = ordinance_text_collector.contains_ord_info
     if doc.attrs["contains_ord_info"]:
         doc.attrs["ordinance_text"] = ordinance_text_collector.ordinance_text
-        logger.debug(
+        logger.debug_to_file(
             "Ordinance text for %s is:\n%s",
             doc.attrs.get("source", "unknown source"),
             doc.attrs["ordinance_text"],
@@ -100,7 +100,7 @@ async def check_for_ordinance_info(
             doc.attrs["permitted_use_text"] = (
                 permitted_use_text_collector.permitted_use_district_text
             )
-            logger.debug(
+            logger.debug_to_file(
                 "Permitted use text for %s is:\n%s",
                 doc.attrs.get("source", "unknown source"),
                 doc.attrs["permitted_use_text"],
@@ -410,7 +410,7 @@ async def _parse_if_input_text_not_empty(
     text_chunks = text_splitter.split_text(text)
     extracted_text = await parser(text_chunks)
 
-    logger.debug(
+    logger.debug_to_file(
         "Extracted text for %r is:\n%s", next_text_name, extracted_text
     )
     return extracted_text

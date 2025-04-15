@@ -328,9 +328,7 @@ class CountyValidator:
 
         source = doc.attrs.get("source")
         kwargs = _add_not_county_kwargs(county, state)
-        logger.debug(
-            "Validating document from source: %s", source or "Unknown"
-        )
+        logger.info("Validating document from source: %s", source or "Unknown")
         logger.debug("Checking for correct for jurisdiction...")
         jurisdiction_is_county = await _validator_check_for_doc(
             validator=self.cj_validator,

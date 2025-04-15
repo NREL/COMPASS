@@ -47,7 +47,7 @@ from compass.services.usage import UsageTracker
 from compass.services.openai import usage_from_response
 from compass.services.provider import RunningAsyncServices
 from compass.services.threaded import (
-    TempFileCache,
+    TempFileCachePB,
     FileMover,
     CleanedFileWriter,
     OrdDBFileWriter,
@@ -314,6 +314,9 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
     output_directory : path-like
         Path to output directory containing data.
     """
+    if log_level == "DEBUG":
+        log_level = "DEBUG_TO_FILE"
+
     log_listener = LogListener(["compass", "elm"], level=log_level)
     LLM_COST_REGISTRY.update(llm_costs or {})
     dirs = _setup_folders(
@@ -422,7 +425,7 @@ class _COMPASSRunner:
     def _base_services(self):
         """list: List of required services to run for processing"""
         return [
-            TempFileCache(
+            TempFileCachePB(
                 td_kwargs=self.process_kwargs.td_kwargs,
                 tpe_kwargs=self.tpe_kwargs,
             ),
@@ -892,6 +895,7 @@ async def _extract_ordinances_from_text(
         usage_tracker=usage_tracker,
         **model_config.llm_call_kwargs,
     )
+    logger.info("Extracting %s...", out_key.replace("_", " "))
     return await extract_ordinance_values(
         doc, parser, text_key=text_key, out_key=out_key
     )
