@@ -6,12 +6,13 @@ import logging
 import networkx as nx
 from elm import ApiBase
 
+from compass.extraction.tree import AsyncDecisionTree
 from compass.utilities import llm_response_as_json
+from compass.utilities.enums import LLMUsageCategory
 from compass.utilities.parsing import (
     merge_overlapping_texts,
     clean_backticks_from_llm_response,
 )
-from compass.extraction.tree import AsyncDecisionTree
 
 
 logger = logging.getLogger(__name__)
@@ -149,7 +150,7 @@ async def run_async_tree_with_bm(tree, base_messages):
 
 def empty_output(feature):
     """Empty output for a feature (not found in text)"""
-    if feature in {"struct", "prop_line"}:
+    if feature in {"structures", "property line"}:
         return [
             {"feature": f"{feature} (participating)"},
             {"feature": f"{feature} (non-participating)"},
@@ -451,7 +452,7 @@ class BaseTextExtractor:
         "or provide additional commentary. Only return the original text "
         "excerpts as they appear in the source."
     )
-    _USAGE_LABEL = "document_ordinance_summary"
+    _USAGE_LABEL = LLMUsageCategory.DOCUMENT_ORDINANCE_SUMMARY
 
     def __init__(self, llm_caller):
         """

@@ -41,7 +41,7 @@ from compass.extraction.wind import (
     StructuredWindPermittedUseDistrictsParser,
     WIND_QUESTION_TEMPLATES,
 )
-from compass.llm import LLMCaller, LLMCallerArgs
+from compass.llm import LLMCaller, OpenAIConfig
 from compass.services.cpu import PDFLoader, read_pdf_doc, read_pdf_doc_ocr
 from compass.services.usage import UsageTracker
 from compass.services.openai import usage_from_response
@@ -62,6 +62,7 @@ from compass.utilities import (
     num_ordinances_in_doc,
     num_ordinances_dataframe,
 )
+from compass.utilities.enums import LLMTasks
 from compass.utilities.location import County
 from compass.utilities.logs import (
     LocationFileLog,
@@ -108,7 +109,7 @@ AzureParams = namedtuple(
 WebSearchParams = namedtuple(
     "WebSearchParams",
     [
-        "num_urls_to_check_per_county",
+        "num_urls_to_check_per_jurisdiction",
         "max_num_concurrent_browsers",
         "pytesseract_exe_fp",
     ],
@@ -149,16 +150,9 @@ _TEXT_EXTRACTION_TASKS = {
 async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
     out_dir,
     tech,
-    jurisdiction_fp=None,
+    jurisdiction_fp,
     model="gpt-4o",
-    azure_api_key=None,
-    azure_version=None,
-    azure_endpoint=None,
-    llm_call_kwargs=None,
-    llm_service_rate_limit=10_000,
-    text_splitter_chunk_size=10_000,
-    text_splitter_chunk_overlap=500,
-    num_urls_to_check_per_county=5,
+    num_urls_to_check_per_jurisdiction=5,
     max_num_concurrent_browsers=10,
     max_num_concurrent_jurisdictions=None,
     file_loader_kwargs=None,
@@ -169,136 +163,156 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
     log_dir=None,
     clean_dir=None,
     ordinance_file_dir=None,
-    county_dbs_dir=None,
+    jurisdiction_dbs_dir=None,
     llm_costs=None,
     log_level="INFO",
 ):
     """Download and extract ordinances for a list of counties
 
+    This function scrapes ordinance documents (PDFs or HTML text) for a
+    list of specified counties and processes them using one or more LLM
+    models. Output files, logs, and intermediate artifacts are stored in
+    configurable directories.
+
     Parameters
     ----------
     out_dir : path-like
-        Path to output directory. This directory will be created if it
-        does not exist. This directory will contain the structured
-        ordinance output CSV as well as all of the scraped ordinance
-        documents (PDFs and HTML text files). Usage information and
-        default options for log/clean directories will also be stored
-        here.
-    jurisdiction_fp : path-like, optional
-        Path to CSV file containing a list of jurisdictions to extract
-        ordinance information for. This CSV should have "County" and
-        "State" columns that contains the county and state names.
-        By default, ``None``, which runs the extraction for all known
-        jurisdictions (this is untested and not currently recommended).
-    model : str, optional
-        Name of LLM model to perform scraping. By default, ``"gpt-4o"``.
-    azure_api_key : str, optional
-        Azure OpenAI API key. By default, ``None``, which pulls the key
-        from the environment variable ``AZURE_OPENAI_API_KEY`` instead.
-    azure_version : str, optional
-        Azure OpenAI API version. By default, ``None``, which pulls the
-        version from the environment variable ``AZURE_OPENAI_VERSION``
-        instead.
-    azure_endpoint : str, optional
-        Azure OpenAI API endpoint. By default, ``None``, which pulls the
-        endpoint from the environment variable ``AZURE_OPENAI_ENDPOINT``
-        instead.
-    llm_call_kwargs : dict, optional
-        Keyword-value pairs used to initialize an
-        `compass.llm.LLMCaller` instance. By default, ``None``.
-    llm_service_rate_limit : int, optional
-        Token rate limit (i.e. tokens per minute) of LLM service being
-        used (OpenAI). By default, ``10_000``.
-    text_splitter_chunk_size : int, optional
-        Chunk size used to split the ordinance text. Parsing is
-        performed on each individual chunk. Units are in token count of
-        the model in charge of parsing ordinance text. Keeping this
-        value low can help reduce token usage since (free) heuristics
-        checks may be able to throw away irrelevant chunks of text
-        before passing to the LLM. By default, ``10000``.
-    text_splitter_chunk_overlap : int, optional
-        Overlap of consecutive chunks of the ordinance text. Parsing is
-        performed on each individual chunk. Units are in token count of
-        the model in charge of parsing ordinance text.
-        By default, ``1000``.
-    num_urls_to_check_per_county : int, optional
-        Number of unique Google search result URL's to check for
-        ordinance document. By default, ``5``.
+        Path to the output directory. If it does not exist, it will be
+        created. This directory will contain the structured ordinance
+        CSV file, all downloaded ordinance documents (PDFs and HTML),
+        usage metadata, and default subdirectories for logs and
+        intermediate outputs (unless otherwise specified).
+    tech : {"wind", "solar"}
+        Label indicating which technology type is being processed.
+    jurisdiction_fp : path-like
+        Path to a CSV file specifying the jurisdictions to process.
+        The CSV must contain two columns: "County" and "State", which
+        specify the county and state names, respectively.
+    model : str or list of dict, optional
+        LLM model(s) to use for scraping and parsing ordinance
+        documents. If a string is provided, it is assumed to be the name
+        of the default model (e.g., "gpt-4o"), and environment variables
+        are used for authentication.
+
+        If a list is provided, it should contain dictionaries of
+        arguments that can initialize instances of
+        :class:`~compass.llm.config.OpenAIConfig`. Each dictionary can
+        specify the model name, client type, and initialization
+        arguments.
+
+        Each dictionary must also include a ``tasks`` key, which maps to
+        a string or list of strings indicating the tasks that instance
+        should handle. Exactly one of the instances **must** include
+        "default" as a task, which will be used when no specific task is
+        matched. For example::
+
+            "model": [
+                {
+                    "model": "gpt-4o-mini",
+                    "llm_call_kwargs": {
+                        "temperature": 0,
+                        "timeout": 300,
+                    },
+                    "client_kwargs": {
+                        "api_key": "<your_api_key>",
+                        "api_version": "<your_api_version>",
+                        "azure_endpoint": "<your_azure_endpoint>",
+                    },
+                    "tasks": ["default", "date_extraction"],
+                },
+                {
+                    "model": "gpt-4o",
+                    "client_type": "openai",
+                    "tasks": ["ordinance_text_extraction"],
+                }
+            ]
+
+        By default, ``"gpt-4o"``.
+    num_urls_to_check_per_jurisdiction : int, optional
+        Number of unique Google search result URLs to check for each
+        jurisdiction when attempting to locate ordinance documents.
+        By default, ``5``.
     max_num_concurrent_browsers : int, optional
-        Number of unique concurrent browser instances to open when
-        performing Google search. Setting this number too high on a
-        machine with limited processing can lead to increased timeouts
-        and therefore decreased quality of Google search results.
-        By default, ``10``.
+        Maximum number of browser instances to launch concurrently for
+        performing Google searches. Increasing this value can speed up
+        searches, but may lead to timeouts or performance issues on
+        machines with limited resources. By default, ``10``.
     max_num_concurrent_jurisdictions : int, optional
-        Number of unique jurisdictions to process concurrently. Setting
-        this value limits the number of documents stored in RAM at a
-        time and can therefore help avoid memory issues.
-        By default, ``None``, which does not limit the number of
-        jurisdictions processed concurrently.
+        Maximum number of jurisdictions to process in parallel. Limiting
+        this can help manage memory usage when dealing with a large
+        number of documents. By default ``None`` (no limit).
     pytesseract_exe_fp : path-like, optional
-        Path to pytesseract executable. If this option is specified, OCR
-        parsing for PDf files will be enabled via pytesseract.
-        By default, ``None``.
+        Path to the `pytesseract` executable. If specified, OCR will be
+        used to extract text from scanned PDFs using Google's Tesseract.
+        By default ``None``.
     td_kwargs : dict, optional
-        Keyword-value argument pairs to pass to
+        Additional keyword arguments to pass to
         :class:`tempfile.TemporaryDirectory`. The temporary directory is
-        used to store files downloaded from the web that are still being
-        parsed for ordinance information. By default, ``None``.
+        used to store documents which have not yet been confirmed to
+        contain relevant information. By default, ``None``.
     tpe_kwargs : dict, optional
-        Keyword-value argument pairs to pass to
-        :class:`concurrent.futures.ThreadPoolExecutor`. The thread pool
-        executor is used to run I/O intensive tasks like writing to a
-        log file. By default, ``None``.
+        Additional keyword arguments to pass to
+        :class:`concurrent.futures.ThreadPoolExecutor`, used for
+        I/O-bound tasks such as logging. By default, ``None``.
     ppe_kwargs : dict, optional
-        Keyword-value argument pairs to pass to
-        :class:`concurrent.futures.ProcessPoolExecutor`. The process
-        pool executor is used to run CPU intensive tasks like loading
-        a PDF file. By default, ``None``.
+        Additional keyword arguments to pass to
+        :class:`concurrent.futures.ProcessPoolExecutor`, used for
+        CPU-bound tasks such as PDF loading and parsing.
+        By default, ``None``.
     log_dir : path-like, optional
-        Path to directory for log files. This directory will be created
-        if it does not exist. By default, ``None``, which
-        creates a ``logs`` folder in the output directory for the
-        county-specific log files.
+        Path to the directory for storing log files. If not provided, a
+        ``logs`` subdirectory will be created inside `out_dir`.
+        By default, ``None``.
     clean_dir : path-like, optional
-        Path to directory for cleaned ordinance text output. This
-        directory will be created if it does not exist. By default,
-        ``None``, which creates a ``cleaned_text`` folder in the output
-        directory for the cleaned ordinance text files.
+        Path to the directory for storing cleaned ordinance text output.
+        If not provided, a ``cleaned_text`` subdirectory will be created
+        inside `out_dir`. By default, ``None``.
     ordinance_file_dir : path-like, optional
-        Path to directory for individual county ordinance file outputs.
-        This directory will be created if it does not exist.
-        By default, ``None``, which creates a ``ordinance_files``
-        folder in the output directory.
-    county_dbs_dir : path-like, optional
-        Path to directory for individual county ordinance database
-        outputs. This directory will be created if it does not exist.
-        By default, ``None``, which creates a ``jurisdiction_dbs``
-        folder in the output directory.
+        Path to the directory where downloaded ordinance files (PDFs or
+        HTML) for each jurisdiction are stored. If not provided, a
+        ``ordinance_files`` subdirectory will be created inside
+        `out_dir`. By default, ``None``.
+    jurisdiction_dbs_dir : path-like, optional
+        Path to the directory where parsed ordinance database files are
+        stored for each jurisdiction. If not provided, a
+        ``jurisdiction_dbs`` subdirectory will be created inside
+        `out_dir`. By default, ``None``.
     llm_costs : dict, optional
-        Optional dictionary mapping model names to a dictionary that
-        contains the cost (in $/million tokens) for both prompt and
-        response tokens. This is only used to display a running cost
-        total for the processing. For example::
+        Dictionary mapping model names to their token costs, used to
+        track the estimated total cost of LLM usage during the run. The
+        structure should be::
 
-            llm_costs = {"my_gpt": {"prompt": 1.5, "response": 3.7}}
+            {"model_name": {"prompt": float, "response": float}}
 
-        would register the model named "my_gpt" as costing $1.5 per
+        Costs are specified in dollars per million tokens. For example::
+
+            "llm_costs": {"my_gpt": {"prompt": 1.5, "response": 3.7}}
+
+        registers a model named `"my_gpt"` with a cost of $1.5 per
         million input (prompt) tokens and $3.7 per million output
-        (response) tokens. If ``None``, no new model costs are
-        registered, and costs are not tracked in the progress bar.
+        (response) tokens for the current processing run.
+
+        .. NOTE::
+
+            The displayed total cost does not track cached tokens, so
+            treat it like an estimate. Your final API costs may vary.
+
+        If set to ``None``, no custom model costs are recorded, and
+        cost tracking may be unavailable in the progress bar.
         By default, ``None``.
     log_level : str, optional
-        Log level to set for county retrieval and parsing loggers.
-        By default, ``"INFO"``.
+        Logging level for ordinance scraping and parsing (e.g., "TRACE",
+        "DEBUG", "INFO", "WARNING", or "ERROR"). By default, ``"INFO"``.
 
     Returns
     -------
     seconds_elapsed : float
-        Total seconds elapsed during runtime of this function.
+        Total time taken to complete the processing, in seconds.
     cost : float
-        Total cost for the run. If usage is not tracked or model costs
-        are not provided, this value is 0.
+        Total estimated cost for the LLM calls made during this run. If
+        no cost info is provided, this will be 0.
+    output_directory : path-like
+        Path to output directory containing data.
     """
     log_listener = LogListener(["compass", "elm"], level=log_level)
     LLM_COST_REGISTRY.update(llm_costs or {})
@@ -307,7 +321,7 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         log_dir=log_dir,
         clean_dir=clean_dir,
         ofd=ordinance_file_dir,
-        cdd=county_dbs_dir,
+        jdd=jurisdiction_dbs_dir,
     )
     pk = ProcessKwargs(
         file_loader_kwargs,
@@ -317,28 +331,16 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         max_num_concurrent_jurisdictions,
     )
     wsp = WebSearchParams(
-        num_urls_to_check_per_county,
+        num_urls_to_check_per_jurisdiction,
         max_num_concurrent_browsers,
         pytesseract_exe_fp,
     )
-    lca = LLMCallerArgs(
-        model,
-        llm_call_kwargs,
-        llm_service_rate_limit,
-        text_splitter_chunk_size,
-        text_splitter_chunk_overlap,
-        client_kwargs={
-            "api_key": azure_api_key,
-            "api_version": azure_version,
-            "azure_endpoint": azure_endpoint,
-        },
-    )
-
+    models = _initialize_model_params(model)
     runner = _COMPASSRunner(
         dirs=dirs,
         log_listener=log_listener,
         tech=tech,
-        llm_caller_args=lca,
+        models=models,
         web_search_params=wsp,
         process_kwargs=pk,
         log_level=log_level,
@@ -356,7 +358,7 @@ class _COMPASSRunner:
         dirs,
         log_listener,
         tech,
-        llm_caller_args=None,
+        models,
         web_search_params=None,
         process_kwargs=None,
         log_level="INFO",
@@ -364,16 +366,14 @@ class _COMPASSRunner:
         self.dirs = dirs
         self.log_listener = log_listener
         self.tech = tech
-        self.llm_caller_args = (
-            LLMCallerArgs() if llm_caller_args is None else llm_caller_args
-        )
+        self.models = models
         self.web_search_params = web_search_params or WebSearchParams()
         self.process_kwargs = process_kwargs or ProcessKwargs()
         self.log_level = log_level
 
     @cached_property
     def browser_semaphore(self):
-        """asyncio.Semaphore | None: Sem to limit # of browsers"""
+        """asyncio.Semaphore or None: Sem to limit # of browsers"""
         return (
             asyncio.Semaphore(
                 self.web_search_params.max_num_concurrent_browsers
@@ -384,7 +384,7 @@ class _COMPASSRunner:
 
     @cached_property
     def _jurisdiction_semaphore(self):
-        """asyncio.Semaphore | None: Sem to limit # of processes"""
+        """asyncio.Semaphore or None: Sem to limit # of processes"""
         return (
             asyncio.Semaphore(
                 self.process_kwargs.max_num_concurrent_jurisdictions
@@ -395,7 +395,7 @@ class _COMPASSRunner:
 
     @property
     def jurisdiction_semaphore(self):
-        """asyncio.Semaphore | AsyncExitStack: Sem to limit processes"""
+        """asyncio.Semaphore or AsyncExitStack: Jurisdictions limit"""
         if self._jurisdiction_semaphore is None:
             return AsyncExitStack()
         return self._jurisdiction_semaphore
@@ -475,14 +475,16 @@ class _COMPASSRunner:
             start_date,
             num_jurisdictions_searched=num_jurisdictions,
             num_jurisdictions_found=num_docs_found,
-            llm_caller_args=self.llm_caller_args,
+            total_cost=total_cost,
+            models=self.models,
         )
-        return total_time, total_cost
+        return total_time, total_cost, self.dirs.out
 
     async def _run_all(self, jurisdictions):
         """Process all counties with running services"""
-
-        services = [self.llm_caller_args.llm_service, *self._base_services]
+        services = [model.llm_service for model in set(self.models.values())]
+        services += self._base_services
+        _ = self.file_loader_kwargs  # init loader kwargs once
         async with RunningAsyncServices(services):
             tasks = []
             for __, row in jurisdictions.iterrows():
@@ -542,7 +544,7 @@ class _COMPASSRunner:
                 _SingleJurisdictionRunner(
                     self.tech,
                     county,
-                    self.llm_caller_args,
+                    self.models,
                     self.web_search_params,
                     self.file_loader_kwargs,
                     self.browser_semaphore,
@@ -569,7 +571,7 @@ class _SingleJurisdictionRunner:
         self,
         tech,
         jurisdiction,
-        llm_caller_args,
+        models,
         web_search_params,
         file_loader_kwargs,
         browser_semaphore,
@@ -577,7 +579,7 @@ class _SingleJurisdictionRunner:
     ):
         self.tech_specs = _compile_tech_specs(tech)
         self.jurisdiction = jurisdiction
-        self.llm_caller_args = llm_caller_args
+        self.models = models
         self.web_search_params = web_search_params
         self.file_loader_kwargs = file_loader_kwargs
         self.browser_semaphore = browser_semaphore
@@ -598,7 +600,9 @@ class _SingleJurisdictionRunner:
         start_time = time.monotonic()
         doc = await self._run()
         await self._record_usage()
-        await _record_jurisdiction_info(self.jurisdiction, doc, start_time)
+        await _record_jurisdiction_info(
+            self.jurisdiction, doc, start_time, self.usage_tracker
+        )
         return doc
 
     async def _run(self):
@@ -618,7 +622,7 @@ class _SingleJurisdictionRunner:
         docs = await download_county_ordinance(
             self.tech_specs.questions,
             self.jurisdiction,
-            self.llm_caller_args,
+            self.models,
             heuristic=self.tech_specs.heuristic,
             ordinance_text_collector_class=(
                 self.tech_specs.ordinance_text_collector
@@ -626,7 +630,7 @@ class _SingleJurisdictionRunner:
             permitted_use_text_collector_class=(
                 self.tech_specs.permitted_use_text_collector
             ),
-            num_urls=self.web_search_params.num_urls_to_check_per_county,
+            num_urls=self.web_search_params.num_urls_to_check_per_jurisdiction,
             file_loader_kwargs=self.file_loader_kwargs,
             browser_semaphore=self.browser_semaphore,
             usage_tracker=self.usage_tracker,
@@ -657,40 +661,56 @@ class _SingleJurisdictionRunner:
     async def _try_extract_all_ordinances(self, possible_ord_doc):
         """Try to extract ordinance values and permitted districts"""
         with self._tracked_progress():
-            extraction_info = [
-                (
-                    self.tech_specs.ordinance_text_extractor,
-                    "ordinance_text",
-                    "cleaned_ordinance_text",
-                    self.tech_specs.structured_ordinance_parser,
-                    "ordinance_values",
-                ),
-                (
-                    self.tech_specs.permitted_use_text_extractor,
-                    "permitted_use_text",
-                    "districts_text",
-                    self.tech_specs.structured_permitted_use_parser,
-                    "permitted_district_values",
-                ),
-            ]
             tasks = [
                 asyncio.create_task(
-                    self._try_extract_ordinances(
-                        possible_ord_doc,
-                        extractor_class=extractor,
-                        original_text_key=o_key,
-                        cleaned_text_key=c_key,
-                        parser_class=parser,
-                        out_key=out_key,
-                    ),
+                    self._try_extract_ordinances(possible_ord_doc, **kwargs),
                     name=self.jurisdiction.full_name,
                 )
-                for extractor, o_key, c_key, parser, out_key in extraction_info
+                for kwargs in self.extraction_task_kwargs
             ]
 
             docs = await asyncio.gather(*tasks)
 
         return _concat_scrape_results(docs[0])
+
+    @property
+    def extraction_task_kwargs(self):
+        return [
+            {
+                "extractor_class": self.tech_specs.ordinance_text_extractor,
+                "original_text_key": "ordinance_text",
+                "cleaned_text_key": "cleaned_ordinance_text",
+                "text_model": self.models.get(
+                    LLMTasks.ORDINANCE_TEXT_EXTRACTION,
+                    self.models[LLMTasks.DEFAULT],
+                ),
+                "parser_class": self.tech_specs.structured_ordinance_parser,
+                "out_key": "ordinance_values",
+                "value_model": self.models.get(
+                    LLMTasks.ORDINANCE_VALUE_EXTRACTION,
+                    self.models[LLMTasks.DEFAULT],
+                ),
+            },
+            {
+                "extractor_class": (
+                    self.tech_specs.permitted_use_text_extractor
+                ),
+                "original_text_key": "permitted_use_text",
+                "cleaned_text_key": "districts_text",
+                "text_model": self.models.get(
+                    LLMTasks.PERMITTED_USE_TEXT_EXTRACTION,
+                    self.models[LLMTasks.DEFAULT],
+                ),
+                "parser_class": (
+                    self.tech_specs.structured_permitted_use_parser
+                ),
+                "out_key": "permitted_district_values",
+                "value_model": self.models.get(
+                    LLMTasks.PERMITTED_USE_VALUE_EXTRACTION,
+                    self.models[LLMTasks.DEFAULT],
+                ),
+            },
+        ]
 
     async def _try_extract_ordinances(
         self,
@@ -700,6 +720,8 @@ class _SingleJurisdictionRunner:
         cleaned_text_key,
         parser_class,
         out_key,
+        text_model,
+        value_model,
     ):
         """Try applying a single extractor to the relevant legal text"""
         logger.debug(
@@ -713,7 +735,7 @@ class _SingleJurisdictionRunner:
             extractor_class=extractor_class,
             original_text_key=original_text_key,
             usage_tracker=self.usage_tracker,
-            llm_caller_args=self.llm_caller_args,
+            model_config=text_model,
         )
         await self._record_usage()
         self._jsp.remove_task(task_id)
@@ -723,7 +745,7 @@ class _SingleJurisdictionRunner:
             text_key=cleaned_text_key,
             out_key=out_key,
             usage_tracker=self.usage_tracker,
-            llm_caller_args=self.llm_caller_args,
+            model_config=value_model,
         )
         await self._record_usage()
         return out
@@ -775,19 +797,48 @@ def _setup_main_logging(log_dir, level, listener):
     listener.addHandler(handler)
 
 
-def _setup_folders(out_dir, log_dir=None, clean_dir=None, ofd=None, cdd=None):
+def _setup_folders(out_dir, log_dir=None, clean_dir=None, ofd=None, jdd=None):
     """Setup output directory folders"""
-    out_dir = Path(out_dir)
+    out_dir = _full_path(out_dir)
     out_folders = Directories(
         out_dir,
-        Path(log_dir) if log_dir else out_dir / "logs",
-        Path(clean_dir) if clean_dir else out_dir / "cleaned_text",
-        Path(ofd) if ofd else out_dir / "ordinance_files",
-        Path(cdd) if cdd else out_dir / "jurisdiction_dbs",
+        _full_path(log_dir) if log_dir else out_dir / "logs",
+        _full_path(clean_dir) if clean_dir else out_dir / "cleaned_text",
+        _full_path(ofd) if ofd else out_dir / "ordinance_files",
+        _full_path(jdd) if jdd else out_dir / "jurisdiction_dbs",
     )
     for folder in out_folders:
         folder.mkdir(exist_ok=True, parents=True)
     return out_folders
+
+
+def _full_path(in_path):
+    """Expand and resolve input path"""
+    return Path(in_path).expanduser().resolve()
+
+
+def _initialize_model_params(user_input):
+    """Initialize llm caller args for models from user input"""
+    if isinstance(user_input, str):
+        return {LLMTasks.DEFAULT: OpenAIConfig(name=user_input)}
+
+    caller_instances = {}
+    for kwargs in user_input:
+        tasks = kwargs.pop("tasks", LLMTasks.DEFAULT)
+        if isinstance(tasks, str):
+            tasks = [tasks]
+
+        model_config = OpenAIConfig(**kwargs)
+        for task in tasks:
+            if task in caller_instances:
+                msg = (
+                    f"Found duplicated task: {task!r}. Please ensure each "
+                    "LLM caller definition has uniquely-assigned tasks."
+                )
+                raise COMPASSValueError(msg)
+            caller_instances[task] = model_config
+
+    return caller_instances
 
 
 def _load_counties_to_process(county_fp):
@@ -813,22 +864,18 @@ def _configure_file_loader_kwargs(file_loader_kwargs):
 
 
 async def _extract_ordinance_text(
-    doc,
-    extractor_class,
-    original_text_key,
-    usage_tracker,
-    llm_caller_args,
+    doc, extractor_class, original_text_key, usage_tracker, model_config
 ):
     """Extract text pertaining to ordinance of interest"""
     llm_caller = LLMCaller(
-        llm_service=llm_caller_args.llm_service,
+        llm_service=model_config.llm_service,
         usage_tracker=usage_tracker,
-        **llm_caller_args.llm_call_kwargs,
+        **model_config.llm_call_kwargs,
     )
     extractor = extractor_class(llm_caller)
     doc = await extract_ordinance_text_with_ngram_validation(
         doc,
-        llm_caller_args.text_splitter,
+        model_config.text_splitter,
         extractor,
         original_text_key=original_text_key,
     )
@@ -836,13 +883,13 @@ async def _extract_ordinance_text(
 
 
 async def _extract_ordinances_from_text(
-    doc, parser_class, text_key, out_key, usage_tracker, llm_caller_args
+    doc, parser_class, text_key, out_key, usage_tracker, model_config
 ):
     """Extract values from ordinance text"""
     parser = parser_class(
-        llm_service=llm_caller_args.llm_service,
+        llm_service=model_config.llm_service,
         usage_tracker=usage_tracker,
-        **llm_caller_args.llm_call_kwargs,
+        **model_config.llm_call_kwargs,
     )
     return await extract_ordinance_values(
         doc, parser, text_key=text_key, out_key=out_key
@@ -888,10 +935,10 @@ async def _write_ord_db(doc):
     return doc
 
 
-async def _record_jurisdiction_info(county, doc, start_time):
+async def _record_jurisdiction_info(county, doc, start_time, usage_tracker):
     """Record info about jurisdiction"""
     seconds_elapsed = time.monotonic() - start_time
-    await JurisdictionUpdater.call(county, doc, seconds_elapsed)
+    await JurisdictionUpdater.call(county, doc, seconds_elapsed, usage_tracker)
 
 
 def _setup_pytesseract(exe_fp):
@@ -1006,7 +1053,8 @@ def _save_run_meta(
     start_date,
     num_jurisdictions_searched,
     num_jurisdictions_found,
-    llm_caller_args,
+    total_cost,
+    models,
 ):
     """Write out meta information about ordinance collection run"""
     end_date = datetime.now(UTC).isoformat()
@@ -1022,21 +1070,14 @@ def _save_run_meta(
         "username": username,
         "versions": {"elm": elm_version, "compass": compass_version},
         "technology": tech,
-        "llm_parse_args": {
-            "llm_call_kwargs": llm_caller_args.llm_call_kwargs,
-            "text_splitter_chunk_size": (
-                llm_caller_args.text_splitter_chunk_size
-            ),
-            "text_splitter_chunk_overlap": (
-                llm_caller_args.text_splitter_chunk_overlap
-            ),
-        },
+        "models": _extract_model_info_from_all_models(models),
         "time_start_utc": start_date,
         "time_end_utc": end_date,
         "total_time": seconds_elapsed,
         "total_time_string": str(timedelta(seconds=seconds_elapsed)),
         "num_jurisdictions_searched": num_jurisdictions_searched,
         "num_jurisdictions_found": num_jurisdictions_found,
+        "cost": total_cost or None,
         "manifest": {},
     }
     manifest = {
@@ -1060,6 +1101,28 @@ def _save_run_meta(
         json.dump(meta_data, fh, indent=4)
 
     return seconds_elapsed
+
+
+def _extract_model_info_from_all_models(models):
+    """Group model info together"""
+    models_to_tasks = {}
+    for task, caller_args in models.items():
+        models_to_tasks.setdefault(caller_args, []).append(task)
+
+    return [
+        {
+            "name": caller_args.name,
+            "llm_call_kwargs": caller_args.llm_call_kwargs,
+            "llm_service_rate_limit": caller_args.llm_service_rate_limit,
+            "text_splitter_chunk_size": caller_args.text_splitter_chunk_size,
+            "text_splitter_chunk_overlap": (
+                caller_args.text_splitter_chunk_overlap
+            ),
+            "client_type": caller_args.client_type,
+            "tasks": tasks,
+        }
+        for caller_args, tasks in models_to_tasks.items()
+    ]
 
 
 async def _compute_total_cost():

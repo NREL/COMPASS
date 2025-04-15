@@ -9,6 +9,7 @@ from elm.utilities.retry import async_retry_with_exponential_backoff
 from compass.services.base import LLMService
 from compass.services.usage import TimeBoundedUsageTracker
 from compass.utilities import LLM_COST_REGISTRY
+from compass.utilities.enums import LLMUsageCategory
 from compass.pb import COMPASS_PB
 
 
@@ -107,12 +108,12 @@ class OpenAIService(LLMService):
 
         Parameters
         ----------
-        client : openai.AsyncOpenAI | openai.AsyncAzureOpenAI
+        client : openai.AsyncOpenAI or openai.AsyncAzureOpenAI
             Async OpenAI client instance. Must have an async
             `client.chat.completions.create` method.
         model_name : str
             Name of model being used.
-        rate_limit : int | float, optional
+        rate_limit : int or float, optional
             Token rate limit (typically per minute, but the time
             interval is ultimately controlled by the `rate_tracker`
             instance). By default, ``1e3``.
@@ -135,7 +136,10 @@ class OpenAIService(LLMService):
         self.client = client
 
     async def process(
-        self, usage_tracker=None, usage_sub_label="default", **kwargs
+        self,
+        usage_tracker=None,
+        usage_sub_label=LLMUsageCategory.DEFAULT,
+        **kwargs,
     ):
         """Process a call to OpenAI Chat GPT
 
@@ -160,7 +164,7 @@ class OpenAIService(LLMService):
 
         Returns
         -------
-        str | None
+        str or None
             Chat GPT response as a string, or ``None`` if the call
             failed.
         """
