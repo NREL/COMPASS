@@ -71,7 +71,7 @@ doc = [
   "sphinx-click>=5.1",
   "sphinx-copybutton>=0.5",
   "sphinx-tabs>=3.4",
-  "sphinxcontrib-mermaid>=0.9.2",
+  "sphinxcontrib-mermaid>=1.0.0",
 ]
 anthropic = [
   "anthropic>=0.40.0,<0.41",
@@ -96,7 +96,9 @@ repository = "https://github.com/NREL/COMPASS"
 find = { include = ["compass*"] }
 
 [tool.setuptools_scm]
-git_describe_command = [ "git", "describe", "--dirty", "--tags", "--long", "--match", "v*[0-9]*" ] # default command uses "*[0-9]*", which breaks with cX.X.X tags. This forces setuptools_scm to look strictly for vX.X.X tags
+# Default git command uses "*[0-9]*", which breaks with cX.X.X tags.
+# This spec below forces setuptools_scm to look strictly for vX.X.X tags
+git_describe_command = [ "git", "describe", "--dirty", "--tags", "--long", "--match", "v*[0-9]*" ]
 version_file = "compass/_version.py"
 
 [tool.pixi.project]
@@ -112,6 +114,7 @@ pdoc = { features = ["python-default", "python-doc", "doc"], solve-group = "pyth
 pbuild = { features = ["python-build"], solve-group = "python" }
 
 [tool.pixi.tasks]
+openai-solar-demo = { cmd = "compass process -c config.json5", args = ["api_key"], env = { OPENAI_API_KEY = "{{ api_key }}"}, cwd = "examples/openai_solar_demo"}
 
 [tool.pixi.feature.python-test.tasks]
 tests = "pytest --durations=20 tests/python"
@@ -169,6 +172,7 @@ tavily-python = ">=0.5.0, <0.6"
 NREL-COMPASS = { path = ".", editable = true}
 
 [tool.pixi.feature.python-dev.dependencies]
+geopandas = ">=1.0.1,<2"
 jupyter = ">=1.0.0,<1.1"
 pipreqs = ">=0.4.13,<0.5"
 ruff = ">=0.8.0,<0.9"

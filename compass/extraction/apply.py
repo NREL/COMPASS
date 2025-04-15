@@ -10,7 +10,6 @@ from compass.validation import (
     LegalTextValidator,
     parse_by_chunks,
 )
-from compass.utilities.enums import LLMTasks
 from compass.warn import COMPASSWarning
 
 
@@ -19,10 +18,10 @@ logger = logging.getLogger(__name__)
 
 async def check_for_ordinance_info(
     doc,
-    llm_callers,
+    model_config,
     heuristic,
     ordinance_text_collector_class,
-    permitted_use_text_collector_class,
+    permitted_use_text_collector_class=None,
     usage_tracker=None,
 ):
     """Parse a single document for ordinance information
@@ -61,29 +60,26 @@ async def check_for_ordinance_info(
     if "contains_ord_info" in doc.attrs:
         return doc
 
-    llm_caller_args = llm_callers.get(
-        LLMTasks.DOCUMENT_CONTENT_VALIDATION,
-        llm_callers[LLMTasks.DEFAULT],
-    )
     llm_caller = StructuredLLMCaller(
-        llm_service=llm_caller_args.llm_service,
+        llm_service=model_config.llm_service,
         usage_tracker=usage_tracker,
-        **llm_caller_args.llm_call_kwargs,
+        **model_config.llm_call_kwargs,
     )
-    chunks = llm_caller_args.text_splitter.split_text(doc.text)
+    chunks = model_config.text_splitter.split_text(doc.text)
     chunk_parser = ParseChunksWithMemory(llm_caller, chunks, num_to_recall=2)
     legal_text_validator = LegalTextValidator()
+
     ordinance_text_collector = ordinance_text_collector_class()
-    permitted_use_text_collector = permitted_use_text_collector_class()
+    callbacks = [ordinance_text_collector.check_chunk]
+    if permitted_use_text_collector_class is not None:
+        permitted_use_text_collector = permitted_use_text_collector_class()
+        callbacks.append(permitted_use_text_collector.check_chunk)
 
     doc.attrs["is_legal_text"] = await parse_by_chunks(
         chunk_parser,
         heuristic,
         legal_text_validator,
-        callbacks=[
-            ordinance_text_collector.check_chunk,
-            permitted_use_text_collector.check_chunk,
-        ],
+        callbacks=callbacks,
         min_chunks_to_process=3,
     )
 
@@ -96,33 +92,50 @@ async def check_for_ordinance_info(
             doc.attrs["ordinance_text"],
         )
 
-    doc.attrs["contains_district_info"] = (
-        permitted_use_text_collector.contains_district_info
-    )
-    if doc.attrs["contains_district_info"]:
-        doc.attrs["permitted_use_text"] = (
-            permitted_use_text_collector.permitted_use_district_text
+    if permitted_use_text_collector_class is not None:
+        doc.attrs["contains_district_info"] = (
+            permitted_use_text_collector.contains_district_info
         )
-        logger.debug(
-            "Permitted use text for %s is:\n%s",
-            doc.attrs.get("source", "unknown source"),
-            doc.attrs["permitted_use_text"],
-        )
+        if doc.attrs["contains_district_info"]:
+            doc.attrs["permitted_use_text"] = (
+                permitted_use_text_collector.permitted_use_district_text
+            )
+            logger.debug(
+                "Permitted use text for %s is:\n%s",
+                doc.attrs.get("source", "unknown source"),
+                doc.attrs["permitted_use_text"],
+            )
 
-    if any(
-        [doc.attrs["contains_ord_info"], doc.attrs["contains_district_info"]]
-    ):
-        date_llm_caller_args = llm_callers.get(
-            LLMTasks.DATE_EXTRACTION, llm_callers[LLMTasks.DEFAULT]
-        )
-        date_llm_caller = StructuredLLMCaller(
-            llm_service=date_llm_caller_args.llm_service,
-            usage_tracker=usage_tracker,
-            **date_llm_caller_args.llm_call_kwargs,
-        )
-        doc.attrs["date"] = await DateExtractor(
-            date_llm_caller, date_llm_caller_args.text_splitter
-        ).parse(doc)
+    return doc
+
+
+async def extract_date(doc, model_config, usage_tracker=None):
+    """Parse a single document for date information
+
+    Parameters
+    ----------
+    doc : elm.web.document.BaseDocument
+        A document potentially containing date information.
+    usage_tracker : compass.services.usage.UsageTracker, optional
+        Optional tracker instance to monitor token usage during
+        LLM calls. By default, ``None``.
+
+    Returns
+    -------
+    elm.web.document.BaseDocument
+        Document that has been parsed for dates. The results of
+        the parsing are stored in the documents attrs. In particular,
+        the attrs will contain a ``"date"`` key that will contain the
+        parsed date information.
+    """
+    date_llm_caller = StructuredLLMCaller(
+        llm_service=model_config.llm_service,
+        usage_tracker=usage_tracker,
+        **model_config.llm_call_kwargs,
+    )
+    doc.attrs["date"] = await DateExtractor(
+        date_llm_caller, model_config.text_splitter
+    ).parse(doc)
 
     return doc
 
@@ -331,7 +344,7 @@ async def _extract_with_ngram_check(
         msg = (
             f"Ngram check failed after {num_tries} tries. LLM hallucination "
             "in cleaned ordinance text is extremely likely! Proceed with "
-            f"caution!! (Document source: {best_score})"
+            f"caution!! (Score: {best_score:.2f}; Document source: {source})"
         )
         logger.warning(msg)
         warn(msg, UserWarning)
