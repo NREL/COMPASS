@@ -8,7 +8,7 @@ from elm.web.utilities import filter_documents
 
 from compass.llm import StructuredLLMCaller
 from compass.extraction import check_for_ordinance_info, extract_date
-from compass.services.threaded import TempFileCache
+from compass.services.threaded import TempFileCachePB
 from compass.validation.location import (
     CountyJurisdictionValidator,
     CountyNameValidator,
@@ -21,7 +21,7 @@ from compass.pb import COMPASS_PB
 logger = logging.getLogger(__name__)
 
 
-async def download_county_ordinance(
+async def download_county_ordinance(  # noqa: PLR0913, PLR0917
     question_templates,
     location,
     model_configs,
@@ -31,6 +31,7 @@ async def download_county_ordinance(
     num_urls=5,
     file_loader_kwargs=None,
     browser_semaphore=None,
+    url_ignore_substrings=None,
     usage_tracker=None,
 ):
     """Download the ordinance document(s) for a single county
@@ -70,13 +71,16 @@ async def download_county_ordinance(
     COMPASS_PB.update_jurisdiction_task(
         location.full_name, description="Downloading files..."
     )
-    docs = await _docs_from_web_search(
-        question_templates,
-        location,
-        num_urls,
-        browser_semaphore,
-        **(file_loader_kwargs or {}),
-    )
+    async with COMPASS_PB.file_download_prog_bar(location.full_name, num_urls):
+        docs = await _docs_from_web_search(
+            question_templates,
+            location,
+            num_urls,
+            browser_semaphore,
+            url_ignore_substrings,
+            **(file_loader_kwargs or {}),
+        )
+
     COMPASS_PB.update_jurisdiction_task(
         location.full_name,
         description="Checking files for correct jurisdiction...",
@@ -110,14 +114,20 @@ async def download_county_ordinance(
         permitted_use_text_collector_class=permitted_use_text_collector_class,
         usage_tracker=usage_tracker,
     )
-    logger.info(
-        "Found %d potential ordinance documents for %s\n\t- %s",
-        len(docs),
-        location.full_name,
-        "\n\t- ".join(
-            [doc.attrs.get("source", "Unknown source") for doc in docs]
-        ),
-    )
+    if not docs:
+        logger.info(
+            "Did not find any potential ordinance documents for %s",
+            location.full_name,
+        )
+    else:
+        logger.info(
+            "Found %d potential ordinance documents for %s\n\t- %s",
+            len(docs),
+            location.full_name,
+            "\n\t- ".join(
+                [doc.attrs.get("source", "Unknown source") for doc in docs]
+            ),
+        )
     return _sort_final_ord_docs(docs)
 
 
@@ -126,6 +136,7 @@ async def _docs_from_web_search(
     location,
     num_urls,
     browser_semaphore,
+    url_ignore_substrings,
     **file_loader_kwargs,
 ):
     """Download docs from web using location queries"""
@@ -133,11 +144,12 @@ async def _docs_from_web_search(
         question.format(location=location.full_name)
         for question in question_templates
     ]
-    file_loader_kwargs.update({"file_cache_coroutine": TempFileCache.call})
+    file_loader_kwargs.update({"file_cache_coroutine": TempFileCachePB.call})
     return await web_search_links_as_docs(
         queries,
         num_urls=num_urls,
         browser_semaphore=browser_semaphore,
+        ignore_url_parts=url_ignore_substrings,
         task_name=location.full_name,
         **file_loader_kwargs,
     )

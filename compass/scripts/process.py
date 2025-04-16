@@ -47,7 +47,7 @@ from compass.services.usage import UsageTracker
 from compass.services.openai import usage_from_response
 from compass.services.provider import RunningAsyncServices
 from compass.services.threaded import (
-    TempFileCache,
+    TempFileCachePB,
     FileMover,
     CleanedFileWriter,
     OrdDBFileWriter,
@@ -111,9 +111,10 @@ WebSearchParams = namedtuple(
     [
         "num_urls_to_check_per_jurisdiction",
         "max_num_concurrent_browsers",
+        "url_ignore_substrings",
         "pytesseract_exe_fp",
     ],
-    defaults=[5, 10, None],
+    defaults=[5, 10, None, None],
 )
 PARSED_COLS = [
     "county",
@@ -155,6 +156,7 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
     num_urls_to_check_per_jurisdiction=5,
     max_num_concurrent_browsers=10,
     max_num_concurrent_jurisdictions=None,
+    url_ignore_substrings=None,
     file_loader_kwargs=None,
     pytesseract_exe_fp=None,
     td_kwargs=None,
@@ -241,6 +243,28 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         Maximum number of jurisdictions to process in parallel. Limiting
         this can help manage memory usage when dealing with a large
         number of documents. By default ``None`` (no limit).
+    url_ignore_substrings : list of str, optional
+        A list of substrings that, if found in any URL, will cause the
+        URL to be excluded from consideration. This can be used to
+        specify particular websites or entire domains to ignore. For
+        example:
+
+            url_ignore_substrings = [
+                "wikipedia",
+                "nrel.gov",
+                "www.co.delaware.in.us/egov/documents/1649699794_0382.pdf",
+            ]
+
+        The above configuration would ignore all `wikipedia` articles,
+        all websites on the NREL domain, and the specific file located
+        at `www.co.delaware.in.us/egov/documents/1649699794_0382.pdf`.
+        By default, ``None``.
+    file_loader_kwargs : dict, optional
+        Dictionary of keyword arguments pairs to initialize
+        :class:`elm.web.file_loader.AsyncFileLoader`. If found, the
+        "pw_launch_kwargs" key in these will also be used to initialize
+        the :class:`elm.web.search.google.PlaywrightGoogleLinkSearch`
+        used for the google URL search. By default, ``None``.
     pytesseract_exe_fp : path-like, optional
         Path to the `pytesseract` executable. If specified, OCR will be
         used to extract text from scanned PDFs using Google's Tesseract.
@@ -314,6 +338,9 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
     output_directory : path-like
         Path to output directory containing data.
     """
+    if log_level == "DEBUG":
+        log_level = "DEBUG_TO_FILE"
+
     log_listener = LogListener(["compass", "elm"], level=log_level)
     LLM_COST_REGISTRY.update(llm_costs or {})
     dirs = _setup_folders(
@@ -333,6 +360,7 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
     wsp = WebSearchParams(
         num_urls_to_check_per_jurisdiction,
         max_num_concurrent_browsers,
+        url_ignore_substrings,
         pytesseract_exe_fp,
     )
     models = _initialize_model_params(model)
@@ -422,7 +450,7 @@ class _COMPASSRunner:
     def _base_services(self):
         """list: List of required services to run for processing"""
         return [
-            TempFileCache(
+            TempFileCachePB(
                 td_kwargs=self.process_kwargs.td_kwargs,
                 tpe_kwargs=self.tpe_kwargs,
             ),
@@ -485,6 +513,7 @@ class _COMPASSRunner:
         services = [model.llm_service for model in set(self.models.values())]
         services += self._base_services
         _ = self.file_loader_kwargs  # init loader kwargs once
+        logger.info("Processing %d jurisdiction(s)", len(jurisdictions))
         async with RunningAsyncServices(services):
             tasks = []
             for __, row in jurisdictions.iterrows():
@@ -633,6 +662,7 @@ class _SingleJurisdictionRunner:
             num_urls=self.web_search_params.num_urls_to_check_per_jurisdiction,
             file_loader_kwargs=self.file_loader_kwargs,
             browser_semaphore=self.browser_semaphore,
+            url_ignore_substrings=self.web_search_params.url_ignore_substrings,
             usage_tracker=self.usage_tracker,
         )
         if docs is None:
@@ -892,6 +922,7 @@ async def _extract_ordinances_from_text(
         usage_tracker=usage_tracker,
         **model_config.llm_call_kwargs,
     )
+    logger.info("Extracting %s...", out_key.replace("_", " "))
     return await extract_ordinance_values(
         doc, parser, text_key=text_key, out_key=out_key
     )
@@ -990,7 +1021,7 @@ def _doc_infos_to_db(doc_infos):
     if not db:
         return pd.DataFrame(columns=PARSED_COLS), 0
 
-    logger.info("Compiling final database for %d jurisdictions", len(db))
+    logger.info("Compiling final database for %d jurisdiction(s)", len(db))
     num_jurisdictions_found = len(db)
     db = pd.concat([df.dropna(axis=1, how="all") for df in db], axis=0)
     db = _empirical_adjustments(db)
