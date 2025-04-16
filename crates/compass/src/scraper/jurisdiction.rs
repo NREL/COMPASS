@@ -40,6 +40,33 @@ pub(super) struct Document {
 }
 
 impl Collection {
+    pub(super) fn init_db(conn: &duckdb::Transaction) -> Result<()> {
+        warn!("Initializing database for jurisdictions");
+
+        // archive
+        conn.execute_batch(
+            r"
+            CREATE SEQUENCE IF NOT EXISTS archive_sequence START 1;
+            CREATE TABLE IF NOT EXISTS archive (
+              id INTEGER PRIMARY KEY DEFAULT
+                NEXTVAL('archive_sequence'),
+              source TEXT,
+              origin TEXT,
+              ord_year INTEGER,
+              ord_filename TEXT,
+              name TEXT,
+              num_pages INTEGER,
+              checksum TEXT,
+              hash TEXT,
+              access_time TIMESTAMP,
+              created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+            );",
+        )?;
+
+        warn!("Database ready for jurisdictions");
+        Ok(())
+    }
+
     fn from_json(content: &str) -> Result<Self> {
         warn!("Parsing jurisdictions from JSON: {:?}", content);
         let collection: Collection = serde_json::from_str(content).unwrap();
