@@ -100,4 +100,43 @@ impl Collection {
 
         Ok(jurisdictions)
     }
+
+    pub(super) fn write(&self, conn: &duckdb::Transaction, commit_id: usize) -> Result<()> {
+        warn!("Recording jurisdictions on database");
+
+        for jurisdiction in &self.jurisdictions {
+            warn!("Inserting jurisdiction: {:?}", jurisdiction);
+            if let Some(documents) = &jurisdiction.documents {
+                // Replace this by a query, if not found already in the database, insert and return
+                // the id.
+                let mut stmt_archive = conn.prepare(
+                    r"
+                    INSERT INTO archive
+                    (source, ord_year, ord_filename, num_pages,
+                      checksum)
+                    VALUES (?, ?, ?, ?, ?)
+                    RETURNING id",
+                )?;
+
+                let mut dids = Vec::new();
+                for document in documents {
+                    warn!("Inserting document: {:?}", document);
+                    let did = stmt_archive.query(duckdb::params! [
+                        document.source,
+                        document.ord_year,
+                        document.ord_filename,
+                        document.num_pages,
+                        document.checksum,
+                    ])?.next().unwrap().unwrap().get::<_, i64>(0).unwrap();
+                    dids.push(did);
+                }
+                warn!("Inserted documents' ids: {:?}", dids);
+
+            } else {
+                warn!("No documents found for jurisdiction: {:?}", jurisdiction);
+            }
+        }
+        Ok(())
+
+    }
 }
