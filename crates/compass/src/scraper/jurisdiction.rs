@@ -34,6 +34,7 @@ pub(super) struct Jurisdiction {
 pub(super) struct Document {
     source: String,
     ord_year: u16,
+    ord_filename: String,
     num_pages: u16,
     checksum: String,
 }
