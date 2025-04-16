@@ -259,6 +259,12 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         all websites on the NREL domain, and the specific file located
         at `www.co.delaware.in.us/egov/documents/1649699794_0382.pdf`.
         By default, ``None``.
+    file_loader_kwargs : dict, optional
+        Dictionary of keyword arguments pairs to initialize
+        :class:`elm.web.file_loader.AsyncFileLoader`. If found, the
+        "pw_launch_kwargs" key in these will also be used to initialize
+        the :class:`elm.web.search.google.PlaywrightGoogleLinkSearch`
+        used for the google URL search. By default, ``None``.
     pytesseract_exe_fp : path-like, optional
         Path to the `pytesseract` executable. If specified, OCR will be
         used to extract text from scanned PDFs using Google's Tesseract.
