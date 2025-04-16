@@ -256,8 +256,7 @@ async def extract_ordinance_text_with_ngram_validation(
             "does not contain information. Please run "
             "`check_for_ordinance_info` prior to calling this method."
         )
-        logger.warning(msg)
-        warn(msg, UserWarning)
+        warn(msg, COMPASSWarning)
         return doc
 
     return await _extract_with_ngram_check(
@@ -291,8 +290,7 @@ async def _extract_with_ngram_check(
             "performed (Document source: %s)",
             source,
         )
-        logger.warning(msg)
-        warn(msg, UserWarning)
+        warn(msg, COMPASSWarning)
         return doc
 
     best_score = 0
@@ -346,8 +344,7 @@ async def _extract_with_ngram_check(
             "in cleaned ordinance text is extremely likely! Proceed with "
             f"caution!! (Score: {best_score:.2f}; Document source: {source})"
         )
-        logger.warning(msg)
-        warn(msg, UserWarning)
+        warn(msg, COMPASSWarning)
 
     doc.attrs["ngram_score"] = best_score
     return doc
@@ -387,8 +384,7 @@ async def extract_ordinance_values(doc, parser, text_key, out_key):
             "does not contain info. Please run "
             "`extract_ordinance_text_with_llm` prior to calling this method."
         )
-        logger.warning(msg)
-        warn(msg, UserWarning)
+        warn(msg, COMPASSWarning)
         return doc
 
     doc.attrs[out_key] = await parser.parse(doc.attrs[text_key])
