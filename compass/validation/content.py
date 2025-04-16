@@ -110,7 +110,7 @@ class ParseChunksWithMemory:
                         LLMUsageCategory.DOCUMENT_CONTENT_VALIDATION
                     ),
                 )
-                logger.debug("LLM response: %s", str(content))  # TODO: trace
+                logger.debug("LLM response: %s", str(content))
                 check = mem[key] = content.get(key, False)
             if check:
                 return check

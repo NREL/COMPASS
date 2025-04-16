@@ -341,8 +341,8 @@ async def _extract_with_ngram_check(
         doc.attrs[out_text_key] = best_summary
         msg = (
             f"Ngram check failed after {num_tries} tries. LLM hallucination "
-            "in cleaned ordinance text is extremely likely! Proceed with "
-            f"caution!! (Score: {best_score:.2f}; Document source: {source})"
+            "in cleaned ordinance text is possible! Proceed with caution!! "
+            f"(Score: {best_score:.2f}; Document source: {source})"
         )
         warn(msg, COMPASSWarning)
 
