@@ -252,12 +252,12 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
             url_ignore_substrings = [
                 "wikipedia",
                 "nrel.gov",
-                "www.co.delaware.in.us/egov/documents/1649699794_0382.pdf",
+                "www.co.delaware.in.us/documents/1649699794_0382.pdf",
             ]
 
         The above configuration would ignore all `wikipedia` articles,
         all websites on the NREL domain, and the specific file located
-        at `www.co.delaware.in.us/egov/documents/1649699794_0382.pdf`.
+        at `www.co.delaware.in.us/documents/1649699794_0382.pdf`.
         By default, ``None``.
     file_loader_kwargs : dict, optional
         Dictionary of keyword arguments pairs to initialize
