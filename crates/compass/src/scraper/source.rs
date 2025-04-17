@@ -143,7 +143,7 @@ impl Source {
             */
         }
 
-        trace!("Found a total of {} source documents", sources.len());
+        // trace!("Found a total of {} source documents", sources.len());
 
         Ok(sources)
     }
