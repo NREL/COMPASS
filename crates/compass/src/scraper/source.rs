@@ -48,7 +48,8 @@ impl Source {
 
         trace!("Creating table archive");
         // Store all individual documents scrapped
-        conn.execute_batch(r"
+        conn.execute_batch(
+            r"
           CREATE SEQUENCE IF NOT EXISTS archive_sequence START 1;
           CREATE TABLE IF NOT EXISTS archive (
             id INTEGER PRIMARY KEY DEFAULT NEXTVAL('archive_sequence'),
@@ -63,10 +64,11 @@ impl Source {
             access_time TIMESTAMP,
             created_at TIMESTAMP NOT NULL DEFAULT NOW(),
             );",
-          )?;
+        )?;
 
         trace!("Creating table source");
-          conn.execute_batch(r"
+        conn.execute_batch(
+            r"
           CREATE SEQUENCE IF NOT EXISTS source_sequence START 1;
           CREATE TABLE IF NOT EXISTS source (
             id INTEGER PRIMARY KEY DEFAULT NEXTVAL('source_sequence'),
@@ -83,7 +85,7 @@ impl Source {
             documents TEXT,
             archive_lnk INTEGER REFERENCES archive(id),
             );",
-          )?;
+        )?;
 
         trace!("Database ready for Source");
         Ok(())
@@ -151,7 +153,7 @@ impl Source {
             let metadata = entry.metadata().await?;
             let file_type = metadata.file_type();
 
-                /*
+            /*
             if file_type.is_file() {
                 trace!("Processing ordinance file: {:?}", path);
 
@@ -199,17 +201,22 @@ impl Source {
 
                 for document in documents {
                     warn!("Inserting document: {:?}", document);
-                    let did = stmt_archive.query(duckdb::params! [
-                        document.source,
-                        document.ord_year,
-                        document.ord_filename,
-                        document.num_pages,
-                        document.checksum,
-                    ])?.next().unwrap().unwrap().get::<_, i64>(0).unwrap();
+                    let did = stmt_archive
+                        .query(duckdb::params![
+                            document.source,
+                            document.ord_year,
+                            document.ord_filename,
+                            document.num_pages,
+                            document.checksum,
+                        ])?
+                        .next()
+                        .unwrap()
+                        .unwrap()
+                        .get::<_, i64>(0)
+                        .unwrap();
                     dids.push(did);
                 }
                 warn!("Inserted documents' ids: {:?}", dids);
-
             } else {
                 warn!("No documents found for jurisdiction: {:?}", jurisdiction);
             }
@@ -234,12 +241,13 @@ impl Source {
                 jurisdiction.found,
                 jurisdiction.total_time,
                 jurisdiction.total_time_string,
-                dids.iter().map(|did| did.to_string()).collect::<Vec<String>>().join(","),
+                dids.iter()
+                    .map(|did| did.to_string())
+                    .collect::<Vec<String>>()
+                    .join(","),
             ])?;
-
         }
         Ok(())
-
     }
 
     /*
