@@ -100,7 +100,6 @@ impl Source {
     }
 
     pub(super) async fn open<P: AsRef<std::path::Path>>(root: P) -> Result<Self> {
-
         trace!("Opening source documents");
 
         let path = root.as_ref().join("ordinance_files");
