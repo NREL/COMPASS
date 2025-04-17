@@ -38,15 +38,6 @@ pub(super) struct Document {
     ord_filename: String,
     num_pages: u16,
     checksum: String,
-}
-
-#[derive(Debug, Deserialize, Clone)]
-/// Source document scrapped
-pub(super) struct Source_old {
-    name: String,
-    hash: String,
-    #[allow(dead_code)]
-    origin: Option<String>,
     #[allow(dead_code)]
     access_time: Option<String>,
 }
