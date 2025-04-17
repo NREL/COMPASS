@@ -22,6 +22,7 @@ pub(super) struct Jurisdiction {
     state: String,
     subdivision: Option<String>,
     jurisdiction_type: Option<String>,
+    #[serde(alias = "FIPS")]
     /// FIPS
     fips: u32,
     found: bool,
