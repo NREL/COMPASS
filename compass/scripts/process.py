@@ -61,6 +61,7 @@ from compass.utilities import (
     extract_ord_year_from_doc_attrs,
     num_ordinances_in_doc,
     num_ordinances_dataframe,
+    ordinances_bool_index,
 )
 from compass.utilities.enums import LLMTasks
 from compass.utilities.location import County
@@ -1065,7 +1066,8 @@ def _formatted_db(db):
             db[col] = None
 
     db["quantitative"] = db["quantitative"].astype("boolean").fillna(True)
-    return db[PARSED_COLS]
+    ord_rows = ordinances_bool_index(db)
+    return db[ord_rows][PARSED_COLS].reset_index(drop=True)
 
 
 def _save_db(db, out_dir):
