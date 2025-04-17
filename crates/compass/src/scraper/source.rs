@@ -22,7 +22,8 @@ pub(super) struct Jurisdiction {
     state: String,
     subdivision: Option<String>,
     jurisdiction_type: Option<String>,
-    FIPS: u32,
+    /// FIPS
+    fips: u32,
     found: bool,
     total_time: f64,
     total_time_string: String,
@@ -84,7 +85,7 @@ impl Source {
             state TEXT,
             subdivision TEXT,
             jurisdiction_type TEXT,
-            FIPS INTEGER,
+            fips INTEGER,
             found BOOLEAN,
             total_time REAL,
             total_time_string TEXT,
@@ -226,7 +227,7 @@ impl Source {
                 r"
                 INSERT INTO source
                 (bookkeeper_lnk, full_name, county, state,
-                  subdivision, jurisdiction_type, FIPS,
+                  subdivision, jurisdiction_type, fips,
                   found, total_time, total_time_string,
                   documents)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
@@ -238,7 +239,7 @@ impl Source {
                 jurisdiction.state,
                 jurisdiction.subdivision,
                 jurisdiction.jurisdiction_type,
-                jurisdiction.FIPS,
+                jurisdiction.fips,
                 jurisdiction.found,
                 jurisdiction.total_time,
                 jurisdiction.total_time_string,
