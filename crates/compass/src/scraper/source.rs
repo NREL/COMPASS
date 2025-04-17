@@ -94,44 +94,13 @@ impl Source {
 
     fn from_json(content: &str) -> Result<Self> {
         warn!("Parsing sources from JSON: {:?}", content);
+
         let source = serde_json::from_str(content).unwrap();
         Ok(source)
     }
 
     pub(super) async fn open<P: AsRef<std::path::Path>>(root: P) -> Result<Self> {
-        warn!("Opening jurisdictions collection");
 
-        let path = root.as_ref().join("jurisdictions.json");
-        if !path.exists() {
-            error!("Missing jurisdictions.json file");
-            return Err(crate::error::Error::Undefined(
-                "Missing jurisdictions.json file".to_string(),
-            ));
-        }
-
-        warn!("Identified jurisdictions.json file");
-
-        let file_size = tokio::fs::metadata(&path).await?.len();
-        if file_size > MAX_JSON_FILE_SIZE {
-            error!("Jurisdictions file too large: {:?}", file_size);
-            return Err(crate::error::Error::Undefined(
-                "jurisdictions.json file is too large".to_string(),
-            ));
-        }
-
-        let content = tokio::fs::read_to_string(path).await?;
-        let jurisdictions = Self::from_json(&content)?;
-        warn!("Jurisdictions loaded: {:?}", jurisdictions);
-
-        Ok(jurisdictions)
-    }
-
-    /// Open the source documents that were scrapped
-    ///
-    /// # Returns
-    ///
-    /// * A vector of source documents
-    pub(super) async fn open_old<P: AsRef<std::path::Path>>(root: P) -> Result<Vec<Source>> {
         trace!("Opening source documents");
 
         let path = root.as_ref().join("ordinance_files");
@@ -144,7 +113,6 @@ impl Source {
 
         trace!("Scanning source directory: {:?}", path);
 
-        let mut sources = vec![];
         let mut inventory = tokio::fs::read_dir(path).await?;
 
         // Should we filter which files to process, such as only PDFs?
