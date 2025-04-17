@@ -3,7 +3,7 @@
 use serde::Deserialize;
 use sha2::Digest;
 use tokio::io::AsyncReadExt;
-use tracing::{debug, error, trace, warn};
+use tracing::{debug, error, trace};
 
 use crate::error::Result;
 
