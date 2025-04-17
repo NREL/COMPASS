@@ -93,7 +93,7 @@ impl Source {
     }
 
     fn from_json(content: &str) -> Result<Self> {
-        warn!("Parsing sources from JSON: {:?}", content);
+        trace!("Parsing sources from JSON: {:?}", content);
 
         let source = serde_json::from_str(content).unwrap();
         Ok(source)
@@ -136,7 +136,7 @@ impl Source {
                 trace!("Identified a new source: {:?}", s);
                 sources.push(s);
             } else if file_type.is_dir() {
-                warn!(
+                trace!(
                     "Ignoring unexpected directory in ordinance files: {:?}",
                     path
                 );
@@ -150,10 +150,10 @@ impl Source {
     }
 
     pub(super) fn write(&self, conn: &duckdb::Transaction, commit_id: usize) -> Result<()> {
-        warn!("Recording jurisdictions on database");
+        trace!("Recording jurisdictions on database");
 
         for jurisdiction in &self.jurisdictions {
-            warn!("Inserting jurisdiction: {:?}", jurisdiction);
+            trace!("Inserting jurisdiction: {:?}", jurisdiction);
 
             let mut dids = Vec::new();
             if let Some(documents) = &jurisdiction.documents {
@@ -169,7 +169,7 @@ impl Source {
                 )?;
 
                 for document in documents {
-                    warn!("Inserting document: {:?}", document);
+                    trace!("Inserting document: {:?}", document);
                     let did = stmt_archive
                         .query(duckdb::params![
                             document.source,
@@ -185,9 +185,9 @@ impl Source {
                         .unwrap();
                     dids.push(did);
                 }
-                warn!("Inserted documents' ids: {:?}", dids);
+                trace!("Inserted documents' ids: {:?}", dids);
             } else {
-                warn!("No documents found for jurisdiction: {:?}", jurisdiction);
+                trace!("No documents found for jurisdiction: {:?}", jurisdiction);
             }
 
             let mut stmt_source = conn.prepare(
