@@ -182,7 +182,10 @@ class OpenAIConfig(LLMConfig):
         self._OPENAI_MODEL_NAMES.update([self.name])
         num_models = self._OPENAI_MODEL_NAMES.get(self.name, 1)
         if num_models > 1 and not self._tag:
-            self._tag = f"-{num_models - 1}"
+            self._tag = f"{num_models - 1}"
+
+        if self._tag and not self._tag.startswith("-"):
+            self._tag = f"-{self._tag}"
 
     @cached_property
     def client_kwargs(self):
