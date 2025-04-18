@@ -1,6 +1,7 @@
 """Ordinances LLM Configurations"""
 
 import os
+from collections import Counter
 from abc import ABC, abstractmethod
 from functools import partial, cached_property
 
@@ -91,6 +92,8 @@ class OpenAIConfig(LLMConfig):
     }
     """Currently-supported OpenAI LLM clients"""
 
+    _OPENAI_MODEL_NAMES = Counter()
+
     def __init__(
         self,
         name="gpt-4o",
@@ -163,6 +166,7 @@ class OpenAIConfig(LLMConfig):
         self._tag = tag or ""
 
         self._validate_client_type()
+        self._validate_tag()
 
     def _validate_client_type(self):
         """Validate that user input a known client type"""
@@ -172,6 +176,13 @@ class OpenAIConfig(LLMConfig):
                 f"clients: {list(self.SUPPORTED_CLIENTS)}"
             )
             raise COMPASSValueError(msg)
+
+    def _validate_tag(self):
+        """Update tag if needed"""
+        self._OPENAI_MODEL_NAMES.update([self.name])
+        num_models = self._OPENAI_MODEL_NAMES.get(self.name, 1)
+        if num_models > 1 and not self._tag:
+            self._tag = f"-{num_models - 1}"
 
     @cached_property
     def client_kwargs(self):
