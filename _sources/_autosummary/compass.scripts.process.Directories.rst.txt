@@ -1,0 +1,35 @@
+compass.scripts.process.Directories
+===================================
+
+.. currentmodule:: compass.scripts.process
+
+.. autoclass:: Directories
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Directories.count
+      ~Directories.index
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Directories.clean_files
+      ~Directories.jurisdiction_dbs
+      ~Directories.logs
+      ~Directories.ordinance_files
+      ~Directories.out
+   
+   
