@@ -100,6 +100,7 @@ class OpenAIConfig(LLMConfig):
         text_splitter_chunk_overlap=1000,
         client_type="azure",
         client_kwargs=None,
+        tag=None,
     ):
         """
 
@@ -142,6 +143,13 @@ class OpenAIConfig(LLMConfig):
             Keyword-value pairs to pass to underlying LLM client. These
             typically include things like API keys and endpoints.
             By default, ``None``.
+        tag : str, optional
+            Optional tag to distinguish this model config from another
+            model config for the same model `name`. This is useful if
+            you have the same model (e.g. `gpt-4o-mini`) running on two
+            different endpoints. If you have duplicate model names and
+            don't specify this tag, one will be created for you. By
+            default, ``None``.
         """
         super().__init__(
             name=name,
@@ -152,6 +160,7 @@ class OpenAIConfig(LLMConfig):
         )
         self.client_type = client_type.casefold()
         self._client_kwargs = client_kwargs or {}
+        self._tag = tag or ""
 
         self._validate_client_type()
 
