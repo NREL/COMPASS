@@ -204,5 +204,8 @@ class OpenAIConfig(LLMConfig):
         """LLMService: Object that can be used to submit calls to LLM"""
         client = self.SUPPORTED_CLIENTS[self.client_type](**self.client_kwargs)
         return OpenAIService(
-            client, self.name, rate_limit=self.llm_service_rate_limit
+            client,
+            self.name,
+            rate_limit=self.llm_service_rate_limit,
+            service_tag=self._tag,
         )
