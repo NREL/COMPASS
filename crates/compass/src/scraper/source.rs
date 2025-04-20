@@ -3,7 +3,7 @@
 use serde::Deserialize;
 use sha2::Digest;
 use tokio::io::AsyncReadExt;
-use tracing::{debug, error, trace};
+use tracing::{debug, error, info, trace, warn};
 
 use crate::error::Result;
 
@@ -44,6 +44,7 @@ pub(super) struct Document {
 }
 
 impl Source {
+    /// Initialize database for the Source context
     pub(super) fn init_db(conn: &duckdb::Transaction) -> Result<()> {
         debug!("Initializing database for Source");
 
@@ -102,6 +103,41 @@ impl Source {
     pub(super) async fn open<P: AsRef<std::path::Path>>(root: P) -> Result<Self> {
         trace!("Opening source documents");
 
+        info!("Opening jurisdictions collection");
+
+        let path = root.as_ref().join("jurisdictions.json");
+        if !path.exists() {
+            error!("Missing jurisdictions.json file");
+            return Err(crate::error::Error::Undefined(
+                "Missing jurisdictions.json file".to_string(),
+            ));
+        }
+
+        info!("Identified jurisdictions.json file");
+
+        let file_size = tokio::fs::metadata(&path).await?.len();
+        if file_size > MAX_JSON_FILE_SIZE {
+            error!("Jurisdictions file too large: {:?}", file_size);
+            return Err(crate::error::Error::Undefined(
+                "jurisdictions.json file is too large".to_string(),
+            ));
+        }
+
+        let content = tokio::fs::read_to_string(path).await?;
+        let jurisdictions = Self::from_json(&content)?;
+        info!("Jurisdictions loaded: {:?}", jurisdictions);
+
+        // ========================
+        
+        let known_sources = jurisdictions
+            .jurisdictions
+            .iter()
+            .filter_map(|j| j.documents.as_ref())
+            .flatten()
+            .map(|d| (d.ord_filename.clone(), d.checksum.clone()))
+            .collect::<Vec<_>>();
+        info!("Known sources: {:?}", known_sources);
+
         let path = root.as_ref().join("ordinance_files");
         if !path.exists() {
             error!("Missing source directory: {:?}", path);
@@ -110,42 +146,40 @@ impl Source {
             ));
         }
 
-        trace!("Scanning source directory: {:?}", path);
+        info!("Scanning source directory: {:?}", path);
 
         let mut inventory = tokio::fs::read_dir(path).await?;
 
         // Should we filter which files to process, such as only PDFs?
         // We probably will work with more types.
         while let Some(entry) = inventory.next_entry().await? {
+            info!("Processing entry: {:?}", entry);
             let path = entry.path();
-            let metadata = entry.metadata().await?;
-            let file_type = metadata.file_type();
-
-            /*
-            if file_type.is_file() {
+            let ftype = entry.metadata().await?.file_type();
+            if ftype.is_file() {
                 trace!("Processing ordinance file: {:?}", path);
 
                 let checksum = checksum_file(&path).await?;
-                let s = Source {
-                    name: path.file_name().unwrap().to_string_lossy().to_string(),
-                    hash: checksum,
-                    origin: None,
-                    access_time: None,
-                };
-                trace!("Identified a new source: {:?}", s);
-                sources.push(s);
-            } else if file_type.is_dir() {
+                info!("Checksum for file {:?}: {:?}", path, checksum);
+
+                let file_name = path.file_name().unwrap().to_str().unwrap().to_string();
+                if known_sources.contains(&(file_name, checksum)) {
+                    trace!("File {:?} matches known jurisdiction source", path);
+                } else {
+                    warn!("File {:?} doesn't match known sources", path);
+                }
+
+            } else if ftype.is_dir() {
                 trace!(
                     "Ignoring unexpected directory in ordinance files: {:?}",
                     path
                 );
             }
-            */
         }
 
         // trace!("Found a total of {} source documents", sources.len());
 
-        Ok(sources)
+        Ok(jurisdictions)
     }
 
     pub(super) fn write(&self, conn: &duckdb::Transaction, commit_id: usize) -> Result<()> {
