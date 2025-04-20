@@ -56,13 +56,10 @@ impl Source {
           CREATE TABLE IF NOT EXISTS archive (
             id INTEGER PRIMARY KEY DEFAULT NEXTVAL('archive_sequence'),
             source TEXT,
-            origin TEXT,
             ord_year INTEGER,
-            ord_filename TEXT,
-            name TEXT,
+            filename TEXT,
             num_pages INTEGER,
             checksum TEXT,
-            hash TEXT,
             access_time TIMESTAMP,
             created_at TIMESTAMP NOT NULL DEFAULT NOW(),
             );",
@@ -194,7 +191,7 @@ impl Source {
                 let mut stmt_archive = conn.prepare(
                     r"
                     INSERT INTO archive
-                    (source, ord_year, ord_filename, num_pages,
+                    (source, ord_year, filename, num_pages,
                       checksum)
                     VALUES (?, ?, ?, ?, ?)
                     RETURNING id",
