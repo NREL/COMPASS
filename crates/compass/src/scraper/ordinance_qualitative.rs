@@ -1,0 +1,1 @@
+//! Qualitative ordinance
