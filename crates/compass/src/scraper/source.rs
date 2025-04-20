@@ -3,7 +3,7 @@
 use serde::Deserialize;
 use sha2::Digest;
 use tokio::io::AsyncReadExt;
-use tracing::{debug, error, info, trace, warn};
+use tracing::{debug, error, trace, warn};
 
 use crate::error::Result;
 
@@ -98,9 +98,9 @@ impl Source {
     }
 
     pub(super) async fn open<P: AsRef<std::path::Path>>(root: P) -> Result<Self> {
-        trace!("Opening source documents");
+        debug!("Opening source documents");
 
-        info!("Opening jurisdictions collection");
+        trace!("Opening jurisdictions collection");
 
         let path = root.as_ref().join("jurisdictions.json");
         if !path.exists() {
@@ -110,7 +110,7 @@ impl Source {
             ));
         }
 
-        info!("Identified jurisdictions.json file");
+        trace!("Identified jurisdictions.json file");
 
         let file_size = tokio::fs::metadata(&path).await?.len();
         if file_size > MAX_JSON_FILE_SIZE {
@@ -122,7 +122,7 @@ impl Source {
 
         let content = tokio::fs::read_to_string(path).await?;
         let jurisdictions = Self::from_json(&content)?;
-        info!("Jurisdictions loaded: {:?}", jurisdictions);
+        trace!("Jurisdictions loaded: {:?}", jurisdictions);
 
         // ========================
 
@@ -133,7 +133,7 @@ impl Source {
             .flatten()
             .map(|d| (d.ord_filename.clone(), d.checksum.clone()))
             .collect::<Vec<_>>();
-        info!("Known sources: {:?}", known_sources);
+        trace!("Known sources: {:?}", known_sources);
 
         let path = root.as_ref().join("ordinance_files");
         if !path.exists() {
@@ -143,21 +143,21 @@ impl Source {
             ));
         }
 
-        info!("Scanning source directory: {:?}", path);
+        trace!("Scanning source directory: {:?}", path);
 
         let mut inventory = tokio::fs::read_dir(path).await?;
 
         // Should we filter which files to process, such as only PDFs?
         // We probably will work with more types.
         while let Some(entry) = inventory.next_entry().await? {
-            info!("Processing entry: {:?}", entry);
+            trace!("Processing entry: {:?}", entry);
             let path = entry.path();
             let ftype = entry.metadata().await?.file_type();
             if ftype.is_file() {
                 trace!("Processing ordinance file: {:?}", path);
 
                 let checksum = checksum_file(&path).await?;
-                info!("Checksum for file {:?}: {:?}", path, checksum);
+                trace!("Checksum for file {:?}: {:?}", path, checksum);
 
                 let file_name = path.file_name().unwrap().to_str().unwrap().to_string();
                 if known_sources.contains(&(file_name, checksum)) {
@@ -179,7 +179,7 @@ impl Source {
     }
 
     pub(super) fn write(&self, conn: &duckdb::Transaction, commit_id: usize) -> Result<()> {
-        trace!("Recording jurisdictions on database");
+        debug!("Recording jurisdictions on database");
 
         for jurisdiction in &self.jurisdictions {
             trace!("Inserting jurisdiction: {:?}", jurisdiction);
