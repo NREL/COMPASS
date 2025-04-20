@@ -166,6 +166,7 @@ mod tests {
     use super::ScrappedOrdinance;
     use super::metadata;
     use super::ordinance;
+    use super::source;
     use super::usage;
     use std::io::Write;
 
@@ -186,6 +187,8 @@ mod tests {
         // A sample ordinance file for now.
         let target = tempfile::tempdir().unwrap();
 
+        let _source_file =
+            source::sample::as_file(target.path().join("jurisdictions.json")).unwrap();
         let ordinance_files_path = target.path().join("ordinance_files");
         std::fs::create_dir(&ordinance_files_path).unwrap();
         let source_filename = ordinance_files_path.join("source.pdf");

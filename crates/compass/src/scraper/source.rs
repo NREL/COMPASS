@@ -320,3 +320,49 @@ async fn checksum_file<P: AsRef<std::path::Path>>(path: P) -> Result<String> {
     trace!("Checksum for {:?}: {}", path.as_ref(), checksum);
     Ok(checksum)
 }
+
+#[cfg(test)]
+/// Samples of source documents
+pub(crate) mod sample {
+    use crate::error::Result;
+    use std::io::Write;
+
+    /// Create a sample source document
+    ///
+    /// For now, limited to jurisdictions.json and missing sample
+    /// documents.
+    pub(crate) fn as_text() -> String {
+        r#"
+        {
+            "jurisdictions": [
+                {
+                    "full_name": "Sample Jurisdiction",
+                    "county": "Sample County",
+                    "state": "Sample State",
+                    "subdivision": null,
+                    "jurisdiction_type": null,
+                    "FIPS": 12345,
+                    "found": true,
+                    "total_time": 3.14,
+                    "total_time_string": "0::0::03.14",
+                    "documents": [
+                        {
+                            "source": "https://example.com/sample_ordinance.pdf",
+                            "ord_year": 2023,
+                            "ord_filename": "sample_ordinance.pdf",
+                            "num_pages": 10,
+                            "checksum": "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+                        }
+                    ]
+                }
+            ]
+        }
+        "#.to_string()
+    }
+
+    pub(crate) fn as_file<P: AsRef<std::path::Path>>(path: P) -> Result<std::fs::File> {
+        let mut file = std::fs::File::create(path)?;
+        write!(file, "{}", as_text())?;
+        Ok(file)
+    }
+}
