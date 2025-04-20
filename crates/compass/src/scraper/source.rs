@@ -128,7 +128,7 @@ impl Source {
         info!("Jurisdictions loaded: {:?}", jurisdictions);
 
         // ========================
-        
+
         let known_sources = jurisdictions
             .jurisdictions
             .iter()
@@ -168,7 +168,6 @@ impl Source {
                 } else {
                     warn!("File {:?} doesn't match known sources", path);
                 }
-
             } else if ftype.is_dir() {
                 trace!(
                     "Ignoring unexpected directory in ordinance files: {:?}",
