@@ -1,4 +1,4 @@
-//! Parse and handle the scrapped ordinance information
+//! Parse and handle the scrapped quantiative ordinance information
 
 use tracing::trace;
 
