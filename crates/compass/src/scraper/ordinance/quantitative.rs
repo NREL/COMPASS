@@ -5,11 +5,11 @@ use tracing::trace;
 use crate::error::Result;
 
 #[derive(Debug)]
-pub(super) struct Ordinance(Vec<OrdinanceRecord>);
+pub(super) struct Quantitative(Vec<QuantitativeRecord>);
 
 #[allow(dead_code, non_snake_case)]
 #[derive(Debug, serde::Deserialize)]
-pub(super) struct OrdinanceRecord {
+pub(super) struct QuantitativeRecord {
     county: String,
     state: String,
     subdivison: Option<String>,
@@ -27,9 +27,9 @@ pub(super) struct OrdinanceRecord {
     source: Option<String>,
 }
 
-impl Ordinance {
+impl Quantitative {
     pub(super) fn init_db(conn: &duckdb::Transaction) -> Result<()> {
-        trace!("Initializing database for Ordinance");
+        trace!("Initializing database for Quantitative");
 
         conn.execute_batch(
             r"
@@ -56,12 +56,12 @@ impl Ordinance {
             );",
         )?;
 
-        trace!("Database ready for Ordinance");
+        trace!("Database ready for Quantitative");
         Ok(())
     }
 
     /// Open the quantiative ordinance from scrapped output
-    pub(super) async fn open<P: AsRef<std::path::Path>>(root: P) -> Result<Ordinance> {
+    pub(super) async fn open<P: AsRef<std::path::Path>>(root: P) -> Result<Quantitative> {
         trace!("Opening quantitative ordinance of {:?}", root.as_ref());
 
         let path = root.as_ref().join("quantitative_ordinances.csv");
@@ -92,7 +92,7 @@ impl Ordinance {
 
         let mut output = Vec::new();
         for result in rdr.deserialize() {
-            let record: OrdinanceRecord = match result {
+            let record: QuantitativeRecord = match result {
                 Ok(record) => record,
                 Err(_) => {
                     trace!("Error {:?}", result);
@@ -103,7 +103,7 @@ impl Ordinance {
         }
         trace!("Quantitative ordinance records {:?}", output);
 
-        Ok(Ordinance(output))
+        Ok(Quantitative(output))
     }
 
     pub(super) fn write(&self, conn: &duckdb::Transaction, commit_id: usize) -> Result<()> {
@@ -142,7 +142,7 @@ impl Ordinance {
             ])?;
         }
 
-        trace!("Ordinance written to database");
+        trace!("Quantitative written to database");
         Ok(())
     }
 }
@@ -182,7 +182,7 @@ mod test {
         let tmp = tempfile::tempdir().unwrap();
         let _file = sample::as_file(tmp.path().join("quantitative_ordinances.csv")).unwrap();
 
-        let ord = Ordinance::open(&tmp).await.unwrap();
+        let ord = Quantitative::open(&tmp).await.unwrap();
         dbg!(&ord);
         //assert_eq!(&ord.0[0].county, "county-1");
         //assert_eq!(&ord.0[0].feature, "feature-1");
