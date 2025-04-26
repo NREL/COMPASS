@@ -33,10 +33,10 @@ impl Quantitative {
 
         conn.execute_batch(
             r"
-            CREATE SEQUENCE IF NOT EXISTS ordinance_sequence START 1;
-            CREATE TABLE IF NOT EXISTS ordinance (
+            CREATE SEQUENCE IF NOT EXISTS quantitative_sequence START 1;
+            CREATE TABLE IF NOT EXISTS quantitative (
               id INTEGER PRIMARY KEY DEFAULT
-                NEXTVAL('ordinance_sequence'),
+                NEXTVAL('quantitative_sequence'),
               bookkeeper_lnk INTEGER REFERENCES bookkeeper(id) NOT NULL,
               county TEXT,
               state TEXT,
@@ -111,7 +111,7 @@ impl Quantitative {
 
         let mut stmt = conn
             .prepare(
-                r"INSERT INTO ordinance
+                r"INSERT INTO quantitative
             (bookkeeper_lnk, county, state, subdivison,
             jurisdiction_type, FIPS, feature, value, units, adder,
             min_dist, max_dist, summary, ord_year, section, source)
