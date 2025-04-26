@@ -1,5 +1,7 @@
 //! Parse and handle the scrapped ordinance information
 
+mod qualitative;
+
 use tracing::trace;
 
 use crate::error::Result;
