@@ -183,11 +183,7 @@ mod test {
     #[tokio::test]
     async fn dev() {
         let tmp = tempfile::tempdir().unwrap();
-        let _file = sample::as_file(tmp.path().join("quantitative_ordinances.csv")).unwrap();
-
-        let ord = Ordinance::open(&tmp).await.unwrap();
-        dbg!(&ord);
-        //assert_eq!(&ord.0[0].county, "county-1");
-        //assert_eq!(&ord.0[0].feature, "feature-1");
+        sample::as_file(tmp.path()).unwrap();
+        let ordinance = Ordinance::open(&tmp).await.unwrap();
     }
 }
