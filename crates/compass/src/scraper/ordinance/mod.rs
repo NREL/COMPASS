@@ -72,6 +72,6 @@ mod test {
     async fn dev() {
         let tmp = tempfile::tempdir().unwrap();
         sample::as_file(tmp.path()).unwrap();
-        let ordinance = Ordinance::open(&tmp).await.unwrap();
+        let _ordinance = Ordinance::open(&tmp).await.unwrap();
     }
 }
