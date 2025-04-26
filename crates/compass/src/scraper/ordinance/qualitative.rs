@@ -22,7 +22,7 @@ pub(super) struct QualitativeRecord {
     source: Option<String>,
 }
 
-impl Qualitative{
+impl Qualitative {
     pub(super) fn init_db(conn: &duckdb::Transaction) -> Result<()> {
         trace!("Initializing database for Qualitative Ordinance");
 

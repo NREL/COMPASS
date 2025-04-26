@@ -1,14 +1,14 @@
 //! Parse and handle the scrapped ordinance information
 
-mod quantitative;
 mod qualitative;
+mod quantitative;
 
 use tracing::trace;
 
 use crate::error::Result;
 
 #[derive(Debug)]
-pub(super) struct Ordinance{
+pub(super) struct Ordinance {
     quantiative: quantitative::Quantitative,
     qualitative: qualitative::Qualitative,
 }
@@ -28,7 +28,7 @@ impl Ordinance {
     pub(super) async fn open<P: AsRef<std::path::Path>>(root: P) -> Result<Ordinance> {
         trace!("Opening quantitative ordinance of {:?}", root.as_ref());
 
-        let ordinance = Ordinance{
+        let ordinance = Ordinance {
             quantiative: quantitative::Quantitative::open(root.as_ref()).await?,
             qualitative: qualitative::Qualitative::open(root.as_ref()).await?,
         };
@@ -55,9 +55,11 @@ pub(crate) mod sample {
     use super::*;
 
     pub(crate) fn as_file<P: AsRef<std::path::Path>>(path: P) -> Result<()> {
-        let _quantitative = quantitative::sample::as_file(
-            path.as_ref().join("quantitative_ordinances.csv")).unwrap();
-        let _qualitative = qualitative::sample::as_file( path.as_ref().join("qualitative_ordinances.csv")).unwrap();
+        let _quantitative =
+            quantitative::sample::as_file(path.as_ref().join("quantitative_ordinances.csv"))
+                .unwrap();
+        let _qualitative =
+            qualitative::sample::as_file(path.as_ref().join("qualitative_ordinances.csv")).unwrap();
         Ok(())
     }
 }
