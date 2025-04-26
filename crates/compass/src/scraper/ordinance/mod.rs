@@ -52,26 +52,13 @@ impl Ordinance {
 #[cfg(test)]
 /// Samples of quantitative ordinance to support testing
 pub(crate) mod sample {
-    use crate::error::Result;
-    use std::io::Write;
+    use super::*;
 
-    pub(crate) fn basic() -> String {
-        let mut output = String::new();
-        output.push_str("county,state,subdivison,jurisdiction_type,FIPS,feature,value,units,offset,min_dist,max_dist,summary,ord_year,section,source\n");
-        output.push_str(
-            "county-1,state-1,,jurisdiction_type-1,11111,feature-1,,,,,,,2001,,source-1\n",
-        );
-        output.push_str(
-            "county-2,state-2,,jurisdiction_type-2,22222,feature-2,,,,,,,2002,,source-2\n",
-        );
-        output
-    }
-
-    pub(crate) fn as_file<P: AsRef<std::path::Path>>(path: P) -> Result<std::fs::File> {
-        let mut file = std::fs::File::create(path)?;
-        writeln!(file, "{}", basic())?;
-        file.flush()?;
-        Ok(file)
+    pub(crate) fn as_file<P: AsRef<std::path::Path>>(path: P) -> Result<()> {
+        let _quantitative = quantitative::sample::as_file(
+            path.as_ref().join("quantitative_ordinances.csv")).unwrap();
+        let _qualitative = qualitative::sample::as_file( path.as_ref().join("qualitative_ordinances.csv")).unwrap();
+        Ok(())
     }
 }
 
