@@ -406,7 +406,9 @@ class JurisdictionUpdater(ThreadedService):
         """bool: ``True`` if file not currently being written to"""
         return not self._is_processing
 
-    async def process(self, county, doc, seconds_elapsed, usage_tracker=None):
+    async def process(
+        self, location, doc, seconds_elapsed, usage_tracker=None
+    ):
         """Add usage from tracker to file
 
         Any existing usage info in the file will remain unchanged
@@ -415,8 +417,8 @@ class JurisdictionUpdater(ThreadedService):
 
         Parameters
         ----------
-        county : compass.utilities.location.Location
-            County to record.
+        location : compass.utilities.location.Location
+            Jurisdiction to record.
         doc : elm.web.document.Document
             Document containing meta information about the jurisdiction.
             Must have relevant processing keys in the ``attrs`` dict,
@@ -436,7 +438,7 @@ class JurisdictionUpdater(ThreadedService):
             self.pool,
             _dump_jurisdiction_info,
             self.jurisdiction_fp,
-            county,
+            location,
             doc,
             seconds_elapsed,
             usage_tracker,
@@ -461,7 +463,7 @@ def _dump_usage(fp, tracker):
     return usage_info
 
 
-def _dump_jurisdiction_info(fp, county, doc, seconds_elapsed, usage_tracker):
+def _dump_jurisdiction_info(fp, location, doc, seconds_elapsed, usage_tracker):
     """Dump jurisdiction info to an existing file"""
     if not Path(fp).exists():
         jurisdiction_info = {"jurisdictions": []}
@@ -470,12 +472,12 @@ def _dump_jurisdiction_info(fp, county, doc, seconds_elapsed, usage_tracker):
             jurisdiction_info = json.load(fh)
 
     new_info = {
-        "full_name": county.full_name,
-        "county": county.name,
-        "state": county.state,
+        "full_name": location.full_name,
+        "county": location.name,
+        "state": location.state,
         "subdivision": None,
         "jurisdiction_type": None,
-        "FIPS": county.code,
+        "FIPS": location.code,
         "found": False,
         "total_time": seconds_elapsed,
         "total_time_string": str(timedelta(seconds=seconds_elapsed)),
