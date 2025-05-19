@@ -1,6 +1,9 @@
 """Ordinance utilities"""
 
-from .counties import load_all_jurisdiction_info, load_jurisdictions_from_fp
+from .jurisdictions import (
+    load_all_jurisdiction_info,
+    load_jurisdictions_from_fp,
+)
 from .parsing import (
     extract_ord_year_from_doc_attrs,
     llm_response_as_json,
@@ -41,6 +44,7 @@ LLM_COST_REGISTRY = {
     "gpt-4.5": {"prompt": 75, "response": 150},
     "gpt-4o": {"prompt": 2.5, "response": 10},
     "gpt-4o-mini": {"prompt": 0.15, "response": 0.6},
+    # cspell: disable-next-line
     "wetosa-gpt-4o-mini": {"prompt": 0.15, "response": 0.6},
 }
 """LLM Costs registry

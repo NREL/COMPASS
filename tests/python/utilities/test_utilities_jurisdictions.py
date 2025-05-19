@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 import pandas as pd
 
-from compass.utilities.counties import (
+from compass.utilities.jurisdictions import (
     load_all_jurisdiction_info,
     load_jurisdictions_from_fp,
     jurisdiction_websites,
