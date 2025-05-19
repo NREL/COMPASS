@@ -15,7 +15,7 @@ import pandas as pd
 from elm.version import __version__ as elm_version
 
 from compass import __version__ as compass_version
-from compass.scripts.download import download_county_ordinance
+from compass.scripts.download import download_jurisdiction_ordinance
 from compass.exceptions import COMPASSValueError
 from compass.extraction import (
     extract_ordinance_values,
@@ -649,7 +649,7 @@ class _SingleJurisdictionRunner:
 
     async def _find_documents_with_location_attr(self):
         """Search the web for an ordinance document and construct it"""
-        docs = await download_county_ordinance(
+        docs = await download_jurisdiction_ordinance(
             self.tech_specs.questions,
             self.jurisdiction,
             self.models,

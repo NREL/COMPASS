@@ -21,7 +21,7 @@ from compass.pb import COMPASS_PB
 logger = logging.getLogger(__name__)
 
 
-async def download_county_ordinance(  # noqa: PLR0913, PLR0917
+async def download_jurisdiction_ordinance(  # noqa: PLR0913, PLR0917
     question_templates,
     location,
     model_configs,
@@ -34,12 +34,12 @@ async def download_county_ordinance(  # noqa: PLR0913, PLR0917
     url_ignore_substrings=None,
     usage_tracker=None,
 ):
-    """Download the ordinance document(s) for a single county
+    """Download the ordinance document(s) for a single jurisdiction
 
     Parameters
     ----------
     location : :class:`compass.utilities.location.Location`
-        Location objects representing the county.
+        Location objects representing the jurisdiction.
     model_configs : dict
         Dictionary of :class:`~compass.llm.config.LLMConfig` instances.
         Should have at minium a "default" key that is used as a fallback
@@ -164,12 +164,12 @@ async def _down_select_docs_correct_location(
         usage_tracker=usage_tracker,
         **model_config.llm_call_kwargs,
     )
-    county_validator = CountyValidator(
+    jurisdiction_validator = CountyValidator(
         llm_caller, text_splitter=model_config.text_splitter
     )
     return await filter_documents(
         docs,
-        validation_coroutine=county_validator.check,
+        validation_coroutine=jurisdiction_validator.check,
         task_name=location.full_name,
         county=location.name,
         state=location.state,
