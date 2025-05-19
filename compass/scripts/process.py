@@ -56,8 +56,8 @@ from compass.services.threaded import (
 )
 from compass.utilities import (
     LLM_COST_REGISTRY,
-    load_all_county_info,
-    load_counties_from_fp,
+    load_all_jurisdiction_info,
+    load_jurisdictions_from_fp,
     extract_ord_year_from_doc_attrs,
     num_ordinances_in_doc,
     num_ordinances_dataframe,
@@ -486,7 +486,7 @@ class _COMPASSRunner:
             DataFrame containing scraped ordinance values (could be
             empty if no ordinances found).
         """
-        jurisdictions = _load_counties_to_process(jurisdiction_fp)
+        jurisdictions = _load_jurisdictions_to_process(jurisdiction_fp)
 
         num_jurisdictions = len(jurisdictions)
         COMPASS_PB.create_main_task(num_jurisdictions=num_jurisdictions)
@@ -873,12 +873,12 @@ def _initialize_model_params(user_input):
     return caller_instances
 
 
-def _load_counties_to_process(county_fp):
-    """Load the counties to retrieve documents for"""
-    if county_fp is None:
-        logger.info("No `county_fp` input! Loading all counties")
-        return load_all_county_info()
-    return load_counties_from_fp(county_fp)
+def _load_jurisdictions_to_process(jurisdiction_fp):
+    """Load the jurisdictions to retrieve documents for"""
+    if jurisdiction_fp is None:
+        logger.info("No `jurisdiction_fp` input! Loading all jurisdictions")
+        return load_all_jurisdiction_info()
+    return load_jurisdictions_from_fp(jurisdiction_fp)
 
 
 def _configure_thread_pool_kwargs(tpe_kwargs):

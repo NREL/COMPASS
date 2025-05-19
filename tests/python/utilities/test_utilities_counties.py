@@ -1,4 +1,4 @@
-"""COMPASS Ordinance county utilities tests."""
+"""COMPASS Ordinance jurisdiction utilities tests"""
 
 from pathlib import Path
 
@@ -6,18 +6,18 @@ import pytest
 import pandas as pd
 
 from compass.utilities.counties import (
-    load_all_county_info,
-    load_counties_from_fp,
-    county_websites,
+    load_all_jurisdiction_info,
+    load_jurisdictions_from_fp,
+    jurisdiction_websites,
 )
 from compass.exceptions import COMPASSValueError
 
 
-def test_load_counties():
-    """Test the `load_all_county_info` function."""
+def test_load_jurisdictions():
+    """Test the `load_all_jurisdiction_info` function."""
 
-    county_info = load_all_county_info()
-    assert not county_info.empty
+    jurisdiction_info = load_all_jurisdiction_info()
+    assert not jurisdiction_info.empty
 
     expected_cols = [
         "County",
@@ -27,21 +27,23 @@ def test_load_counties():
         "Full Name",
         "Website",
     ]
-    assert all(col in county_info for col in expected_cols)
-    assert len(county_info) == len(county_info.groupby(["County", "State"]))
+    assert all(col in jurisdiction_info for col in expected_cols)
+    assert len(jurisdiction_info) == len(
+        jurisdiction_info.groupby(["County", "State"])
+    )
 
     # Spot checks:
-    assert "Decatur" in set(county_info["County"])
-    assert "Box Elder" in set(county_info["County"])
-    assert "Colorado" in set(county_info["State"])
-    assert "Rhode Island" in set(county_info["State"])
+    assert "Decatur" in set(jurisdiction_info["County"])
+    assert "Box Elder" in set(jurisdiction_info["County"])
+    assert "Colorado" in set(jurisdiction_info["State"])
+    assert "Rhode Island" in set(jurisdiction_info["State"])
 
 
-def test_county_websites():
-    """Test the `county_websites` function"""
+def test_jurisdiction_websites():
+    """Test the `jurisdiction_websites` function"""
 
-    websites = county_websites()
-    assert len(websites) == len(load_all_county_info())
+    websites = jurisdiction_websites()
+    assert len(websites) == len(load_all_jurisdiction_info())
     assert isinstance(websites, dict)
     assert all(isinstance(key, tuple) for key in websites)
     assert all(len(key) == 2 for key in websites)
@@ -52,16 +54,16 @@ def test_county_websites():
     assert ("box elder", "utah") in websites
 
 
-def test_load_counties_from_fp(tmp_path):
-    """Test `load_counties_from_fp` function."""
+def test_load_jurisdictions_from_fp(tmp_path):
+    """Test `load_jurisdictions_from_fp` function."""
 
-    test_county_fp = tmp_path / "out.csv"
+    test_jurisdiction_fp = tmp_path / "out.csv"
     input_counties = pd.DataFrame(
         {"County": ["decatur", "DNE County"], "State": ["INDIANA", "colorado"]}
     )
-    input_counties.to_csv(test_county_fp)
+    input_counties.to_csv(test_jurisdiction_fp)
 
-    counties = load_counties_from_fp(test_county_fp)
+    counties = load_jurisdictions_from_fp(test_jurisdiction_fp)
 
     assert len(counties) == 1
     assert set(counties["County"]) == {"Decatur"}
@@ -69,17 +71,18 @@ def test_load_counties_from_fp(tmp_path):
     assert {type(val) for val in counties["FIPS"]} == {int}
 
 
-def test_load_counties_from_fp_bad_input(tmp_path):
-    """Test `load_counties_from_fp` function."""
+def test_load_jurisdictions_from_fp_bad_input(tmp_path):
+    """Test `load_jurisdictions_from_fp` function."""
 
-    test_county_fp = tmp_path / "out.csv"
-    pd.DataFrame().to_csv(test_county_fp)
+    test_jurisdiction_fp = tmp_path / "out.csv"
+    pd.DataFrame().to_csv(test_jurisdiction_fp)
 
     with pytest.raises(COMPASSValueError) as err:
-        load_counties_from_fp(test_county_fp)
+        load_jurisdictions_from_fp(test_jurisdiction_fp)
 
     expected_msg = (
-        "The following required columns were not found in the county input:"
+        "The following required columns were not found in the "
+        "jurisdiction input:"
     )
     assert expected_msg in str(err)
     assert "County" in str(err)
