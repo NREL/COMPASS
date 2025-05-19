@@ -4,7 +4,7 @@
 class Jurisdiction:
     """Class representing a jurisdiction"""
 
-    def __init__(self, name, state, fips=None, is_parish=False):
+    def __init__(self, name, state, code=None, is_parish=False):
         """
 
         Parameters
@@ -13,15 +13,16 @@ class Jurisdiction:
             Name of the jurisdiction.
         state : str
             State containing the jurisdiction.
-        fips : int or str, optional
-            Optional jurisdiction FIPS code. By default, ``None``.
+        code : int or str, optional
+            Optional jurisdiction code (typically FIPS or similar).
+            By default, ``None``.
         is_parish : bool, optional
             Flag indicating whether or not this jurisdiction is
             classified as a parish. By default, ``False``.
         """
         self.name = name
         self.state = state
-        self.fips = fips
+        self.code = code
         self.is_parish = is_parish
 
     @property

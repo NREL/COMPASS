@@ -520,7 +520,7 @@ class _COMPASSRunner:
             for __, row in jurisdictions.iterrows():
                 county, state, fips = row[["County", "State", "FIPS"]]
                 location = Jurisdiction(
-                    county.strip(), state=state.strip(), fips=fips
+                    county.strip(), state=state.strip(), code=fips
                 )
                 usage_tracker = UsageTracker(
                     location.full_name, usage_from_response
@@ -1036,7 +1036,7 @@ def _db_results(results, doc_info):
     results["ord_year"] = extract_ord_year_from_doc_attrs(doc_info)
 
     location = doc_info["location"]
-    results["FIPS"] = location.fips
+    results["FIPS"] = location.code
     results["county"] = location.name
     results["state"] = location.state
     return results

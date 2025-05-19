@@ -475,7 +475,7 @@ def _dump_jurisdiction_info(fp, county, doc, seconds_elapsed, usage_tracker):
         "state": county.state,
         "subdivision": None,
         "jurisdiction_type": None,
-        "FIPS": county.fips,
+        "FIPS": county.code,
         "found": False,
         "total_time": seconds_elapsed,
         "total_time_string": str(timedelta(seconds=seconds_elapsed)),
