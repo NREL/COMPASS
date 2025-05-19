@@ -1,29 +1,8 @@
 """COMPASS Ordinance location specification utilities"""
 
-from abc import ABC, abstractmethod
 
-
-class Location(ABC):
-    """Abstract location representation"""
-
-    def __init__(self, name):
-        """
-
-        Parameters
-        ----------
-        name : str
-            Name of location.
-        """
-        self.name = name
-
-    @property
-    @abstractmethod
-    def full_name(self):
-        """str: Full name of location"""
-
-
-class County(Location):
-    """Class representing a county"""
+class Jurisdiction:
+    """Class representing a jurisdiction"""
 
     def __init__(self, name, state, fips=None, is_parish=False):
         """
@@ -31,16 +10,16 @@ class County(Location):
         Parameters
         ----------
         name : str
-            Name of the county.
+            Name of the jurisdiction.
         state : str
-            State containing the county.
+            State containing the jurisdiction.
         fips : int or str, optional
-            Optional county FIPS code. By default, ``None``.
+            Optional jurisdiction FIPS code. By default, ``None``.
         is_parish : bool, optional
-            Flag indicating whether or not this county is classified as
-            a parish. By default, ``False``.
+            Flag indicating whether or not this jurisdiction is
+            classified as a parish. By default, ``False``.
         """
-        super().__init__(name)
+        self.name = name
         self.state = state
         self.fips = fips
         self.is_parish = is_parish
@@ -52,7 +31,10 @@ class County(Location):
         return f"{self.name} {loc_id}, {self.state}"
 
     def __repr__(self):
-        return f"County({self.name}, {self.state}, is_parish={self.is_parish})"
+        return (
+            f"Jurisdiction({self.name}, {self.state}, "
+            f"is_parish={self.is_parish})"
+        )
 
     def __str__(self):
         return self.full_name

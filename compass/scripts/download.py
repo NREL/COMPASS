@@ -1,4 +1,4 @@
-"""Ordinance county file downloading logic"""
+"""Ordinance file downloading logic"""
 
 import logging
 

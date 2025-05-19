@@ -64,7 +64,7 @@ from compass.utilities import (
     ordinances_bool_index,
 )
 from compass.utilities.enums import LLMTasks
-from compass.utilities.location import County
+from compass.utilities.location import Jurisdiction
 from compass.utilities.logs import (
     LocationFileLog,
     LogListener,
@@ -519,7 +519,7 @@ class _COMPASSRunner:
             tasks = []
             for __, row in jurisdictions.iterrows():
                 county, state, fips = row[["County", "State", "FIPS"]]
-                location = County(
+                location = Jurisdiction(
                     county.strip(), state=state.strip(), fips=fips
                 )
                 usage_tracker = UsageTracker(
