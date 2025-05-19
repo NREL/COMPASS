@@ -14,7 +14,7 @@ from compass.exceptions import COMPASSValueError
 
 
 def test_load_jurisdictions():
-    """Test the `load_all_jurisdiction_info` function."""
+    """Test the `load_all_jurisdiction_info` function"""
 
     jurisdiction_info = load_all_jurisdiction_info()
     assert not jurisdiction_info.empty
@@ -55,24 +55,24 @@ def test_jurisdiction_websites():
 
 
 def test_load_jurisdictions_from_fp(tmp_path):
-    """Test `load_jurisdictions_from_fp` function."""
+    """Test `load_jurisdictions_from_fp` function"""
 
     test_jurisdiction_fp = tmp_path / "out.csv"
-    input_counties = pd.DataFrame(
+    input_jurisdictions = pd.DataFrame(
         {"County": ["decatur", "DNE County"], "State": ["INDIANA", "colorado"]}
     )
-    input_counties.to_csv(test_jurisdiction_fp)
+    input_jurisdictions.to_csv(test_jurisdiction_fp)
 
-    counties = load_jurisdictions_from_fp(test_jurisdiction_fp)
+    jurisdictions = load_jurisdictions_from_fp(test_jurisdiction_fp)
 
-    assert len(counties) == 1
-    assert set(counties["County"]) == {"Decatur"}
-    assert set(counties["State"]) == {"Indiana"}
-    assert {type(val) for val in counties["FIPS"]} == {int}
+    assert len(jurisdictions) == 1
+    assert set(jurisdictions["County"]) == {"Decatur"}
+    assert set(jurisdictions["State"]) == {"Indiana"}
+    assert {type(val) for val in jurisdictions["FIPS"]} == {int}
 
 
 def test_load_jurisdictions_from_fp_bad_input(tmp_path):
-    """Test `load_jurisdictions_from_fp` function."""
+    """Test `load_jurisdictions_from_fp` function"""
 
     test_jurisdiction_fp = tmp_path / "out.csv"
     pd.DataFrame().to_csv(test_jurisdiction_fp)

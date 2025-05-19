@@ -56,13 +56,13 @@ def jurisdiction_websites(jurisdiction_info=None):
 
 
 def load_jurisdictions_from_fp(jurisdiction_fp):
-    """Load jurisdiction info base don counties in the input fp
+    """Load jurisdiction info based on jurisdictions in the input fp
 
     Parameters
     ----------
     jurisdiction_fp : path-like
         Path to csv file containing "County" and "State" columns that
-        define the counties for which info should be loaded.
+        define the jurisdictions for which info should be loaded.
 
     Returns
     -------

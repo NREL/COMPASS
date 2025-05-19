@@ -170,12 +170,12 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
     llm_costs=None,
     log_level="INFO",
 ):
-    """Download and extract ordinances for a list of counties
+    """Download and extract ordinances for a list of jurisdictions
 
     This function scrapes ordinance documents (PDFs or HTML text) for a
-    list of specified counties and processes them using one or more LLM
-    models. Output files, logs, and intermediate artifacts are stored in
-    configurable directories.
+    list of specified jurisdictions and processes them using one or more
+    LLM models. Output files, logs, and intermediate artifacts are
+    stored in configurable directories.
 
     Parameters
     ----------
@@ -510,7 +510,7 @@ class _COMPASSRunner:
         return total_time, total_cost, self.dirs.out
 
     async def _run_all(self, jurisdictions):
-        """Process all counties with running services"""
+        """Process all jurisdictions with running services"""
         services = [model.llm_service for model in set(self.models.values())]
         services += self._base_services
         _ = self.file_loader_kwargs  # init loader kwargs once

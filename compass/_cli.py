@@ -52,7 +52,7 @@ def main(ctx):
     help="Flag to hide progress bars during processing.",
 )
 def process(config, verbose, no_progress):
-    """Download and extract ordinances for a list of counties"""
+    """Download and extract ordinances for a list of jurisdictions"""
     with Path(config).open(encoding="utf-8") as fh:
         config = pyjson5.decode_io(fh)
 
