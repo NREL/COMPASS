@@ -27,7 +27,7 @@ class Jurisdiction:
 
     @property
     def full_name(self):
-        """str: Full county name in format '{name} County, {state}'"""
+        """str: Full name in format '{name} County, {state}'"""
         loc_id = "Parish" if self.is_parish else "County"
         return f"{self.name} {loc_id}, {self.state}"
 

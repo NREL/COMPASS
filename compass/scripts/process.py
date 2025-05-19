@@ -538,13 +538,13 @@ class _COMPASSRunner:
         return doc_infos, total_cost
 
     async def _processed_jurisdiction_info_with_pb(
-        self, county, *args, **kwargs
+        self, jurisdiction, *args, **kwargs
     ):
-        """Process county and update progress bar"""
+        """Process jurisdiction and update progress bar"""
         async with self.jurisdiction_semaphore:
-            with COMPASS_PB.jurisdiction_prog_bar(county.full_name):
+            with COMPASS_PB.jurisdiction_prog_bar(jurisdiction.full_name):
                 return await self._processed_jurisdiction_info(
-                    county, *args, **kwargs
+                    jurisdiction, *args, **kwargs
                 )
 
     async def _processed_jurisdiction_info(self, *args, **kwargs):
@@ -561,26 +561,26 @@ class _COMPASSRunner:
         return doc_info
 
     async def _process_jurisdiction_with_logging(
-        self, county, usage_tracker=None
+        self, jurisdiction, usage_tracker=None
     ):
         """Retrieve ordinance document with async logs"""
         with LocationFileLog(
             self.log_listener,
             self.dirs.logs,
-            location=county.full_name,
+            location=jurisdiction.full_name,
             level=self.log_level,
         ):
             task = asyncio.create_task(
                 _SingleJurisdictionRunner(
                     self.tech,
-                    county,
+                    jurisdiction,
                     self.models,
                     self.web_search_params,
                     self.file_loader_kwargs,
                     self.browser_semaphore,
                     usage_tracker=usage_tracker,
                 ).run(),
-                name=county.full_name,
+                name=jurisdiction.full_name,
             )
             try:
                 doc, *__ = await asyncio.gather(task)
@@ -588,7 +588,7 @@ class _COMPASSRunner:
                 raise
             except Exception:
                 msg = "Encountered error while processing %s:"
-                logger.exception(msg, county.full_name)
+                logger.exception(msg, jurisdiction.full_name)
                 doc = None
 
             return doc
@@ -929,11 +929,11 @@ async def _extract_ordinances_from_text(
     )
 
 
-async def _move_files(doc, county):
+async def _move_files(doc, location):
     """Move files to output folders, if applicable"""
     ord_count = num_ordinances_in_doc(doc)
     if ord_count == 0:
-        logger.info("No ordinances found for %s.", county.full_name)
+        logger.info("No ordinances found for %s.", location.full_name)
         return doc
 
     doc = await _move_file_to_out_dir(doc)
@@ -941,7 +941,7 @@ async def _move_files(doc, county):
     logger.info(
         "%d ordinance value(s) found for %s. Outputs are here: '%s'",
         ord_count,
-        county.full_name,
+        location.full_name,
         doc.attrs["ord_db_fp"],
     )
     return doc
@@ -968,10 +968,10 @@ async def _write_ord_db(doc):
     return doc
 
 
-async def _record_jurisdiction_info(county, doc, start_time, usage_tracker):
+async def _record_jurisdiction_info(loc, doc, start_time, usage_tracker):
     """Record info about jurisdiction"""
     seconds_elapsed = time.monotonic() - start_time
-    await JurisdictionUpdater.call(county, doc, seconds_elapsed, usage_tracker)
+    await JurisdictionUpdater.call(loc, doc, seconds_elapsed, usage_tracker)
 
 
 def _setup_pytesseract(exe_fp):
