@@ -149,7 +149,7 @@ _TEXT_EXTRACTION_TASKS = {
 }
 
 
-async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
+async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
     out_dir,
     tech,
     jurisdiction_fp,
