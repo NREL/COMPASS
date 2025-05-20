@@ -3,6 +3,7 @@
 from pathlib import Path
 
 import pytest
+import numpy as np
 import pandas as pd
 
 from compass.utilities.jurisdictions import (
@@ -22,15 +23,18 @@ def test_load_jurisdictions():
     expected_cols = [
         "County",
         "State",
+        "Subdivision",
+        "Jurisdiction Type",
         "FIPS",
-        "County Type",
-        "Full Name",
         "Website",
     ]
     assert all(col in jurisdiction_info for col in expected_cols)
     assert len(jurisdiction_info) == len(
-        jurisdiction_info.groupby(["County", "State"])
+        jurisdiction_info.groupby(
+            ["County", "State", "Subdivision", "Jurisdiction Type"]
+        )
     )
+    assert len(jurisdiction_info) == len(jurisdiction_info.groupby(["FIPS"]))
 
     # Spot checks:
     assert "Decatur" in set(jurisdiction_info["County"])
@@ -45,13 +49,11 @@ def test_jurisdiction_websites():
     websites = jurisdiction_websites()
     assert len(websites) == len(load_all_jurisdiction_info())
     assert isinstance(websites, dict)
-    assert all(isinstance(key, tuple) for key in websites)
-    assert all(len(key) == 2 for key in websites)
 
     # Spot checks:
-    assert ("decatur", "indiana") in websites
-    assert ("el paso", "colorado") in websites
-    assert ("box elder", "utah") in websites
+    assert 18031 in websites  # Decatur Indiana
+    assert 8041 in websites  # El Paso, Colorado
+    assert 49003 in websites  # Box Elder, Utah
 
 
 def test_load_jurisdictions_from_fp(tmp_path):
@@ -68,6 +70,8 @@ def test_load_jurisdictions_from_fp(tmp_path):
     assert len(jurisdictions) == 1
     assert set(jurisdictions["County"]) == {"Decatur"}
     assert set(jurisdictions["State"]) == {"Indiana"}
+    assert set(jurisdictions["Subdivision"]) == {np.nan}
+    assert set(jurisdictions["Jurisdiction Type"]) == {"county"}
     assert {type(val) for val in jurisdictions["FIPS"]} == {int}
 
 
@@ -81,12 +85,9 @@ def test_load_jurisdictions_from_fp_bad_input(tmp_path):
         load_jurisdictions_from_fp(test_jurisdiction_fp)
 
     expected_msg = (
-        "The following required columns were not found in the "
-        "jurisdiction input:"
+        "The jurisdiction input must have at least a 'State' column!"
     )
     assert expected_msg in str(err)
-    assert "County" in str(err)
-    assert "State" in str(err)
 
 
 if __name__ == "__main__":
