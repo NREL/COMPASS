@@ -7,36 +7,89 @@ import pytest
 from compass.utilities.location import Jurisdiction
 
 
+def test_basic_state_properties():
+    """Tets basic properties for ``Jurisdiction`` class for a state"""
+
+    state = Jurisdiction("state", state="Colorado")
+
+    assert repr(state) == "Colorado"
+    assert state.full_name == "Colorado"
+    assert state.full_name == str(state)
+
+    assert state == Jurisdiction("state", state="cOlORAdo")
+    assert state != Jurisdiction("city", state="Colorado")
+
+    assert state == "Colorado"
+    assert state == "colorado"
+
+
 def test_basic_county_properties():
-    """Tets basic properties for ``Jurisdiction`` class"""
+    """Tets basic properties for ``Jurisdiction`` class for a county"""
 
-    county = Jurisdiction("Box Elder", "Utah")
+    county = Jurisdiction("county", county="Box Elder", state="Utah")
 
-    assert repr(county) == "Jurisdiction(Box Elder, Utah, is_parish=False)"
+    assert repr(county) == "Box Elder County, Utah"
     assert county.full_name == "Box Elder County, Utah"
     assert county.full_name == str(county)
 
-    assert county == Jurisdiction("Box elder", "uTah")
-    assert county != Jurisdiction("Box Elder", "Utah", is_parish=True)
+    assert county == Jurisdiction("county", county="Box elder", state="uTah")
+    assert county != Jurisdiction("city", county="Box Elder", state="Utah")
 
     assert county == "Box Elder County, Utah"
-    assert county == "Box elder, Utah"
+    assert county == "Box elder county, Utah"
 
 
-def test_basic_parish_properties():
-    """Tets basic properties for ``County`` class with ``is_parish=True``"""
+@pytest.mark.parametrize("jt", ["town", "city", "borough"])
+def test_basic_town_properties(jt):
+    """Tets basic properties for ``Jurisdiction`` class for a town"""
 
-    county = Jurisdiction("Box Elder", "Utah", is_parish=True)
+    town = Jurisdiction(
+        jt, county="Jefferson", state="Colorado", subdivision_name="Golden"
+    )
 
-    assert repr(county) == "Jurisdiction(Box Elder, Utah, is_parish=True)"
-    assert county.full_name == "Box Elder Parish, Utah"
-    assert county.full_name == str(county)
+    assert repr(town) == f"{jt.title()} of Golden, Jefferson County, Colorado"
+    assert (
+        town.full_name == f"{jt.title()} of Golden, Jefferson County, Colorado"
+    )
+    assert town.full_name == str(town)
 
-    assert county == Jurisdiction("Box elder", "uTah", is_parish=True)
-    assert county != Jurisdiction("Box Elder", "Utah", is_parish=False)
+    assert town == Jurisdiction(
+        jt, county="jefferson", state="colorado", subdivision_name="golden"
+    )
+    assert town != Jurisdiction(
+        "county",
+        county="Jefferson",
+        state="Colorado",
+        subdivision_name="Golden",
+    )
 
-    assert county == "Box Elder Parish, Utah"
-    assert county == "Box elder, Utah"
+    assert town == f"{jt.title()} of Golden, Jefferson County, Colorado"
+    assert town == f"{jt.title()} of golden, jefferson county, colorado"
+
+
+def test_atypical_subdivision_properties():
+    """Tets basic properties for ``Jurisdiction`` class for a subdivision"""
+
+    gore = Jurisdiction(
+        "gore", county="Chittenden", state="Vermont", subdivision_name="Buels"
+    )
+
+    assert repr(gore) == "Buels Gore, Chittenden County, Vermont"
+    assert gore.full_name == "Buels Gore, Chittenden County, Vermont"
+    assert gore.full_name == str(gore)
+
+    assert gore == Jurisdiction(
+        "gore", county="chittenden", state="vermont", subdivision_name="buels"
+    )
+    assert gore != Jurisdiction(
+        "county",
+        county="Chittenden",
+        state="Vermont",
+        subdivision_name="Buels",
+    )
+
+    assert gore == "Buels Gore, Chittenden County, Vermont"
+    assert gore == "buels gOre, chittENden county, vermonT"
 
 
 if __name__ == "__main__":
