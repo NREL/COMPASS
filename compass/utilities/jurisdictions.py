@@ -11,7 +11,9 @@ from compass.warn import COMPASSWarning
 
 
 logger = logging.getLogger(__name__)
-_COUNTY_DATA_FP = Path(__file__).parent.parent / "data" / "conus_counties.csv"
+_COUNTY_DATA_FP = (
+    Path(__file__).parent.parent / "data" / "conus_jurisdictions.csv"
+)
 
 
 def load_all_jurisdiction_info():
@@ -24,8 +26,9 @@ def load_all_jurisdiction_info():
         all jurisdictions.
     """
     jurisdiction_info = pd.read_csv(_COUNTY_DATA_FP)
+    jurisdiction_info = _convert_to_title(jurisdiction_info, "State")
     jurisdiction_info = _convert_to_title(jurisdiction_info, "County")
-    return _convert_to_title(jurisdiction_info, "State")
+    return _convert_to_title(jurisdiction_info, "Subdivision")
 
 
 def jurisdiction_websites(jurisdiction_info=None):
@@ -50,8 +53,7 @@ def jurisdiction_websites(jurisdiction_info=None):
         jurisdiction_info = load_all_jurisdiction_info()
 
     return {
-        (row["County"].casefold(), row["State"].casefold()): row["Website"]
-        for __, row in jurisdiction_info.iterrows()
+        row["FIPS"]: row["Website"] for __, row in jurisdiction_info.iterrows()
     }
 
 
@@ -72,44 +74,63 @@ def load_jurisdictions_from_fp(jurisdiction_fp):
         found).
     """
     jurisdictions = pd.read_csv(jurisdiction_fp)
-    _validate_jurisdiction_input(jurisdictions)
+    jurisdictions = _validate_jurisdiction_input(jurisdictions)
 
-    jurisdictions = _convert_to_title(jurisdictions, "County")
-    jurisdictions = _convert_to_title(jurisdictions, "State")
+    merge_cols = ["County", "State"]
+    if "Subdivision" in jurisdictions:
+        merge_cols += ["Subdivision", "Jurisdiction Type"]
 
     all_jurisdiction_info = load_all_jurisdiction_info()
     jurisdictions = jurisdictions.merge(
-        all_jurisdiction_info, on=["County", "State"], how="left"
+        all_jurisdiction_info, on=merge_cols, how="left"
     )
 
     jurisdictions = _filter_not_found_jurisdictions(jurisdictions)
     return _format_jurisdiction_df_for_output(jurisdictions)
 
 
-def _validate_jurisdiction_input(df):
+def _validate_jurisdiction_input(jurisdictions):
     """Throw error if user is missing required columns"""
-    expected_cols = ["County", "State"]
-    missing = [col for col in expected_cols if col not in df]
-    if missing:
-        msg = (
-            "The following required columns were not found in the "
-            f"jurisdiction input: {missing}"
-        )
+    if "State" not in jurisdictions:
+        msg = "The jurisdiction input must have at least a 'State' column!"
         raise COMPASSValueError(msg)
+
+    jurisdictions = _convert_to_title(jurisdictions, "State")
+
+    if "County" not in jurisdictions:
+        jurisdictions["County"] = None
+    else:
+        jurisdictions = _convert_to_title(jurisdictions, "County")
+
+    if "Subdivision" in jurisdictions:
+        if "Jurisdiction Type" not in jurisdictions:
+            msg = (
+                "The jurisdiction input must have a 'Jurisdiction Type' "
+                "column if a 'Subdivision' column is provided (this helps "
+                "avoid name clashes for certain subdivisions)!"
+            )
+            raise COMPASSValueError(msg)
+
+        jurisdictions = _convert_to_title(jurisdictions, "Subdivision")
+        jurisdictions["Jurisdiction Type"] = jurisdictions[
+            "Jurisdiction Type"
+        ].str.casefold()
+
+    return jurisdictions
 
 
 def _filter_not_found_jurisdictions(df):
     """Filter out jurisdictions with null FIPS codes"""
     _warn_about_missing_jurisdictions(df)
-    return df[~df.FIPS.isna()].copy()
+    return df[~df["FIPS"].isna()].copy()
 
 
 def _warn_about_missing_jurisdictions(df):
     """Throw warning about jurisdictions that were not in the list"""
-    not_found_jurisdictions = df[df.FIPS.isna()]
+    not_found_jurisdictions = df[df["FIPS"].isna()]
     if len(not_found_jurisdictions):
         not_found_jurisdictions_str = not_found_jurisdictions[
-            ["County", "State"]
+            ["State", "County", "Subdivision"]
             # cspell: disable-next-line
         ].to_markdown(index=False, tablefmt="psql")
         msg = (
@@ -122,8 +143,15 @@ def _warn_about_missing_jurisdictions(df):
 
 def _format_jurisdiction_df_for_output(df):
     """Format jurisdiction DataFrame for output"""
-    out_cols = ["County", "State", "County Type", "FIPS", "Website"]
-    df.FIPS = df.FIPS.astype(int)
+    out_cols = [
+        "County",
+        "State",
+        "Subdivision",
+        "Jurisdiction Type",
+        "FIPS",
+        "Website",
+    ]
+    df["FIPS"] = df["FIPS"].astype(int)
     return df[out_cols].reset_index(drop=True)
 
 
