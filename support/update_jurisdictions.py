@@ -45,9 +45,7 @@ def _main(ahj_data):
     ].rename(columns={"County Type": "Jurisdiction Type"})
 
     ord_areas = gpd.read_file(ahj_data)
-    ord_areas.loc[ord_areas.subd_fips == "24510", "county_name"] = None
-    ord_areas.loc[ord_areas.subd_fips == "24510", "subd_name"] = "Baltimore"
-    ord_areas.loc[ord_areas.subd_fips == "24510", "subd_type"] = "city"
+
     print("AHJ subdivisions:")
     print(ord_areas.subd_type.value_counts())
     print(f"\nTotal number of AHJ: {len(ord_areas):,}\n")

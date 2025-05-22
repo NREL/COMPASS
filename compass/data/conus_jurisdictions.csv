@@ -2503,7 +2503,7 @@ Missouri,Wayne,,county,29223,https://waynecountycollector.com/
 Missouri,Webster,,county,29225,https://webstercountymo.gov/
 Missouri,Worth,,county,29227,http://worthcounty.us/
 Missouri,Wright,,county,29229,https://www.wrightcountymo.gov/
-Missouri,St. Louis,,county,29510,https://www.stlouis-mo.gov/
+Missouri,,St. Louis,city,29510,https://www.stlouis-mo.gov/
 Montana,,,state,30000,
 Montana,Beaverhead,,county,30001,https://beaverheadcountymt.gov/
 Montana,Big Horn,,county,30003,https://www.bighorncountymt.gov/
@@ -6586,9 +6586,9 @@ Virginia,Colonial Heights,,county,51570,https://www.colonialheightsva.gov/
 Virginia,Covington,,county,51580,https://covington.va.us/
 Virginia,Danville,,county,51590,https://www.danville-va.gov/
 Virginia,Emporia,,county,51595,https://www.ci.emporia.va.us/
-Virginia,Fairfax,,county,51600,https://www.fairfaxva.gov/
+Virginia,,Fairfax,city,51600,https://www.fairfaxva.gov/
 Virginia,Falls Church,,county,51610,https://www.fallschurchva.gov/
-Virginia,Franklin,,county,51620,https://www.franklinva.com/
+Virginia,,Franklin,city,51620,https://www.franklinva.com/
 Virginia,Fredericksburg,,county,51630,https://www.fredericksburgva.gov/
 Virginia,Galax,,county,51640,https://galaxva.com/
 Virginia,Hampton,,county,51650,https://hampton.gov/
@@ -6606,8 +6606,8 @@ Virginia,Petersburg,,county,51730,http://www.petersburg-va.org/
 Virginia,Poquoson,,county,51735,https://www.ci.poquoson.va.us/
 Virginia,Portsmouth,,county,51740,https://www.portsmouthva.gov/
 Virginia,Radford,,county,51750,https://www.radfordva.gov/
-Virginia,Richmond,,county,51760,https://www.rva.gov/
-Virginia,Roanoke,,county,51770,https://www.roanokeva.gov/
+Virginia,,Richmond,city,51760,https://www.rva.gov/
+Virginia,,Roanoke,city,51770,https://www.roanokeva.gov/
 Virginia,Salem,,county,51775,https://salemva.gov/
 Virginia,Staunton,,county,51790,https://www.ci.staunton.va.us/
 Virginia,Suffolk,,county,51800,https://www.suffolkva.us/
