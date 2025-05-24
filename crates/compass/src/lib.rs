@@ -194,7 +194,7 @@ struct QuantitativeRecord {
 ///
 /// Currently, it is a proof of concept. It reads the database and prints
 /// some fields to the standard output in CSV format.
-pub fn export(db_filename: &str) {
+pub fn export<W: std::io::Write>(wtr: &mut W, db_filename: &str) {
     trace!("Exporting database: {:?}", db_filename);
 
     let conn = Connection::open(db_filename).unwrap();
@@ -222,7 +222,7 @@ pub fn export(db_filename: &str) {
         })
         .expect("Failed to query");
 
-    let mut wtr = csv::Writer::from_writer(std::io::stdout());
+    let mut wtr = csv::Writer::from_writer(wtr);
 
     for row in row_iter {
         wtr.serialize(row.unwrap()).unwrap();
