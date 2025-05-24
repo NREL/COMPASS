@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use anyhow::{Context, Result};
-use clap::{Arg, ArgAction, Command, arg, command, value_parser};
+use clap::{arg, command, value_parser, Arg, ArgAction, Command};
 use duckdb::Connection;
 use tracing::{self, trace};
 use tracing_subscriber;
@@ -91,12 +91,34 @@ fn main() -> Result<()> {
                 .with_context(|| format!("Failed to initialize database as {}", db))?;
         }
         Some("export") => {
-            trace!("Showing export for database at {:?}", &db);
-            if verbose > 0 {
-                println!("Showing export for database at {:?}", &db);
-            }
+            trace!("Exporting database {:?}", &db);
 
-            infra_compass_db::export_db(db);
+            let technology = matches
+                .subcommand_matches("export")
+                .unwrap()
+                .get_one::<String>("TECHNOLOGY")
+                .unwrap();
+            trace!("Filtering technology: {:?}", &technology);
+
+            let format = matches
+                .subcommand_matches("export")
+                .unwrap()
+                .get_one::<String>("FORMAT")
+                .unwrap();
+            trace!("Output format: {:?}", &format);
+
+            let output = matches
+                .subcommand_matches("export")
+                .unwrap()
+                .get_one::<PathBuf>("OUTPUT")
+                .unwrap();
+            trace!("Output to: {:?}", &output);
+            let mut wrt = std::io::BufWriter::new(
+                std::fs::File::create(&output).expect("Failed to create output file"),
+            );
+            trace!("Output file created: {:?}", &wrt);
+
+            infra_compass_db::export(&mut wrt, &db);
         }
         Some("load") => {
             trace!("Subcommand load");
