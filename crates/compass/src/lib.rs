@@ -175,23 +175,49 @@ struct Ordinance {
     feature: String,
 }
 
+#[allow(dead_code, non_snake_case)]
+#[derive(Debug, serde::Serialize)]
+struct QuantitativeRecord {
+    county: String,
+    state: String,
+    subdivison: Option<String>,
+    jurisdiction_type: Option<String>,
+    FIPS: u32,
+    feature: String,
+    value: f64,
+    units: Option<String>,
+    summary: Option<String>,
+    source: Option<String>,
+}
+
 /// Export the database
 ///
 /// Currently, it is a proof of concept. It reads the database and prints
 /// some fields to the standard output in CSV format.
-pub fn export_db(db_filename: &str) {
+pub fn export(db_filename: &str) {
+    trace!("Exporting database: {:?}", db_filename);
+
     let conn = Connection::open(db_filename).unwrap();
+    trace!("Database opened: {:?}", &conn);
+
     let mut stmt = conn
-        .prepare("SELECT county, state, fips, feature FROM property")
+        .prepare("SELECT county, state, subdivison, jurisdiction_type, FIPS, feature, value, units, summary, source from quantitative;"
+            )
         .expect("Failed to prepare statement");
     //dbg!("Row count", stmt.row_count());
     let row_iter = stmt
         .query_map([], |row| {
-            Ok(Ordinance {
+            Ok(QuantitativeRecord {
                 county: row.get(0)?,
                 state: row.get(1)?,
-                fips: row.get(2)?,
-                feature: row.get(3)?,
+                subdivison: row.get(2)?,
+                jurisdiction_type: row.get(3)?,
+                FIPS: row.get(4)?,
+                feature: row.get(5)?,
+                value: row.get(6)?,
+                units: row.get(7)?,
+                summary: row.get(8)?,
+                source: row.get(9)?,
             })
         })
         .expect("Failed to query");
