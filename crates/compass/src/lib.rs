@@ -167,16 +167,8 @@ pub fn load_ordinance<P: AsRef<std::path::Path> + std::fmt::Debug>(
     Ok(())
 }
 
-#[derive(Debug, Serialize)]
-struct Ordinance {
-    county: String,
-    state: String,
-    fips: i32,
-    feature: String,
-}
-
 #[allow(dead_code, non_snake_case)]
-#[derive(Debug, serde::Serialize)]
+#[derive(Debug, Serialize)]
 struct QuantitativeRecord {
     county: String,
     state: String,
