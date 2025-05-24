@@ -16,6 +16,9 @@ categories:
     labels:
       - 'refactor'
       - 'documentation'
+  - title: 'Chores'
+    labels:
+      - 'dependencies'
       - 'chore'
 template: |
   # What's Changed
