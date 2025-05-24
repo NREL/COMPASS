@@ -1044,6 +1044,8 @@ def _db_results(results, doc_info):
     results["FIPS"] = location.code
     results["county"] = location.county
     results["state"] = location.state
+    results["subdivision"] = location.subdivision_name
+    results["jurisdiction_type"] = location.type
     return results
 
 
