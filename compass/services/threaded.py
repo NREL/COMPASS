@@ -473,7 +473,7 @@ def _dump_jurisdiction_info(fp, location, doc, seconds_elapsed, usage_tracker):
 
     new_info = {
         "full_name": location.full_name,
-        "county": location.name,
+        "county": location.county,
         "state": location.state,
         "subdivision": None,
         "jurisdiction_type": None,

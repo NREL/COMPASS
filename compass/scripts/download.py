@@ -171,7 +171,7 @@ async def _down_select_docs_correct_location(
         docs,
         validation_coroutine=jurisdiction_validator.check,
         task_name=location.full_name,
-        county=location.name,
+        county=location.county,
         state=location.state,
     )
 

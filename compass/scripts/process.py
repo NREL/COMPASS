@@ -190,7 +190,12 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
     jurisdiction_fp : path-like
         Path to a CSV file specifying the jurisdictions to process.
         The CSV must contain two columns: "County" and "State", which
-        specify the county and state names, respectively.
+        specify the county and state names, respectively. If you would
+        like to process a subdivision with a county, you must also
+        include "Subdivision" and "Jurisdiction Type" columns. The
+        "Subdivision" should be the name of the subdivision, and the
+        "Jurisdiction Type" should be a string identifying the type of
+        subdivision (e.g., "City", "Township", etc.)
     model : str or list of dict, optional
         LLM model(s) to use for scraping and parsing ordinance
         documents. If a string is provided, it is assumed to be the name
@@ -1037,7 +1042,7 @@ def _db_results(results, doc_info):
 
     location = doc_info["location"]
     results["FIPS"] = location.code
-    results["county"] = location.name
+    results["county"] = location.county
     results["state"] = location.state
     return results
 
