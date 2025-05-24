@@ -39,7 +39,30 @@ fn main() -> Result<()> {
         .subcommand(
             Command::new("export")
                 .about("Export the database")
-                .arg(arg!(--format <FORMAT>).default_value("csv")),
+                .arg(
+                    Arg::new("OUTPUT")
+                        .short('o')
+                        .long("output")
+                        .value_parser(value_parser!(PathBuf))
+                        .help("Path to the output directory, ex.: './ordinance_export'"),
+                )
+                .arg(
+                    Arg::new("TECHNOLOGY")
+                        .short('t')
+                        .long("technology")
+                        .required(true)
+                        .value_parser(["wind", "solar"])
+                        .help("Technology to export, ex.: 'wind'")
+                )
+                .arg(
+                    Arg::new("FORMAT")
+                        .short('f')
+                        .long("format")
+                        .help("Format to export, ex.: 'csv' or 'json'")
+                        .value_parser(["csv", "json", "gpkg", "gpq"])
+                        .default_value("csv")
+                        .default_missing_value("csv")
+                ),
         )
         .subcommand(Command::new("log").about("Show the history of the database"))
         .get_matches();
