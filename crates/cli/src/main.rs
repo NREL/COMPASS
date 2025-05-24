@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use clap::{Arg, ArgAction, Command, arg, command, value_parser};
+use clap::{arg, command, value_parser, Arg, ArgAction, Command};
 use duckdb::Connection;
 use tracing::{self, trace};
 use tracing_subscriber;
