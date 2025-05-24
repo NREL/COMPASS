@@ -51,7 +51,7 @@ fn main() {
                         .long("technology")
                         .required(true)
                         .value_parser(["wind", "solar"])
-                        .help("Technology to export, ex.: 'wind'")
+                        .help("Technology to export, ex.: 'wind'"),
                 )
                 .arg(
                     Arg::new("FORMAT")
@@ -60,7 +60,7 @@ fn main() {
                         .help("Format to export, ex.: 'csv' or 'json'")
                         .value_parser(["csv", "json", "gpkg", "gpq"])
                         .default_value("csv")
-                        .default_missing_value("csv")
+                        .default_missing_value("csv"),
                 ),
         )
         .subcommand(Command::new("log").about("Show the history of the database"))
