@@ -41,6 +41,7 @@ fn main() -> Result<()> {
                 .about("Export the database")
                 .arg(
                     Arg::new("OUTPUT")
+                        .required(true)
                         .short('o')
                         .long("output")
                         .value_parser(value_parser!(PathBuf))
