@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use clap::{Arg, ArgAction, Command, arg, command, value_parser};
+use clap::{arg, command, value_parser, Arg, ArgAction, Command};
 use duckdb::Connection;
 use tracing::{self, trace};
 use tracing_subscriber;
@@ -38,7 +38,31 @@ fn main() {
         .subcommand(
             Command::new("export")
                 .about("Export the database")
-                .arg(arg!(--format <FORMAT>).default_value("csv")),
+                .arg(
+                    Arg::new("OUTPUT")
+                        .required(true)
+                        .short('o')
+                        .long("output")
+                        .value_parser(value_parser!(PathBuf))
+                        .help("Path to the output directory, ex.: './ordinance_export'"),
+                )
+                .arg(
+                    Arg::new("TECHNOLOGY")
+                        .short('t')
+                        .long("technology")
+                        .required(true)
+                        .value_parser(["wind", "solar"])
+                        .help("Technology to export, ex.: 'wind'"),
+                )
+                .arg(
+                    Arg::new("FORMAT")
+                        .short('f')
+                        .long("format")
+                        .help("Format to export, ex.: 'csv' or 'json'")
+                        .value_parser(["csv", "json", "gpkg", "gpq"])
+                        .default_value("csv")
+                        .default_missing_value("csv"),
+                ),
         )
         .subcommand(Command::new("log").about("Show the history of the database"))
         .get_matches();
@@ -65,12 +89,34 @@ fn main() {
             infra_compass_db::init_db(db).unwrap();
         }
         Some("export") => {
-            trace!("Showing export for database at {:?}", &db);
-            if verbose > 0 {
-                println!("Showing export for database at {:?}", &db);
-            }
+            trace!("Exporting database {:?}", &db);
 
-            infra_compass_db::export_db(&db);
+            let technology = matches
+                .subcommand_matches("export")
+                .unwrap()
+                .get_one::<String>("TECHNOLOGY")
+                .unwrap();
+            trace!("Filtering technology: {:?}", &technology);
+
+            let format = matches
+                .subcommand_matches("export")
+                .unwrap()
+                .get_one::<String>("FORMAT")
+                .unwrap();
+            trace!("Output format: {:?}", &format);
+
+            let output = matches
+                .subcommand_matches("export")
+                .unwrap()
+                .get_one::<PathBuf>("OUTPUT")
+                .unwrap();
+            trace!("Output to: {:?}", &output);
+            let mut wrt = std::io::BufWriter::new(
+                std::fs::File::create(&output).expect("Failed to create output file"),
+            );
+            trace!("Output file created: {:?}", &wrt);
+
+            infra_compass_db::export(&mut wrt, &db);
         }
         Some("load") => {
             trace!("Subcommand load");

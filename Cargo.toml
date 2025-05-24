@@ -12,6 +12,7 @@ authors = [
 edition = "2024"
 license = "BSD-3-Clause"
 rust-version = "1.87.0"
+repository = "https://github.com/NREL/COMPASS"
 
 [workspace.dependencies]
 clap = { version = "4.5.38", features = ["cargo"] }
