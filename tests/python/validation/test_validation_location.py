@@ -201,9 +201,15 @@ async def test_doc_matches_county_name(
     doc = _load_doc(test_data_dir, doc_fn)
     cn_validator = CountyNameValidator(structured_llm_caller)
     services = [oai_llm_service]
+    kwargs = {
+        "county": county,
+        "state": state,
+        "not_county": "Lincoln",
+        "not_state": "Nebraska",
+    }
     async with RunningAsyncServices(services):
         out = await _validator_check_for_doc(
-            doc=doc, validator=cn_validator, county=county, state=state
+            doc=doc, validator=cn_validator, **kwargs
         )
         assert out == truth
 
