@@ -1,0 +1,6 @@
+compass.extraction.common.found\_ord
+====================================
+
+.. currentmodule:: compass.extraction.common
+
+.. autofunction:: found_ord

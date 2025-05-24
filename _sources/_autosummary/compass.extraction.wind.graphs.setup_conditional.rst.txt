@@ -1,0 +1,6 @@
+compass.extraction.wind.graphs.setup\_conditional
+=================================================
+
+.. currentmodule:: compass.extraction.wind.graphs
+
+.. autofunction:: setup_conditional

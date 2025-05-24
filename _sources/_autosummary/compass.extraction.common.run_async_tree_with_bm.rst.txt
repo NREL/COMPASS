@@ -1,0 +1,6 @@
+compass.extraction.common.run\_async\_tree\_with\_bm
+====================================================
+
+.. currentmodule:: compass.extraction.common
+
+.. autofunction:: run_async_tree_with_bm

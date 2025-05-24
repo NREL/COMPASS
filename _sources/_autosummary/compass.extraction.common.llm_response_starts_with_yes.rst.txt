@@ -1,0 +1,6 @@
+compass.extraction.common.llm\_response\_starts\_with\_yes
+==========================================================
+
+.. currentmodule:: compass.extraction.common
+
+.. autofunction:: llm_response_starts_with_yes
