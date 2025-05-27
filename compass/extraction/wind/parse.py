@@ -59,7 +59,11 @@ PERMITTED_USE_SYSTEM_MESSAGE = (
 EXTRA_NUMERICAL_RESTRICTIONS = {
     "noise": "maximum noise level allowed",
     "maximum height": "maximum turbine height allowed",
+    "maximum project size": (
+        "maximum project size or total installation allowed"
+    ),
     "minimum lot size": "minimum lot, parcel, or tract size allowed",
+    "maximum lot size": "maximum lot, parcel, or tract size allowed",
     "shadow flicker": "maximum shadow flicker allowed",
     "tower density": "minimum turbine spacing allowed",
     "blade clearance": "minimum blade clearance allowed",
@@ -87,7 +91,12 @@ UNIT_CLARIFICATIONS = {
         '"rotor-diameter-multiplier", "feet", or "meters".'
     ),
 }
-ER_CLARIFICATIONS = {}
+ER_CLARIFICATIONS = {
+    "maximum project size": (
+        "Maximum project size is typically specified as a maximum system "
+        "size value or as a maximum total area value."
+    ),
+}
 
 
 class StructuredWindParser(BaseLLMCaller):
