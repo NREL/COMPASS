@@ -174,15 +174,12 @@ def ordinances_bool_index(data):
         Array of bools indicating rows containing ordinances in
         DataFrame.
     """
-    if data is None:
-        return 0
-
-    if data.empty:
-        return 0
+    if data is None or data.empty:
+        return np.array([], dtype=bool)
 
     check_cols = [col for col in _ORD_CHECK_COLS if col in data]
     if not check_cols:
-        return 0
+        return np.array([], dtype=bool)
 
     found_features = (~data[check_cols].isna()).to_numpy().sum(axis=1)
     return found_features > 0
