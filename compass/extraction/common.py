@@ -269,16 +269,18 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
     G.add_node(
         "init",
         prompt=(
-            "Does the following text explicitly mention {restriction} for "
+            "Does the following text explicitly detail {restriction} for "
             "{tech} (or similar)? {feature_clarifications}\nMake sure your "
             "answer adheres to these guidelines:\n"
             "1) Respond based only on the explicit text provided for "
             "{restriction}. Do not infer values from text based on "
-            "related restrictions. If {restriction} is not explicitly "
-            "mentioned, then say 'No'.\n"
-            "2) Pay close attention to clarifying details in parentheses, "
+            "related restrictions. If the text does not explicitly detail "
+            "{restriction} for {tech}, then say 'No'.\n"
+            "2) If the text simply defines {restriction} without providing "
+            "any specific or further restrictions, say 'No'.\n"
+            "3) Pay close attention to clarifying details in parentheses, "
             "footnotes, or additional explanatory text.\n"
-            "3) Begin your response with either 'Yes' or 'No' and explain "
+            "4) Begin your response with either 'Yes' or 'No' and explain "
             "your answer."
             '\n\n"""\n{text}\n"""'
         ),
