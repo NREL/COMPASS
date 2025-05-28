@@ -5,7 +5,7 @@ import logging
 
 
 logger = logging.getLogger(__name__)
-_ORD_CHECK_COLS = ["value", "adder", "min_dist", "max_dist", "summary"]
+_ORD_CHECK_COLS = ["value", "summary"]
 
 
 def clean_backticks_from_llm_response(content):
