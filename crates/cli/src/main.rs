@@ -1,11 +1,12 @@
 use std::path::PathBuf;
 
-use clap::{Arg, ArgAction, Command, arg, command, value_parser};
+use anyhow::Result;
+use clap::{arg, command, value_parser, Arg, ArgAction, Command};
 use duckdb::Connection;
 use tracing::{self, trace};
 use tracing_subscriber;
 
-fn main() {
+fn main() -> Result<()> {
     let matches = command!() // requires `cargo` feature
         .arg(
             arg!(--db <DATABASE>)
@@ -101,4 +102,6 @@ fn main() {
             println!("No subcommand was used");
         }
     }
+
+    Ok(())
 }
