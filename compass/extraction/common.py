@@ -269,16 +269,17 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
     G.add_node(
         "init",
         prompt=(
-            "Does the following text explicitly outline {restriction} for "
-            "{tech} (or similar) that an energy system developer could abide "
-            "to? {feature_clarifications}\nMake sure your "
-            "answer adheres to these guidelines:\n"
+            "Does the following legal text explicitly enact {restriction} for "
+            "{tech} (or similar) for a particular jurisdiction that an "
+            "energy system developer would have to abide to?"
+            "{feature_clarifications}\nMake sure your answer adheres to "
+            "these guidelines:\n"
             "1) Respond based only on the explicit text provided for "
             "{restriction}. Do not infer values from text based on "
             "related restrictions. If the text does not explicitly detail "
             "actionable {restriction} for {tech}, then say 'No'.\n"
-            "2) If the text simply defines {restriction} without providing "
-            "any specific or further restrictions, say 'No'.\n"
+            "2) If the text only defines {restriction} without providing "
+            "any specifics, say 'No'.\n"
             "3) Pay close attention to clarifying details in parentheses, "
             "footnotes, or additional explanatory text.\n"
             "4) Begin your response with either 'Yes' or 'No' and explain "
@@ -370,7 +371,17 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
             ),
         )
     else:
-        G.add_edge("init", "final", condition=llm_response_starts_with_yes)
+        G.add_edge("init", "is_def", condition=llm_response_starts_with_yes)
+        G.add_node(
+            "is_def",
+            prompt=(
+                "Does this legal text enact specific {restriction} for a "
+                "given jurisdiction? "
+                "Begin your response with either 'Yes' or 'No' and explain "
+                "your answer."
+            ),
+        )
+        G.add_edge("is_def", "final", condition=llm_response_starts_with_yes)
         G.add_node(
             "final",
             prompt=(
@@ -403,7 +414,7 @@ def setup_graph_permitted_use_districts(**kwargs):
     G.add_node(
         "init",
         prompt=(
-            "Does the following text explicitly outline districts where "
+            "Does the following legal text explicitly define districts where "
             "{tech} (or similar) are permitted as {use_type}? {clarifications}"
             "Pay extra attention to clarifying text found in "
             "parentheses and footnotes. Begin your response with either "
