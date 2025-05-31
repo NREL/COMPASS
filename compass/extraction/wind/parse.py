@@ -94,7 +94,7 @@ UNIT_CLARIFICATIONS = {
 ER_CLARIFICATIONS = {
     "maximum project size": (
         "Maximum project size is typically specified as a maximum system "
-        "size value or as a maximum total area value."
+        "size value or as a maximum number of turbines."
     ),
 }
 
