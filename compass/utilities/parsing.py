@@ -3,6 +3,7 @@
 import json
 import logging
 
+import numpy as np
 
 logger = logging.getLogger(__name__)
 _ORD_CHECK_COLS = ["value", "summary"]
@@ -119,7 +120,7 @@ def extract_ord_year_from_doc_attrs(doc_attrs):
     return year if year is not None and year > 0 else None
 
 
-def num_ordinances_in_doc(doc):
+def num_ordinances_in_doc(doc, exclude_features=None):
     """Count number of ordinances found in document
 
     Parameters
@@ -127,6 +128,9 @@ def num_ordinances_in_doc(doc):
     doc : elm.web.document.Document
         Document potentially containing ordinances for a jurisdiction.
         If no ordinance values are found, this function returns ``0``.
+    exclude_features : iterable of str, optional
+        Optional features to exclude from ordinance count.
+        By default, ``None``.
 
     Returns
     -------
@@ -139,10 +143,12 @@ def num_ordinances_in_doc(doc):
     if "ordinance_values" not in doc.attrs:
         return 0
 
-    return num_ordinances_dataframe(doc.attrs["ordinance_values"])
+    return num_ordinances_dataframe(
+        doc.attrs["ordinance_values"], exclude_features=exclude_features
+    )
 
 
-def num_ordinances_dataframe(data):
+def num_ordinances_dataframe(data, exclude_features=None):
     """Count number of ordinances found in DataFrame
 
     Parameters
@@ -150,12 +156,19 @@ def num_ordinances_dataframe(data):
     data : pd.DataFrame
         DataFrame potentially containing ordinances for a jurisdiction.
         If no ordinance values are found, this function returns ``0``.
+    exclude_features : iterable of str, optional
+        Optional features to exclude from ordinance count.
+        By default, ``None``.
 
     Returns
     -------
     int
         Number of unique ordinance values extracted from this DataFrame.
     """
+    if exclude_features:
+        mask = ~data["feature"].str.casefold().isin(exclude_features)
+        data = data[mask].copy()
+
     return ordinances_bool_index(data).sum()
 
 
