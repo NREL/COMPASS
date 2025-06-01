@@ -1,0 +1,6 @@
+compass.extraction.common.setup\_async\_decision\_tree
+======================================================
+
+.. currentmodule:: compass.extraction.common
+
+.. autofunction:: setup_async_decision_tree

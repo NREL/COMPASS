@@ -1,0 +1,6 @@
+compass.utilities.counties.load\_all\_county\_info
+==================================================
+
+.. currentmodule:: compass.utilities.counties
+
+.. autofunction:: load_all_county_info

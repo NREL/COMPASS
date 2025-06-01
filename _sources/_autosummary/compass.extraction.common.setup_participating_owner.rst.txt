@@ -1,0 +1,6 @@
+compass.extraction.common.setup\_participating\_owner
+=====================================================
+
+.. currentmodule:: compass.extraction.common
+
+.. autofunction:: setup_participating_owner

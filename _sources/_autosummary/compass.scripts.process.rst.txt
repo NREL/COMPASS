@@ -1,0 +1,42 @@
+compass.scripts.process
+=======================
+
+.. automodule:: compass.scripts.process
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      process_counties_with_openai
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      AzureParams
+      Directories
+      ProcessKwargs
+      TechSpec
+      WebSearchParams
+   
+   
+
+   
+   
+   
+
+
+

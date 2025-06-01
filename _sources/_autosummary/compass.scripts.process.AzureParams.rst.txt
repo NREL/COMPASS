@@ -1,0 +1,33 @@
+compass.scripts.process.AzureParams
+===================================
+
+.. currentmodule:: compass.scripts.process
+
+.. autoclass:: AzureParams
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~AzureParams.count
+      ~AzureParams.index
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~AzureParams.azure_api_key
+      ~AzureParams.azure_endpoint
+      ~AzureParams.azure_version
+   
+   
