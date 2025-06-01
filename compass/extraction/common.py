@@ -2,6 +2,7 @@
 
 import asyncio
 import logging
+from datetime import datetime
 
 import networkx as nx
 from elm import ApiBase
@@ -371,17 +372,46 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
             ),
         )
     else:
-        G.add_edge("init", "is_def", condition=llm_response_starts_with_yes)
-        G.add_node(
-            "is_def",
-            prompt=(
-                "Does this legal text enact specific {restriction} for a "
-                "given jurisdiction? "
-                "Begin your response with either 'Yes' or 'No' and explain "
-                "your answer."
-            ),
-        )
-        G.add_edge("is_def", "final", condition=llm_response_starts_with_yes)
+        if "moratorium" in kwargs.get("restriction", ""):
+            G.add_edge(
+                "init",
+                "has_end_date",
+                condition=llm_response_starts_with_yes,
+            )
+            G.add_node(
+                "has_end_date",
+                prompt=(
+                    "Does the legal text given an expiration date for the "
+                    "prohibition, moratorium, or ban? "
+                    "Begin your response with either 'Yes' or 'No' and "
+                    "explain your answer."
+                ),
+            )
+            G.add_edge(
+                "has_end_date", "final", condition=llm_response_starts_with_no
+            )
+            G.add_edge(
+                "has_end_date",
+                "check_end_date",
+                condition=llm_response_starts_with_yes,
+            )
+            todays_date = datetime.now().strftime("%B %d, %Y")
+            G.add_node(
+                "check_end_date",
+                prompt=(
+                    f"Today is {todays_date}. Has the prohibition, "
+                    "moratorium, or ban expired? "
+                    "Begin your response with either 'Yes' or 'No' and "
+                    "explain your answer."
+                ),
+            )
+            G.add_edge(
+                "check_end_date",
+                "final",
+                condition=llm_response_starts_with_no,
+            )
+        else:
+            G.add_edge("init", "final", condition=llm_response_starts_with_yes)
         G.add_node(
             "final",
             prompt=(
