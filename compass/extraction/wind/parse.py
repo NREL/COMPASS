@@ -72,7 +72,7 @@ EXTRA_QUALITATIVE_RESTRICTIONS = {
     "color": "color or finish requirements",
     "decommissioning": "decommissioning requirements",
     "lighting": "lighting requirements",
-    "moratorium": "moratoriums or bans",
+    "moratorium": "prohibitions, moratoriums, or bans",
     "visual impact": "visual impact assessment requirements",
 }
 UNIT_CLARIFICATIONS = {
