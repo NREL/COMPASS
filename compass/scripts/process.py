@@ -42,7 +42,12 @@ from compass.extraction.wind import (
     WIND_QUESTION_TEMPLATES,
 )
 from compass.llm import LLMCaller, OpenAIConfig
-from compass.services.cpu import PDFLoader, read_pdf_doc, read_pdf_doc_ocr
+from compass.services.cpu import (
+    PDFLoader,
+    OCRPDFLoader,
+    read_pdf_doc,
+    read_pdf_doc_ocr,
+)
 from compass.services.usage import UsageTracker
 from compass.services.openai import usage_from_response
 from compass.services.provider import RunningAsyncServices
@@ -61,7 +66,7 @@ from compass.utilities import (
     extract_ord_year_from_doc_attrs,
     num_ordinances_in_doc,
     num_ordinances_dataframe,
-    ordinances_bool_index,
+    # ordinances_bool_index,
 )
 from compass.utilities.enums import LLMTasks
 from compass.utilities.location import County
@@ -94,6 +99,7 @@ ProcessKwargs = namedtuple(
         "td_kwargs",
         "tpe_kwargs",
         "ppe_kwargs",
+        "ocr_ppe_kwargs",
         "max_num_concurrent_jurisdictions",
     ],
     defaults=[None, None, None, None],
@@ -175,6 +181,7 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
     td_kwargs=None,
     tpe_kwargs=None,
     ppe_kwargs=None,
+    ocr_ppe_kwargs=None,
     log_dir=None,
     clean_dir=None,
     ordinance_file_dir=None,
@@ -296,6 +303,10 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         :class:`concurrent.futures.ProcessPoolExecutor`, used for
         CPU-bound tasks such as PDF loading and parsing.
         By default, ``None``.
+    ocr_ppe_kwargs : dict, optional
+        Additional keyword arguments to pass to
+        :class:`concurrent.futures.ProcessPoolExecutor`, used for
+        OCR PDF loading and parsing. By default, ``None``.
     log_dir : path-like, optional
         Path to the directory for storing log files. If not provided, a
         ``logs`` subdirectory will be created inside `out_dir`.
@@ -368,6 +379,7 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         td_kwargs,
         tpe_kwargs,
         ppe_kwargs,
+        ocr_ppe_kwargs,
         max_num_concurrent_jurisdictions,
     )
     wsp = WebSearchParams(
@@ -462,7 +474,7 @@ class _COMPASSRunner:
     @cached_property
     def _base_services(self):
         """list: List of required services to run for processing"""
-        return [
+        base_services = [
             TempFileCachePB(
                 td_kwargs=self.process_kwargs.td_kwargs,
                 tpe_kwargs=self.tpe_kwargs,
@@ -483,6 +495,11 @@ class _COMPASSRunner:
             ),
             PDFLoader(**(self.process_kwargs.ppe_kwargs or {})),
         ]
+        if self.web_search_params.pytesseract_exe_fp is not None:
+            base_services.append(
+                OCRPDFLoader(**(self.process_kwargs.ocr_ppe_kwargs or {}))
+            )
+        return base_services
 
     async def run(self, jurisdiction_fp):
         """Run COMPASS for a set of jurisdictions
@@ -1081,8 +1098,9 @@ def _formatted_db(db):
             db[col] = None
 
     db["quantitative"] = db["quantitative"].astype("boolean").fillna(True)
-    ord_rows = ordinances_bool_index(db)
-    return db[ord_rows][PARSED_COLS].reset_index(drop=True)
+    return db[PARSED_COLS].reset_index(drop=True)
+    # ord_rows = ordinances_bool_index(db)
+    # return db[ord_rows][PARSED_COLS].reset_index(drop=True)
 
 
 def _save_db(db, out_dir):
