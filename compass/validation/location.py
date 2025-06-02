@@ -15,7 +15,7 @@ from compass.utilities.enums import LLMUsageCategory
 logger = logging.getLogger(__name__)
 
 
-class LocationValidator(ABC):
+class OneShotValidator(ABC):
     """Validation base class using a static system prompt"""
 
     SYSTEM_MESSAGE = None
@@ -52,6 +52,7 @@ class LocationValidator(ABC):
         """
         if not content:
             return False
+
         sys_msg = self.SYSTEM_MESSAGE.format(**fmt_kwargs)
         out = await self.slc.call(
             sys_msg,
@@ -66,7 +67,7 @@ class LocationValidator(ABC):
         raise NotImplementedError
 
 
-class URLValidator(LocationValidator):
+class URLValidator(OneShotValidator):
     """Validator that checks whether a URL matches a county"""
 
     SYSTEM_MESSAGE = (
@@ -89,7 +90,7 @@ class URLValidator(LocationValidator):
         return all(props.get(var) for var in check_vars)
 
 
-class OneShotCountyJurisdictionValidator(LocationValidator):
+class OneShotCountyJurisdictionValidator(OneShotValidator):
     """Validator that checks whether text applies at the county level"""
 
     SYSTEM_MESSAGE = (
@@ -170,7 +171,7 @@ class OneShotCountyJurisdictionValidator(LocationValidator):
         return not any(props.get(var) for var in check_vars)
 
 
-class OneShotCountyNameValidator(LocationValidator):
+class OneShotCountyNameValidator(OneShotValidator):
     """Validator that checks whether text applies to a given county"""
 
     SYSTEM_MESSAGE = (
