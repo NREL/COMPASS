@@ -21,6 +21,7 @@ from compass.validation.location import (
     OneShotCountyJurisdictionValidator,
     URLValidator,
     _validator_check_for_doc,
+    _weighted_vote,
 )
 
 
@@ -268,6 +269,19 @@ async def test_doc_matches_county(
     async with RunningAsyncServices(services):
         out = await county_validator.check(doc=doc, county=county, state=state)
         assert out == truth
+
+
+@pytest.mark.parametrize(
+    "test_case",
+    (
+        (["one", "two", "three"], [1, 1, 0], (1 * 3 + 1 * 3) / (3 + 3 + 5)),
+        (["one", "two", "three"], [1, None, 0], (1 * 3) / (3 + 5)),
+    ),
+)
+def test_weighted_vote(test_case):
+    """Test that the _weighted_vote function computes score properly"""
+    pages, verdict, expected_score = test_case
+    assert _weighted_vote(verdict, PDFDocument(pages)) == expected_score
 
 
 if __name__ == "__main__":

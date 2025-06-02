@@ -415,11 +415,18 @@ def _weighted_vote(out, doc):
     """Compute weighted average of responses based on text length"""
     if not doc.raw_pages:
         return 0
-    weights = [len(text) for text in doc.raw_pages]
-    total = sum(
-        verdict * weight for verdict, weight in zip(out, weights, strict=False)
-    )
-    return total / sum(weights)
+
+    total = weights = 0
+    for verdict, text in zip(out, doc.raw_pages, strict=True):
+        if verdict is None:
+            continue
+        weight = len(text)
+        logger.debug("Weight=%d, Verdict=%d", weight, int(verdict))
+        weights += weight
+        total += verdict * weight
+
+    weights = max(weights, 1)
+    return total / weights
 
 
 def _add_not_county_kwargs(county, state):
