@@ -70,12 +70,12 @@ class URLValidator(LocationValidator):
     """Validator that checks whether a URL matches a county"""
 
     SYSTEM_MESSAGE = (
-        "You extract structured data from a URL. Return your "
-        "answer in JSON format. Your JSON file must include exactly two keys. "
-        "The first key is 'correct_county', which is a boolean that is set to "
-        "`True` if the URL mentions {county} County in some way. DO NOT infer "
-        "based on information in the URL about any US state, city, township, "
-        "or otherwise. `False` if not sure. The second key is "
+        "You extract structured data from a URL. Return your answer as a "
+        "dictionary in JSON format. Your JSON file must include exactly two "
+        "keys. The first key is 'correct_county', which is a boolean that is "
+        "set to `True` if the URL mentions {county} County in some way. DO "
+        "NOT infer based on information in the URL about any US state, city, "
+        "township, or otherwise. `False` if not sure. The second key is "
         "'correct_state', which is a boolean that is set to `True` if the URL "
         "mentions {state} State in some way. DO NOT infer based on "
         "information in the URL about any US county, city, township, or "

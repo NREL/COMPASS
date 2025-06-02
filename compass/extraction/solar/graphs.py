@@ -51,12 +51,13 @@ def setup_graph_sef_types(**kwargs):
         "final",
         prompt=(
             "Respond based on our entire conversation so far. Return your "
-            "answer in JSON format (not markdown). Your JSON file must "
-            'include exactly two keys. The keys are "largest_sef_type" and '
-            '"explanation". The value of the "largest_sef_type" key should '
-            "be a string that labels the largest solar energy system size "
-            'mentioned in the text. The value of the "explanation" key should '
-            "be a string containing a short explanation for your choice."
+            "answer as a dictionary in JSON format (not markdown). Your "
+            "JSON file must include exactly two keys. The keys are "
+            '"largest_sef_type" and "explanation". The value of the '
+            '"largest_sef_type" key should be a string that labels the '
+            "largest solar energy system size mentioned in the text. The "
+            'value of the "explanation" key should be a string containing '
+            "a short explanation for your choice."
         ),
     )
     return G
