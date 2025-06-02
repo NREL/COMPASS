@@ -250,7 +250,7 @@ class OneShotCountyNameValidator(OneShotValidator):
         return not any(props.get(var) for var in check_vars)
 
 
-class CountyValidator:
+class OneShotCountyValidator:
     """COMPASS Ordinance County validator
 
     Combines the logic of several validators into a single class.

@@ -12,7 +12,7 @@ from compass.services.threaded import TempFileCachePB
 from compass.validation.location import (
     OneShotCountyJurisdictionValidator,
     OneShotCountyNameValidator,
-    CountyValidator,
+    OneShotCountyValidator,
 )
 from compass.utilities.enums import LLMTasks
 from compass.pb import COMPASS_PB
@@ -164,7 +164,7 @@ async def _down_select_docs_correct_location(
         usage_tracker=usage_tracker,
         **model_config.llm_call_kwargs,
     )
-    jurisdiction_validator = CountyValidator(
+    jurisdiction_validator = OneShotCountyValidator(
         llm_caller, text_splitter=model_config.text_splitter
     )
     logger.debug("Validating documents for %r", location)
