@@ -76,11 +76,15 @@ def load_jurisdictions_from_fp(jurisdiction_fp):
     jurisdictions = pd.read_csv(jurisdiction_fp)
     jurisdictions = _validate_jurisdiction_input(jurisdictions)
 
+    all_jurisdiction_info = load_all_jurisdiction_info()
     merge_cols = ["County", "State"]
     if "Subdivision" in jurisdictions:
         merge_cols += ["Subdivision", "Jurisdiction Type"]
+    else:
+        all_jurisdiction_info = all_jurisdiction_info[
+            all_jurisdiction_info["Subdivision"].isna()
+        ].reset_index(drop=True)
 
-    all_jurisdiction_info = load_all_jurisdiction_info()
     jurisdictions = jurisdictions.merge(
         all_jurisdiction_info, on=merge_cols, how="left"
     )

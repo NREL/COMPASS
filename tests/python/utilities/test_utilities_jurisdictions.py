@@ -90,5 +90,24 @@ def test_load_jurisdictions_from_fp_bad_input(tmp_path):
     assert expected_msg in str(err)
 
 
+def test_load_jurisdictions_from_fp_single_county(tmp_path):
+    """Test that`load_jurisdictions_from_fp` returns a single county"""
+
+    test_jurisdiction_fp = tmp_path / "out.csv"
+    input_jurisdictions = pd.DataFrame(
+        {"County": ["Wharton"], "State": ["Texas"]}
+    )
+    input_jurisdictions.to_csv(test_jurisdiction_fp)
+
+    jurisdictions = load_jurisdictions_from_fp(test_jurisdiction_fp)
+
+    assert len(jurisdictions) == 1
+    assert set(jurisdictions["County"]) == {"Wharton"}
+    assert set(jurisdictions["State"]) == {"Texas"}
+    assert set(jurisdictions["Subdivision"]) == {np.nan}
+    assert set(jurisdictions["Jurisdiction Type"]) == {"county"}
+    assert {type(val) for val in jurisdictions["FIPS"]} == {int}
+
+
 if __name__ == "__main__":
     pytest.main(["-q", "--show-capture=all", Path(__file__), "-rapP"])
