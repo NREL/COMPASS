@@ -94,9 +94,9 @@ class CountyJurisdictionValidator(LocationValidator):
 
     SYSTEM_MESSAGE = (
         "You extract structured data from legal text. Return your answer "
-        'in JSON format with exactly three keys: `"x"`, `"y"`, and '
-        '`"explanation"`.\n'
-        '\n1. **`"x"` (boolean):**\n'
+        "in JSON format with exactly three keys: `'x'`, `'y'`, and "
+        "`'explanation'`.\n"
+        "\n1. **`'x'` (boolean):**\n"
         "- Set this to `true` **only if** the text **explicitly states** "
         "that the legal regulations apply to a jurisdiction **other than** "
         "{county} County.\n"
@@ -107,21 +107,21 @@ class CountyJurisdictionValidator(LocationValidator):
         "**{county} County-level governance**, to **all unincorporated "
         "areas** of {county} County, **or** if there is **not enough "
         "information** to determine the jurisdiction scope.\n"
-        '\n2. **`"y"` (boolean):**\n'
+        "\n2. **`'y'` (boolean):**\n"
         "- Set this to `true` **only if** the text **explicitly states** that "
         "the regulations apply to **more than one county**\n"
         "- Set this to `false` if the regulations apply to a **single county "
         "only** or if there is **not enough information** to determine the "
         "number of counties affected.\n"
-        '\n3. **`"explanation"` (string):**\n'
-        '- If either `"x"` or `"y"` is `true`, provide a short explanation '
+        "\n3. **`'explanation'` (string):**\n"
+        "- If either `'x'` or `'y'` is `true`, provide a short explanation "
         "**citing the specific text** that led to this conclusion.\n"
         "- If **both** are `false`, explain that there was not enough "
         "information to determine otherwise.\n"
         "\n### **Example Output:**\n"
         "\n#### Correct Cases:\n"
         "\n**Case 1 (Not Enough Information - Default to `False`)**\n"
-        'Input text: `"This ordinance applies to wind energy systems."`\n'
+        "Input text: `'This ordinance applies to wind energy systems.'`\n"
         "```json\n"
         "{{\n"
         '  "x": false,\n'
@@ -175,16 +175,16 @@ class CountyNameValidator(LocationValidator):
 
     SYSTEM_MESSAGE = (
         "You extract structured data from legal text. Return your answer "
-        'in JSON format with exactly three keys: `"wrong_county"`, '
-        '`"wrong_state"`, and `"explanation"`.\n'
-        '\n1. **`"wrong_county"` (boolean):**\n'
+        "in JSON format with exactly three keys: `'wrong_county'`, "
+        "`'wrong_state'`, and `'explanation'`.\n"
+        "\n1. **`'wrong_county'` (boolean):**\n"
         "- Set this to `true` **only if** the text **explicitly states** "
         "that it does **not** apply to {county} County.\n"
         "- Set this to `false` if the text applies to {county} County **or** "
         "if there is **not enough information** to determine the county.\n"
         "- Do **not** infer this based on any mention of other U.S. states, "
         "cities, or townships.\n"
-        '\n2. **`"wrong_state"` (boolean):**\n'
+        "\n2. **`'wrong_state'` (boolean):**\n"
         "- Set this to `true` **only if** the text **explicitly states** that "
         "it does **not** apply to a jurisdiction in {state}.\n"
         "- Set this to `false` if the text applies to a jurisdiction in "
@@ -192,8 +192,8 @@ class CountyNameValidator(LocationValidator):
         "the state.\n"
         "- Do **not** infer this based on any mention of other U.S. counties, "
         "cities, or townships.\n"
-        '\n3. **`"explanation"` (string):**\n'
-        '- If either `"wrong_county"` or `"wrong_state"` is `true`, provide a '
+        "\n3. **`'explanation'` (string):**\n"
+        "- If either `'wrong_county'` or `'wrong_state'` is `true`, provide a "
         "short explanation **citing the specific text** that led to this "
         "conclusion.\n"
         "- If **both** are `false`, explain that there was not enough "
@@ -201,8 +201,8 @@ class CountyNameValidator(LocationValidator):
         "\n### **Example Output:**\n"
         "\n#### Correct Cases:\n"
         "\n**Case 1 (Not Enough Information - Default to `False`)**\n"
-        'Input text: `"This ordinance applies to wind energy regulations in '
-        'the county."`\n'
+        "Input text: `'This ordinance applies to wind energy regulations in "
+        "the county.'`\n"
         "```json\n"
         "{{\n"
         '  "wrong_county": false,\n'

@@ -295,7 +295,7 @@ class WindOrdinanceTextExtractor(BaseTextExtractor):
         "ensure accuracy.\n"
         "\n4. ## Output Handling ##:\n"
         "- If **no relevant text** is found, return the response: "
-        '"No relevant text."'
+        "'No relevant text.'"
     )
     LARGE_WIND_ENERGY_SYSTEM_SECTION_FILTER_PROMPT = (
         "# CONTEXT #\n"
@@ -337,7 +337,7 @@ class WindOrdinanceTextExtractor(BaseTextExtractor):
         "ensure accuracy.\n"
         "\n4. ## Output Handling ##:\n"
         "- If **no relevant text** is found, return the response: "
-        '"No relevant text."'
+        "'No relevant text.'"
     )
 
     async def extract_wind_energy_system_section(self, text_chunks):
@@ -454,7 +454,7 @@ class WindPermittedUseDistrictsTextExtractor(BaseTextExtractor):
         "ensure accuracy.\n"
         "\n4. ## Output Handling ##:\n"
         "- If **no relevant text** is found, return the response: "
-        '"No relevant text."'
+        "'No relevant text.'"
     )
 
     WES_PERMITTED_USES_FILTER_PROMPT = (
@@ -490,7 +490,7 @@ class WindPermittedUseDistrictsTextExtractor(BaseTextExtractor):
         "ensure accuracy.\n"
         "\n4. ## Output Handling ##:\n"
         "- If **no relevant text** is found, return the response: "
-        '"No relevant text."'
+        "'No relevant text.'"
     )
 
     async def extract_permitted_uses(self, text_chunks):

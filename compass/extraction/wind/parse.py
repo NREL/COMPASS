@@ -78,17 +78,17 @@ EXTRA_QUALITATIVE_RESTRICTIONS = {
 UNIT_CLARIFICATIONS = {
     "noise": (
         "For the purposes of this extraction, assume the standard units "
-        'for noise are "dBA".'
+        "for noise are 'dBA'."
     ),
     "shadow flicker": (
         "For the purposes of this extraction, assume the standard units "
-        'for shadow flicker are "hr/year".'
+        "for shadow flicker are 'hr/year'."
     ),
     "tower density": (
         "For the purposes of this extraction, assume the standard units "
         "for turbine spacing are one of the following: "
-        '"tip-height-multiplier", "hub-height-multiplier", '
-        '"rotor-diameter-multiplier", "feet", or "meters".'
+        "'tip-height-multiplier', 'hub-height-multiplier', "
+        "'rotor-diameter-multiplier', 'feet', or 'meters'."
     ),
 }
 ER_CLARIFICATIONS = {

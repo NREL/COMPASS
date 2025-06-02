@@ -75,7 +75,7 @@ EXTRA_QUALITATIVE_RESTRICTIONS = {
 UNIT_CLARIFICATIONS = {
     "noise": (
         "For the purposes of this extraction, assume the standard units "
-        'for noise are "dBA".'
+        "for noise are 'dBA'."
     )
 }
 ER_CLARIFICATIONS = {

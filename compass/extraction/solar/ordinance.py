@@ -272,7 +272,7 @@ class SolarOrdinanceTextExtractor(BaseTextExtractor):
         "ensure accuracy.\n"
         "\n4. ## Output Handling ##:\n"
         "- If **no relevant text** is found, return the response: "
-        '"No relevant text."'
+        "'No relevant text.'"
     )
 
     async def extract_solar_energy_system_section(self, text_chunks):
@@ -363,7 +363,7 @@ class SolarPermittedUseDistrictsTextExtractor(BaseTextExtractor):
         "ensure accuracy.\n"
         "\n4. ## Output Handling ##:\n"
         "- If **no relevant text** is found, return the response: "
-        '"No relevant text."'
+        "'No relevant text.'"
     )
 
     SEF_PERMITTED_USES_FILTER_PROMPT = (
@@ -398,7 +398,7 @@ class SolarPermittedUseDistrictsTextExtractor(BaseTextExtractor):
         "ensure accuracy.\n"
         "\n4. ## Output Handling ##:\n"
         "- If **no relevant text** is found, return the response: "
-        '"No relevant text."'
+        "'No relevant text.'"
     )
 
     async def extract_permitted_uses(self, text_chunks):
