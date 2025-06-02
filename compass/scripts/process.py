@@ -536,20 +536,20 @@ class _COMPASSRunner:
             tasks = []
             for __, row in jurisdictions.iterrows():
                 county, state, fips = row[["County", "State", "FIPS"]]
-                location = Jurisdiction(
+                jurisdiction = Jurisdiction(
                     "county",
                     state=state.strip(),
                     county=county.strip(),
                     code=fips,
                 )
                 usage_tracker = UsageTracker(
-                    location.full_name, usage_from_response
+                    jurisdiction.full_name, usage_from_response
                 )
                 task = asyncio.create_task(
                     self._processed_jurisdiction_info_with_pb(
-                        location, usage_tracker=usage_tracker
+                        jurisdiction, usage_tracker=usage_tracker
                     ),
-                    name=location.full_name,
+                    name=jurisdiction.full_name,
                 )
                 tasks.append(task)
             doc_infos = await asyncio.gather(*tasks)
@@ -575,7 +575,7 @@ class _COMPASSRunner:
         if doc is None or isinstance(doc, Exception):
             return None
 
-        keys = ["source", "date", "location", "ord_db_fp"]
+        keys = ["source", "date", "jurisdiction", "ord_db_fp"]
         doc_info = {key: doc.attrs.get(key) for key in keys}
         logger.debug("Saving the following doc info:\n%s", str(doc_info))
         return doc_info
@@ -657,7 +657,7 @@ class _SingleJurisdictionRunner:
 
     async def _run(self):
         """Search for docs and parse them for ordinances"""
-        docs = await self._find_documents_with_location_attr()
+        docs = await self._find_documents_with_jurisdiction_attr()
         if docs is None:
             return None
 
@@ -667,7 +667,7 @@ class _SingleJurisdictionRunner:
         )
         return await self._parse_docs_for_ordinances(docs)
 
-    async def _find_documents_with_location_attr(self):
+    async def _find_documents_with_jurisdiction_attr(self):
         """Search the web for an ordinance document and construct it"""
         docs = await download_jurisdiction_ordinance(
             self.tech_specs.questions,
@@ -690,8 +690,8 @@ class _SingleJurisdictionRunner:
             return None
 
         for doc in docs:
-            doc.attrs["location"] = self.jurisdiction
-            doc.attrs["location_name"] = self.jurisdiction.full_name
+            doc.attrs["jurisdiction"] = self.jurisdiction
+            doc.attrs["jurisdiction_name"] = self.jurisdiction.full_name
 
         await self._record_usage()
         return docs
@@ -952,11 +952,11 @@ async def _extract_ordinances_from_text(
     )
 
 
-async def _move_files(doc, location):
+async def _move_files(doc, jurisdiction):
     """Move files to output folders, if applicable"""
     ord_count = num_ordinances_in_doc(doc)
     if ord_count == 0:
-        logger.info("No ordinances found for %s.", location.full_name)
+        logger.info("No ordinances found for %s.", jurisdiction.full_name)
         return doc
 
     doc = await _move_file_to_out_dir(doc)
@@ -964,7 +964,7 @@ async def _move_files(doc, location):
     logger.info(
         "%d ordinance value(s) found for %s. Outputs are here: '%s'",
         ord_count,
-        location.full_name,
+        jurisdiction.full_name,
         doc.attrs["ord_db_fp"],
     )
     return doc
@@ -1058,12 +1058,12 @@ def _db_results(results, doc_info):
     results["source"] = doc_info.get("source")
     results["ord_year"] = extract_ord_year_from_doc_attrs(doc_info)
 
-    location = doc_info["location"]
-    results["FIPS"] = location.code
-    results["county"] = location.county
-    results["state"] = location.state
-    results["subdivision"] = location.subdivision_name
-    results["jurisdiction_type"] = location.type
+    jurisdiction = doc_info["jurisdiction"]
+    results["FIPS"] = jurisdiction.code
+    results["county"] = jurisdiction.county
+    results["state"] = jurisdiction.state
+    results["subdivision"] = jurisdiction.subdivision_name
+    results["jurisdiction_type"] = jurisdiction.type
     return results
 
 

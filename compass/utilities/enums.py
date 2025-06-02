@@ -14,7 +14,7 @@ class LLMUsageCategory(StrEnum):
     DOCUMENT_ORDINANCE_SUMMARY = auto()
     DOCUMENT_PERMITTED_USE_CONTENT_VALIDATION = auto()
     DOCUMENT_PERMITTED_USE_DISTRICTS_SUMMARY = auto()
-    DOCUMENT_LOCATION_VALIDATION = auto()
+    DOCUMENT_JURISDICTION_VALIDATION = auto()
 
 
 class LLMTasks(StrEnum):
@@ -33,8 +33,8 @@ class LLMTasks(StrEnum):
     values" or "does the document contain permitted use specifications".
     """
 
-    DOCUMENT_LOCATION_VALIDATION = (
-        LLMUsageCategory.DOCUMENT_LOCATION_VALIDATION
+    DOCUMENT_JURISDICTION_VALIDATION = (
+        LLMUsageCategory.DOCUMENT_JURISDICTION_VALIDATION
     )
     """Document location validation task
 
