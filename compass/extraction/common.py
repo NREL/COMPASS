@@ -356,7 +356,7 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
             "final",
             prompt=(
                 "Please respond based on our entire conversation so far. "
-                "Return your answer in "
+                "Return your answer as a dictionary in "
                 "JSON format (not markdown). Your JSON file must include "
                 "exactly four keys. The keys are 'value', 'units', 'summary', "
                 "and 'section'. The value of the '[value]' key "
@@ -416,7 +416,7 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
             "final",
             prompt=(
                 "Please respond based on our entire conversation so far. "
-                "Return your answer in "
+                "Return your answer as a dictionary in "
                 "JSON format (not markdown). Your JSON file must include "
                 "exactly two keys. The keys are 'summary' and 'section'. "
                 "{SUMMARY_PROMPT} {SECTION_PROMPT}"
@@ -469,7 +469,7 @@ def setup_graph_permitted_use_districts(**kwargs):
         "final",
         prompt=(
             "Please respond based on our entire conversation so far. "
-            "Return your answer in "
+            "Return your answer as a dictionary in "
             "JSON format (not markdown). Your JSON file must include "
             "exactly three keys. The keys are 'value', 'summary', "
             "and 'section'. The value of the 'value' key "

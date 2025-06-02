@@ -94,8 +94,8 @@ class CountyJurisdictionValidator(LocationValidator):
 
     SYSTEM_MESSAGE = (
         "You extract structured data from legal text. Return your answer "
-        "in JSON format with exactly three keys: `'x'`, `'y'`, and "
-        "`'explanation'`.\n"
+        "as a dictionary in JSON format with exactly three keys: `'x'`, "
+        "`'y'`, and `'explanation'`.\n"
         "\n1. **`'x'` (boolean):**\n"
         "- Set this to `true` **only if** the text **explicitly states** "
         "that the legal regulations apply to a jurisdiction **other than** "
@@ -175,8 +175,8 @@ class CountyNameValidator(LocationValidator):
 
     SYSTEM_MESSAGE = (
         "You extract structured data from legal text. Return your answer "
-        "in JSON format with exactly three keys: `'wrong_county'`, "
-        "`'wrong_state'`, and `'explanation'`.\n"
+        "as a dictionary in JSON format with exactly three keys: "
+        "`'wrong_county'`, `'wrong_state'`, and `'explanation'`.\n"
         "\n1. **`'wrong_county'` (boolean):**\n"
         "- Set this to `true` **only if** the text **explicitly states** "
         "that it does **not** apply to {county} County.\n"
