@@ -50,16 +50,32 @@ class Jurisdiction:
     @cached_property
     def full_name(self):
         """str: Full jurisdiction name"""
-        name_parts = []
-        if self.subdivision_name:
-            if self.type.casefold() in {"town", "city", "borough"}:
-                name_parts.append(f"{self.type} of {self.subdivision_name}")
-            else:
-                name_parts.append(f"{self.subdivision_name} {self.type}")
-        if self.county:
-            name_parts.append(f"{self.county} County")
-        name_parts.append(self.state)
-        return ", ".join(name_parts)
+        name_parts = [
+            self.full_subdivision_phrase,
+            self.full_county_phrase,
+            self.state,
+        ]
+
+        return ", ".join(filter(None, name_parts))
+
+    @cached_property
+    def full_subdivision_phrase(self):
+        """str: Full jurisdiction subdivision phrase, or empty str"""
+        if not self.subdivision_name:
+            return ""
+
+        if self.type.casefold() in {"town", "township", "city", "borough"}:
+            return f"{self.type} of {self.subdivision_name}"
+
+        return f"{self.subdivision_name} {self.type}"
+
+    @cached_property
+    def full_county_phrase(self):
+        """str: Full jurisdiction county phrase, or empty str"""
+        if not self.county:
+            return ""
+
+        return f"{self.county} County"
 
     def __repr__(self):
         return str(self)

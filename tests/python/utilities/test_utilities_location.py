@@ -16,6 +16,9 @@ def test_basic_state_properties():
     assert state.full_name == "Colorado"
     assert state.full_name == str(state)
 
+    assert not state.full_county_phrase
+    assert not state.full_subdivision_phrase
+
     assert state == Jurisdiction("state", state="cOlORAdo")
     assert state != Jurisdiction("city", state="Colorado")
 
@@ -32,6 +35,9 @@ def test_basic_county_properties():
     assert county.full_name == "Box Elder County, Utah"
     assert county.full_name == str(county)
 
+    assert county.full_county_phrase == "Box Elder County"
+    assert not county.full_subdivision_phrase
+
     assert county == Jurisdiction("county", county="Box elder", state="uTah")
     assert county != Jurisdiction("city", county="Box Elder", state="Utah")
 
@@ -39,7 +45,7 @@ def test_basic_county_properties():
     assert county == "Box elder county, Utah"
 
 
-@pytest.mark.parametrize("jt", ["town", "city", "borough"])
+@pytest.mark.parametrize("jt", ["town", "city", "borough", "township"])
 def test_basic_town_properties(jt):
     """Test basic properties for ``Jurisdiction`` class for a town"""
 
@@ -52,6 +58,8 @@ def test_basic_town_properties(jt):
         town.full_name == f"{jt.title()} of Golden, Jefferson County, Colorado"
     )
     assert town.full_name == str(town)
+    assert town.full_county_phrase == "Jefferson County"
+    assert town.full_subdivision_phrase == f"{jt.title()} of Golden"
 
     assert town == Jurisdiction(
         jt, county="jefferson", state="colorado", subdivision_name="golden"
@@ -77,6 +85,8 @@ def test_atypical_subdivision_properties():
     assert repr(gore) == "Buels Gore, Chittenden County, Vermont"
     assert gore.full_name == "Buels Gore, Chittenden County, Vermont"
     assert gore.full_name == str(gore)
+    assert gore.full_county_phrase == "Chittenden County"
+    assert gore.full_subdivision_phrase == "Buels Gore"
 
     assert gore == Jurisdiction(
         "gore", county="chittenden", state="vermont", subdivision_name="buels"
@@ -100,6 +110,9 @@ def test_city_no_county():
     assert repr(gore) == "City of Baltimore, Maryland"
     assert gore.full_name == "City of Baltimore, Maryland"
     assert gore.full_name == str(gore)
+
+    assert not gore.full_county_phrase
+    assert gore.full_subdivision_phrase == "City of Baltimore"
 
     assert gore == Jurisdiction(
         "city", "maryland", subdivision_name="baltimore"
