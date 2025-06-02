@@ -17,7 +17,7 @@ from compass.services.provider import RunningAsyncServices
 from compass.utilities import RTS_SEPARATORS
 from compass.validation.location import (
     CountyValidator,
-    CountyNameValidator,
+    OneShotCountyNameValidator,
     OneShotCountyJurisdictionValidator,
     URLValidator,
     _validator_check_for_doc,
@@ -197,9 +197,9 @@ async def test_doc_matches_county_name(
     truth,
     test_data_dir,
 ):
-    """Test the `CountyNameValidator` class (basic execution)"""
+    """Test the `OneShotCountyNameValidator` class (basic execution)"""
     doc = _load_doc(test_data_dir, doc_fn)
-    cn_validator = CountyNameValidator(structured_llm_caller)
+    cn_validator = OneShotCountyNameValidator(structured_llm_caller)
     services = [oai_llm_service]
     kwargs = {
         "county": county,

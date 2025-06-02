@@ -11,7 +11,7 @@ from compass.extraction import check_for_ordinance_info, extract_date
 from compass.services.threaded import TempFileCachePB
 from compass.validation.location import (
     OneShotCountyJurisdictionValidator,
-    CountyNameValidator,
+    OneShotCountyNameValidator,
     CountyValidator,
 )
 from compass.utilities.enums import LLMTasks
@@ -240,7 +240,7 @@ def _ord_doc_sorting_key(doc):
     highest_name_score = doc.attrs.get(
         # missing key means we were so confident that check wasn't
         # even applied, so we default to 1 here
-        CountyNameValidator.META_SCORE_KEY,
+        OneShotCountyNameValidator.META_SCORE_KEY,
         1,
     )
     highest_jurisdiction_score = doc.attrs.get(

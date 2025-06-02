@@ -170,7 +170,7 @@ class OneShotCountyJurisdictionValidator(LocationValidator):
         return not any(props.get(var) for var in check_vars)
 
 
-class CountyNameValidator(LocationValidator):
+class OneShotCountyNameValidator(LocationValidator):
     """Validator that checks whether text applies to a given county"""
 
     SYSTEM_MESSAGE = (
@@ -262,7 +262,7 @@ class CountyValidator:
     Key Relationships:
         Uses a :class:`~compass.llm.calling.StructuredLLMCaller` for
         LLM queries and delegates sub-validation to
-        :class:`CountyNameValidator`,
+        :class:`OneShotCountyNameValidator`,
         :class:`OneShotCountyJurisdictionValidator`,
         and :class:`URLValidator`.
     """
@@ -286,7 +286,7 @@ class CountyValidator:
             By default, ``None``.
         """
         self.score_thresh = score_thresh
-        self.cn_validator = CountyNameValidator(structured_llm_caller)
+        self.cn_validator = OneShotCountyNameValidator(structured_llm_caller)
         self.cj_validator = OneShotCountyJurisdictionValidator(
             structured_llm_caller
         )
