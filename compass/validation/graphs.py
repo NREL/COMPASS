@@ -114,3 +114,116 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
         ),
     )
     return G
+
+
+def setup_graph_correct_jurisdiction_from_url(jurisdiction, **kwargs):
+    """Setup graph to check for correct jurisdiction in URL
+
+    Parameters
+    ----------
+    jurisdiction : compass.utilities.location.Jurisdiction
+        Jurisdiction for which validation is being performed.
+    **kwargs
+        Keyword-value pairs to add to graph.
+
+    Returns
+    -------
+    nx.DiGraph
+        Graph instance that can be used to initialize an
+        `elm.tree.DecisionTree`.
+    """
+
+    G = setup_graph_no_nodes(**kwargs)  # noqa: N806
+
+    G.add_node(
+        "init",
+        prompt=(
+            f"Does the following URL explicitly mention {jurisdiction.state} "
+            "state in some way (e.g. either by full name or abbreviation)? "
+            "**Do not** answer based on auxiliary information like county or "
+            "city names. "
+            "Begin your response with either 'Yes' or 'No' and explain your "
+            "answer."
+            "\n\nURL: '{url}\n'"
+        ),
+    )
+
+    node_to_connect = "init"
+    keys_to_collect = {"correct_state": f"{jurisdiction.state} state"}
+
+    if jurisdiction.county:
+        G.add_edge(node_to_connect, "mentions_county")
+        G.add_node(
+            "mentions_county",
+            prompt=(
+                "Does the URL explicitly mention "
+                f"{jurisdiction.full_county_phrase} in some way (e.g. either "
+                "by full name or abbreviation)? **Do not** answer based on "
+                "auxiliary information like state or city names. "
+                "Begin your response with either 'Yes' or 'No' and explain "
+                "your answer."
+                "\n\nURL: '{url}\n'"
+            ),
+        )
+        keys_to_collect["correct_county"] = (
+            f"{jurisdiction.full_county_phrase}"
+        )
+        node_to_connect = "mentions_county"
+
+    if jurisdiction.subdivision_name:
+        G.add_edge(node_to_connect, "mentions_city")
+        G.add_node(
+            "mentions_city",
+            prompt=(
+                "Does the URL explicitly mention "
+                f"{jurisdiction.full_subdivision_phrase} in some way (e.g. "
+                "either by full name or abbreviation)? **Do not** answer "
+                "based on auxiliary information like state or county names. "
+                "Begin your response with either 'Yes' or 'No' and explain "
+                "your answer."
+                "\n\nURL: '{url}\n'"
+            ),
+        )
+        keys_to_collect[f"correct_{jurisdiction.type.casefold()}"] = (
+            f"{jurisdiction.full_subdivision_phrase}"
+        )
+        node_to_connect = "mentions_city"
+
+    G.add_edge(node_to_connect, "final")
+    G.add_node("final", prompt=_compile_final_url_prompt(keys_to_collect))
+    return G
+
+
+def _compile_final_url_prompt(keys_to_collect):
+    """Compile final URL instruction prompt"""
+    num_keys = len(keys_to_collect) + 1
+    num_keys = f"Your JSON file must include exactly {num_keys} keys. "
+
+    out_keys = ", ".join([f"'{key}'" for key in keys_to_collect])
+    out_keys = f"The keys are {out_keys} and 'explanation'. "
+
+    explain_text = _compile_url_key_explain_text(keys_to_collect)
+
+    return (
+        "Respond based on our entire conversation so far. Return your "
+        "answer as a dictionary in JSON format (not markdown). "
+        f"{num_keys}{out_keys}{explain_text}"
+    )
+
+
+def _compile_url_key_explain_text(keys_to_collect):
+    """Compile explanations ofr each output key"""
+    explain_text = []
+    for key, name in keys_to_collect.items():
+        explain_text.append(
+            f"The value of the '{key}' key should be a boolean that is set to "
+            f"`True` if the URL explicitly mentions {name} in some way "
+            "(`False` otherwise). "
+        )
+
+    choices = "choices" if len(keys_to_collect) > 1 else "choice"
+    explain_text.append(
+        "The value of the 'explanation' key should be a string containing a "
+        f"short explanation for your {choices}. "
+    )
+    return "".join(explain_text)
