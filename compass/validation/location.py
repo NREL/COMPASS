@@ -57,7 +57,7 @@ class OneShotValidator(ABC):
         out = await self.slc.call(
             sys_msg,
             content,
-            usage_sub_label=LLMUsageCategory.DOCUMENT_LOCATION_VALIDATION,
+            usage_sub_label=LLMUsageCategory.DOCUMENT_JURISDICTION_VALIDATION,
         )
         return self._parse_output(out)
 
@@ -291,7 +291,7 @@ class OneShotCountyValidator:
         self.cj_validator = OneShotCountyJurisdictionValidator(
             structured_llm_caller
         )
-        self.url_validator = URLValidator(structured_llm_caller)
+        self.url_validator = OneShotURLCountyValidator(structured_llm_caller)
         self.text_splitter = text_splitter
 
     async def check(self, doc, county, state):

@@ -19,7 +19,7 @@ from compass.validation.location import (
     OneShotCountyValidator,
     OneShotCountyNameValidator,
     OneShotCountyJurisdictionValidator,
-    URLValidator,
+    OneShotURLCountyValidator,
     _validator_check_for_doc,
     _weighted_vote,
 )
@@ -134,7 +134,7 @@ async def test_url_matches_county(
     oai_llm_service, structured_llm_caller, county, state, url, truth
 ):
     """Test the URL validator class (basic execution)"""
-    url_validator = URLValidator(structured_llm_caller)
+    url_validator = OneShotURLCountyValidator(structured_llm_caller)
     services = [oai_llm_service]
     async with RunningAsyncServices(services):
         out = await url_validator.check(url, county=county, state=state)
