@@ -537,7 +537,10 @@ class _COMPASSRunner:
             for __, row in jurisdictions.iterrows():
                 county, state, fips = row[["County", "State", "FIPS"]]
                 location = Jurisdiction(
-                    county.strip(), state=state.strip(), code=fips
+                    "county",
+                    state=state.strip(),
+                    county=county.strip(),
+                    code=fips,
                 )
                 usage_tracker = UsageTracker(
                     location.full_name, usage_from_response
