@@ -1,4 +1,4 @@
-"""COMPASS Ordinance location specification utilities"""
+"""COMPASS Ordinance jurisdiction specification utilities"""
 
 from functools import cached_property
 
