@@ -167,6 +167,7 @@ async def _down_select_docs_correct_location(
     jurisdiction_validator = CountyValidator(
         llm_caller, text_splitter=model_config.text_splitter
     )
+    logger.debug("Validating documents for %r", location)
     return await filter_documents(
         docs,
         validation_coroutine=jurisdiction_validator.check,
