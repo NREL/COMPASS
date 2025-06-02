@@ -18,7 +18,7 @@ from compass.utilities import RTS_SEPARATORS
 from compass.validation.location import (
     CountyValidator,
     CountyNameValidator,
-    CountyJurisdictionValidator,
+    OneShotCountyJurisdictionValidator,
     URLValidator,
     _validator_check_for_doc,
 )
@@ -161,9 +161,9 @@ async def test_doc_matches_county_jurisdiction(
     truth,
     test_data_dir,
 ):
-    """Test the `CountyJurisdictionValidator` class (basic execution)"""
+    """Test the `OneShotCountyJurisdictionValidator` class"""
     doc = _load_doc(test_data_dir, doc_fn)
-    cj_validator = CountyJurisdictionValidator(structured_llm_caller)
+    cj_validator = OneShotCountyJurisdictionValidator(structured_llm_caller)
     services = [oai_llm_service]
     kwargs = {
         "county": county,

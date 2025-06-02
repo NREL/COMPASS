@@ -10,7 +10,7 @@ from compass.llm import StructuredLLMCaller
 from compass.extraction import check_for_ordinance_info, extract_date
 from compass.services.threaded import TempFileCachePB
 from compass.validation.location import (
-    CountyJurisdictionValidator,
+    OneShotCountyJurisdictionValidator,
     CountyNameValidator,
     CountyValidator,
 )
@@ -244,7 +244,7 @@ def _ord_doc_sorting_key(doc):
         1,
     )
     highest_jurisdiction_score = doc.attrs.get(
-        CountyJurisdictionValidator.META_SCORE_KEY, 0
+        OneShotCountyJurisdictionValidator.META_SCORE_KEY, 0
     )
     shortest_text_length = -1 * len(doc.text)
     return (

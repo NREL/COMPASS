@@ -89,7 +89,7 @@ class URLValidator(LocationValidator):
         return all(props.get(var) for var in check_vars)
 
 
-class CountyJurisdictionValidator(LocationValidator):
+class OneShotCountyJurisdictionValidator(LocationValidator):
     """Validator that checks whether text applies at the county level"""
 
     SYSTEM_MESSAGE = (
@@ -262,9 +262,9 @@ class CountyValidator:
     Key Relationships:
         Uses a :class:`~compass.llm.calling.StructuredLLMCaller` for
         LLM queries and delegates sub-validation to
-        :class:`~compass.validation.location.CountyNameValidator`,
-        :class:`~compass.validation.location.CountyJurisdictionValidator`,
-        and :class:`~compass.validation.location.URLValidator`.
+        :class:`CountyNameValidator`,
+        :class:`OneShotCountyJurisdictionValidator`,
+        and :class:`URLValidator`.
     """
 
     def __init__(
@@ -287,7 +287,9 @@ class CountyValidator:
         """
         self.score_thresh = score_thresh
         self.cn_validator = CountyNameValidator(structured_llm_caller)
-        self.cj_validator = CountyJurisdictionValidator(structured_llm_caller)
+        self.cj_validator = OneShotCountyJurisdictionValidator(
+            structured_llm_caller
+        )
         self.url_validator = URLValidator(structured_llm_caller)
         self.text_splitter = text_splitter
 
