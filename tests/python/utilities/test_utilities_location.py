@@ -45,6 +45,29 @@ def test_basic_county_properties():
     assert county == "Box elder county, Utah"
 
 
+def test_basic_parish_properties():
+    """Test basic properties for ``Jurisdiction`` class for a parish"""
+
+    parish = Jurisdiction("parish", county="Assumption", state="Louisiana")
+
+    assert repr(parish) == "Assumption Parish, Louisiana"
+    assert parish.full_name == "Assumption Parish, Louisiana"
+    assert parish.full_name == str(parish)
+
+    assert parish.full_county_phrase == "Assumption Parish"
+    assert not parish.full_subdivision_phrase
+
+    assert parish == Jurisdiction(
+        "parish", county="assumption", state="lOuisiana"
+    )
+    assert parish != Jurisdiction(
+        "county", county="Assumption", state="Louisiana"
+    )
+
+    assert parish == "Assumption Parish, Louisiana"
+    assert parish == "assumption parish, lOuisiana"
+
+
 @pytest.mark.parametrize("jt", ["town", "city", "borough", "township"])
 def test_basic_town_properties(jt):
     """Test basic properties for ``Jurisdiction`` class for a town"""

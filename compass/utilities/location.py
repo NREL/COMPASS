@@ -75,6 +75,9 @@ class Jurisdiction:
         if not self.county:
             return ""
 
+        if not self.subdivision_name:
+            return f"{self.county} {self.type}"
+
         return f"{self.county} County"
 
     def __repr__(self):
