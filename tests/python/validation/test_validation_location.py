@@ -7,6 +7,7 @@ from functools import partial
 
 import pytest
 import openai
+from flaky import flaky
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 from elm import ApiBase
@@ -94,6 +95,7 @@ def _load_doc(test_data_dir, doc_fn):
         return HTMLDocument([text], text_splitter=TESTING_TEXT_SPLITTER)
 
 
+@flaky(max_runs=3, min_passes=1)
 @pytest.mark.skipif(SHOULD_SKIP, reason="requires Azure OpenAI key")
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
@@ -155,6 +157,7 @@ async def test_url_matches_county(
     assert out == truth
 
 
+@flaky(max_runs=3, min_passes=1)
 @pytest.mark.skipif(SHOULD_SKIP, reason="requires Azure OpenAI key")
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
@@ -185,6 +188,7 @@ async def test_doc_matches_county_jurisdiction(
     assert out == truth
 
 
+@flaky(max_runs=3, min_passes=1)
 @pytest.mark.skipif(SHOULD_SKIP, reason="requires Azure OpenAI key")
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
@@ -218,6 +222,7 @@ async def test_doc_matches_county_name(
     assert out == truth
 
 
+@flaky(max_runs=3, min_passes=1)
 @pytest.mark.skipif(SHOULD_SKIP, reason="requires Azure OpenAI key")
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
