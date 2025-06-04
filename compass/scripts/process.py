@@ -731,7 +731,7 @@ class _SingleJurisdictionRunner:
                     self._try_extract_ordinances(possible_ord_doc, **kwargs),
                     name=self.jurisdiction.full_name,
                 )
-                for kwargs in self.extraction_task_kwargs
+                for kwargs in self._extraction_task_kwargs
             ]
 
             docs = await asyncio.gather(*tasks)
@@ -739,7 +739,8 @@ class _SingleJurisdictionRunner:
         return _concat_scrape_results(docs[0])
 
     @property
-    def extraction_task_kwargs(self):
+    def _extraction_task_kwargs(self):
+        """Keyword-argument pairs to pass to _try_extract_ordinances"""
         return [
             {
                 "extractor_class": self.tech_specs.ordinance_text_extractor,
