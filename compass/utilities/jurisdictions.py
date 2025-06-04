@@ -4,6 +4,7 @@ import logging
 from warnings import warn
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 from compass.exceptions import COMPASSValueError
@@ -25,7 +26,7 @@ def load_all_jurisdiction_info():
         DataFrame containing info like names, FIPS, websites, etc. for
         all jurisdictions.
     """
-    jurisdiction_info = pd.read_csv(_COUNTY_DATA_FP)
+    jurisdiction_info = pd.read_csv(_COUNTY_DATA_FP).replace({np.nan: None})
     jurisdiction_info = _convert_to_title(jurisdiction_info, "State")
     jurisdiction_info = _convert_to_title(jurisdiction_info, "County")
     return _convert_to_title(jurisdiction_info, "Subdivision")
@@ -156,7 +157,7 @@ def _format_jurisdiction_df_for_output(df):
         "Website",
     ]
     df["FIPS"] = df["FIPS"].astype(int)
-    return df[out_cols].reset_index(drop=True)
+    return df[out_cols].replace({np.nan: None}).reset_index(drop=True)
 
 
 def _convert_to_title(df, column):

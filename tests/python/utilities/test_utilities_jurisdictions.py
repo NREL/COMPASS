@@ -70,7 +70,8 @@ def test_load_jurisdictions_from_fp(tmp_path):
     assert len(jurisdictions) == 1
     assert set(jurisdictions["County"]) == {"Decatur"}
     assert set(jurisdictions["State"]) == {"Indiana"}
-    assert set(jurisdictions["Subdivision"]) == {np.nan}
+    assert set(jurisdictions["Subdivision"]) == {None}
+    assert set(jurisdictions["Subdivision"]) != {np.nan}
     assert set(jurisdictions["Jurisdiction Type"]) == {"county"}
     assert {type(val) for val in jurisdictions["FIPS"]} == {int}
 
@@ -104,7 +105,8 @@ def test_load_jurisdictions_from_fp_single_county(tmp_path):
     assert len(jurisdictions) == 1
     assert set(jurisdictions["County"]) == {"Wharton"}
     assert set(jurisdictions["State"]) == {"Texas"}
-    assert set(jurisdictions["Subdivision"]) == {np.nan}
+    assert set(jurisdictions["Subdivision"]) == {None}
+    assert set(jurisdictions["Subdivision"]) != {np.nan}
     assert set(jurisdictions["Jurisdiction Type"]) == {"county"}
     assert {type(val) for val in jurisdictions["FIPS"]} == {int}
 
