@@ -20,8 +20,7 @@ from compass.utilities import RTS_SEPARATORS
 from compass.utilities.location import Jurisdiction
 from compass.validation.location import (
     OneShotCountyValidator,
-    OneShotCountyNameValidator,
-    OneShotCountyJurisdictionValidator,
+    DTreeJurisdictionValidator,
     DTreeURLCountyValidator,
     _validator_check_for_doc,
     _weighted_vote,
@@ -150,7 +149,7 @@ def _load_doc(test_data_dir, doc_fn):
     ],
 )
 async def test_url_matches_county(oai_llm_service, county, state, url, truth):
-    """Test the URL validator class (basic execution)"""
+    """Test the DTreeURLCountyValidator class (basic execution)"""
     loc = Jurisdiction("county", state=state, county=county)
     url_validator = DTreeURLCountyValidator(
         loc, llm_service=oai_llm_service, temperature=0, seed=42, timeout=30
@@ -173,55 +172,16 @@ async def test_url_matches_county(oai_llm_service, county, state, url, truth):
         ("Anoka", "Minnesota", "Anoka Minnesota.txt", True),
     ],
 )
-async def test_doc_matches_jurisdiction(
-    structured_llm_caller, county, state, doc_fn, truth, test_data_dir
+async def test_doc_text_matches_jurisdiction(
+    oai_llm_service, county, state, doc_fn, truth, test_data_dir
 ):
-    """Test the `OneShotCountyJurisdictionValidator` class"""
+    """Test the `DTreeJurisdictionValidator` class"""
     doc = _load_doc(test_data_dir, doc_fn)
-    cj_validator = OneShotCountyJurisdictionValidator(structured_llm_caller)
-    kwargs = {
-        "county": county,
-        "state": state,
-        "not_county": "Lincoln",
-        "not_state": "Nebraska",
-    }
-    out = await _validator_check_for_doc(
-        doc=doc, validator=cj_validator, **kwargs
+    loc = Jurisdiction("county", state=state, county=county)
+    cj_validator = DTreeJurisdictionValidator(
+        loc, llm_service=oai_llm_service, temperature=0, seed=42, timeout=30
     )
-    assert out == truth
-
-
-@flaky(max_runs=3, min_passes=1)
-@pytest.mark.skipif(SHOULD_SKIP, reason="requires Azure OpenAI key")
-@pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "county,state,doc_fn,truth",
-    [
-        ("Decatur", "Indiana", "Decatur Indiana.pdf", True),
-        ("Hamlin", "South Dakota", "Hamlin South Dakota.pdf", True),
-        ("Anoka", "Minnesota", "Anoka Minnesota.txt", True),
-    ],
-)
-async def test_doc_matches_county_name(
-    structured_llm_caller,
-    county,
-    state,
-    doc_fn,
-    truth,
-    test_data_dir,
-):
-    """Test the `OneShotCountyNameValidator` class (basic execution)"""
-    doc = _load_doc(test_data_dir, doc_fn)
-    cn_validator = OneShotCountyNameValidator(structured_llm_caller)
-    kwargs = {
-        "county": county,
-        "state": state,
-        "not_county": "Lincoln",
-        "not_state": "Nebraska",
-    }
-    out = await _validator_check_for_doc(
-        doc=doc, validator=cn_validator, **kwargs
-    )
+    out = await _validator_check_for_doc(doc=doc, validator=cj_validator)
     assert out == truth
 
 
