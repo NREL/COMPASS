@@ -1,4 +1,4 @@
-"""Test COMPASS Ordinance location validation tests."""
+"""Test COMPASS Ordinance location validation tests"""
 
 import asyncio
 import os
