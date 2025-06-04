@@ -42,7 +42,12 @@ from compass.extraction.wind import (
     WIND_QUESTION_TEMPLATES,
 )
 from compass.llm import LLMCaller, OpenAIConfig
-from compass.services.cpu import PDFLoader, read_pdf_doc, read_pdf_doc_ocr
+from compass.services.cpu import (
+    PDFLoader,
+    OCRPDFLoader,
+    read_pdf_doc,
+    read_pdf_doc_ocr,
+)
 from compass.services.usage import UsageTracker
 from compass.services.openai import usage_from_response
 from compass.services.provider import RunningAsyncServices
@@ -487,6 +492,9 @@ class _COMPASSRunner:
                 tpe_kwargs=self.tpe_kwargs,
             ),
             PDFLoader(**(self.process_kwargs.ppe_kwargs or {})),
+            # pytesseract locks up with multiple processes, so hardcode
+            # to only use 1 for now
+            OCRPDFLoader(max_workers=1),
         ]
 
     async def run(self, jurisdiction_fp):
