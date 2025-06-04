@@ -19,7 +19,7 @@ from compass.services.provider import RunningAsyncServices
 from compass.utilities import RTS_SEPARATORS
 from compass.utilities.location import Jurisdiction
 from compass.validation.location import (
-    OneShotCountyValidator,
+    JurisdictionValidator,
     DTreeJurisdictionValidator,
     DTreeURLCountyValidator,
     _validator_check_for_doc,
@@ -221,8 +221,8 @@ async def test_doc_text_matches_jurisdiction(
         ),
     ],
 )
-async def test_doc_matches_county(
-    structured_llm_caller,
+async def test_doc_matches_jurisdiction(
+    oai_llm_service,
     county,
     state,
     doc_fn,
@@ -230,12 +230,15 @@ async def test_doc_matches_county(
     truth,
     test_data_dir,
 ):
-    """Test the `OneShotCountyValidator` class (basic execution)"""
+    """Test the `JurisdictionValidator` class (basic execution)"""
     doc = _load_doc(test_data_dir, doc_fn)
     doc.attrs["source"] = url
+    loc = Jurisdiction("county", state=state, county=county)
 
-    county_validator = OneShotCountyValidator(structured_llm_caller)
-    out = await county_validator.check(doc=doc, county=county, state=state)
+    county_validator = JurisdictionValidator(
+        llm_service=oai_llm_service, temperature=0, seed=42, timeout=30
+    )
+    out = await county_validator.check(doc=doc, jurisdiction=loc)
     assert out == truth
 
 
