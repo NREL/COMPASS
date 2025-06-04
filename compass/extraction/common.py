@@ -103,10 +103,12 @@ def llm_response_does_not_start_with_no(response):
     return not llm_response_starts_with_no(response)
 
 
-def setup_async_decision_tree(graph_setup_func, **kwargs):
+def setup_async_decision_tree(
+    graph_setup_func, usage_sub_label=None, **kwargs
+):
     """Setup Async Decision tree for ordinance extraction"""
     G = graph_setup_func(**kwargs)  # noqa: N806
-    tree = AsyncDecisionTree(G)
+    tree = AsyncDecisionTree(G, usage_sub_label=usage_sub_label)
     assert len(tree.chat_llm_caller.messages) == 1
     return tree
 
