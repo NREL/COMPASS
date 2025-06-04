@@ -499,7 +499,7 @@ class _COMPASSRunner:
             base_services.append(
                 # pytesseract locks up with multiple processes, so
                 # hardcode to only use 1 for now
-                OCRPDFLoader(**(self.process_kwargs.ocr_ppe_kwargs or {}))
+                OCRPDFLoader(max_workers=1),
             )
         return base_services
 
