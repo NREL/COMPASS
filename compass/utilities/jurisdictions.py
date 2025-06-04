@@ -134,7 +134,7 @@ def _warn_about_missing_jurisdictions(df):
     not_found_jurisdictions = df[df["FIPS"].isna()]
     if len(not_found_jurisdictions):
         not_found_jurisdictions_str = not_found_jurisdictions[
-            ["State", "County", "Subdivision"]
+            ["State", "County", "Subdivision", "Jurisdiction Type"]
             # cspell: disable-next-line
         ].to_markdown(index=False, tablefmt="psql")
         msg = (
