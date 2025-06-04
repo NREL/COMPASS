@@ -164,6 +164,7 @@ _TEXT_EXTRACTION_TASKS = {
         "Extracting solar permitted use text"
     ),
 }
+_JUR_COLS = ["Jurisdiction Type", "State", "County", "Subdivision", "FIPS"]
 
 
 async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
@@ -543,11 +544,12 @@ class _COMPASSRunner:
         async with RunningAsyncServices(services):
             tasks = []
             for __, row in jurisdictions.iterrows():
-                county, state, fips = row[["County", "State", "FIPS"]]
+                jur_type, state, county, sub, fips = row[_JUR_COLS]
                 jurisdiction = Jurisdiction(
-                    "county",
-                    state=state.strip(),
-                    county=county.strip(),
+                    subdivision_type=jur_type,
+                    state=state,
+                    county=county,
+                    subdivision_name=sub,
                     code=fips,
                 )
                 usage_tracker = UsageTracker(
