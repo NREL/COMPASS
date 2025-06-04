@@ -1,5 +1,6 @@
 """Test COMPASS Ordinance location validation tests."""
 
+import asyncio
 import os
 from pathlib import Path
 from functools import partial
@@ -36,6 +37,14 @@ TESTING_TEXT_SPLITTER = RecursiveCharacterTextSplitter(
 
 
 @pytest.fixture(scope="module")
+def event_loop():
+    """Override default event loop fixture to make it module-level"""
+    loop = asyncio.new_event_loop()
+    yield loop
+    loop.close()
+
+
+@pytest.fixture(scope="module")
 def oai_async_azure_client():
     """OpenAi Azure client to use for tests"""
     return openai.AsyncAzureOpenAI(
@@ -52,6 +61,13 @@ def oai_llm_service(oai_async_azure_client):
     return OpenAIService(
         client=oai_async_azure_client, model_name=model_name, rate_limit=1e6
     )
+
+
+@pytest.fixture(scope="module", autouse=True)
+async def running_openai_service(oai_llm_service):
+    """Set up running OpenAI service to use for tests"""
+    async with RunningAsyncServices([oai_llm_service]):
+        yield
 
 
 @pytest.fixture
@@ -131,14 +147,12 @@ def _load_doc(test_data_dir, doc_fn):
     ],
 )
 async def test_url_matches_county(
-    oai_llm_service, structured_llm_caller, county, state, url, truth
+    structured_llm_caller, county, state, url, truth
 ):
     """Test the URL validator class (basic execution)"""
     url_validator = OneShotURLCountyValidator(structured_llm_caller)
-    services = [oai_llm_service]
-    async with RunningAsyncServices(services):
-        out = await url_validator.check(url, county=county, state=state)
-        assert out == truth
+    out = await url_validator.check(url, county=county, state=state)
+    assert out == truth
 
 
 @pytest.mark.skipif(SHOULD_SKIP, reason="requires Azure OpenAI key")
@@ -154,29 +168,21 @@ async def test_url_matches_county(
     ],
 )
 async def test_doc_matches_county_jurisdiction(
-    oai_llm_service,
-    structured_llm_caller,
-    county,
-    state,
-    doc_fn,
-    truth,
-    test_data_dir,
+    structured_llm_caller, county, state, doc_fn, truth, test_data_dir
 ):
     """Test the `OneShotCountyJurisdictionValidator` class"""
     doc = _load_doc(test_data_dir, doc_fn)
     cj_validator = OneShotCountyJurisdictionValidator(structured_llm_caller)
-    services = [oai_llm_service]
     kwargs = {
         "county": county,
         "state": state,
         "not_county": "Lincoln",
         "not_state": "Nebraska",
     }
-    async with RunningAsyncServices(services):
-        out = await _validator_check_for_doc(
-            doc=doc, validator=cj_validator, **kwargs
-        )
-        assert out == truth
+    out = await _validator_check_for_doc(
+        doc=doc, validator=cj_validator, **kwargs
+    )
+    assert out == truth
 
 
 @pytest.mark.skipif(SHOULD_SKIP, reason="requires Azure OpenAI key")
@@ -190,7 +196,6 @@ async def test_doc_matches_county_jurisdiction(
     ],
 )
 async def test_doc_matches_county_name(
-    oai_llm_service,
     structured_llm_caller,
     county,
     state,
@@ -201,18 +206,16 @@ async def test_doc_matches_county_name(
     """Test the `OneShotCountyNameValidator` class (basic execution)"""
     doc = _load_doc(test_data_dir, doc_fn)
     cn_validator = OneShotCountyNameValidator(structured_llm_caller)
-    services = [oai_llm_service]
     kwargs = {
         "county": county,
         "state": state,
         "not_county": "Lincoln",
         "not_state": "Nebraska",
     }
-    async with RunningAsyncServices(services):
-        out = await _validator_check_for_doc(
-            doc=doc, validator=cn_validator, **kwargs
-        )
-        assert out == truth
+    out = await _validator_check_for_doc(
+        doc=doc, validator=cn_validator, **kwargs
+    )
+    assert out == truth
 
 
 @pytest.mark.skipif(SHOULD_SKIP, reason="requires Azure OpenAI key")
@@ -251,7 +254,6 @@ async def test_doc_matches_county_name(
     ],
 )
 async def test_doc_matches_county(
-    oai_llm_service,
     structured_llm_caller,
     county,
     state,
@@ -265,10 +267,8 @@ async def test_doc_matches_county(
     doc.attrs["source"] = url
 
     county_validator = OneShotCountyValidator(structured_llm_caller)
-    services = [oai_llm_service]
-    async with RunningAsyncServices(services):
-        out = await county_validator.check(doc=doc, county=county, state=state)
-        assert out == truth
+    out = await county_validator.check(doc=doc, county=county, state=state)
+    assert out == truth
 
 
 @pytest.mark.parametrize(
