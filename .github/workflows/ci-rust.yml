@@ -4,16 +4,37 @@ on:
   push:
     branches: [main]
   pull_request:
-    paths:
-      - crates/**
-      - Cargo.toml
-      - .github/workflows/ci-rust.yml
-      - pyproject.toml
   schedule:
     - cron: '0 5 * * 1'
 
 jobs:
+  detect-changes:
+    name: Determine if Rust checks should run
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.set_output.outputs.should_run }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check for changed files
+        id: set_output
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "Checking file changes for PR..."
+            git fetch origin main
+            CHANGED=$(git diff --name-only origin/main...HEAD | grep -E '^(crates/|Cargo.toml|pyproject.toml)' || true)
+            if [ -n "$CHANGED" ]; then
+              echo "should_run=true" >> $GITHUB_OUTPUT
+            else
+              echo "should_run=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            # Always run for push to main or cron
+            echo "should_run=true" >> $GITHUB_OUTPUT
+          fi
+
   check:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.should_run == 'true'
     name: Check
     runs-on: ubuntu-latest
     steps:
