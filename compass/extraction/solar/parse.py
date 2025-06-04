@@ -61,10 +61,12 @@ EXTRA_NUMERICAL_RESTRICTIONS = {
     "maximum project size": (
         "maximum project size or total installation allowed"
     ),
-    "minimum lot size": "minimum lot, parcel, or tract size allowed",
-    "maximum lot size": "maximum lot, parcel, or tract size allowed",
-    "density": "minimum spacing between solar panels or solar plants allowed",
-    "coverage": "maximum land coverage allowed",
+    "minimum lot size": "**minimum** lot, parcel, or tract size allowed",
+    "maximum lot size": "**maximum** lot, parcel, or tract size allowed",
+    "density": (
+        "**minimum** spacing between solar panels or solar plants allowed"
+    ),
+    "coverage": "**maximum** land coverage allowed",
 }
 EXTRA_QUALITATIVE_RESTRICTIONS = {
     "moratorium": "prohibitions, moratoriums, or bans",

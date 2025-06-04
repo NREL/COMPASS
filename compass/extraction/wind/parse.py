@@ -62,10 +62,10 @@ EXTRA_NUMERICAL_RESTRICTIONS = {
     "maximum project size": (
         "maximum project size or total installation allowed"
     ),
-    "minimum lot size": "minimum lot, parcel, or tract size allowed",
-    "maximum lot size": "maximum lot, parcel, or tract size allowed",
+    "minimum lot size": "**minimum** lot, parcel, or tract size allowed",
+    "maximum lot size": "**maximum** lot, parcel, or tract size allowed",
     "shadow flicker": "maximum shadow flicker allowed",
-    "tower density": "minimum turbine spacing allowed",
+    "tower density": "**minimum** turbine spacing allowed",
     "blade clearance": "minimum blade clearance allowed",
 }
 EXTRA_QUALITATIVE_RESTRICTIONS = {
