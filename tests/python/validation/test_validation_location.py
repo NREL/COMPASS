@@ -17,11 +17,12 @@ from compass.llm import StructuredLLMCaller
 from compass.services.openai import OpenAIService
 from compass.services.provider import RunningAsyncServices
 from compass.utilities import RTS_SEPARATORS
+from compass.utilities.location import Jurisdiction
 from compass.validation.location import (
     OneShotCountyValidator,
     OneShotCountyNameValidator,
     OneShotCountyJurisdictionValidator,
-    OneShotURLCountyValidator,
+    DTreeURLCountyValidator,
     _validator_check_for_doc,
     _weighted_vote,
 )
@@ -148,12 +149,13 @@ def _load_doc(test_data_dir, doc_fn):
         ),
     ],
 )
-async def test_url_matches_county(
-    structured_llm_caller, county, state, url, truth
-):
+async def test_url_matches_county(oai_llm_service, county, state, url, truth):
     """Test the URL validator class (basic execution)"""
-    url_validator = OneShotURLCountyValidator(structured_llm_caller)
-    out = await url_validator.check(url, county=county, state=state)
+    loc = Jurisdiction("county", state=state, county=county)
+    url_validator = DTreeURLCountyValidator(
+        loc, llm_service=oai_llm_service, temperature=0, seed=42, timeout=30
+    )
+    out = await url_validator.check(url)
     assert out == truth
 
 
@@ -168,9 +170,10 @@ async def test_url_matches_county(
         ("Hamlin", "South Dakota", "Hamlin South Dakota.pdf", True),
         ("Atlantic", "New Jersey", "Atlantic New Jersey.txt", False),
         ("Barber", "Kansas", "Barber Kansas.pdf", False),
+        ("Anoka", "Minnesota", "Anoka Minnesota.txt", True),
     ],
 )
-async def test_doc_matches_county_jurisdiction(
+async def test_doc_matches_jurisdiction(
     structured_llm_caller, county, state, doc_fn, truth, test_data_dir
 ):
     """Test the `OneShotCountyJurisdictionValidator` class"""
