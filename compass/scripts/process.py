@@ -207,9 +207,9 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
         Label indicating which technology type is being processed.
     jurisdiction_fp : path-like
         Path to a CSV file specifying the jurisdictions to process.
-        The CSV must contain two columns: "County" and "State", which
-        specify the county and state names, respectively. If you would
-        like to process a subdivision with a county, you must also
+        The CSV must contain at least two columns: "County" and "State",
+        which specify the county and state names, respectively. If you
+        would like to process a subdivision with a county, you must also
         include "Subdivision" and "Jurisdiction Type" columns. The
         "Subdivision" should be the name of the subdivision, and the
         "Jurisdiction Type" should be a string identifying the type of
