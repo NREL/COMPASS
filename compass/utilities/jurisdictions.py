@@ -46,9 +46,8 @@ def jurisdiction_websites(jurisdiction_info=None):
     Returns
     -------
     dict
-        Dictionary where keys are tuples of (county, state) and keys are
-        the relevant website URL. Note that county and state names are
-        lowercase.
+        Dictionary where keys are FIPS codes and values are the relevant
+        website URL.
     """
     if jurisdiction_info is None:
         jurisdiction_info = load_all_jurisdiction_info()
