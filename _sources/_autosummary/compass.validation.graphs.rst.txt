@@ -1,0 +1,31 @@
+compass.validation.graphs
+=========================
+
+.. automodule:: compass.validation.graphs
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      setup_graph_correct_jurisdiction_from_url
+      setup_graph_correct_jurisdiction_type
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
