@@ -7,7 +7,7 @@ from datetime import datetime
 import networkx as nx
 from elm import ApiBase
 
-from compass.extraction.tree import AsyncDecisionTree
+from compass.common.tree import AsyncDecisionTree
 from compass.utilities import llm_response_as_json
 from compass.utilities.enums import LLMUsageCategory
 from compass.utilities.parsing import (

@@ -8,7 +8,7 @@ import asyncio
 import logging
 
 from compass.llm.calling import BaseLLMCaller, ChatLLMCaller
-from compass.extraction.common import setup_async_decision_tree, run_async_tree
+from compass.common import setup_async_decision_tree, run_async_tree
 from compass.validation.graphs import (
     setup_graph_correct_jurisdiction_type,
     setup_graph_correct_jurisdiction_from_url,

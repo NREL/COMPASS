@@ -1,6 +1,6 @@
 """Ordinance Decision Tree Graph setup functions"""
 
-from compass.extraction.common import (
+from compass.common import (
     setup_graph_no_nodes,
     llm_response_starts_with_yes,
     llm_response_starts_with_no,
