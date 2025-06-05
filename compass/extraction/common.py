@@ -179,9 +179,10 @@ def setup_base_setback_graph(**kwargs):
             "Is there text in the following legal document that describes "
             "how far I have to setback {tech} (or similar) from {feature}? "
             "{feature_clarifications}"
-            "Pay extra attention to clarifying text found in parentheses "
-            "and footnotes. Begin your response with either 'Yes' or 'No' "
-            "and explain your answer."
+            "Don't forget to pay extra attention to clarifying text found "
+            "in parentheses and footnotes. "
+            "Please start your response with either 'Yes' or 'No' and explain "
+            "your answer."
             '\n\n"""\n{text}\n"""'
         ),
     )
@@ -285,8 +286,8 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
             "any specifics, please respond with a simple 'No'.\n"
             "3) Pay close attention to clarifying details in parentheses, "
             "footnotes, or additional explanatory text.\n"
-            "4) Begin your response with either 'Yes' or 'No' and explain "
-            "your answer."
+            "4) Please start your response with either 'Yes' or 'No' and "
+            "explain your answer."
             '\n\n"""\n{text}\n"""'
         ),
     )
@@ -385,8 +386,8 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
                 prompt=(
                     "Does the legal text given an expiration date for the "
                     "prohibition, moratorium, or ban? "
-                    "Begin your response with either 'Yes' or 'No' and "
-                    "explain your answer."
+                    "Please start your response with either 'Yes' or 'No' "
+                    "and explain your answer."
                 ),
             )
             G.add_edge(
@@ -403,8 +404,8 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
                 prompt=(
                     f"Today is {todays_date}. Has the prohibition, "
                     "moratorium, or ban expired? "
-                    "Begin your response with either 'Yes' or 'No' and "
-                    "explain your answer."
+                    "Please start your response with either 'Yes' or 'No' "
+                    "and explain your answer."
                 ),
             )
             G.add_edge(
@@ -449,8 +450,8 @@ def setup_graph_permitted_use_districts(**kwargs):
             "Does the following legal text explicitly define districts where "
             "{tech} (or similar) are permitted as {use_type}? {clarifications}"
             "Pay extra attention to clarifying text found in "
-            "parentheses and footnotes. Begin your response with either "
-            "'Yes' or 'No' and explain your answer."
+            "parentheses and footnotes. Please start your response with "
+            "either 'Yes' or 'No' and explain your answer."
             '\n\n"""\n{text}\n"""'
         ),
     )

@@ -31,8 +31,8 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
             "Does the following legal text explicitly outline the type of "
             "jurisdiction it applies to? Common types of jurisdictions "
             "include 'state', 'county', 'city', 'township',' borough', etc. "
-            "Begin your response with either 'Yes' or 'No' and explain your "
-            "answer."
+            "Please start your response with either 'Yes' or 'No' and explain "
+            "your answer."
             '\n\n"""\n{text}\n"""'
         ),
     )
@@ -144,8 +144,8 @@ def setup_graph_correct_jurisdiction_from_url(jurisdiction, **kwargs):
             "state in some way (e.g. either by full name or abbreviation)? "
             "**Do not** answer based on auxiliary information like county or "
             "city names. "
-            "Begin your response with either 'Yes' or 'No' and explain your "
-            "answer."
+            "Please start your response with either 'Yes' or 'No' and explain "
+            "your answer."
             "\n\nURL: '{url}\n'"
         ),
     )
@@ -162,8 +162,8 @@ def setup_graph_correct_jurisdiction_from_url(jurisdiction, **kwargs):
                 f"{jurisdiction.full_county_phrase} in some way (e.g. either "
                 "by full name or abbreviation)? **Do not** answer based on "
                 "auxiliary information like state or city names. "
-                "Begin your response with either 'Yes' or 'No' and explain "
-                "your answer."
+                "Please start your response with either 'Yes' or 'No' and "
+                "explain your answer."
                 "\n\nURL: '{url}\n'"
             ),
         )
@@ -181,8 +181,8 @@ def setup_graph_correct_jurisdiction_from_url(jurisdiction, **kwargs):
                 f"{jurisdiction.full_subdivision_phrase} in some way (e.g. "
                 "either by full name or abbreviation)? **Do not** answer "
                 "based on auxiliary information like state or county names. "
-                "Begin your response with either 'Yes' or 'No' and explain "
-                "your answer."
+                "Please start your response with either 'Yes' or 'No' and "
+                "explain your answer."
                 "\n\nURL: '{url}\n'"
             ),
         )

@@ -30,8 +30,8 @@ def setup_graph_wes_types(**kwargs):
             "system sizes? Distinctions are often made as 'small', "
             "'personal', or 'private' vs 'large', 'commercial', or 'utility'. "
             "Sometimes the distinction uses actual MW values. "
-            "Begin your response with either 'Yes' or 'No' and explain your "
-            "answer."
+            "Please start your response with either 'Yes' or 'No' and explain "
+            "your answer."
             '\n\n"""\n{text}\n"""'
         ),
     )
@@ -172,9 +172,9 @@ def setup_multiplier(**kwargs):
             "should be added to the result of the multiplication? Do not "
             "confuse this value with static setback requirements. Ignore text "
             "with clauses such as 'no lesser than', 'no greater than', "
-            "'the lesser of', or 'the greater of'. Begin your response with "
-            "either 'Yes' or 'No' and explain your answer, stating the adder "
-            "value if it exists."
+            "'the lesser of', or 'the greater of'. Please start your response "
+            "with either 'Yes' or 'No' and explain your answer, stating the "
+            "adder value if it exists."
         ),
     )
     G.add_edge("adder", "out_m", condition=llm_response_starts_with_no)
