@@ -75,7 +75,7 @@ async def check_for_ordinance_info(
         permitted_use_text_collector = permitted_use_text_collector_class()
         callbacks.append(permitted_use_text_collector.check_chunk)
 
-    doc.attrs["is_legal_text"] = await parse_by_chunks(
+    await parse_by_chunks(
         chunk_parser,
         heuristic,
         legal_text_validator,
