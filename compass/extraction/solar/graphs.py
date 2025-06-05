@@ -30,8 +30,8 @@ def setup_graph_sef_types(**kwargs):
             "energy farm sizes? Distinctions are often made as 'small', "
             "'personal', or 'private' vs 'large', 'commercial', or 'utility'. "
             "Sometimes the distinction uses actual MW values. "
-            "Please start your response with either 'Yes' or 'No' and explain "
-            "your answer."
+            "Please start your response with either 'Yes' or 'No' and briefly "
+            "explain your answer."
             '\n\n"""\n{text}\n"""'
         ),
     )
@@ -86,7 +86,8 @@ def setup_multiplier(**kwargs):
             "structure height to compute the setback distance from {feature}? "
             "Focus only on {feature}; do not respond based on any text "
             "related to {ignore_features}. Please start your "
-            "response with either 'Yes' or 'No' and explain your answer."
+            "response with either 'Yes' or 'No' and briefly explain your "
+            "answer."
         ),
     )
     G.add_edge("init", "no_multiplier", condition=llm_response_starts_with_no)
@@ -95,7 +96,7 @@ def setup_multiplier(**kwargs):
         prompt=(
             "Does the ordinance give the setback from {feature} as a fixed "
             "distance value? Please start your response with either 'Yes' or "
-            "'No' and explain your answer."
+            "'No' and briefly explain your answer."
         ),
     )
     G.add_edge(
@@ -157,8 +158,8 @@ def setup_multiplier(**kwargs):
             "confuse this value with static setback requirements. Ignore text "
             "with clauses such as 'no lesser than', 'no greater than', "
             "'the lesser of', or 'the greater of'. Please start your response "
-            "with either 'Yes' or 'No' and explain your answer, stating the "
-            "adder value if it exists."
+            "with either 'Yes' or 'No' and briefly explain your answer, "
+            "stating the adder value if it exists."
         ),
     )
     G.add_edge("adder", "out_m", condition=llm_response_starts_with_no)
@@ -169,7 +170,8 @@ def setup_multiplier(**kwargs):
         prompt=(
             "Does the adder value you identified satisfy the following "
             "equation: 'multiplier * height + <adder>'? Begin your "
-            "response with either 'Yes' or 'No' and explain your answer."
+            "response with either 'Yes' or 'No' and briefly explain your "
+            "answer."
         ),
     )
     G.add_edge("adder_eq", "out_m", condition=llm_response_starts_with_no)

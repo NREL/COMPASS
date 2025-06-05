@@ -31,8 +31,8 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
             "Does the following legal text explicitly outline the type of "
             "jurisdiction it applies to? Common types of jurisdictions "
             "include 'state', 'county', 'city', 'township',' borough', etc. "
-            "Please start your response with either 'Yes' or 'No' and explain "
-            "your answer."
+            "Please start your response with either 'Yes' or 'No' and briefly "
+            "explain your answer."
             '\n\n"""\n{text}\n"""'
         ),
     )
@@ -163,7 +163,7 @@ def setup_graph_correct_jurisdiction_from_url(jurisdiction, **kwargs):
                 "by full name or abbreviation)? **Do not** answer based on "
                 "auxiliary information like state or city names. "
                 "Please start your response with either 'Yes' or 'No' and "
-                "explain your answer."
+                "briefly explain your answer."
                 "\n\nURL: '{url}\n'"
             ),
         )
@@ -182,7 +182,7 @@ def setup_graph_correct_jurisdiction_from_url(jurisdiction, **kwargs):
                 "either by full name or abbreviation)? **Do not** answer "
                 "based on auxiliary information like state or county names. "
                 "Please start your response with either 'Yes' or 'No' and "
-                "explain your answer."
+                "briefly explain your answer."
                 "\n\nURL: '{url}\n'"
             ),
         )

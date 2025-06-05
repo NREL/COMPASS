@@ -181,8 +181,8 @@ def setup_base_setback_graph(**kwargs):
             "{feature_clarifications}"
             "Don't forget to pay extra attention to clarifying text found "
             "in parentheses and footnotes. "
-            "Please start your response with either 'Yes' or 'No' and explain "
-            "your answer."
+            "Please start your response with either 'Yes' or 'No' and briefly "
+            "explain your answer."
             '\n\n"""\n{text}\n"""'
         ),
     )
@@ -287,7 +287,7 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
             "3) Pay close attention to clarifying details in parentheses, "
             "footnotes, or additional explanatory text.\n"
             "4) Please start your response with either 'Yes' or 'No' and "
-            "explain your answer."
+            "briefly explain your answer."
             '\n\n"""\n{text}\n"""'
         ),
     )
@@ -387,7 +387,7 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
                     "Does the legal text given an expiration date for the "
                     "prohibition, moratorium, or ban? "
                     "Please start your response with either 'Yes' or 'No' "
-                    "and explain your answer."
+                    "and briefly explain your answer."
                 ),
             )
             G.add_edge(
@@ -405,7 +405,7 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
                     f"Today is {todays_date}. Has the prohibition, "
                     "moratorium, or ban expired? "
                     "Please start your response with either 'Yes' or 'No' "
-                    "and explain your answer."
+                    "and briefly explain your answer."
                 ),
             )
             G.add_edge(
@@ -451,7 +451,7 @@ def setup_graph_permitted_use_districts(**kwargs):
             "{tech} (or similar) are permitted as {use_type}? {clarifications}"
             "Pay extra attention to clarifying text found in "
             "parentheses and footnotes. Please start your response with "
-            "either 'Yes' or 'No' and explain your answer."
+            "either 'Yes' or 'No' and briefly explain your answer."
             '\n\n"""\n{text}\n"""'
         ),
     )
