@@ -210,10 +210,10 @@ Because we statically link the requirements, the Rust compilation process can
 extend to 30-60 minutes. That is mostly due to the ``duckdb`` and ``tokio``
 crates. To optimize this process, we use a GitHub Actions cache.
 
-When using the GitHub cache system, we have to be mindful of the 10 GB limit.
-If we place too many items in the cache, it will rotate too frequently and
-defeat the purpose of the cache. For this reason, **we only cache environments
-that are run in actions on the main branch**!
+When using the GitHub cache system, we have to be mindful of the 10 GB total
+storage limit. If we place too many items in the cache, it will rotate too
+frequently and defeat the entire purpose of the cache. For this reason,
+**we only cache environments that are run in actions on the main branch**!
 
 With this system, any PR can then pull from the cache built on the main branch
 and set up their environments that way.
