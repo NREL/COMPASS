@@ -206,14 +206,14 @@ A collection of other miscellaneous guidelines.
 GitHub Actions Cache and Updating ``pyproject.toml``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Because we statically link the requirements, the compilation process can
-extend to 30-60 minutes. That is mostly due to ``duckdb`` and ``tokio``. To
-optimize this process, we use a GiHub Actions cache.
+Because we statically link the requirements, the Rust compilation process can
+extend to 30-60 minutes. That is mostly due to the ``duckdb`` and ``tokio``
+crates. To optimize this process, we use a GitHub Actions cache.
 
 When using the GitHub cache system, we have to be mindful of the 10 GB limit.
 If we place too many items in the cache, it will rotate too frequently and
 defeat the purpose of the cache. For this reason, **we only cache environments
-that are run in actions on the ``main`` branch**!
+that are run in actions on the main branch**!
 
 With this system, any PR can then pull from the cache built on the main branch
 and set up their environments that way.
@@ -228,10 +228,10 @@ If you are working with Rust, you will download and compile the extra crate(s) i
 branch. If the crate is small, this may not be a big deal, but keep in mind that this
 will happen for every new commit you push to your open PR.
 
-If you updated something in the pixi environment, the whole environment will be re-built.
+If you updated something in the ``pixi`` environment, the whole environment will be re-built.
 
-Therefore, in both of th latter cases, a good practice is to put your dependency updates
-in a separate branch and dedicated PR that you merge to ``main``. Then, your feature PR
+Therefore, in both of the latter cases, a good practice is to put your dependency updates
+in a separate branch and dedicated PR that you merge to main. Then, your feature PR
 can make full use of the cache that is built on the main branch without having to re-build
 or re-compile anything for the environment.
 
