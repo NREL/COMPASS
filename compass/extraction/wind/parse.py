@@ -27,6 +27,7 @@ from compass.extraction.wind.graphs import (
     setup_multiplier,
     setup_conditional,
 )
+from compass.utilities.enums import LLMUsageCategory
 from compass.warn import COMPASSWarning
 from compass.pb import COMPASS_PB
 
@@ -59,35 +60,44 @@ PERMITTED_USE_SYSTEM_MESSAGE = (
 EXTRA_NUMERICAL_RESTRICTIONS = {
     "noise": "maximum noise level allowed",
     "maximum height": "maximum turbine height allowed",
-    "minimum lot size": "minimum lot, parcel, or tract size allowed",
+    "maximum project size": (
+        "maximum project size or total installation allowed"
+    ),
+    "minimum lot size": "**minimum** lot, parcel, or tract size allowed",
+    "maximum lot size": "**maximum** lot, parcel, or tract size allowed",
     "shadow flicker": "maximum shadow flicker allowed",
-    "tower density": "minimum turbine spacing allowed",
+    "tower density": "**minimum** turbine spacing allowed",
     "blade clearance": "minimum blade clearance allowed",
 }
 EXTRA_QUALITATIVE_RESTRICTIONS = {
     "color": "color or finish requirements",
     "decommissioning": "decommissioning requirements",
     "lighting": "lighting requirements",
-    "moratorium": "moratoriums or bans",
+    "moratorium": "prohibitions, moratoriums, or bans",
     "visual impact": "visual impact assessment requirements",
 }
 UNIT_CLARIFICATIONS = {
     "noise": (
         "For the purposes of this extraction, assume the standard units "
-        'for noise are "dBA".'
+        "for noise are 'dBA'."
     ),
     "shadow flicker": (
         "For the purposes of this extraction, assume the standard units "
-        'for shadow flicker are "hr/year".'
+        "for shadow flicker are 'hr/year'."
     ),
     "tower density": (
         "For the purposes of this extraction, assume the standard units "
         "for turbine spacing are one of the following: "
-        '"tip-height-multiplier", "hub-height-multiplier", '
-        '"rotor-diameter-multiplier", "feet", or "meters".'
+        "'tip-height-multiplier', 'hub-height-multiplier', "
+        "'rotor-diameter-multiplier', 'feet', or 'meters'."
     ),
 }
-ER_CLARIFICATIONS = {}
+ER_CLARIFICATIONS = {
+    "maximum project size": (
+        "Maximum project size is typically specified as a maximum system "
+        "size value or as a maximum number of turbines."
+    ),
+}
 
 
 class StructuredWindParser(BaseLLMCaller):
@@ -241,6 +251,7 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
         )
         tree = setup_async_decision_tree(
             setup_graph_extra_restriction,
+            usage_sub_label=LLMUsageCategory.ORDINANCE_VALUE_EXTRACTION,
             is_numerical=is_numerical,
             tech=largest_wes_type,
             restriction=restriction_text,
@@ -296,6 +307,7 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
         )
         tree = setup_async_decision_tree(
             setup_base_setback_graph,
+            usage_sub_label=LLMUsageCategory.ORDINANCE_VALUE_EXTRACTION,
             text=text,
             chat_llm_caller=self._init_chat_llm_caller(system_message),
             **feature_kwargs,
@@ -386,6 +398,7 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
         )
         tree = setup_async_decision_tree(
             graphs_setup_func,
+            usage_sub_label=LLMUsageCategory.ORDINANCE_VALUE_EXTRACTION,
             feature=feature,
             text=text,
             chat_llm_caller=self._init_chat_llm_caller(system_message),
@@ -493,6 +506,7 @@ class StructuredWindPermittedUseDistrictsParser(StructuredWindParser):
         )
         tree = setup_async_decision_tree(
             setup_graph_permitted_use_districts,
+            usage_sub_label=LLMUsageCategory.PERMITTED_USE_VALUE_EXTRACTION,
             tech=largest_wes_type,
             clarifications=self._LARGE_WES_CLARIFICATION,
             text=text,
@@ -529,19 +543,16 @@ def _update_output_keys(output):
 
 def _sanitize_output(output):
     """Perform some sanitization on outputs"""
-    return _remove_units_for_empty_value(output)
+    output = _remove_key_for_empty_value(output, key="units")
+    return _remove_key_for_empty_value(output, key="summary")
 
 
-def _remove_units_for_empty_value(output):
-    """Remove units if no value found"""
-    units = output.get("units")
-    if not units:
+def _remove_key_for_empty_value(output, key):
+    """Remove any output in "key" if no ordinance value found"""
+    if output.get("value") or not output.get(key):
         return output
 
-    value = output.get("value")
-    if value:
-        return output
-
-    # at this point, we have units but no value, so remove units
-    output["units"] = None
+    # at this point, we have some value in "key" but no actual ordinance
+    # value, so remove the "key" entry
+    output[key] = None
     return output

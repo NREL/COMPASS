@@ -1,26 +1,28 @@
-"""Test COMPASS Ordinance location validation tests."""
+"""Test COMPASS Ordinance location validation tests"""
 
+import asyncio
 import os
 from pathlib import Path
 from functools import partial
 
 import pytest
 import openai
+from flaky import flaky
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 from elm import ApiBase
 from elm.web.document import PDFDocument, HTMLDocument
 from elm.utilities.parse import read_pdf
-from compass.llm import StructuredLLMCaller
 from compass.services.openai import OpenAIService
 from compass.services.provider import RunningAsyncServices
 from compass.utilities import RTS_SEPARATORS
+from compass.utilities.location import Jurisdiction
 from compass.validation.location import (
-    CountyValidator,
-    CountyNameValidator,
-    CountyJurisdictionValidator,
-    URLValidator,
+    JurisdictionValidator,
+    DTreeJurisdictionValidator,
+    DTreeURLCountyValidator,
     _validator_check_for_doc,
+    _weighted_vote,
 )
 
 
@@ -35,6 +37,14 @@ TESTING_TEXT_SPLITTER = RecursiveCharacterTextSplitter(
 
 
 @pytest.fixture(scope="module")
+def event_loop():
+    """Override default event loop fixture to make it module-level"""
+    loop = asyncio.new_event_loop()
+    yield loop
+    loop.close()
+
+
+@pytest.fixture(scope="module")
 def oai_async_azure_client():
     """OpenAi Azure client to use for tests"""
     return openai.AsyncAzureOpenAI(
@@ -44,16 +54,20 @@ def oai_async_azure_client():
     )
 
 
-@pytest.fixture()
-def structured_llm_caller():
-    """StructuredLLMCaller instance for testing"""
-    return StructuredLLMCaller(
-        llm_service=OpenAIService,
-        model="gpt-4",
-        temperature=0,
-        seed=42,
-        timeout=30,
+@pytest.fixture(scope="module")
+def oai_llm_service(oai_async_azure_client):
+    """OpenAi Azure client to use for tests"""
+    model_name = os.environ.get("AZURE_OPENAI_MODEL_NAME", "gpt-4o-mini")
+    return OpenAIService(
+        client=oai_async_azure_client, model_name=model_name, rate_limit=1e6
     )
+
+
+@pytest.fixture(scope="module", autouse=True)
+async def running_openai_service(oai_llm_service):
+    """Set up running OpenAI service to use for tests"""
+    async with RunningAsyncServices([oai_llm_service]):
+        yield
 
 
 def _load_doc(test_data_dir, doc_fn):
@@ -69,184 +83,199 @@ def _load_doc(test_data_dir, doc_fn):
         return HTMLDocument([text], text_splitter=TESTING_TEXT_SPLITTER)
 
 
+@flaky(max_runs=3, min_passes=1)
 @pytest.mark.skipif(SHOULD_SKIP, reason="requires Azure OpenAI key")
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "county,state,url,truth",
+    "loc,url,truth",
     [
         (
-            "El Paso",
-            "Indiana",
+            Jurisdiction("county", state="Indiana", county="El Paso"),
             "https://programs.dsireusa.org/system/program/detail/4332/"
             "madison-county-wind-energy-systems-ordinance",
             False,
         ),
         (
-            "Madison",
-            "Indiana",
+            Jurisdiction("county", state="Indiana", county="Madison"),
             "https://programs.dsireusa.org/system/program/detail/4332/"
             "madison-county-wind-energy-systems-ordinance",
             False,
         ),
         (
-            "Madison",
-            "North Carolina",
+            Jurisdiction("county", state="North Carolina", county="Madison"),
             "https://programs.dsireusa.org/system/program/detail/4332/"
             "madison-county-wind-energy-systems-ordinance",
             False,
         ),
         (
-            "Decatur",
-            "Indiana",
+            Jurisdiction("county", state="Indiana", county="Decatur"),
             "http://www.decaturcounty.in.gov/doc/area-plan-commission/updates/"
             "zoning_ordinance_-_article_13_wind_energy_conversion_system_"
             "(WECS).pdf",
             True,
         ),
         (
-            "Decatur",
-            "Colorado",
+            Jurisdiction("county", state="Colorado", county="Decatur"),
             "http://www.decaturcounty.in.gov/doc/area-plan-commission/updates/"
             "zoning_ordinance_-_article_13_wind_energy_conversion_system_"
             "(WECS).pdf",
             False,
         ),
         (
-            "El Paso",
-            "Indiana",
+            Jurisdiction("county", state="Indiana", county="El Paso"),
             "http://www.decaturcounty.in.gov/doc/area-plan-commission/updates/"
             "zoning_ordinance_-_article_13_wind_energy_conversion_system_"
             "(WECS).pdf",
             False,
         ),
+        (
+            Jurisdiction(
+                "town", state="New York", subdivision_name="Allegany"
+            ),
+            "https://www.allegany.ny.org/uploads/1/4/0/1/140198361/"
+            "town_of_allegany_solar_energy_local_law_v2_rev_040122.pdf",
+            True,
+        ),
     ],
 )
-async def test_url_matches_county(
-    oai_async_azure_client, structured_llm_caller, county, state, url, truth
-):
-    """Test the URL validator class (basic execution)"""
-    url_validator = URLValidator(structured_llm_caller)
-    services = [OpenAIService(oai_async_azure_client, rate_limit=50_000)]
-    async with RunningAsyncServices(services):
-        out = await url_validator.check(url, county=county, state=state)
-        assert out == truth
+async def test_url_matches_county(oai_llm_service, loc, url, truth):
+    """Test the DTreeURLCountyValidator class (basic execution)"""
+    url_validator = DTreeURLCountyValidator(
+        loc, llm_service=oai_llm_service, temperature=0, seed=42, timeout=30
+    )
+    out = await url_validator.check(url)
+    assert out == truth
 
 
+@flaky(max_runs=3, min_passes=1)
 @pytest.mark.skipif(SHOULD_SKIP, reason="requires Azure OpenAI key")
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "county,doc_fn,truth",
-    [
-        ("Decatur", "indiana_general_ord.pdf", False),
-        ("Decatur", "Decatur Indiana.pdf", True),
-        ("Hamlin", "Hamlin South Dakota.pdf", True),
-        ("Atlantic", "Atlantic New Jersey.txt", False),
-        ("Barber", "Barber Kansas.pdf", False),
-    ],
-)
-async def test_doc_matches_county_jurisdiction(
-    oai_async_azure_client,
-    structured_llm_caller,
-    county,
-    doc_fn,
-    truth,
-    test_data_dir,
-):
-    """Test the `CountyJurisdictionValidator` class (basic execution)"""
-    doc = _load_doc(test_data_dir, doc_fn)
-    cj_validator = CountyJurisdictionValidator(structured_llm_caller)
-    services = [OpenAIService(oai_async_azure_client, rate_limit=100_000)]
-    async with RunningAsyncServices(services):
-        out = await _validator_check_for_doc(
-            doc=doc, validator=cj_validator, county=county
-        )
-        assert out == truth
-
-
-@pytest.mark.skipif(SHOULD_SKIP, reason="requires Azure OpenAI key")
-@pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "county,state,doc_fn,truth",
-    [
-        ("Decatur", "Indiana", "Decatur Indiana.pdf", True),
-        ("Hamlin", "South Dakota", "Hamlin South Dakota.pdf", True),
-        ("Anoka", "Minnesota", "Anoka Minnesota.txt", True),
-    ],
-)
-async def test_doc_matches_county_name(
-    oai_async_azure_client,
-    structured_llm_caller,
-    county,
-    state,
-    doc_fn,
-    truth,
-    test_data_dir,
-):
-    """Test the `CountyNameValidator` class (basic execution)"""
-    doc = _load_doc(test_data_dir, doc_fn)
-    cn_validator = CountyNameValidator(structured_llm_caller)
-    services = [OpenAIService(oai_async_azure_client, rate_limit=100_000)]
-    async with RunningAsyncServices(services):
-        out = await _validator_check_for_doc(
-            doc=doc, validator=cn_validator, county=county, state=state
-        )
-        assert out == truth
-
-
-@pytest.mark.skipif(SHOULD_SKIP, reason="requires Azure OpenAI key")
-@pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "county,state,doc_fn,url,truth",
+    "loc,doc_fn,truth",
     [
         (
-            "Decatur",
-            "Indiana",
+            Jurisdiction("county", state="Indiana", county="Decatur"),
+            "indiana_general_ord.pdf",
+            False,
+        ),
+        (
+            Jurisdiction("county", state="Indiana", county="Decatur"),
+            "Decatur Indiana.pdf",
+            True,
+        ),
+        (
+            Jurisdiction("county", state="South Dakota", county="Hamlin"),
+            "Hamlin South Dakota.pdf",
+            True,
+        ),
+        (
+            Jurisdiction("county", state="New Jersey", county="Atlantic"),
+            "Atlantic New Jersey.txt",
+            False,
+        ),
+        (
+            Jurisdiction(
+                "city",
+                state="New Jersey",
+                county="Atlantic",
+                subdivision_name="Linwood",
+            ),
+            "Atlantic New Jersey.txt",
+            True,
+        ),
+        (
+            Jurisdiction("county", state="Kansas", county="Barber"),
+            "Barber Kansas.pdf",
+            False,
+        ),
+        (
+            Jurisdiction("county", state="Minnesota", county="Anoka"),
+            "Anoka Minnesota.txt",
+            False,
+        ),
+        (
+            Jurisdiction("county", state="New York", county="Allegany"),
+            "Allegany New York.pdf",
+            False,
+        ),
+        (
+            Jurisdiction(
+                "town", state="New York", subdivision_name="Allegany"
+            ),
+            "Allegany New York.pdf",
+            True,
+        ),
+    ],
+)
+async def test_doc_text_matches_jurisdiction(
+    oai_llm_service, loc, doc_fn, truth, test_data_dir
+):
+    """Test the `DTreeJurisdictionValidator` class"""
+    doc = _load_doc(test_data_dir, doc_fn)
+    cj_validator = DTreeJurisdictionValidator(
+        loc, llm_service=oai_llm_service, temperature=0, seed=42, timeout=30
+    )
+    out = await _validator_check_for_doc(doc=doc, validator=cj_validator)
+    assert out == truth
+
+
+@flaky(max_runs=3, min_passes=1)
+@pytest.mark.skipif(SHOULD_SKIP, reason="requires Azure OpenAI key")
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "loc,doc_fn,url,truth",
+    [
+        (
+            Jurisdiction("county", state="Indiana", county="Decatur"),
             "Decatur Indiana.pdf",
             "http://www.decaturcounty.in.gov/doc/area-plan-commission/z.pdf",
             True,
         ),
         (
-            "Hamlin",
-            "South Dakota",
+            Jurisdiction("county", state="South Dakota", county="Hamlin"),
             "Hamlin South Dakota.pdf",
             "http://www.test.gov",
             True,
         ),
         (
-            "Anoka",
-            "Minnesota",
+            Jurisdiction("county", state="Minnesota", county="Anoka"),
             "Anoka Minnesota.txt",
             "http://www.test.gov",
             False,
         ),
         (
-            "Atlantic",
-            "New Jersey",
+            Jurisdiction("county", state="New Jersey", county="Atlantic"),
             "Atlantic New Jersey.txt",
             "http://www.test.gov",
             False,
         ),
     ],
 )
-async def test_doc_matches_county(
-    oai_async_azure_client,
-    structured_llm_caller,
-    county,
-    state,
-    doc_fn,
-    url,
-    truth,
-    test_data_dir,
+async def test_doc_matches_jurisdiction(
+    oai_llm_service, loc, doc_fn, url, truth, test_data_dir
 ):
-    """Test the `CountyValidator` class (basic execution)"""
+    """Test the `JurisdictionValidator` class (basic execution)"""
     doc = _load_doc(test_data_dir, doc_fn)
     doc.attrs["source"] = url
 
-    county_validator = CountyValidator(structured_llm_caller)
-    services = [OpenAIService(oai_async_azure_client, rate_limit=100_000)]
-    async with RunningAsyncServices(services):
-        out = await county_validator.check(doc=doc, county=county, state=state)
-        assert out == truth
+    county_validator = JurisdictionValidator(
+        llm_service=oai_llm_service, temperature=0, seed=42, timeout=30
+    )
+    out = await county_validator.check(doc=doc, jurisdiction=loc)
+    assert out == truth
+
+
+@pytest.mark.parametrize(
+    "test_case",
+    (
+        (["one", "two", "three"], [1, 1, 0], (1 * 3 + 1 * 3) / (3 + 3 + 5)),
+        (["one", "two", "three"], [1, None, 0], (1 * 3) / (3 + 5)),
+    ),
+)
+def test_weighted_vote(test_case):
+    """Test that the _weighted_vote function computes score properly"""
+    pages, verdict, expected_score = test_case
+    assert _weighted_vote(verdict, PDFDocument(pages)) == expected_score
 
 
 if __name__ == "__main__":

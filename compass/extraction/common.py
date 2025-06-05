@@ -2,6 +2,7 @@
 
 import asyncio
 import logging
+from datetime import datetime
 
 import networkx as nx
 from elm import ApiBase
@@ -18,12 +19,12 @@ from compass.exceptions import COMPASSRuntimeError
 
 logger = logging.getLogger(__name__)
 _SECTION_PROMPT = (
-    'The value of the "section" key should be a string representing the '
+    "The value of the 'section' key should be a string representing the "
     "title of the section (including numerical labels), if it's given, "
     "and `null` otherwise."
 )
 _SUMMARY_PROMPT = (
-    'The value of the "summary" key should be a short summary '
+    "The value of the 'summary' key should be a short summary "
     "of the ordinance, using direct text excerpts as much as possible."
 )
 _UNITS_IN_SUMMARY_PROMPT = (
@@ -102,10 +103,12 @@ def llm_response_does_not_start_with_no(response):
     return not llm_response_starts_with_no(response)
 
 
-def setup_async_decision_tree(graph_setup_func, **kwargs):
+def setup_async_decision_tree(
+    graph_setup_func, usage_sub_label=None, **kwargs
+):
     """Setup Async Decision tree for ordinance extraction"""
     G = graph_setup_func(**kwargs)  # noqa: N806
-    tree = AsyncDecisionTree(G)
+    tree = AsyncDecisionTree(G, usage_sub_label=usage_sub_label)
     assert len(tree.chat_llm_caller.messages) == 1
     return tree
 
@@ -234,11 +237,11 @@ def setup_participating_owner(**kwargs):
             "Please respond based on our entire conversation so far. "
             "Return your answer in JSON "
             "format (not markdown). Your JSON file must include exactly two "
-            'keys. The keys are "participating" and "non-participating". The '
-            'value of the "participating" key should be a string containing '
+            "keys. The keys are 'participating' and 'non-participating'. The "
+            "value of the 'participating' key should be a string containing "
             "the raw text with original formatting from the ordinance that "
             "applies to participating owners or `null` if there was no such "
-            'text. The value of the "non-participating" key should be a '
+            "text. The value of the 'non-participating' key should be a "
             "string containing the raw text with original formatting from the "
             "ordinance that applies to non-participating owners or simply the "
             "full ordinance if the text did not make the distinction between "
@@ -269,16 +272,20 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
     G.add_node(
         "init",
         prompt=(
-            "Does the following text explicitly mention {restriction} for "
-            "{tech} (or similar)? {feature_clarifications}\nMake sure your "
-            "answer adheres to these guidelines:\n"
+            "Does the following legal text explicitly enact {restriction} for "
+            "{tech} (or similar) for a particular jurisdiction that an "
+            "energy system developer would have to abide to?"
+            "{feature_clarifications}\nMake sure your answer adheres to "
+            "these guidelines:\n"
             "1) Respond based only on the explicit text provided for "
             "{restriction}. Do not infer values from text based on "
-            "related restrictions. If {restriction} is not explicitly "
-            "mentioned, then say 'No'.\n"
-            "2) Pay close attention to clarifying details in parentheses, "
+            "related restrictions. If the text does not explicitly detail "
+            "actionable {restriction} for {tech}, please respond with 'No'.\n"
+            "2) If the text only defines {restriction} without providing "
+            "any specifics, please respond with a simple 'No'.\n"
+            "3) Pay close attention to clarifying details in parentheses, "
             "footnotes, or additional explanatory text.\n"
-            "3) Begin your response with either 'Yes' or 'No' and explain "
+            "4) Begin your response with either 'Yes' or 'No' and explain "
             "your answer."
             '\n\n"""\n{text}\n"""'
         ),
@@ -300,17 +307,17 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
                 "3) Pay close attention to clarifying details in parentheses, "
                 "footnotes, or additional explanatory text.\n\n"
                 "Example Inputs and Outputs:\n"
-                'Text: "For all WES there is a limitation of overall height '
-                'of 200 feet (including blades)."\n'
+                "Text: 'For all WES there is a limitation of overall height "
+                "of 200 feet (including blades).'\n"
                 "Output: 200\n"
-                'Text: "The noise level of all SES shall be no greater than '
+                "Text: 'The noise level of all SES shall be no greater than "
                 "thirty-two (32) decibels measured from the nearest property "
                 "line. This level may only be exceeded during short-term "
-                'events such as utility outages and/or severe wind storms."\n'
+                "events such as utility outages and/or severe wind storms.'\n"
                 "Output: 32\n"
-                'Text: "At no time shall a wind turbine tower, nacelle, or '
+                "Text: 'At no time shall a wind turbine tower, nacelle, or "
                 "blade create shadow flicker on any non-participating "
-                'landowner property"\n'
+                "landowner property'\n"
                 "Output: 0\n"
                 "Text: Solar Panels shall not exceed 22'6\" in height. The "
                 "height is determined from the ground to the top of the panel "
@@ -327,22 +334,22 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
                 "similar)? Ensure that:\n1) You accurately identify the unit "
                 "value associated with the restriction.\n2) The unit is "
                 "expressed using standard, conventional unit names (e.g., "
-                '"feet", "meters", "acres", "dBA", etc.). {unit_clarification}'
+                "'feet', 'meters', 'acres', 'dBA', etc.). {unit_clarification}"
                 "\n3) If multiple values are mentioned, return only the units "
                 "for the most restrictive value that directly pertains to the "
                 "restriction.\n\nExample Inputs and Outputs:\n"
-                'Text: "For all WES there is a limitation of overall height '
-                'of 200 feet (including blades)."\n'
-                'Output: "feet"\n'
-                'Text: "The noise level of all SES shall be no greater than '
+                "Text: 'For all WES there is a limitation of overall height "
+                "of 200 feet (including blades).'\n"
+                "Output: 'feet'\n"
+                "Text: 'The noise level of all SES shall be no greater than "
                 "thirty-two (32) decibels measured from the nearest property "
                 "line. This level may only be exceeded during short-term "
-                'events such as utility outages and/or severe wind storms."\n'
-                'Output: "dBA"\n'
-                'Text: "At no time shall a wind turbine tower, nacelle, or '
+                "events such as utility outages and/or severe wind storms.'\n"
+                "Output: 'dBA'\n"
+                "Text: 'At no time shall a wind turbine tower, nacelle, or "
                 "blade create shadow flicker on any non-participating "
-                'landowner property"\n'
-                'Output: "hr/year"\n'
+                "landowner property'\n"
+                "Output: 'hr/year'\n"
             ),
         )
 
@@ -351,14 +358,14 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
             "final",
             prompt=(
                 "Please respond based on our entire conversation so far. "
-                "Return your answer in "
+                "Return your answer as a dictionary in "
                 "JSON format (not markdown). Your JSON file must include "
-                'exactly four keys. The keys are "value", "units", "summary", '
-                'and "section". The value of the "value" key '
+                "exactly four keys. The keys are 'value', 'units', 'summary', "
+                "and 'section'. The value of the '[value]' key "
                 "should be a numerical value corresponding to the "
                 "{restriction} for {tech} (or similar), or `null` if the text "
                 "does not mention such a restriction. Use our conversation to "
-                'fill out this value. The value of the "units" key should be '
+                "fill out this value. The value of the 'units' key should be "
                 "a string corresponding to the (standard) units for the "
                 "{restriction} allowed for {tech} (or similar) by the text "
                 "below, or `null` if the text does not mention such a "
@@ -367,14 +374,53 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
             ),
         )
     else:
-        G.add_edge("init", "final", condition=llm_response_starts_with_yes)
+        if "moratorium" in kwargs.get("restriction", ""):
+            G.add_edge(
+                "init",
+                "has_end_date",
+                condition=llm_response_starts_with_yes,
+            )
+            G.add_node(
+                "has_end_date",
+                prompt=(
+                    "Does the legal text given an expiration date for the "
+                    "prohibition, moratorium, or ban? "
+                    "Begin your response with either 'Yes' or 'No' and "
+                    "explain your answer."
+                ),
+            )
+            G.add_edge(
+                "has_end_date", "final", condition=llm_response_starts_with_no
+            )
+            G.add_edge(
+                "has_end_date",
+                "check_end_date",
+                condition=llm_response_starts_with_yes,
+            )
+            todays_date = datetime.now().strftime("%B %d, %Y")
+            G.add_node(
+                "check_end_date",
+                prompt=(
+                    f"Today is {todays_date}. Has the prohibition, "
+                    "moratorium, or ban expired? "
+                    "Begin your response with either 'Yes' or 'No' and "
+                    "explain your answer."
+                ),
+            )
+            G.add_edge(
+                "check_end_date",
+                "final",
+                condition=llm_response_starts_with_no,
+            )
+        else:
+            G.add_edge("init", "final", condition=llm_response_starts_with_yes)
         G.add_node(
             "final",
             prompt=(
                 "Please respond based on our entire conversation so far. "
-                "Return your answer in "
+                "Return your answer as a dictionary in "
                 "JSON format (not markdown). Your JSON file must include "
-                'exactly two keys. The keys are "summary" and "section". '
+                "exactly two keys. The keys are 'summary' and 'section'. "
                 "{SUMMARY_PROMPT} {SECTION_PROMPT}"
             ),
         )
@@ -400,7 +446,7 @@ def setup_graph_permitted_use_districts(**kwargs):
     G.add_node(
         "init",
         prompt=(
-            "Does the following text explicitly outline districts where "
+            "Does the following legal text explicitly define districts where "
             "{tech} (or similar) are permitted as {use_type}? {clarifications}"
             "Pay extra attention to clarifying text found in "
             "parentheses and footnotes. Begin your response with either "
@@ -425,10 +471,10 @@ def setup_graph_permitted_use_districts(**kwargs):
         "final",
         prompt=(
             "Please respond based on our entire conversation so far. "
-            "Return your answer in "
+            "Return your answer as a dictionary in "
             "JSON format (not markdown). Your JSON file must include "
-            'exactly three keys. The keys are "value", "summary", '
-            'and "section". The value of the "value" key '
+            "exactly three keys. The keys are 'value', 'summary', "
+            "and 'section'. The value of the 'value' key "
             "should be a list of all district names (and abbreviations if "
             "given) where {tech} (or similar) "
             "are permitted as {use_type}, or `null` if the text does not "

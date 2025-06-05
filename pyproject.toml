@@ -36,11 +36,12 @@ dependencies = [
   "langchain>=0.3.7,<0.4",
   "networkx>=3.4.2,<4",
   "nltk>=3.9.1,<4",
-  "nrel-elm>=0.0.12,<1",
+  "nrel-elm>=0.0.14,<1",
   "openai>=1.1.0",
   "pandas>=2.2.3,<3",
   "pyjson5>=1.6.8,<2",
   "rich>=13.9.4,<14",
+  "scrapling>=0.2.99,<0.3",
 ]
 
 [project.optional-dependencies]
@@ -54,6 +55,7 @@ dev = [
   "ruff-lsp>=0.0.60,<0.0.61",
 ]
 test = [
+  "flaky>=3.8.1,<4",
   "pytest>=8.3.3,<9",
   "pytest-asyncio>=0.25.2,<0.26",
   "pytest-cases>=3.8.6,<4",
@@ -165,10 +167,12 @@ tesseract = ">=5.5.0,<6"
 tiktoken = ">=0.8.0,<0.9"
 
 [tool.pixi.feature.python-default.pypi-dependencies]
-duckduckgo-search = ">=7.3.0, <8"
+duckduckgo-search = ">=7.3.0,<8"
 pyjson5 = ">=1.6.8,<2"
-rebrowser-playwright = ">=1.47.0, <2"
-tavily-python = ">=0.5.0, <0.6"
+rebrowser-playwright = ">=1.47.0,<2"
+scrapling = ">=0.2.99,<0.3"
+tavily-python = ">=0.5.0,<0.6"
+NREL-ELM = ">=0.0.14,<1"
 NREL-COMPASS = { path = ".", editable = true}
 
 [tool.pixi.feature.python-dev.dependencies]
@@ -179,6 +183,7 @@ ruff = ">=0.8.0,<0.9"
 ruff-lsp = ">=0.0.60,<0.0.61"
 
 [tool.pixi.feature.python-test.dependencies]
+flaky = ">=3.8.1,<4"
 pytest = ">=8.3.3,<9"
 pytest-asyncio = ">=0.25.2,<0.26"
 pytest-cases = ">=3.8.6,<4"
