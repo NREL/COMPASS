@@ -8,6 +8,9 @@ import asyncio
 import logging
 from abc import ABC, abstractmethod
 
+from compass.llm.calling import ChatLLMCaller, StructuredLLMCaller
+from compass.validation.graphs import setup_graph_correct_document_type
+from compass.common import setup_async_decision_tree, run_async_tree
 from compass.utilities.enums import LLMUsageCategory
 
 
@@ -57,7 +60,7 @@ class ParseChunksWithMemory:
         inverted_text = self.text_chunks[:starting_ind + 1:][::-1]
         yield from inverted_text[:self.num_to_recall]
 
-    async def parse_from_ind(self, ind, prompt, key):
+    async def parse_from_ind(self, ind, key, llm_call_callback):
         """Validate a chunk of text
 
         Validation occurs by querying the LLM using the input prompt and
@@ -213,46 +216,34 @@ class Heuristic(ABC):
         raise NotImplementedError
 
 
-class LegalTextValidator:
+class LegalTextValidator(StructuredLLMCaller):
     """Parse chunks to determine if they contain legal text"""
 
-    IS_LEGAL_TEXT_PROMPT = (
-        "# CONTEXT #\n"
+    SYSTEM_MESSAGE = (
         "You are an AI designed to classify text excerpts based on their "
         "source type. The goal is to identify text that is extracted from "
         "**legally binding regulations (such as zoning ordinances or "
         "enforceable bans)** and filter out text that was extracted from "
         "anything other than an in-effect legal statute for an existing "
-        "jurisdiction.\n"
-        "Legally binding regulations are formal laws enacted by a governing "
-        "authority, containing enforceable rules or restrictions. However, "
-        "many documents discuss, summarize, or propose zoning rules without "
-        "having legal force. **Excerpts from these kinds of documents should "
-        "be ruled out!**. Examples of non-binding documents include, but "
-        "are not limited to, **news articles, reports, draft ordinances, "
-        "model ordinances, public notices, surveys, development plans, "
-        "project-specific plans, conservation plans, summaries, etc.**\n"
-        "\n# OBJECTIVE #\n"
-        "Your task is to analyze a given text excerpt and determine whether "
-        "it is an excerpt from an in-effect **legally binding regulation.** "
-        "for and existing jurisdiction. If the text "
-        "is an excerpt from **any other type** of document, it should be "
-        "classified accordingly and excluded from legally binding "
-        "regulations.\n"
-        "\n# RESPONSE #\n"
-        "Return the classification as a single dictionary in **JSON format** "
-        "with exactly three keys:\n\n"
-        "1. **'summary'** (string) - A concise summary of the text.\n"
-        "2. **'type'** (string) - The best-fitting category of the text.\n"
-        "3. **'{key}'** (boolean) -\n"
-        "\t- `true` if the text is a **legally binding regulation**.\n"
-        "\t- `false` if the text belongs to any other type of document or "
-        "if you cannot tell for certain one way or another.\n\n"
-        "Ensure precise classification by prioritizing text with **legal "
-        "enforceability** over content similarity."
+        "jurisdiction."
     )
 
-    def __init__(self):
+    def __init__(self, *args, score_threshold=0.8, **kwargs):
+        """
+
+        Parameters
+        ----------
+        score_threshold : float, optional
+            Minimum fraction of text chunks that have to pass the legal
+            check for the whole document to be considered legal text.
+            By default, ``0.8``.
+        *args, **kwargs
+            Parameters to pass to the
+            :class:`~compass.llm.calling.StructuredLLMCaller`
+            initializer.
+        """
+        super().__init__(*args, **kwargs)
+        self.score_threshold = score_threshold
         self._legal_text_mem = []
 
     @property
@@ -260,7 +251,8 @@ class LegalTextValidator:
         """bool: ``True`` if text was found to be from a legal source"""
         if not self._legal_text_mem:
             return False
-        return sum(self._legal_text_mem) >= 0.5 * len(self._legal_text_mem)
+        score = sum(self._legal_text_mem) / len(self._legal_text_mem)
+        return score >= self.score_threshold
 
     async def check_chunk(self, chunk_parser, ind):
         """Check a chunk at a given ind to see if it contains legal text
@@ -280,7 +272,9 @@ class LegalTextValidator:
             resembles legal text.
         """
         is_legal_text = await chunk_parser.parse_from_ind(
-            ind, self.IS_LEGAL_TEXT_PROMPT, key="legal_text"
+            ind,
+            key="legal_text",
+            llm_call_callback=self._check_chunk_for_legal_text,
         )
         self._legal_text_mem.append(is_legal_text)
         if is_legal_text:
@@ -288,6 +282,25 @@ class LegalTextValidator:
         else:
             logger.debug("Text at ind %d is not legal text", ind)
         return is_legal_text
+
+    async def _check_chunk_for_legal_text(self, key, text_chunk):
+        """Call LLM on a chunk of text to check for legal text"""
+        chat_llm_caller = ChatLLMCaller(
+            llm_service=self.llm_service,
+            system_message=self.SYSTEM_MESSAGE.format(key=key),
+            usage_tracker=self.usage_tracker,
+            **self.kwargs,
+        )
+        tree = setup_async_decision_tree(
+            setup_graph_correct_document_type,
+            usage_sub_label=LLMUsageCategory.DOCUMENT_CONTENT_VALIDATION,
+            key=key,
+            text=text_chunk,
+            chat_llm_caller=chat_llm_caller,
+        )
+        out = await run_async_tree(tree, response_as_json=True)
+        logger.debug("LLM response: %s", str(out))
+        return out.get(key, False)
 
 
 async def parse_by_chunks(
