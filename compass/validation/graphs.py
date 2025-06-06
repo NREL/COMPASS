@@ -7,6 +7,115 @@ from compass.common import (
 )
 
 
+def setup_graph_correct_document_type(**kwargs):
+    """Setup graph to check for correct document type in legal text
+
+    Parameters
+    ----------
+    **kwargs
+        Keyword-value pairs to add to graph.
+
+    Returns
+    -------
+    nx.DiGraph
+        Graph instance that can be used to initialize an
+        `elm.tree.DecisionTree`.
+    """
+    G = setup_graph_no_nodes(**kwargs)  # noqa: N806
+    G.add_node(
+        "init",
+        prompt=(
+            "Does the following text excerpt detail in-effect legal statutes? "
+            "Please start your response with either 'Yes' or 'No' and "
+            "briefly explain your answer."
+            '\n\n"""\n{text}\n"""'
+        ),
+    )
+
+    G.add_edge("init", "is_model", condition=llm_response_starts_with_yes)
+    G.add_node(
+        "is_model",
+        prompt=(
+            "Is the following text an excerpt from a model ordinance or other "
+            "kind of model law? "
+            "Please start your response with either 'Yes' or 'No' and briefly "
+            "explain why you chose your answer."
+        ),
+    )
+
+    G.add_edge("is_model", "is_pd", condition=llm_response_starts_with_no)
+    G.add_node(
+        "is_pd",
+        prompt=(
+            "Is the following text an excerpt from a planning document? "
+            "Please start your response with either 'Yes' or 'No' and briefly "
+            "explain why you chose your answer."
+        ),
+    )
+
+    G.add_edge("is_pd", "is_pres", condition=llm_response_starts_with_no)
+    G.add_node(
+        "is_pres",
+        prompt=(
+            "Is the following text an excerpt from a presentation? "
+            "Please start your response with either 'Yes' or 'No' and briefly "
+            "explain why you chose your answer."
+        ),
+    )
+
+    G.add_edge("is_pres", "is_draft", condition=llm_response_starts_with_no)
+    G.add_node(
+        "is_draft",
+        prompt=(
+            "Is the following text an excerpt from a draft document? "
+            "Please start your response with either 'Yes' or 'No' and briefly "
+            "explain why you chose your answer."
+        ),
+    )
+
+    G.add_edge("is_draft", "is_report", condition=llm_response_starts_with_no)
+    G.add_node(
+        "is_report",
+        prompt=(
+            "Is the following text an excerpt from a report or summary "
+            "document? "
+            "Please start your response with either 'Yes' or 'No' and briefly "
+            "explain why you chose your answer."
+        ),
+    )
+
+    G.add_edge(
+        "is_report", "is_article", condition=llm_response_starts_with_no
+    )
+    G.add_node(
+        "is_article",
+        prompt=(
+            "Is the following text an excerpt from a news article or "
+            "other media? "
+            "Please start your response with either 'Yes' or 'No' and briefly "
+            "explain why you chose your answer."
+        ),
+    )
+
+    G.add_edge("is_article", "final", condition=llm_response_starts_with_no)
+    G.add_node(
+        "final",
+        prompt=(
+            "Respond based on our entire conversation so far. Return your "
+            "answer as a dictionary in JSON format (not markdown). Your JSON "
+            "file must include exactly three keys:\n\n"
+            "1. **'summary'** (string) - A concise summary of the text.\n"
+            "2. **'type'** (string) - The best-fitting category for the "
+            "source of the text.\n"
+            "3. **'{key}'** (boolean) -\n"
+            "\t- `true` if the text is a **legally binding regulation**.\n"
+            "\t- `false` if the text belongs to any other type of document or "
+            "if you cannot tell for certain one way or another.\n\n"
+        ),
+    )
+    return G
+
+
 def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
     """Setup graph to check for correct jurisdiction type in legal text
 
