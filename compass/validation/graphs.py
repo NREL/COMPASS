@@ -28,7 +28,8 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
     G.add_node(
         "init",
         prompt=(
-            "Does the following legal text explicitly outline the type of "
+            "Does the following legal text explicitly include enough "
+            "information to reasonably conclude what type of "
             "jurisdiction it applies to? Common types of jurisdictions "
             "include 'state', 'county', 'city', 'township',' borough', etc. "
             "Please start your response with either 'Yes' or 'No' and briefly "
@@ -41,13 +42,14 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
     G.add_node(
         "is_state",
         prompt=(
-            "Does the legal text explicitly state that the statutes within "
-            f"apply to **the entire area** governed by {jurisdiction.state} "
-            "state? If the legal text applies to a different state or only to "
-            "a subdivision like a county or township within "
-            f"{jurisdiction.state} state, please respond with 'No'. "
-            "Please start your response with either 'Yes' or 'No' and briefly "
-            "explain why you chose your answer."
+            "Based on the legal text, is it reasonable to conclude that the "
+            "provisions within apply to the entire state of "
+            f"{jurisdiction.state}, either directly or through reference to "
+            "a statewide statute, agency, or regulatory authority? If the "
+            "text only applies to a county, municipality, or other local "
+            f"subdivision within {jurisdiction.state}, or if there is no "
+            "reasonable basis to infer statewide application, respond with "
+            "'No'. Start your response with 'Yes' or 'No' and briefly explain."
         ),
     )
     node_to_connect = "is_state"
@@ -62,15 +64,16 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
         G.add_node(
             "is_county",
             prompt=(
-                "Does the legal text explicitly state that the statutes "
-                "within apply to **the entire area** governed by "
-                f"{jurisdiction.full_county_phrase}? If the legal text "
-                "applies to a different county or only to a subdivision like "
-                "a township or borough within "
-                f"{jurisdiction.full_county_phrase}, please respond with a "
-                "simple 'No'. "
-                "Please start your response with either 'Yes' or 'No' and "
-                "briefly explain why you chose your answer."
+                "Based on the legal text, is it reasonable to conclude that "
+                "the provisions within apply to the entire area governed by "
+                f"{jurisdiction.full_county_phrase} (including unincorporated "
+                "areas), either directly or through reference to a "
+                "county-wide code, planning authority, commission, or joint "
+                "resolution with other local governments? If the provisions "
+                "within the text apply **only** to a subdivision of "
+                f"{jurisdiction.full_county_phrase} (such as a city or "
+                "township), or the scope is unclear, respond with 'No'. "
+                "Start your answer with 'Yes' or 'No' and explain briefly."
             ),
         )
         G.add_edge(
@@ -88,13 +91,14 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
         G.add_node(
             "is_city",
             prompt=(
-                "Does the legal text explicitly state that the statutes "
-                "within apply to **the entire area** governed by the"
-                f"{jurisdiction.full_subdivision_phrase}? If the legal text "
-                "applies to a different city, township, etc, please respond "
-                "with a simple 'No'. "
-                "Please start your response with either 'Yes' or 'No' and "
-                "briefly explain why you chose your answer."
+                "Based on the legal text, is it reasonable to conclude that "
+                "the provisions apply specifically to "
+                f"{jurisdiction.full_subdivision_phrase} (rather than a "
+                "county, state, or federal jurisdiction)? If the text instead "
+                "applies to a broader jurisdiction, or does not provide a "
+                "reasonable basis to infer that it is limited to municipal "
+                "governance, respond with 'No'. "
+                "Start your response with 'Yes' or 'No' and briefly explain."
             ),
         )
         node_to_connect = "is_city"
@@ -108,11 +112,11 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
             "file must include exactly two keys. The keys are "
             "'correct_jurisdiction' and 'explanation'. The value of the "
             "'correct_jurisdiction' key should be a boolean that is set to "
-            "`true` **only if** the text explicitly states that that the "
-            "statutes within apply to **the entire area** governed by "
-            f"{jurisdiction.full_name} (`false` otherwise). The value of the "
-            "'explanation' key should be a string containing a short "
-            "explanation for your choice. "
+            "`true` **only if** it is reasonable to conclude that the "
+            "provisions within apply to the entire area (i.e. "
+            f"{jurisdiction.type}-wide) governed by {jurisdiction.full_name} "
+            "(`false` otherwise). The value of the 'explanation' key should "
+            "be a string containing a brief explanation for your choice. "
         ),
     )
     return G
