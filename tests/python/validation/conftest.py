@@ -36,6 +36,9 @@ def event_loop():
 @pytest.fixture(scope="session")
 def oai_async_azure_client():
     """OpenAi Azure client to use for tests"""
+    if os.getenv("AZURE_OPENAI_API_KEY") is None:
+        return None
+
     return openai.AsyncAzureOpenAI(
         api_key=os.environ.get("AZURE_OPENAI_API_KEY"),
         api_version=os.environ.get("AZURE_OPENAI_VERSION"),
@@ -55,8 +58,11 @@ def oai_llm_service(oai_async_azure_client):
 @pytest.fixture(scope="session", autouse=True)
 async def running_openai_service(oai_llm_service):
     """Set up running OpenAI service to use for tests"""
-    async with RunningAsyncServices([oai_llm_service]):
+    if os.getenv("AZURE_OPENAI_API_KEY") is None:
         yield
+    else:
+        async with RunningAsyncServices([oai_llm_service]):
+            yield
 
 
 @pytest.fixture(scope="session")
