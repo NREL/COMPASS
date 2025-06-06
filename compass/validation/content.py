@@ -24,14 +24,11 @@ class ParseChunksWithMemory:
     semi-efficiently, we make use of a cache that's labeled "memory".
     """
 
-    def __init__(self, structured_llm_caller, text_chunks, num_to_recall=2):
+    def __init__(self, text_chunks, num_to_recall=2):
         """
 
         Parameters
         ----------
-        structured_llm_caller : compass.llm.StructuredLLMCaller
-            StructuredLLMCaller instance. Used for structured validation
-            queries.
         text_chunks : list of str
             List of strings, each of which represent a chunk of text.
             The order of the strings should be the order of the text
@@ -44,7 +41,6 @@ class ParseChunksWithMemory:
             at the requested index, and then the previous chunk as well.
             By default, ``2``.
         """
-        self.slc = structured_llm_caller
         self.text_chunks = text_chunks
         self.num_to_recall = num_to_recall
         self.memory = [{} for _ in text_chunks]
@@ -78,15 +74,15 @@ class ParseChunksWithMemory:
         ind : int
             Positive integer corresponding to the chunk index.
             Must be less than `len(text_chunks)`.
-        prompt : str
-            Input LLM system prompt that describes the validation
-            question. This should request a JSON output from the LLM.
-            It should also take `key` as a formatting input.
         key : str
             A key expected in the JSON output of the LLM containing the
             response for the validation question. This string will also
             be used to format the system prompt before it is passed to
             the LLM.
+        llm_call_callback : callable
+            Callable that takes a `key` and `text_chunk` as inputs and
+            returns a boolean indicating whether or not the text chunk
+            passes the validation check.
 
         Returns
         -------
@@ -103,15 +99,7 @@ class ParseChunksWithMemory:
             logger.debug("Mem at ind %d is %s", step, mem)
             check = mem.get(key)
             if check is None:
-                content = await self.slc.call(
-                    sys_msg=prompt.format(key=key),
-                    content=text,
-                    usage_sub_label=(
-                        LLMUsageCategory.DOCUMENT_CONTENT_VALIDATION
-                    ),
-                )
-                logger.debug("LLM response: %s", str(content))
-                check = mem[key] = content.get(key, False)
+                check = mem[key] = await llm_call_callback(key, text)
             if check:
                 return check
         return False
