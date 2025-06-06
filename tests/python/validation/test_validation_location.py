@@ -12,7 +12,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 from elm import ApiBase
 from elm.web.document import PDFDocument, HTMLDocument
-from elm.utilities.parse import read_pdf
+from elm.utilities.parse import read_pdf, read_pdf_ocr
 from compass.services.openai import OpenAIService
 from compass.services.provider import RunningAsyncServices
 from compass.utilities import RTS_SEPARATORS
@@ -27,6 +27,7 @@ from compass.validation.location import (
 
 
 SHOULD_SKIP = os.getenv("AZURE_OPENAI_API_KEY") is None
+PYT_CMD = os.getenv("TESSERACT_CMD")
 TESTING_TEXT_SPLITTER = RecursiveCharacterTextSplitter(
     RTS_SEPARATORS,
     chunk_size=3000,
@@ -217,6 +218,31 @@ async def test_doc_text_matches_jurisdiction(
     )
     out = await _validator_check_for_doc(doc=doc, validator=cj_validator)
     assert out == truth
+
+
+@pytest.mark.skipif(
+    SHOULD_SKIP or not PYT_CMD,
+    reason="requires Azure OpenAI key *and* PyTesseract command to be set",
+)
+async def test_doc_text_matches_jurisdiction_ocr(
+    oai_llm_service, test_data_dir
+):
+    """Test the `DTreeJurisdictionValidator` class for scanned doc"""
+    import pytesseract  # noqa: PLC0415
+
+    pytesseract.pytesseract.tesseract_cmd = PYT_CMD
+
+    loc = Jurisdiction("county", state="Kansas", county="Sedgwick")
+
+    doc_fp = test_data_dir / "Sedgwick Kansas.pdf"
+    with doc_fp.open("rb") as fh:
+        pages = read_pdf_ocr(fh.read())
+        doc = PDFDocument(pages)
+
+    cj_validator = DTreeJurisdictionValidator(
+        loc, llm_service=oai_llm_service, temperature=0, seed=42, timeout=30
+    )
+    assert await _validator_check_for_doc(doc=doc, validator=cj_validator)
 
 
 @flaky(max_runs=3, min_passes=1)
