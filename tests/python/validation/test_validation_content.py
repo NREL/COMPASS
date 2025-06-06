@@ -11,30 +11,32 @@ from compass.validation.content import ParseChunksWithMemory
 async def test_validation_with_mem():
     """Test the `ParseChunksWithMemory` class (basic execution)"""
 
-    sys_messages = []
-    test_prompt = "Looking for key {key!r}"
+    keys = []
 
     class MockStructuredLLMCaller:
         """Mock LLM caller for tests."""
 
-        async def call(self, sys_msg, content, *__, **___):
+        async def call(self, key, text_chunk):
             """Mock LLM call and record system message"""
-            sys_messages.append(sys_msg)
-            return {"test": True} if content == 0 else {}
+            keys.append(key)
+            return text_chunk == 0
 
     text_chunks = list(range(7))
-    validator = ParseChunksWithMemory(
-        MockStructuredLLMCaller(), text_chunks, 3
-    )
+    validator = ParseChunksWithMemory(text_chunks, 3)
+    caller = MockStructuredLLMCaller()
 
-    out = await validator.parse_from_ind(0, test_prompt, key="test")
+    out = await validator.parse_from_ind(
+        0, key="test", llm_call_callback=caller.call
+    )
     assert out
-    assert sys_messages == ["Looking for key 'test'"]
+    assert keys == ["test"]
     assert validator.memory == [{"test": True}, {}, {}, {}, {}, {}, {}]
 
-    out = await validator.parse_from_ind(2, test_prompt, key="test")
+    out = await validator.parse_from_ind(
+        2, key="test", llm_call_callback=caller.call
+    )
     assert out
-    assert sys_messages == ["Looking for key 'test'"] * 3
+    assert keys == ["test"] * 3
     assert validator.memory == [
         {"test": True},
         {"test": False},
@@ -45,9 +47,11 @@ async def test_validation_with_mem():
         {},
     ]
 
-    out = await validator.parse_from_ind(6, test_prompt, key="test")
+    out = await validator.parse_from_ind(
+        6, key="test", llm_call_callback=caller.call
+    )
     assert not out
-    assert sys_messages == ["Looking for key 'test'"] * 6
+    assert keys == ["test"] * 6
     assert validator.memory == [
         {"test": True},
         {"test": False},
