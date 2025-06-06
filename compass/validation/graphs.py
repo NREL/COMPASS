@@ -158,7 +158,11 @@ def setup_graph_correct_jurisdiction_from_url(jurisdiction, **kwargs):
     keys_to_collect = {"correct_state": f"{jurisdiction.state} state"}
 
     if jurisdiction.county:
-        G.add_edge(node_to_connect, "mentions_county")
+        G.add_edge(
+            node_to_connect,
+            "mentions_county",
+            condition=llm_response_starts_with_yes,
+        )
         G.add_node(
             "mentions_county",
             prompt=(
@@ -177,7 +181,11 @@ def setup_graph_correct_jurisdiction_from_url(jurisdiction, **kwargs):
         node_to_connect = "mentions_county"
 
     if jurisdiction.subdivision_name:
-        G.add_edge(node_to_connect, "mentions_city")
+        G.add_edge(
+            node_to_connect,
+            "mentions_city",
+            condition=llm_response_starts_with_yes,
+        )
         G.add_node(
             "mentions_city",
             prompt=(
@@ -195,7 +203,9 @@ def setup_graph_correct_jurisdiction_from_url(jurisdiction, **kwargs):
         )
         node_to_connect = "mentions_city"
 
-    G.add_edge(node_to_connect, "final")
+    G.add_edge(
+        node_to_connect, "final", condition=llm_response_starts_with_yes
+    )
     G.add_node("final", prompt=_compile_final_url_prompt(keys_to_collect))
     return G
 

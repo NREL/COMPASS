@@ -78,7 +78,7 @@ class DTreeURLCountyValidator(BaseLLMCaller):
         logger.debug(
             "Parsing URL jurisdiction validation output:\n\t%s", props
         )
-        return all(props.values())
+        return len(props) > 0 and all(props.values())
 
 
 class DTreeJurisdictionValidator(BaseLLMCaller):
