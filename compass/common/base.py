@@ -378,8 +378,23 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
         if "moratorium" in kwargs.get("restriction", ""):
             G.add_edge(
                 "init",
-                "has_end_date",
+                "is_conditional",
                 condition=llm_response_starts_with_yes,
+            )
+            G.add_node(
+                "is_conditional",
+                prompt=(
+                    "Does the prohibition, moratorium, or ban only apply "
+                    "conditionally? For example, does it only apply to those "
+                    "who have not complied with the provisions in this text? "
+                    "Please start your response with either 'Yes' or 'No' "
+                    "and briefly explain your answer."
+                ),
+            )
+            G.add_edge(
+                "is_conditional",
+                "has_end_date",
+                condition=llm_response_starts_with_no,
             )
             G.add_node(
                 "has_end_date",
