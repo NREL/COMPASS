@@ -32,7 +32,9 @@ _UNITS_IN_SUMMARY_PROMPT = (
 )
 EXTRACT_ORIGINAL_TEXT_PROMPT = (
     "Extract all portions of the text (with original formatting) "
-    "that state how close I can site {tech} (or similar) to {feature}"
+    "that state how close I can site {tech} to {feature}. "
+    "Focus on ordinances relating to setbacks from {feature}; do not "
+    "respond based on any text related to {ignore_features}. "
 )
 
 
