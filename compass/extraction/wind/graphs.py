@@ -41,9 +41,10 @@ def setup_graph_wes_types(**kwargs):
         "get_text",
         prompt=(
             "What are the different wind energy system sizes this text "
-            "mentions? List them in order of increasing size. Only include "
-            "wind energy system types; do not include generic types or other "
-            "energy system types."
+            "mentions? List them in order of increasing size. "
+            "Include any relevant numerical qualifiers in the name, if "
+            "appropriate. Only list wind energy system types; do not "
+            "include generic types or other energy system types."
         ),
     )
     G.add_edge("get_text", "final")
