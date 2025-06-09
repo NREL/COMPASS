@@ -6,6 +6,9 @@ pub enum Error {
     IO(#[from] std::io::Error),
 
     #[error(transparent)]
+    CSV(#[from] csv::Error),
+
+    #[error(transparent)]
     DuckDB(#[from] duckdb::Error),
 
     #[allow(dead_code)]
