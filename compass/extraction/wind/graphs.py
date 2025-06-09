@@ -255,7 +255,7 @@ def setup_multiplier(**kwargs):
         "out_m",
         prompt=(
             "Please respond based on our entire conversation so far. "
-            "Return your answer in JSON "
+            "Return your answer as a single dictionary in JSON "
             "format (not markdown). Your JSON file must include exactly five "
             "keys. The keys are 'mult_value', 'mult_type', 'adder', "
             "'summary', and 'section'. The value of the "
