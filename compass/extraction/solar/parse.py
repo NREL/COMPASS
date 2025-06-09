@@ -65,7 +65,8 @@ EXTRA_NUMERICAL_RESTRICTIONS = {
     "minimum lot size": "**minimum** lot, parcel, or tract size allowed",
     "maximum lot size": "**maximum** lot, parcel, or tract size allowed",
     "density": (
-        "**minimum** spacing between solar panels or solar plants allowed"
+        "**minimum** allowed spacing between individual solar panels or "
+        "individual solar plants/farms"
     ),
     "coverage": "**maximum** land coverage allowed",
 }
