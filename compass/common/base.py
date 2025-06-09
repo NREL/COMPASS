@@ -271,12 +271,14 @@ def setup_participating_owner(**kwargs):
             "keys are 'participating' and 'non-participating'. The value of "
             "the 'participating' key should be a string containing the raw "
             "text with original formatting from the ordinance that applies to "
-            "participating owners or `null` if there was no such text. The "
-            "value of the 'non-participating' key should be a string "
+            "participating owners if you answered 'yes' to the first question "
+            "or `null` if you answered 'no'. The value of the "
+            "'non-participating' key should be a string "
             "containing the raw text with original formatting from the "
             "ordinance that applies to non-participating owners or simply the "
-            "full ordinance if the text did not make the distinction between "
-            "participating and non-participating owners."
+            "full ordinance for {feature} setbacks if the text did not make "
+            "the distinction between participating and non-participating "
+            "owners."
         ),
     )
     return G
