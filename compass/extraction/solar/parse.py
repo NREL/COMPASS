@@ -50,9 +50,12 @@ SETBACKS_SYSTEM_MESSAGE = (
 RESTRICTIONS_SYSTEM_MESSAGE = (
     f"{DEFAULT_SYSTEM_MESSAGE} "
     "For the duration of this conversation, only focus on "
-    "ordinances relating to {restriction} for {tech} (or similar). Ignore "
-    "all text that only pertains to private, micro, small, or medium sized "
-    "solar energy systems."
+    "ordinances relating to {restriction} for systems that would "
+    "typically be defined as {tech} based on the text itself — for "
+    "example, systems intended for electricity generation or sale, "
+    "or those above thresholds such as height or rated capacity. Ignore "
+    "any requirements that apply only to smaller or clearly "
+    "non-commercial systems. "
 )
 PERMITTED_USE_SYSTEM_MESSAGE = (
     f"{DEFAULT_SYSTEM_MESSAGE} "
