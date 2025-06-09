@@ -211,39 +211,81 @@ def setup_participating_owner(**kwargs):
     """
     G = setup_graph_no_nodes(**kwargs)  # noqa: N806
 
-    G.add_node(
-        "init",
-        prompt=(
-            "Does the ordinance for {feature} setbacks explicitly specify "
-            "a value that applies to participating owners? Occupying owners "
-            "are not participating owners unless explicitly mentioned in the "
-            "text. Justify your answer by quoting the raw text directly."
-        ),
-    )
+    feature_type = kwargs.get("feature", "")
+    if "parcel" in feature_type:
+        G.add_node(
+            "init",
+            prompt=(
+                "Does the ordinance for {feature} setbacks explicitly specify "
+                "a value that applies to participating property owners? "
+                "Ignore any regulations for setbacks from structures, "
+                "dwellings, etc. "
+                "Justify your answer by quoting the raw text directly."
+            ),
+        )
+        G.add_node(
+            "non_part",
+            prompt=(
+                "Does the ordinance for {feature} setbacks explicitly specify "
+                "a value that applies to non-participating property owners? "
+                "Ignore any regulations for setbacks from structures, "
+                "dwellings, etc. "
+                "Justify your answer by quoting the raw text directly."
+            ),
+        )
+    elif "struct" in feature_type:
+        G.add_node(
+            "init",
+            prompt=(
+                "Does the ordinance for {feature} setbacks explicitly specify "
+                "a value that applies to participating structure owners? "
+                "Occupying owners are not participating structure owners "
+                "unless explicitly defined as such in the text. "
+                "Justify your answer by quoting the raw text directly."
+            ),
+        )
+        G.add_node(
+            "non_part",
+            prompt=(
+                "Does the ordinance for {feature} setbacks explicitly specify "
+                "a value that applies to non-participating structure owners? "
+                "Non-occupying owners are not non-participating structure "
+                "owners unless explicitly defined as such in the text. "
+                "Justify your answer by quoting the raw text directly."
+            ),
+        )
+    else:
+        G.add_node(
+            "init",
+            prompt=(
+                "Does the ordinance for {feature} setbacks explicitly specify "
+                "a value that applies to participating owners? "
+                "Justify your answer by quoting the raw text directly."
+            ),
+        )
+        G.add_node(
+            "non_part",
+            prompt=(
+                "Does the ordinance for {feature} setbacks explicitly specify "
+                "a value that applies to non-participating owners? "
+                "Justify your answer by quoting the raw text directly."
+            ),
+        )
+
     G.add_edge("init", "non_part")
-    G.add_node(
-        "non_part",
-        prompt=(
-            "Does the ordinance for {feature} setbacks explicitly specify "
-            "a value that applies to non-participating owners? Non-occupying "
-            "owners are not non-participating owners unless explicitly "
-            "mentioned in the text. Justify your answer by quoting the raw "
-            "text directly."
-        ),
-    )
     G.add_edge("non_part", "final")
     G.add_node(
         "final",
         prompt=(
             "Please respond based on our entire conversation so far. "
-            "Return your answer in JSON "
-            "format (not markdown). Your JSON file must include exactly two "
-            "keys. The keys are 'participating' and 'non-participating'. The "
-            "value of the 'participating' key should be a string containing "
-            "the raw text with original formatting from the ordinance that "
-            "applies to participating owners or `null` if there was no such "
-            "text. The value of the 'non-participating' key should be a "
-            "string containing the raw text with original formatting from the "
+            "Return your answer as a single dictionary in JSON format (not "
+            "markdown). Your JSON file must include exactly two keys. The "
+            "keys are 'participating' and 'non-participating'. The value of "
+            "the 'participating' key should be a string containing the raw "
+            "text with original formatting from the ordinance that applies to "
+            "participating owners or `null` if there was no such text. The "
+            "value of the 'non-participating' key should be a string "
+            "containing the raw text with original formatting from the "
             "ordinance that applies to non-participating owners or simply the "
             "full ordinance if the text did not make the distinction between "
             "participating and non-participating owners."
