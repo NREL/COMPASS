@@ -250,7 +250,6 @@ def setup_multiplier(**kwargs):
         ),
     )
     G.add_edge("conversion", "out_m")
-
     G.add_node(
         "out_m",
         prompt=(
