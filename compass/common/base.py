@@ -226,68 +226,41 @@ def setup_participating_owner(**kwargs):
     """
     G = setup_graph_no_nodes(**kwargs)  # noqa: N806
 
-    feature_type = kwargs.get("feature", "")
-    if "parcel" in feature_type:
-        G.add_node(
-            "init",
-            prompt=(
-                "Does the ordinance for {feature} setbacks explicitly specify "
-                "a value that applies to participating property owners? "
-                "Ignore any regulations for setbacks from structures, "
-                "dwellings, etc. "
-                "Justify your answer by quoting the raw text directly."
-            ),
-        )
-        G.add_node(
-            "non_part",
-            prompt=(
-                "Does the ordinance for {feature} setbacks explicitly specify "
-                "a value that applies to non-participating property owners? "
-                "Ignore any regulations for setbacks from structures, "
-                "dwellings, etc. "
-                "Justify your answer by quoting the raw text directly."
-            ),
-        )
-    elif "struct" in feature_type:
-        G.add_node(
-            "init",
-            prompt=(
-                "Does the ordinance for {feature} setbacks explicitly specify "
-                "a value that applies to participating structure owners? "
-                "Occupying owners are not participating structure owners "
-                "unless explicitly defined as such in the text. "
-                "Justify your answer by quoting the raw text directly."
-            ),
-        )
-        G.add_node(
-            "non_part",
-            prompt=(
-                "Does the ordinance for {feature} setbacks explicitly specify "
-                "a value that applies to non-participating structure owners? "
-                "Non-occupying owners are not non-participating structure "
-                "owners unless explicitly defined as such in the text. "
-                "Justify your answer by quoting the raw text directly."
-            ),
-        )
-    else:
-        G.add_node(
-            "init",
-            prompt=(
-                "Does the ordinance for {feature} setbacks explicitly specify "
-                "a value that applies to participating owners? "
-                "Justify your answer by quoting the raw text directly."
-            ),
-        )
-        G.add_node(
-            "non_part",
-            prompt=(
-                "Does the ordinance for {feature} setbacks explicitly specify "
-                "a value that applies to non-participating owners? "
-                "Justify your answer by quoting the raw text directly."
-            ),
-        )
-
+    G.add_node(
+        "init",
+        prompt=(
+            "Does the ordinance for {feature} setbacks explicitly specify "
+            "a value that applies to participating property owners? "
+            "Focus only on setbacks from {feature}; do not respond "
+            "based on any text related to {ignore_features}."
+            "Also focus only on setbacks specifically for systems that would "
+            "typically be defined as {tech} based on the text itself — for "
+            "example, systems intended for electricity generation or sale, "
+            "or those above thresholds such as height or rated capacity. "
+            "Ignore any requirements that apply only to smaller or clearly "
+            "non-commercial systems. "
+            "If your answer is 'yes', justify it by quoting the raw text "
+            "directly."
+        ),
+    )
     G.add_edge("init", "non_part")
+    G.add_node(
+        "non_part",
+        prompt=(
+            "Does the ordinance for {feature} setbacks explicitly specify "
+            "a value that applies to non-participating property owners? "
+            "Focus only on setbacks from {feature}; do not respond "
+            "based on any text related to {ignore_features}."
+            "Also focus only on setbacks specifically for systems that would "
+            "typically be defined as {tech} based on the text itself — for "
+            "example, systems intended for electricity generation or sale, "
+            "or those above thresholds such as height or rated capacity. "
+            "Ignore any requirements that apply only to smaller or clearly "
+            "non-commercial systems. "
+            "If your answer is 'yes', justify it by quoting the raw text "
+            "directly."
+        ),
+    )
     G.add_edge("non_part", "final")
     G.add_node(
         "final",
