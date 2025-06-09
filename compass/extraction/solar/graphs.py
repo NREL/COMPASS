@@ -86,9 +86,15 @@ def setup_multiplier(**kwargs):
             "Does the text mention a multiplier that should be applied to the "
             "structure height to compute the setback distance from {feature}? "
             "Focus only on {feature}; do not respond based on any text "
-            "related to {ignore_features}. Please start your "
-            "response with either 'Yes' or 'No' and briefly explain your "
-            "answer."
+            "related to {ignore_features}. "
+            "Also focus only on setbacks specifically for systems that would "
+            "typically be defined as {tech} based on the text itself — for "
+            "example, systems intended for electricity generation or sale, "
+            "or those above thresholds such as height or rated capacity. "
+            "Ignore any requirements that apply only to smaller or clearly "
+            "non-commercial systems. "
+            "Please start your response with either 'Yes' or 'No' and briefly "
+            "explain your answer."
         ),
     )
     G.add_edge("init", "no_multiplier", condition=llm_response_starts_with_no)
@@ -96,7 +102,16 @@ def setup_multiplier(**kwargs):
         "no_multiplier",
         prompt=(
             "Does the ordinance give the setback from {feature} as a fixed "
-            "distance value? Please start your response with either 'Yes' or "
+            "distance value? "
+            "Focus only on {feature}; do not respond based on any text "
+            "related to {ignore_features}. "
+            "Also focus only on setbacks specifically for systems that would "
+            "typically be defined as {tech} based on the text itself — for "
+            "example, systems intended for electricity generation or sale, "
+            "or those above thresholds such as height or rated capacity. "
+            "Ignore any requirements that apply only to smaller or clearly "
+            "non-commercial systems. "
+            "Please start your response with either 'Yes' or "
             "'No' and briefly explain your answer."
         ),
     )
@@ -135,8 +150,10 @@ def setup_multiplier(**kwargs):
             "from {feature} or `null` if there was no such value. The value "
             "of the 'units' key should be a string corresponding to the "
             "(standard) units of the setback distance value from {feature} "
-            "or `null` if there was no such value. {SUMMARY_PROMPT} "
-            "{SECTION_PROMPT}"
+            "or `null` if there was no such value. "
+            "As before, focus only on setbacks specifically for systems that "
+            "would typically be defined as {tech} based on the text itself. "
+            "{SUMMARY_PROMPT} {SECTION_PROMPT}"
         ),
     )
     G.add_edge("init", "m_single", condition=llm_response_starts_with_yes)
@@ -145,9 +162,15 @@ def setup_multiplier(**kwargs):
         "m_single",
         prompt=(
             "Are multiple values given for the multiplier used to "
-            "compute the setback distance value from {feature}? If so, "
-            "select and state the largest one. Otherwise, repeat the single "
-            "multiplier value that was given in the text. "
+            "compute the setback distance value from {feature}? "
+            "Focus only on setbacks specifically for systems that would "
+            "typically be defined as {tech} based on the text itself — for "
+            "example, systems intended for electricity generation or sale, "
+            "or those above thresholds such as height or rated capacity. "
+            "Ignore any requirements that apply only to smaller or clearly "
+            "non-commercial systems. "
+            "If so, select and state the largest one. Otherwise, repeat the "
+            "single multiplier value that was given in the text. "
         ),
     )
     G.add_edge("m_single", "adder")

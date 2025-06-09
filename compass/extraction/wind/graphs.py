@@ -87,7 +87,13 @@ def setup_multiplier(**kwargs):
             "turbine dimension (e.g. height, rotor diameter, etc) to compute "
             "the setback distance from {feature}? "
             "Focus only on {feature}; do not respond based on any text "
-            "related to {ignore_features}."
+            "related to {ignore_features}. "
+            "Also focus only on setbacks specifically for systems that would "
+            "typically be defined as {tech} based on the text itself — for "
+            "example, systems intended for electricity generation or sale, "
+            "or those above thresholds such as height, rotor diameter, or "
+            "rated capacity. Ignore any requirements that apply only to "
+            "smaller or clearly non-commercial systems. "
             "Remember that 1 is a valid multiplier, and treat any mention "
             "of 'fall zone' as a system height multiplier of 1. "
             "Please start your response with either 'Yes' or 'No' and "
@@ -99,7 +105,17 @@ def setup_multiplier(**kwargs):
         "no_multiplier",
         prompt=(
             "Does the ordinance give the setback from {feature} as a fixed "
-            "distance value? Explain yourself."
+            "distance value? "
+            "Focus only on {feature}; do not respond based on any text "
+            "related to {ignore_features}. "
+            "Also focus only on setbacks specifically for systems that would "
+            "typically be defined as {tech} based on the text itself — for "
+            "example, systems intended for electricity generation or sale, "
+            "or those above thresholds such as height, rotor diameter, or "
+            "rated capacity. Ignore any requirements that apply only to "
+            "smaller or clearly non-commercial systems. "
+            "Please start your response with either 'Yes' or "
+            "'No' and briefly explain your answer."
         ),
     )
     G.add_edge(
@@ -134,11 +150,13 @@ def setup_multiplier(**kwargs):
             "four keys. The keys are 'value', 'units', 'summary', and "
             "'section'. The value of the 'value' key should be a "
             "**numerical** value corresponding to the setback distance value "
-            "from {feature} or `null` if there was no such value. The value "
-            "of the 'units' key should be a string corresponding to the "
-            "(standard) units of the setback distance value from {feature} "
-            "or `null` if there was no such value. {SUMMARY_PROMPT} "
-            "{SECTION_PROMPT}"
+            "from {feature} or `null` if there was no such value. "
+            "The value of the 'units' key should be a string corresponding to "
+            "the (standard) units of the setback distance value from "
+            "{feature} or `null` if there was no such value. "
+            "As before, focus only on setbacks specifically for systems that "
+            "would typically be defined as {tech} based on the text itself. "
+            "{SUMMARY_PROMPT} {SECTION_PROMPT}"
         ),
     )
     G.add_edge("init", "m_single", condition=llm_response_starts_with_yes)
@@ -146,9 +164,16 @@ def setup_multiplier(**kwargs):
     G.add_node(
         "m_single",
         prompt=(
-            "Are multiple values given for the multiplier used to "
-            "compute the setback distance value from {feature}? If so, "
-            "select and state the largest one. Otherwise, repeat the single "
+            "Are multiple values given for the multiplier used to compute the "
+            "setback distance value from {feature}? "
+            "Focus only on setbacks specifically for systems that would "
+            "typically be defined as {tech} based on the text itself — for "
+            "example, systems intended for electricity generation or sale, "
+            "or those above thresholds such as height, rotor diameter, or "
+            "rated capacity. Ignore any requirements that apply only to "
+            "smaller or clearly non-commercial systems. "
+            "If so, select "
+            "and state the largest one. Otherwise, repeat the single "
             "multiplier value that was given in the text. "
         ),
     )
@@ -156,12 +181,21 @@ def setup_multiplier(**kwargs):
     G.add_node(
         "m_type",
         prompt=(
-            "What should the multiplier be applied to? Common acronyms "
-            "include RD for rotor diameter and HH for hub height. Remember "
-            "that system/total height is the tip-hight of the turbine. "
-            "Select a value from the following list and explain yourself: "
+            "What kind of multiplier is stated in the text to compute the "
+            "setback distance from {feature}? "
+            "Focus only on setbacks specifically for systems that would "
+            "typically be defined as {tech} based on the text itself — for "
+            "example, systems intended for electricity generation or sale, "
+            "or those above thresholds such as height, rotor diameter, or "
+            "rated capacity. Ignore any requirements that apply only to "
+            "smaller or clearly non-commercial systems. "
+            "Select a value from the following list: "
             "['tip-height-multiplier', 'hub-height-multiplier', "
-            "'rotor-diameter-multiplier]"
+            "'rotor-diameter-multiplier]. "
+            "Default to 'tip-height-multiplier' unless the text explicitly "
+            "explains that the multiplier should be applied to the distance "
+            "up to the turbine hub or to the diameter of the rotors. "
+            "Briefly justify your answer."
         ),
     )
 
