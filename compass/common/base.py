@@ -184,8 +184,10 @@ def setup_base_setback_graph(**kwargs):
         "init",
         prompt=(
             "Is there text in the following legal document that describes "
-            "how far I have to setback {tech} (or similar) from {feature}? "
-            "{feature_clarifications}"
+            "how far I have to setback {tech} from {feature}? "
+            "{feature_clarifications}"  # expected to end in space
+            "Focus only on setbacks from {feature}; do not respond "
+            "based on any text related to {ignore_features}."
             "Don't forget to pay extra attention to clarifying text found "
             "in parentheses and footnotes. "
             "Please start your response with either 'Yes' or 'No' and briefly "
