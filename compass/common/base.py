@@ -188,6 +188,12 @@ def setup_base_setback_graph(**kwargs):
             "{feature_clarifications}"  # expected to end in space
             "Focus only on setbacks from {feature}; do not respond "
             "based on any text related to {ignore_features}."
+            "Also focus only on setbacks specifically for systems that would "
+            "typically be defined as {tech} based on the text itself — for "
+            "example, systems intended for electricity generation or sale, "
+            "or those above thresholds such as height or rated capacity. "
+            "Ignore any requirements that apply only to smaller or clearly "
+            "non-commercial systems. "
             "Don't forget to pay extra attention to clarifying text found "
             "in parentheses and footnotes. "
             "Please start your response with either 'Yes' or 'No' and briefly "
