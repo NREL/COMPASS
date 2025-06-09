@@ -227,7 +227,7 @@ def setup_multiplier(**kwargs):
         "adder_eq",
         prompt=(
             "Does the adder value you identified satisfy the following "
-            "equation: 'multiplier * height + <adder>'? Please begin your "
+            "equation: `multiplier * height + <adder>`? Please begin your "
             "response with either 'Yes' or 'No' and briefly explain your "
             "answer."
         ),
