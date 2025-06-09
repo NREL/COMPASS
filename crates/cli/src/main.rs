@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use anyhow::Result;
+use anyhow::{Context, Result};
 use clap::{arg, command, value_parser, Arg, ArgAction, Command};
 use duckdb::Connection;
 use tracing::{self, trace};
@@ -63,7 +63,8 @@ fn main() -> Result<()> {
     match matches.subcommand_name() {
         Some("init") => {
             trace!("Creating database at {:?}", &db);
-            infra_compass_db::init_db(db)?;
+            infra_compass_db::init_db(db)
+                .with_context(|| format!("Failed to initialize database as {}", db))?;
         }
         Some("export") => {
             trace!("Showing export for database at {:?}", &db);
@@ -93,7 +94,9 @@ fn main() -> Result<()> {
             // that already creates a session with the username, and hance
             // handle ahead permissions/authorization.
             let conn: Connection = Connection::open(db).expect("Failed to open database");
-            infra_compass_db::load_ordinance(conn, username, path)?;
+            infra_compass_db::load_ordinance(conn, username, path).with_context(|| {
+                format!("Failed to load ordinance data from {}", path.display(),)
+            })?;
         }
 
         Some("log") => {
