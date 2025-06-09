@@ -113,6 +113,14 @@ fn main() -> Result<()> {
                 .get_one::<PathBuf>("OUTPUT")
                 .unwrap();
             trace!("Output to: {:?}", &output);
+            if output.exists() {
+                error!(
+                    "Output {:?} already exists. Please remove it before exporting.",
+                    output
+                );
+                anyhow::bail!("Output already exists");
+            }
+
             let mut wrt = std::io::BufWriter::new(
                 std::fs::File::create(&output).expect("Failed to create output file"),
             );
