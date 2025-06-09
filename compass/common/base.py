@@ -306,10 +306,9 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
         "init",
         prompt=(
             "Does the following legal text explicitly enact {restriction} for "
-            "{tech} (or similar) for a particular jurisdiction that an "
-            "energy system developer would have to abide to?"
-            "{feature_clarifications}\nMake sure your answer adheres to "
-            "these guidelines:\n"
+            "{tech} for a particular jurisdiction that an energy system "
+            "developer would have to abide to? {feature_clarifications}\n"
+            "Make sure your answer adheres to these guidelines:\n"
             "1) Respond based only on the explicit text provided for "
             "{restriction}. Do not infer values from text based on "
             "related restrictions. If the text does not explicitly detail "
@@ -330,7 +329,7 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
             "value",
             prompt=(
                 "What is the **numerical** value given for the {restriction} "
-                "for {tech} (or similar)? Follow these guidelines:\n"
+                "for {tech}? Follow these guidelines:\n"
                 "1) Extract only the explicit numerical value provided for "
                 "the restriction. Do not infer values from related "
                 "restrictions.\n"
@@ -363,12 +362,14 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
         G.add_node(
             "units",
             prompt=(
-                "What are the units for the {restriction} for {tech} (or "
-                "similar)? Ensure that:\n1) You accurately identify the unit "
-                "value associated with the restriction.\n2) The unit is "
-                "expressed using standard, conventional unit names (e.g., "
-                "'feet', 'meters', 'acres', 'dBA', etc.). {unit_clarification}"
-                "\n3) If multiple values are mentioned, return only the units "
+                "What are the units for the {restriction} for {tech}? Ensure "
+                "that:\n"
+                "1) You accurately identify the unit value associated with "
+                "the restriction.\n"
+                "2) The unit is expressed using standard, conventional unit "
+                "names (e.g., 'feet', 'meters', 'acres', 'dBA', etc.). "
+                "{unit_clarification}\n"
+                "3) If multiple values are mentioned, return only the units "
                 "for the most restrictive value that directly pertains to the "
                 "restriction.\n\nExample Inputs and Outputs:\n"
                 "Text: 'For all WES there is a limitation of overall height "
