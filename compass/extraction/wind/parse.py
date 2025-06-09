@@ -40,10 +40,9 @@ DEFAULT_SYSTEM_MESSAGE = (
 )
 SETBACKS_SYSTEM_MESSAGE = (
     f"{DEFAULT_SYSTEM_MESSAGE} "
-    "For the duration of this conversation, only focus on "
-    "ordinances relating to setbacks from {feature} for {tech} (or similar). "
-    "Ignore all text that only pertains to private, micro, small, or medium "
-    "sized wind energy systems."
+    "For the duration of this conversation, only focus on ordinances "
+    "relating to setbacks from {feature}; do not respond based on any text "
+    "related to {ignore_features}. "
 )
 RESTRICTIONS_SYSTEM_MESSAGE = (
     f"{DEFAULT_SYSTEM_MESSAGE} "
