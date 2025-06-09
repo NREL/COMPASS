@@ -97,6 +97,10 @@ ER_CLARIFICATIONS = {
         "Maximum project size is typically specified as a maximum system "
         "size value or as a maximum number of turbines."
     ),
+    "shadow flicker": (
+        "If the text prohibits shadow, treat this as a max value of 0 "
+        "hours per year."
+    ),
 }
 
 
