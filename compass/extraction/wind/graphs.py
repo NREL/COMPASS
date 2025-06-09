@@ -229,12 +229,11 @@ def setup_multiplier(**kwargs):
     return G
 
 
-def setup_conditional(**kwargs):
-    """Setup graph to extract min/max setback values for a feature
+def setup_conditional_min(**kwargs):
+    """Setup graph to extract min setback values for a feature
 
-    Min/Max setback values (after application of multiplier) are
-    typically given within the context of 'the greater of' or
-    'the lesser of' clauses.
+    Min setback values (after application of multiplier) are
+    typically given within the context of 'the greater of' clauses.
 
     Parameters
     ----------
@@ -252,44 +251,140 @@ def setup_conditional(**kwargs):
     G.add_node(
         "init",
         prompt=(
-            "Focus only on setback from {feature}; do not respond based "
-            "on any text related to {ignore_features}."
-            "Does the setback from {feature} mention a minimum or maximum "
-            "static setback distance **regardless of the outcome** of the "
-            "multiplier calculation? This is often phrased as 'the greater "
-            "of' or 'the lesser of'. Do not confuse this value with static "
-            "values to be added to multiplicative setbacks. Begin your "
-            "response with either 'Yes' or 'No' and briefly explain your "
-            "answer."
+            "Focus only on setbacks from {feature}; do not respond "
+            "based on any text related to {ignore_features}."
+            "Also focus only on setbacks specifically for systems that would "
+            "typically be defined as {tech} based on the text itself — for "
+            "example, systems intended for electricity generation or sale, "
+            "or those above thresholds such as height, rotor diameter, or "
+            "rated capacity. Ignore any requirements that apply only to "
+            "smaller or clearly non-commercial systems. "
+            "Does the setback from {feature} for {tech} mention a minimum "
+            "setback distance **regardless of the outcome** of the "
+            "multiplier calculation? This value acts like a threshold and is "
+            "often found within phrases like 'the greater of'. "
+            "Begin your response with either 'Yes' or 'No' and briefly "
+            "explain your answer."
         ),
     )
 
-    G.add_edge("init", "conversions", condition=llm_response_starts_with_yes)
+    G.add_edge("init", "min_eq", condition=llm_response_starts_with_yes)
     G.add_node(
-        "conversions",
+        "min_eq",
         prompt=(
-            "Tell me the minimum and/or maximum setback distances, "
-            "converting to feet if necessary (remember that there are "
-            "3.28084 feet in one meter and 5280 feet in one mile). "
-            "Briefly explain your answer and show your work if you had "
-            "to perform a conversion."
+            "Does the threshold value you identified satisfy the following "
+            "equation: "
+            "`setback_distance = max(<threshold>, multiplier_setback)`? "
+            "Please begin your response with either 'Yes' or 'No' and "
+            "briefly explain your answer."
         ),
     )
 
-    G.add_edge("conversions", "out_condition")
+    G.add_edge(
+        "min_eq", "conversions_min", condition=llm_response_starts_with_yes
+    )
     G.add_node(
-        "out_condition",
+        "conversions_min",
+        prompt=(
+            "If the threshold value is not given in feet, convert "
+            "it to feet (remember that there are 3.28084 feet in one meter "
+            "and 5280 feet in one mile). Show your work step-by-step "
+            "if you had to perform a conversion."
+        ),
+    )
+    G.add_edge("conversions_min", "out")
+
+    G.add_node(
+        "out",
         prompt=(
             "Please respond based on our entire conversation so far. "
-            "Return your answer in JSON "
+            "Return your answer as a single dictionary in JSON "
             "format (not markdown). Your JSON file must include exactly two "
-            "keys. The keys are 'min_dist' and 'max_dist'. The value of the "
+            "keys. The keys are 'min_dist' and 'summary'. The value of the "
             "'min_dist' key should be a **numerical** value corresponding to "
-            "the minimum setback value from {feature} we determined earlier, "
-            "or `null` if no such value exists. The value of the 'max_dist' "
-            "key should be a **numerical** value corresponding to the maximum "
-            "setback value from {feature}  we determined earlier, or `null` "
-            "if no such value exists."
+            "the minimum setback value from {feature} that we determined "
+            "earlier, or `null` if no such value exists. {SUMMARY_PROMPT}"
+        ),
+    )
+
+    return G
+
+
+def setup_conditional_max(**kwargs):
+    """Setup graph to extract max setback values for a feature
+
+    Max setback values (after application of multiplier) are
+    typically given within the context of 'the lesser of' clauses.
+
+    Parameters
+    ----------
+    **kwargs
+        Keyword-value pairs to add to graph.
+
+    Returns
+    -------
+    nx.DiGraph
+        Graph instance that can be used to initialize an
+        `elm.tree.DecisionTree`.
+    """
+    G = setup_graph_no_nodes(**kwargs)  # noqa: N806
+
+    G.add_node(
+        "init",
+        prompt=(
+            "Focus only on setbacks from {feature}; do not respond "
+            "based on any text related to {ignore_features}."
+            "Also focus only on setbacks specifically for systems that would "
+            "typically be defined as {tech} based on the text itself — for "
+            "example, systems intended for electricity generation or sale, "
+            "or those above thresholds such as height, rotor diameter, or "
+            "rated capacity. Ignore any requirements that apply only to "
+            "smaller or clearly non-commercial systems. "
+            "Does the setback from {feature} for {tech} mention a maximum "
+            "setback distance **regardless of the outcome** of the "
+            "multiplier calculation? This value acts like a limit and is "
+            "often found within phrases like 'the lesser of'. "
+            "Begin your response with either 'Yes' or 'No' and briefly "
+            "explain your answer."
+        ),
+    )
+
+    G.add_edge("init", "max_eq", condition=llm_response_starts_with_yes)
+    G.add_node(
+        "max_eq",
+        prompt=(
+            "Does the limit value you identified satisfy the following "
+            "equation: "
+            "`setback_distance = min(multiplier_setback, <limit>)`? "
+            "Please begin your response with either 'Yes' or 'No' and "
+            "briefly explain your answer."
+        ),
+    )
+
+    G.add_edge(
+        "max_eq", "conversions_max", condition=llm_response_starts_with_yes
+    )
+    G.add_node(
+        "conversions_max",
+        prompt=(
+            "If the limit value is not given in feet, convert "
+            "it to feet (remember that there are 3.28084 feet in one meter "
+            "and 5280 feet in one mile). Show your work step-by-step "
+            "if you had to perform a conversion."
+        ),
+    )
+    G.add_edge("conversions_max", "out")
+
+    G.add_node(
+        "out",
+        prompt=(
+            "Please respond based on our entire conversation so far. "
+            "Return your answer as a single dictionary in JSON "
+            "format (not markdown). Your JSON file must include exactly two "
+            "keys. The keys are 'max_dist' and 'summary'. The value of the "
+            "'max_dist' key should be a **numerical** value corresponding to "
+            "the maximum setback value from {feature} that we determined "
+            "earlier, or `null` if no such value exists. {SUMMARY_PROMPT}"
         ),
     )
 

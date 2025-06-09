@@ -25,7 +25,8 @@ from compass.common import (
 from compass.extraction.wind.graphs import (
     setup_graph_wes_types,
     setup_multiplier,
-    setup_conditional,
+    setup_conditional_min,
+    setup_conditional_max,
 )
 from compass.utilities.enums import LLMUsageCategory
 from compass.warn import COMPASSWarning
@@ -380,10 +381,14 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
         if decision_tree_out.get("value") is None:
             return decision_tree_out
 
-        decision_tree_conditional_out = await self._run_setback_graph(
-            setup_conditional, text, **kwargs
+        decision_tree_conditional_min_out = await self._run_setback_graph(
+            setup_conditional_min, text, **kwargs
         )
-        decision_tree_out.update(decision_tree_conditional_out)
+        decision_tree_out.update(decision_tree_conditional_min_out)
+        decision_tree_conditional_max_out = await self._run_setback_graph(
+            setup_conditional_max, text, **kwargs
+        )
+        decision_tree_out.update(decision_tree_conditional_max_out)
         return decision_tree_out
 
     async def _run_setback_graph(
