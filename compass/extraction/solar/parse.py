@@ -290,10 +290,7 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
 
     async def _base_messages(self, text, **feature_kwargs):
         """Get base messages for setback feature parsing"""
-        system_message = SETBACKS_SYSTEM_MESSAGE.format(
-            feature=feature_kwargs["feature"],
-            tech=feature_kwargs["tech"],
-        )
+        system_message = SETBACKS_SYSTEM_MESSAGE.format(**feature_kwargs)
         tree = setup_async_decision_tree(
             setup_base_setback_graph,
             usage_sub_label=LLMUsageCategory.ORDINANCE_VALUE_EXTRACTION,
@@ -366,22 +363,13 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
         return _sanitize_output(decision_tree_out)
 
     async def _run_setback_graph(
-        self,
-        graphs_setup_func,
-        text,
-        feature,
-        tech,
-        base_messages=None,
-        **kwargs,
+        self, graphs_setup_func, text, base_messages=None, **kwargs
     ):
         """Generic function to run async tree"""
-        system_message = SETBACKS_SYSTEM_MESSAGE.format(
-            feature=feature, tech=tech
-        )
+        system_message = SETBACKS_SYSTEM_MESSAGE.format(**kwargs)
         tree = setup_async_decision_tree(
             graphs_setup_func,
             usage_sub_label=LLMUsageCategory.ORDINANCE_VALUE_EXTRACTION,
-            feature=feature,
             text=text,
             chat_llm_caller=self._init_chat_llm_caller(system_message),
             **kwargs,
