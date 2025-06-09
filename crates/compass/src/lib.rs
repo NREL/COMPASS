@@ -98,7 +98,7 @@ pub fn load_ordinance<P: AsRef<std::path::Path> + std::fmt::Debug>(
 ) -> Result<()> {
     // insert into bookkeeper (hash, username) and get the pk to be used in all the following
     // inserts.
-    tracing::trace!("Starting a transaction");
+    trace!("Starting a transaction");
     let conn = database.transaction().unwrap();
 
     let commit_id: usize = conn
@@ -129,7 +129,7 @@ pub fn load_ordinance<P: AsRef<std::path::Path> + std::fmt::Debug>(
     conn.commit().unwrap();
     tracing::debug!("Transaction committed");
 
-    tracing::trace!("Ordinance: {:?}", ordinance);
+    trace!("Ordinance: {:?}", ordinance);
     rt.block_on(ordinance.push(&mut database, commit_id))
         .unwrap();
 
