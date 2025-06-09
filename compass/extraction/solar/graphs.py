@@ -193,7 +193,7 @@ def setup_multiplier(**kwargs):
             "answer, stating the adder value if it exists."
         ),
     )
-    G.add_edge("adder", "out_m", condition=llm_response_starts_with_no)
+    G.add_edge("adder", "out_no_adder", condition=llm_response_starts_with_no)
     G.add_edge("adder", "adder_eq", condition=llm_response_starts_with_yes)
 
     G.add_node(
@@ -204,6 +204,9 @@ def setup_multiplier(**kwargs):
             "response with either 'Yes' or 'No' and briefly explain your "
             "answer."
         ),
+    )
+    G.add_edge(
+        "adder_eq", "out_no_adder", condition=llm_response_starts_with_no
     )
     G.add_edge("adder_eq", "out_m", condition=llm_response_starts_with_no)
     G.add_edge(
@@ -235,6 +238,18 @@ def setup_multiplier(**kwargs):
             "**numerical** value corresponding to the static value to be "
             "added to the total setback distance after multiplication, as we "
             "determined earlier, or `null` if there is no such value. "
+            "{SUMMARY_PROMPT} {SECTION_PROMPT}"
+        ),
+    )
+    G.add_node(
+        "out_no_adder",
+        prompt=(
+            "Please respond based on our entire conversation so far. "
+            "Return your answer as a single dictionary in JSON "
+            "format (not markdown). Your JSON file must include exactly three "
+            "keys. The keys are 'mult_value', 'summary', and 'section'. The "
+            "value of the 'mult_value' key should be a **numerical** value "
+            "corresponding to the multiplier value we determined earlier. "
             "{SUMMARY_PROMPT} {SECTION_PROMPT}"
         ),
     )
