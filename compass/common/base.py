@@ -35,6 +35,11 @@ EXTRACT_ORIGINAL_TEXT_PROMPT = (
     "that state how close I can site {tech} to {feature}. "
     "Focus on ordinances relating to setbacks from {feature}; do not "
     "respond based on any text related to {ignore_features}. "
+    "Also focus only on systems that would typically be defined as {tech} "
+    "based on the text itself — for example, systems intended for electricity "
+    "generation or sale, or those above thresholds such as height or rated "
+    "capacity. Ignore any text that applies **only** to smaller or clearly "
+    "non-commercial systems. "
 )
 
 
