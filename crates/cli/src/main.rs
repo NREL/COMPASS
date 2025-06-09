@@ -122,7 +122,11 @@ fn main() -> Result<()> {
             }
 
             let mut wrt = std::io::BufWriter::new(
-                std::fs::File::create(&output).expect("Failed to create output file"),
+                std::fs::OpenOptions::new()
+                    .create_new(true)
+                    .write(true)
+                    .open(&output)
+                    .expect("Failed to open output file"),
             );
             trace!("Output file created: {:?}", &wrt);
 
