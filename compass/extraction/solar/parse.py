@@ -528,7 +528,7 @@ def _sanitize_output(output):
 
 def _remove_key_for_empty_value(output, key):
     """Remove any output in "key" if no ordinance value found"""
-    if output.get("value") or not output.get(key):
+    if output.get("value") is not None or not output.get(key):
         return output
 
     # at this point, we have some value in "key" but no actual ordinance
