@@ -63,7 +63,7 @@ fn main() -> Result<()> {
     match matches.subcommand_name() {
         Some("init") => {
             trace!("Creating database at {:?}", &db);
-            infra_compass_db::init_db(db).unwrap();
+            infra_compass_db::init_db(db)?;
         }
         Some("export") => {
             trace!("Showing export for database at {:?}", &db);
@@ -93,8 +93,9 @@ fn main() -> Result<()> {
             // that already creates a session with the username, and hance
             // handle ahead permissions/authorization.
             let conn: Connection = Connection::open(db).expect("Failed to open database");
-            let _ = infra_compass_db::load_ordinance(conn, username, path);
+            infra_compass_db::load_ordinance(conn, username, path)?;
         }
+
         Some("log") => {
             trace!("Showing log for database at {:?}", &db);
         }
