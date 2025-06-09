@@ -177,13 +177,20 @@ def setup_multiplier(**kwargs):
     G.add_node(
         "adder",
         prompt=(
-            "Does the ordinance include a static distance value that "
-            "should be added to the result of the multiplication? Do not "
-            "confuse this value with static setback requirements. Ignore text "
-            "with clauses such as 'no lesser than', 'no greater than', "
-            "'the lesser of', or 'the greater of'. Please start your response "
-            "with either 'Yes' or 'No' and briefly explain your answer, "
-            "stating the adder value if it exists."
+            "Does the ordinance for the setback from {feature} include a "
+            "static distance value that should be added to the result of "
+            "the multiplication? "
+            "Focus only on setbacks specifically for systems that would "
+            "typically be defined as {tech} based on the text itself — for "
+            "example, systems intended for electricity generation or sale, "
+            "or those above thresholds such as height or rated capacity. "
+            "Ignore any requirements that apply only to smaller or clearly "
+            "non-commercial systems. "
+            "Do not confuse this value with static setback requirements. "
+            "Ignore text with clauses such as 'no lesser than', 'no greater "
+            "than', 'the lesser of', or 'the greater of'. Please start your "
+            "response with either 'Yes' or 'No' and briefly explain your "
+            "answer, stating the adder value if it exists."
         ),
     )
     G.add_edge("adder", "out_m", condition=llm_response_starts_with_no)
