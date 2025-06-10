@@ -43,11 +43,12 @@ SETBACKS_SYSTEM_MESSAGE = (
     "For the duration of this conversation, only focus on ordinances "
     "relating to setbacks from {feature}; do not respond based on any text "
     "related to {ignore_features}. "
-    "Also focus only on systems that would typically be defined as {tech} "
-    "based on the text itself — for example, systems intended for "
-    "electricity generation or sale, or those above thresholds such as "
-    "height, rotor diameter, or rated capacity. Ignore any requirements "
-    "that apply only to smaller or clearly non-commercial systems. "
+    "Please only consider ordinances for systems that would typically be "
+    "defined as {tech} based on the text itself — for example, systems "
+    "intended for electricity generation or sale, or those above thresholds "
+    "such as height, rotor diameter, or rated capacity. Ignore any "
+    "requirements that apply only to smaller or clearly non-commercial "
+    "systems. "
 )
 RESTRICTIONS_SYSTEM_MESSAGE = (
     f"{DEFAULT_SYSTEM_MESSAGE} "
