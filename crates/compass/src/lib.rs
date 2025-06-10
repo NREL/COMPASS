@@ -43,6 +43,7 @@ pub fn init_db(path: &str) -> Result<()> {
      *
      *
      */
+    trace!("Creating table bookkeeper");
     db.execute_batch(
         "BEGIN;
     CREATE SEQUENCE bookkeeper_sequence START 1;
