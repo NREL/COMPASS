@@ -312,7 +312,7 @@ def setup_conditional_min(**kwargs):
         "init",
         prompt=(
             "Focus only on setbacks from {feature}; do not respond "
-            "based on any text related to {ignore_features}."
+            "based on any text related to {ignore_features}. "
             "Also focus only on setbacks specifically for systems that would "
             "typically be defined as {tech} based on the text itself — for "
             "example, systems intended for electricity generation or sale, "
@@ -393,7 +393,7 @@ def setup_conditional_max(**kwargs):
         "init",
         prompt=(
             "Focus only on setbacks from {feature}; do not respond "
-            "based on any text related to {ignore_features}."
+            "based on any text related to {ignore_features}. "
             "Also focus only on setbacks specifically for systems that would "
             "typically be defined as {tech} based on the text itself — for "
             "example, systems intended for electricity generation or sale, "
