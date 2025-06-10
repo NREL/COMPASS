@@ -560,12 +560,12 @@ digraph g {
 
 
 
-"archive":rtcol2 -> "source":ltcol1 [label="xxx"];
-"source":rtcol2 -> "bookkeeper":ltcol1 [label="xxx"];
-"jurisdiction":rtcol2 -> "bookkeeper":ltcol1 [label="xxx"];
-"quantitative":rtcol2 -> "bookkeeper":ltcol1 [label="xxx"];
-"qualitative":rtcol2 -> "bookkeeper":ltcol1 [label="xxx"];
-"usage":rtcol2 -> "bookkeeper":ltcol1 [label="xxx"];
-"usage_per_item":rtcol2 -> "usage":ltcol1 [label="xxx"];
-"usage_event":rtcol2 -> "usage_per_item":ltcol1 [label="xxx"];
+"archive":rtcol2 -> "source":ltcol1 [label=""];
+"source":rtcol2 -> "bookkeeper":ltcol1 [label=""];
+"jurisdiction":rtcol2 -> "bookkeeper":ltcol1 [label=""];
+"quantitative":rtcol2 -> "bookkeeper":ltcol1 [label=""];
+"qualitative":rtcol2 -> "bookkeeper":ltcol1 [label=""];
+"usage":rtcol2 -> "bookkeeper":ltcol1 [label=""];
+"usage_per_item":rtcol2 -> "usage":ltcol1 [label=""];
+"usage_event":rtcol2 -> "usage_per_item":ltcol1 [label=""];
 }
