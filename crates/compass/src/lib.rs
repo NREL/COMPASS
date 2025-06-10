@@ -86,7 +86,6 @@ pub fn init_db(path: &str) -> Result<()> {
     Ok(())
 }
 
-#[allow(dead_code)]
 /// Scan and load features from a CSV file
 ///
 /// Proof of concept. Parse a CSV file and load the features into the
