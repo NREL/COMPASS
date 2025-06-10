@@ -5,10 +5,8 @@ use sha2::Digest;
 use tokio::io::AsyncReadExt;
 use tracing::{debug, error, trace, warn};
 
+use super::MAX_JSON_FILE_SIZE;
 use crate::error::Result;
-
-// An arbitrary limit (5MB) to protect against maliciously large JSON files
-const MAX_JSON_FILE_SIZE: u64 = 5 * 1024 * 1024;
 
 #[derive(Debug, Deserialize)]
 pub(super) struct Source {

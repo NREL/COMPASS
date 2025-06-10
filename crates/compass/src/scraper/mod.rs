@@ -19,6 +19,9 @@ use usage::Usage;
 
 pub(crate) const SCRAPPED_ORDINANCE_VERSION: &str = "0.0.1";
 
+// An arbitrary limit (5MB) to protect against maliciously large JSON files
+const MAX_JSON_FILE_SIZE: u64 = 5 * 1024 * 1024;
+
 // Concepts
 // - Lazy loading a scrapper output
 //   - Early validation. Not necessary complete, but able to abort early
