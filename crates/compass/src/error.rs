@@ -5,6 +5,7 @@ pub enum Error {
     #[error(transparent)]
     IO(#[from] std::io::Error),
 
+    #[allow(clippy::upper_case_acronyms)]
     #[error(transparent)]
     CSV(#[from] csv::Error),
 
