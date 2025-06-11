@@ -7,7 +7,7 @@ mod usage;
 
 use std::path::{Path, PathBuf};
 
-use tracing::{self, trace};
+use tracing::{self, debug, trace};
 
 use crate::error;
 use crate::error::Result;
@@ -70,7 +70,8 @@ pub(crate) struct ScrappedOrdinance {
 
 impl ScrappedOrdinance {
     pub(super) fn init_db(conn: &duckdb::Transaction) -> Result<()> {
-        tracing::trace!("Initializing ScrappedOrdinance database");
+        debug!("Initializing ScrappedOrdinance database");
+
         source::Source::init_db(conn)?;
         metadata::Metadata::init_db(conn)?;
         usage::Usage::init_db(conn)?;
