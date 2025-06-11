@@ -61,6 +61,10 @@ pub(super) struct Jurisdiction {
 pub(super) struct Document {
     /// Source of the document, such as a URL
     source: String,
+    /// Day that the ordinance went into effect, such as 4
+    effective_day: Option<u16>,
+    /// Month that the ordinance went into effect, such as 27
+    effective_month: Option<u16>,
     /// Year that the ordinance went into effect, such as 2023
     effective_year: Option<u16>,
     /// Filename of the ordinance document
@@ -91,6 +95,8 @@ impl Source {
           CREATE TABLE IF NOT EXISTS archive (
             id INTEGER PRIMARY KEY DEFAULT NEXTVAL('archive_sequence'),
             source TEXT,
+            effective_day INTEGER,
+            effective_month INTEGER,
             effective_year INTEGER,
             filename TEXT,
             num_pages INTEGER,
@@ -248,9 +254,9 @@ impl Source {
                 let mut stmt_archive = conn.prepare(
                     r"
                     INSERT INTO archive
-                    (source, effective_year, filename, num_pages,
+                    (source, effective_day, effective_month, effective_year, filename, num_pages,
                       checksum)
-                    VALUES (?, ?, ?, ?, ?)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
                     RETURNING id",
                 )?;
 
@@ -259,6 +265,8 @@ impl Source {
                     let did = stmt_archive
                         .query(duckdb::params![
                             document.source,
+                            document.effective_day,
+                            document.effective_month,
                             document.effective_year,
                             document.ord_filename,
                             document.num_pages,
@@ -360,7 +368,9 @@ pub(crate) mod sample {
                     "documents": [
                         {
                             "source": "https://example.com/sample_ordinance.pdf",
+                            "effective_month": 4,
                             "effective_year": 2023,
+                            "effective_day": null,
                             "ord_filename": "sample_ordinance.pdf",
                             "num_pages": 10,
                             "checksum": "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
