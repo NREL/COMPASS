@@ -46,6 +46,8 @@ pub(super) struct Jurisdiction {
     total_time: f64,
     /// Total time spent scrapping the jurisdiction, as a string
     total_time_string: String,
+    /// Total cost to run the scraper, in $
+    cost: Option<f64>,
     /// List of documents associated with the jurisdiction
     documents: Option<Vec<Document>>,
 }
@@ -114,6 +116,7 @@ impl Source {
             found BOOLEAN,
             total_time REAL,
             total_time_string TEXT,
+            cost REAL,
             documents TEXT,
             archive_lnk INTEGER REFERENCES archive(id),
             );",
@@ -279,7 +282,7 @@ impl Source {
                 (bookkeeper_lnk, full_name, county, state,
                   subdivision, jurisdiction_type, fips,
                   found, total_time, total_time_string,
-                  documents)
+                  cost, documents)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             )?;
             stmt_source.execute(duckdb::params![
@@ -293,6 +296,7 @@ impl Source {
                 jurisdiction.found,
                 jurisdiction.total_time,
                 jurisdiction.total_time_string,
+                jurisdiction.cost,
                 dids.iter()
                     .map(|did| did.to_string())
                     .collect::<Vec<String>>()
