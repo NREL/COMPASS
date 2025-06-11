@@ -1,4 +1,14 @@
-//! Scrapped document
+//! Scrapped documents
+//!
+//! A scrapping job saves the content source documents and some metadata
+//! associated to those. This module provides the resources to parse that
+//! information and store it in the database.
+//!
+//! It is expected that the outputs of the scrapping are stored in a
+//! directory with:
+//! - `jurisdictions.json`: A JSON file with information on the target
+//!   jurisdictions, including the documents scrapped.
+//! - `ordinance_files/` - A directory with the scrapped documents.
 
 use serde::Deserialize;
 use sha2::Digest;
@@ -9,40 +19,65 @@ use super::MAX_JSON_FILE_SIZE;
 use crate::error::Result;
 
 #[derive(Debug, Deserialize)]
+/// A collection of target jurisdictions and related information
 pub(super) struct Source {
     pub(super) jurisdictions: Vec<Jurisdiction>,
 }
 
 #[derive(Debug, Deserialize)]
+/// A jurisdiction and its metadata
 pub(super) struct Jurisdiction {
+    /// Full name of the jurisdiction, such as "Golden City, Colorado"
     full_name: String,
+    /// County where the jurisdiction is located, such as "Jefferson County"
     county: String,
+    /// State where the jurisdiction is located, such as "Colorado"
     state: String,
+    /// Subdivision of the jurisdiction, if any, such as "Golden"
     subdivision: Option<String>,
+    /// Type of jurisdiction, such as "city", "county", etc.
     jurisdiction_type: Option<String>,
     #[serde(alias = "FIPS")]
-    /// FIPS
+    /// Federal Information Processing Standards code for the jurisdiction
     fips: u32,
+    /// Whether the jurisdiction was found during the scrapping
     found: bool,
+    /// Total time spent scrapping the jurisdiction, in seconds
     total_time: f64,
+    /// Total time spent scrapping the jurisdiction, as a string
     total_time_string: String,
+    /// List of documents associated with the jurisdiction
     documents: Option<Vec<Document>>,
 }
 
 #[derive(Deserialize, Debug)]
+/// Processed document
+///
+/// Represents a document target of the scrapper and its metadata.
+/// Although it is typically a PDF, it could be any sort of document,
+/// such as plain text from a website.
 pub(super) struct Document {
+    /// Source of the document, such as a URL
     source: String,
-    // Maybe use effective instead?
+    /// Year of the ordinance, such as 2023
     ord_year: u16,
+    /// Filename of the ordinance document
     ord_filename: String,
+    /// Number of pages in the ordinance document
     num_pages: u16,
+    /// Checksum of the original raw document
     checksum: String,
     #[allow(dead_code)]
+    /// When the document was obtained, i.e. downloaded.
     access_time: Option<String>,
 }
 
 impl Source {
     /// Initialize database for the Source context
+    ///
+    /// # Arguments
+    ///
+    /// * `conn` - A reference to the DuckDB transaction to execute the SQL commands.
     pub(super) fn init_db(conn: &duckdb::Transaction) -> Result<()> {
         debug!("Initializing database for Source");
 
@@ -95,6 +130,19 @@ impl Source {
         Ok(source)
     }
 
+    /// Open a Source collection from a scrapped output directory
+    ///
+    /// The Source collects all the documents scrapped and related metadata.
+    /// This method verifies the expected contents and parses the relevant
+    /// information.
+    ///
+    /// Currently, it expects:
+    /// * `jurisdictions.json` - A JSON file containing jurisdiction data.
+    /// * `ordinance_files` - A directory containing the files scrapped.
+    ///
+    /// # Arguments
+    ///
+    /// * `root` - The root directory where the scrapped output is located.
     pub(super) async fn open<P: AsRef<std::path::Path>>(root: P) -> Result<Self> {
         debug!("Opening source documents");
 
