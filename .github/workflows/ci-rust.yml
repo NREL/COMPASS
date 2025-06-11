@@ -61,7 +61,7 @@ jobs:
 
       - name: Run cargo fmt
         run: |
-          pixi run -e rdev --frozen cargo fmt --locked --all --check
+          pixi run -e rdev --frozen cargo fmt --all --check
 
       - name: Run cargo clippy
         run: |
