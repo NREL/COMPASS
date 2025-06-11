@@ -197,19 +197,19 @@ impl Usage {
 
                     conn.execute(
                         "INSERT INTO usage_step (model_lnk, step, requests, prompt_tokens, response_tokens) VALUES (?, ?, ?, ?, ?)",
-                        [&model_id.to_string(), step_name, &step.requests.to_string(), &step.prompt_tokens.to_string(), &step.response_tokens.to_string()]
+                        [
+                            &model_id.to_string(),
+                            step_name,
+                            &step.requests.to_string(),
+                            &step.prompt_tokens.to_string(),
+                            &step.response_tokens.to_string()
+                        ]
                         ).expect("Failed to insert usage_step");
                 }
 
                 tracing::trace!("Usage per step written to the database");
             }
-                        [
-                            &model_id.to_string(), 
-                            step_name, 
-                            &step.requests.to_string(), 
-                            &step.prompt_tokens.to_string(), 
-                            &step.response_tokens.to_string()
-                        ]
+        }
 
         Ok(())
     }
