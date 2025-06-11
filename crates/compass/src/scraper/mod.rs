@@ -63,7 +63,6 @@ pub(crate) struct ScrappedOrdinance {
     format_version: String,
     root: PathBuf,
     metadata: Metadata,
-    // sources: Vec<source::Source>,
     source: Source,
     usage: Usage,
     ordinance: Ordinance,
@@ -130,16 +129,10 @@ impl ScrappedOrdinance {
 
         // Do I need to extract the hash here from the full ScrappedOutput?
         // What about username?
-        /*
-        self.source
-            .iter()
-            .for_each(|s| s.write(&conn, commit_id).unwrap());
-        */
         self.source.record(&conn, commit_id).unwrap();
         self.metadata.write(&conn, commit_id).unwrap();
         self.usage().await.unwrap().write(&conn, commit_id).unwrap();
         self.ordinance.write(&conn, commit_id).unwrap();
-        // commit transaction
 
         tracing::trace!("Committing transaction");
         conn.commit()?;
