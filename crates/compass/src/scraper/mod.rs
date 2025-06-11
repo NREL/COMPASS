@@ -135,7 +135,7 @@ impl ScrappedOrdinance {
             .iter()
             .for_each(|s| s.write(&conn, commit_id).unwrap());
         */
-        self.source.write(&conn, commit_id).unwrap();
+        self.source.record(&conn, commit_id).unwrap();
         self.metadata.write(&conn, commit_id).unwrap();
         self.usage().await.unwrap().write(&conn, commit_id).unwrap();
         self.ordinance.write(&conn, commit_id).unwrap();

@@ -176,7 +176,15 @@ impl Source {
         Ok(jurisdictions)
     }
 
-    pub(super) fn write(&self, conn: &duckdb::Transaction, commit_id: usize) -> Result<()> {
+    /// Record the Source collection in the database
+    ///
+    /// While the information (metadata) of the source documents are
+    /// recorded in the database, the actual documents are not stored.
+    ///
+    /// # Arguments
+    ///
+    /// * `conn` - A reference to the DuckDB transaction to execute the SQL commands.
+    pub(super) fn record(&self, conn: &duckdb::Transaction, commit_id: usize) -> Result<()> {
         debug!("Recording jurisdictions on database");
 
         for jurisdiction in &self.jurisdictions {
