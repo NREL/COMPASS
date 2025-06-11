@@ -218,20 +218,24 @@ pub(crate) mod sample {
         r#"
         {
           "Decatur County, Indiana": {
-            "document_location_validation": {
-              "requests": 55,
-              "prompt_tokens": 114614,
-              "response_tokens": 1262
-            },
-            "document_content_validation": {
-              "requests": 7,
-              "prompt_tokens": 15191,
-              "response_tokens": 477
+            "gpt-4.1-mini": {
+              "document_location_validation": {
+                "requests": 55,
+                "prompt_tokens": 114614,
+                "response_tokens": 1262
+              },
+              "document_content_validation": {
+                "requests": 7,
+                "prompt_tokens": 15191,
+                "response_tokens": 477
+              }
             },
             "tracker_totals": {
-              "requests": 121,
-              "prompt_tokens": 186099,
-              "response_tokens": 6297
+              "gpt-4.1-mini": {
+                "requests": 121,
+                "prompt_tokens": 186099,
+                "response_tokens": 6297
+              }
             }
           }
         }"#
@@ -245,27 +249,27 @@ pub(crate) mod sample {
     }
 }
 
-// #[cfg(test)]
-// mod test_scrapper_usage {
-//     use super::sample::as_text_v1;
+#[cfg(test)]
+mod test_scrapper_usage {
+    use super::sample::as_text_v1;
 
-//     #[test]
-//     fn parse_json() {
-//         let usage = super::Usage::from_json(&as_text_v1()).unwrap();
+    #[test]
+    fn parse_json() {
+        let usage = super::Usage::from_json(&as_text_v1()).unwrap();
 
-//         assert!(usage.jurisdiction.contains_key("Decatur County, Indiana"));
-//         assert!(
-//             usage.jurisdiction["Decatur County, Indiana"]
-//                 .step
-//                 .contains_key("document_location_validation")
-//         );
-//         assert_eq!(
-//             usage.jurisdiction["Decatur County, Indiana"]
-//                 .step
-//                 .get("document_location_validation")
-//                 .unwrap()
-//                 .requests,
-//             55
-//         );
-//     }
-// }
+        assert!(usage.jurisdiction.contains_key("Decatur County, Indiana"));
+        assert!(
+            usage.jurisdiction["Decatur County, Indiana"].model["gpt-4.1-mini"]
+                .step
+                .contains_key("document_location_validation")
+        );
+        assert_eq!(
+            usage.jurisdiction["Decatur County, Indiana"].model["gpt-4.1-mini"]
+                .step
+                .get("document_location_validation")
+                .unwrap()
+                .requests,
+            55
+        );
+    }
+}
