@@ -203,7 +203,13 @@ impl Usage {
 
                 tracing::trace!("Usage per step written to the database");
             }
-        }
+                        [
+                            &model_id.to_string(), 
+                            step_name, 
+                            &step.requests.to_string(), 
+                            &step.prompt_tokens.to_string(), 
+                            &step.response_tokens.to_string()
+                        ]
 
         Ok(())
     }
