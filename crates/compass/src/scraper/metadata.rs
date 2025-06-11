@@ -37,7 +37,7 @@ pub(super) struct Metadata {
 /// Configuration used to run the scrapper
 pub(super) struct LLMMetadata {
     name: String,
-    llm_call_kwargs: HashMap<String, serde_json::Value>,
+    llm_call_kwargs: Option<HashMap<String, serde_json::Value>>,
     llm_service_rate_limit: u64,
     text_splitter_chunk_size: u32,
     text_splitter_chunk_overlap: u32,
