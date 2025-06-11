@@ -57,18 +57,34 @@ const MAX_JSON_FILE_SIZE: u64 = 5 * 1024 * 1024;
 #[derive(Debug)]
 /// Abstraction for the ordinance scrapper raw output
 ///
-/// The ordinance scrapper outputs a standard directory with multiple files
-/// and sub-directories. This struct abstracts the access to such output.
+/// The ordinance scrapper outputs a directory with a standard structure,
+/// including multiple files and sub-directories. The `ScrappedOrdinance`
+/// compose all that information.
 pub(crate) struct ScrappedOrdinance {
+    /// The data model version
     format_version: String,
+    /// The root path of the scrapped ordinance output
     root: PathBuf,
+    /// The metadata section
     metadata: Metadata,
+    /// The source section
     source: Source,
+    /// The usage section
     usage: Usage,
+    /// The ordinance section
     ordinance: Ordinance,
 }
 
 impl ScrappedOrdinance {
+    /// Initialize the database schema for the scrapped ordinance
+    ///
+    /// This function creates the necessary tables and resources
+    /// in the database to store the scrapped ordinance data model
+    /// by calling each component, in the correct order.
+    ///
+    /// # Arguments
+    ///
+    /// `conn`: A reference to the database transaction
     pub(super) fn init_db(conn: &duckdb::Transaction) -> Result<()> {
         debug!("Initializing ScrappedOrdinance database");
 
