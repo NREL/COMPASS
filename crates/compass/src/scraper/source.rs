@@ -245,52 +245,6 @@ impl Source {
         }
         Ok(())
     }
-
-    /*
-    pub(super) fn write(&self, conn: &duckdb::Transaction, commit_id: usize) -> Result<()> {
-        trace!("Recording source documents on database");
-
-        // What about return the number of rows inserted?
-
-        /*
-        let origin = match &self.origin {
-            Some(origin) => origin,
-            None => {
-                trace!("Missing origin for document {}", &self.name);
-                "NULL"
-            }
-        };
-        let access_time = match &self.access_time {
-            Some(time) => time,
-            None => {
-                trace!("Missing access time for document {}", &self.name);
-                "NULL"
-            }
-        };
-        */
-
-        // Insert the source document into the database
-        let source_id: u32 = conn.query_row(
-            "INSERT INTO archive (name, hash) VALUES (?, ?) RETURNING id",
-            [&self.name, &self.hash],
-            |row| row.get(0),
-        )?;
-        trace!(
-            "Inserted source document with id: {} -> {}",
-            source_id, &self.name
-        );
-        conn.execute(
-            "INSERT INTO source (bookkeeper_lnk, archive_lnk) VALUES (?, ?)",
-            [commit_id.to_string(), source_id.to_string()],
-        )?;
-        trace!(
-            "Linked source: commit ({}) -> archive ({})",
-            commit_id, source_id
-        );
-
-        Ok(())
-    }
-    */
 }
 
 /// Calculate the checksum of a local file
