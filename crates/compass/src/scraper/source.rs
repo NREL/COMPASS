@@ -283,7 +283,7 @@ impl Source {
                   subdivision, jurisdiction_type, fips,
                   found, total_time, total_time_string,
                   cost, documents)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             )?;
             stmt_source.execute(duckdb::params![
                 commit_id,
