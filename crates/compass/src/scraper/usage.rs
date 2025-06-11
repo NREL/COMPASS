@@ -68,20 +68,13 @@ impl Usage {
             CREATE TABLE IF NOT EXISTS usage (
               id INTEGER PRIMARY KEY DEFAULT NEXTVAL('usage_sequence'),
               bookkeeper_lnk INTEGER REFERENCES bookkeeper(id) NOT NULL,
-              created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-              );
-
-            CREATE SEQUENCE usage_per_jurisdiction_sequence START 1;
-            CREATE TABLE IF NOT EXISTS usage_per_jurisdiction(
-              id INTEGER PRIMARY KEY DEFAULT NEXTVAL('usage_per_jurisdiction_sequence'),
-              usage_lnk INTEGER REFERENCES usage(id) NOT NULL,
               jurisdiction TEXT NOT NULL,
               );
 
-            CREATE SEQUENCE usage_per_model_sequence START 1;
-            CREATE TABLE IF NOT EXISTS usage_per_model(
-              id INTEGER PRIMARY KEY DEFAULT NEXTVAL('usage_per_model_sequence'),
-              jurisdiction_lnk INTEGER REFERENCES usage_per_jurisdiction(id) NOT NULL,
+            CREATE SEQUENCE usage_model_sequence START 1;
+            CREATE TABLE IF NOT EXISTS usage_model(
+              id INTEGER PRIMARY KEY DEFAULT NEXTVAL('usage_model_sequence'),
+              usage_lnk INTEGER REFERENCES usage(id) NOT NULL,
               model TEXT NOT NULL,
               total_requests INTEGER NOT NULL,
               total_prompt_tokens INTEGER NOT NULL,
@@ -91,7 +84,7 @@ impl Usage {
             CREATE SEQUENCE usage_step_sequence START 1;
             CREATE TABLE IF NOT EXISTS usage_step (
               id INTEGER PRIMARY KEY DEFAULT NEXTVAL('usage_step_sequence'),
-              model_lnk INTEGER REFERENCES usage_per_model(id) NOT NULL,
+              model_lnk INTEGER REFERENCES usage_model(id) NOT NULL,
               step TEXT NOT NULL,
               requests INTEGER NOT NULL,
               prompt_tokens INTEGER NOT NULL,
@@ -148,26 +141,18 @@ impl Usage {
     /// Write the usage data to the database
     pub(super) fn write(&self, conn: &duckdb::Transaction, commit_id: usize) -> Result<()> {
         tracing::trace!("Writing Usage to the database {:?}", self);
-        // An integer type in duckdb is 32 bits.
-        let usage_id: u32 = conn
-            .query_row(
-                "INSERT INTO usage (bookkeeper_lnk) VALUES (?) RETURNING id",
-                [&commit_id.to_string()],
-                |row| row.get(0),
-            )
-            .expect("Failed to insert usage");
-
-        tracing::trace!("Usage written to the database, id: {:?}", usage_id);
 
         for (jurisdiction_name, usage_by_model) in &self.jurisdiction {
             tracing::trace!("Writing usage for {:?} to the database", jurisdiction_name);
 
             // An integer type in duckdb is 32 bits.
-            let jurisdiction_id: u32 = conn.query_row(
-                "INSERT INTO usage_per_jurisdiction (usage_lnk, jurisdiction) VALUES (?, ?) RETURNING id",
-                [&usage_id.to_string(), jurisdiction_name],
-                |row| row.get(0)
-                ).expect("Failed to insert usage_per_jurisdiction");
+            let jurisdiction_id: u32 = conn
+                .query_row(
+                    "INSERT INTO usage (bookkeeper_lnk, jurisdiction) VALUES (?, ?) RETURNING id",
+                    [&commit_id.to_string(), jurisdiction_name],
+                    |row| row.get(0),
+                )
+                .expect("Failed to insert usage");
 
             tracing::trace!(
                 "Usage per jurisdiction written to the database, id: {:?}",
@@ -183,7 +168,13 @@ impl Usage {
 
                 let model_id: u32 = conn.query_row(
                     "INSERT INTO usage_per_model (jurisdiction_lnk, model, total_requests, total_prompt_tokens, total_response_tokens) VALUES (?, ?, ?, ?, ?) RETURNING id",
-                    [&jurisdiction_id.to_string(), model_name, &usage_by_model.model["tracker_totals"].step[model_name].requests.to_string(), &usage_by_model.model["tracker_totals"].step[model_name].prompt_tokens.to_string(), &usage_by_model.model["tracker_totals"].step[model_name].response_tokens.to_string()],
+                    [
+                        &jurisdiction_id.to_string(),
+                        model_name,
+                        &usage_by_model.model["tracker_totals"].step[model_name].requests.to_string(),
+                        &usage_by_model.model["tracker_totals"].step[model_name].prompt_tokens.to_string(),
+                        &usage_by_model.model["tracker_totals"].step[model_name].response_tokens.to_string()
+                    ],
                     |row| row.get(0)
                     ).expect("Failed to insert usage_per_jurisdiction");
 
