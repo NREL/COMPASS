@@ -4,7 +4,6 @@ use anyhow::{Context, Result};
 use clap::{Arg, ArgAction, Command, arg, command, value_parser};
 use duckdb::Connection;
 use tracing::{self, error, info, trace};
-use tracing_subscriber;
 
 fn main() -> Result<()> {
     let matches = command!() // requires `cargo` feature
