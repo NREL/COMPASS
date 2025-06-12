@@ -9,6 +9,7 @@ JURISDICTION_TYPES_AS_PREFIXES = {
     "city",
     "borough",
     "village",
+    "unorganized territory",
 }
 
 
@@ -74,7 +75,7 @@ class Jurisdiction:
         if len(name_parts) < 2:  # noqa: PLR2004
             return f"the state of {self.state}"
 
-        if name_parts[1].casefold().lstrip().rstrip() == "of":
+        if self.type.casefold() in JURISDICTION_TYPES_AS_PREFIXES:
             return f"the {self.full_name}"
 
         return self.full_name
@@ -93,9 +94,7 @@ class Jurisdiction:
     @cached_property
     def full_subdivision_phrase_the_prefixed(self):
         """str: Full jurisdiction subdivision phrase, or empty str"""
-        name_parts = self.full_subdivision_phrase.split(" ")
-
-        if name_parts[1].casefold().lstrip().rstrip() == "of":
+        if self.type.casefold() in JURISDICTION_TYPES_AS_PREFIXES:
             return f"the {self.full_subdivision_phrase}"
 
         return self.full_subdivision_phrase
