@@ -72,10 +72,10 @@ impl Metadata {
               extra TEXT,
             );
 
-            CREATE SEQUENCE IF NOT EXISTS scrapper_llm_metadata_sequence START 1;
-            CREATE TABLE IF NOT EXISTS scrapper_llm_metadata (
+            CREATE SEQUENCE IF NOT EXISTS llm_config_sequence START 1;
+            CREATE TABLE IF NOT EXISTS llm_config (
               id INTEGER PRIMARY KEY DEFAULT
-                NEXTVAL('scrapper_llm_metadata_sequence'),
+                NEXTVAL('llm_config_sequence'),
               metadata_lnk INTEGER REFERENCES scrapper_metadata(id) NOT NULL,
               name TEXT,
               llm_call_kwargs TEXT,
@@ -163,7 +163,7 @@ impl Metadata {
                 llm_metadata.name
             );
             conn.execute(
-                "INSERT INTO scrapper_llm_metadata
+                "INSERT INTO llm_config
                     (metadata_lnk, name, llm_call_kwargs, llm_service_rate_limit,
                      text_splitter_chunk_size, text_splitter_chunk_overlap,
                      client_type, tasks, extra)
