@@ -146,6 +146,111 @@ digraph g {
     </TABLE>>
     ];
 
+"scrapper_metadata" [
+  shape = plaintext,
+  label = < <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    <TR ><TD PORT="ltcol0"> </TD> <TD bgcolor="grey90" border="1" COLSPAN="4"> \N </TD> <TD PORT="rtcol0"></TD></TR>
+    <TR>
+      <TD PORT="ltcol1" ></TD>
+      <TD align="left" > id </TD>
+      <TD align="left" > serial </TD>
+      <TD align="left" > PK </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol1"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol2" ></TD>
+      <TD align="left" > bookkeeper_lnk </TD>
+      <TD align="left" > integer </TD>
+      <TD align="left" >  </TD> <TD align="left" > FK </TD>
+      <TD align="left" PORT="rtcol2"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol3" ></TD>
+      <TD align="left" > username </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol3"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol4" ></TD>
+      <TD align="left" > versions </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol4"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol5" ></TD>
+      <TD align="left" > technology </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol5"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol6" ></TD>
+      <TD align="left" > llm_parse_args </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol6"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol7" ></TD>
+      <TD align="left" > time_start_utc </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol7"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol8" ></TD>
+      <TD align="left" > time_end_utc </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol8"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol9" ></TD>
+      <TD align="left" > total_time </TD>
+      <TD align="left" > float </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol9"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol10" ></TD>
+      <TD align="left" > num_jurisdictions_searched </TD>
+      <TD align="left" > integer </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol10"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol11" ></TD>
+      <TD align="left" > num_jurisdictions_found </TD>
+      <TD align="left" > integer </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol11"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol12" ></TD>
+      <TD align="left" > cost </TD>
+      <TD align="left" > float </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol12"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol13" ></TD>
+      <TD align="left" > manifest </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol13"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol14" ></TD>
+      <TD align="left" > extra </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol14"> </TD>
+      </TR>
+    </TABLE>>
+    ];
+
 "jurisdiction" [
   shape = plaintext,
   label = < <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0">
@@ -577,4 +682,5 @@ digraph g {
 "usage":rtcol2 -> "bookkeeper":ltcol1 [label=""];
 "usage_model":rtcol2 -> "usage":ltcol1 [label=""];
 "usage_step":rtcol2 -> "usage_model":ltcol1 [label=""];
+"scrapper_metadata":rtcol2 -> "bookkeeper":ltcol1 [label=""];
 }
