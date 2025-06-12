@@ -71,8 +71,7 @@ class Jurisdiction:
     @cached_property
     def full_name_the_prefixed(self):
         """str: Full jurisdiction name with `the` prefix if needed"""
-        name_parts = self.full_name.split(" ")
-        if len(name_parts) < 2:  # noqa: PLR2004
+        if self.type.casefold() == "state":
             return f"the state of {self.state}"
 
         if self.type.casefold() in JURISDICTION_TYPES_AS_PREFIXES:
