@@ -8959,6 +8959,7 @@ packages:
   - python_abi 3.12.* *_cp312
   - tomli
   license: Apache-2.0
+  license_family: APACHE
   purls:
   - pkg:pypi/coverage?source=compressed-mapping
   size: 373132
@@ -8972,6 +8973,7 @@ packages:
   - python_abi 3.12.* *_cp312
   - tomli
   license: Apache-2.0
+  license_family: APACHE
   purls:
   - pkg:pypi/coverage?source=compressed-mapping
   size: 371705
@@ -8986,6 +8988,7 @@ packages:
   - python_abi 3.12.* *_cp312
   - tomli
   license: Apache-2.0
+  license_family: APACHE
   purls:
   - pkg:pypi/coverage?source=compressed-mapping
   size: 372011
@@ -9001,6 +9004,7 @@ packages:
   - vc >=14.2,<15
   - vc14_runtime >=14.29.30139
   license: Apache-2.0
+  license_family: APACHE
   purls:
   - pkg:pypi/coverage?source=compressed-mapping
   size: 397789
@@ -11708,6 +11712,7 @@ packages:
   - typing-extensions >=3.7.4.3
   - typing_extensions >=3.7.4.3
   license: Apache-2.0
+  license_family: APACHE
   purls:
   - pkg:pypi/huggingface-hub?source=compressed-mapping
   size: 317206
@@ -12921,6 +12926,7 @@ packages:
   constrains:
   - jinja2 >=3.0.0,<4.0.0
   license: MIT
+  license_family: MIT
   purls:
   - pkg:pypi/langchain-core?source=hash-mapping
   size: 284743
@@ -19216,6 +19222,7 @@ packages:
   depends:
   - nodejs >=22.13.0,<23.0a0
   license: Apache-2.0
+  license_family: APACHE
   purls: []
   size: 1868533
   timestamp: 1749598843324
@@ -19225,6 +19232,7 @@ packages:
   depends:
   - nodejs >=22.13.0,<23.0a0
   license: Apache-2.0
+  license_family: APACHE
   purls: []
   size: 1907198
   timestamp: 1749599001700
@@ -19234,6 +19242,7 @@ packages:
   depends:
   - nodejs >=22.13.0,<23.0a0
   license: Apache-2.0
+  license_family: APACHE
   purls: []
   size: 1864864
   timestamp: 1749598973931
