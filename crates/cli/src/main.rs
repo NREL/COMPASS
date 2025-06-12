@@ -33,7 +33,7 @@ fn main() -> Result<()> {
                     Arg::new("path")
                         .value_parser(value_parser!(PathBuf))
                         .required(true)
-                        .help("Path to directory with scrapper output"),
+                        .help("Path to directory with scraper output"),
                 ),
         )
         .subcommand(
