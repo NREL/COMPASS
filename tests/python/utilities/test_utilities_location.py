@@ -190,5 +190,28 @@ def test_full_name_the_prefixed_property():
     )
 
 
+def test_full_subdivision_phrase_the_prefixed_property():
+    """Test ``Jurisdiction.full_subdivision_phrase_the_prefixed`` property"""
+
+    for st in JURISDICTION_TYPES_AS_PREFIXES:
+        jur = Jurisdiction(st, state="Colorado", subdivision_name="test")
+        assert (
+            jur.full_subdivision_phrase_the_prefixed
+            == f"the {st.title()} of Test"
+        )
+
+    jur = Jurisdiction(
+        "census county division",
+        state="Colorado",
+        county="test a",
+        subdivision_name="test b",
+    )
+
+    assert (
+        jur.full_subdivision_phrase_the_prefixed
+        == "Test B Census County Division"
+    )
+
+
 if __name__ == "__main__":
     pytest.main(["-q", "--show-capture=all", Path(__file__), "-rapP"])
