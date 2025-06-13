@@ -122,13 +122,13 @@ jobs:
           shared-key: "gha"
           save-if: ${{ github.ref == 'refs/heads/main' }}
 
-      - name: Publish crates (core library)
+      - name: Publish crates (DB)
         run: |
-          pixi run -e rdev --frozen cargo publish --locked -p infra-compass-db --all-features --dry-run
+          pixi run -e rdev --frozen publish-db --dry-run
 
       - name: Publish crates (CLI)
         run: |
-          pixi run -e rdev --frozen cargo publish --locked -p infra-compass-cli --all-features --dry-run
+          pixi run -e rdev --frozen publish-cli --dry-run
 
   publish-cli:
     name: Publish Rust CLI crate
@@ -155,7 +155,7 @@ jobs:
 
       - name: Publish crates (CLI)
         run: |
-          pixi run -e rdev --frozen cargo publish --locked -p infra-compass-cli --all-features
+          pixi run -e rdev --frozen publish-cli
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
 
@@ -184,6 +184,6 @@ jobs:
 
       - name: Publish crates (DB)
         run: |
-          pixi run -e rdev --frozen cargo publish --locked -p infra-compass-db --all-features
+          pixi run -e rdev --frozen publish-db
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
