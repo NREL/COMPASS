@@ -104,7 +104,7 @@ jobs:
     # Only run tests if code looks OK
     needs: check
     runs-on: ubuntu-latest
-    if: github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/c') && !startsWith(github.ref, 'refs/tags/d')
+    if: !startsWith(github.ref, 'refs/heads/main') && !startsWith(github.ref, 'refs/tags/c') && !startsWith(github.ref, 'refs/tags/d')
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
@@ -132,8 +132,8 @@ jobs:
 
   publish-cli:
     name: Publish Rust CLI crate
-    # Only run tests if code looks OK
-    needs: check
+    # Only publish if tests pass
+    needs: test
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/c')
     steps:
@@ -161,8 +161,8 @@ jobs:
 
   publish-db:
     name: Publish Rust DB crate
-    # Only run tests if code looks OK
-    needs: check
+    # Only publish if tests pass
+    needs: test
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/d')
     steps:
