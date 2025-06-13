@@ -129,3 +129,57 @@ jobs:
       - name: Publish crates (CLI)
         run: |
           pixi run -e rdev --frozen cargo publish --locked -p infra-compass-cli --all-features --dry-run
+
+  publish-cli:
+    name: Publish Rust CLI crate
+    # Only run tests if code looks OK
+    needs: check
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/c')
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - uses: prefix-dev/setup-pixi@v0.8.8
+        with:
+          pixi-version: v0.48.0
+          frozen: true
+          cache: true
+          cache-write: ${{ github.ref == 'refs/heads/main' }}
+          environments: rdev
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: "gha"
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+
+      - name: Publish crates (CLI)
+        run: |
+          pixi run -e rdev --frozen cargo publish --locked -p infra-compass-cli --all-features
+
+  publish-db:
+    name: Publish Rust DB crate
+    # Only run tests if code looks OK
+    needs: check
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/d')
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - uses: prefix-dev/setup-pixi@v0.8.8
+        with:
+          pixi-version: v0.48.0
+          frozen: true
+          cache: true
+          cache-write: ${{ github.ref == 'refs/heads/main' }}
+          environments: rdev
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: "gha"
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+
+      - name: Publish crates (CLI)
+        run: |
+          pixi run -e rdev --frozen cargo publish --locked -p infra-compass-db --all-features
