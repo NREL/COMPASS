@@ -97,7 +97,7 @@ jobs:
           shared-key: "gha"
           save-if: ${{ github.ref == 'refs/heads/main' }}
 
-      - run: pixi run -e rdev --frozen cargo test --locked --workspace --no-fail-fast
+      - run: pixi run -e rdev --frozen tests-r
 
   publish-dry:
     name: Publish (dry-run)
