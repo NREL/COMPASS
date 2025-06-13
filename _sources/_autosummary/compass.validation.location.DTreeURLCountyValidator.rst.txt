@@ -1,0 +1,30 @@
+compass.validation.location.DTreeURLCountyValidator
+===================================================
+
+.. currentmodule:: compass.validation.location
+
+.. autoclass:: DTreeURLCountyValidator
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~DTreeURLCountyValidator.check
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~DTreeURLCountyValidator.SYSTEM_MESSAGE
+   
+   
