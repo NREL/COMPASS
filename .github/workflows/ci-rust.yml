@@ -96,12 +96,12 @@ jobs:
 
       - run: pixi run -e rdev --frozen cargo test --locked --workspace --no-fail-fast
 
-  publish:
+  publish-dry:
     name: Publish (dry-run)
     # Only run tests if code looks OK
     needs: check
     runs-on: ubuntu-latest
-    if: github.ref != 'refs/heads/main'
+    if: github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/c') && !startsWith(github.ref, 'refs/tags/d')
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
@@ -112,7 +112,7 @@ jobs:
           frozen: true
           cache: true
           cache-write: ${{ github.ref == 'refs/heads/main' }}
-          environments: pdev rdev
+          environments: rdev
 
       - uses: Swatinem/rust-cache@v2
         with:
