@@ -82,11 +82,20 @@ def load_jurisdictions_from_fp(jurisdiction_fp):
             all_jurisdiction_info["Subdivision"].isna()
         ].reset_index(drop=True)
 
+    jurisdictions["jur_merge"] = jurisdictions.apply(
+        _build_merge_col, axis=1, merge_cols=merge_cols
+    )
+    all_jurisdiction_info["jur_merge"] = all_jurisdiction_info.apply(
+        _build_merge_col, axis=1, merge_cols=merge_cols
+    )
     jurisdictions = jurisdictions.merge(
-        all_jurisdiction_info, on=merge_cols, how="left"
+        all_jurisdiction_info,
+        on="jur_merge",
+        how="left",
+        suffixes=["_user", ""],
     )
 
-    jurisdictions = _filter_not_found_jurisdictions(jurisdictions)
+    jurisdictions = _filter_not_found_jurisdictions(jurisdictions, merge_cols)
     return _format_jurisdiction_df_for_output(jurisdictions)
 
 
@@ -115,18 +124,22 @@ def _validate_jurisdiction_input(jurisdictions):
     return jurisdictions
 
 
-def _filter_not_found_jurisdictions(df):
+def _filter_not_found_jurisdictions(df, merge_cols):
     """Filter out jurisdictions with null FIPS codes"""
-    _warn_about_missing_jurisdictions(df)
+    _warn_about_missing_jurisdictions(df, merge_cols)
     return df[~df["FIPS"].isna()].copy()
 
 
-def _warn_about_missing_jurisdictions(df):
+def _warn_about_missing_jurisdictions(df, merge_cols):
     """Throw warning about jurisdictions that were not in the list"""
     not_found_jurisdictions = df[df["FIPS"].isna()]
     if len(not_found_jurisdictions):
+        out_cols = {f"{col}_user": col for col in merge_cols}
+        not_found_jurisdictions = not_found_jurisdictions[
+            list(out_cols)
+        ].rename(columns=out_cols)
         not_found_jurisdictions_str = not_found_jurisdictions[
-            ["State", "County", "Subdivision", "Jurisdiction Type"]
+            merge_cols
             # cspell: disable-next-line
         ].to_markdown(index=False, tablefmt="psql")
         msg = (
@@ -149,3 +162,8 @@ def _format_jurisdiction_df_for_output(df):
     ]
     df["FIPS"] = df["FIPS"].astype(int)
     return df[out_cols].replace({np.nan: None}).reset_index(drop=True)
+
+
+def _build_merge_col(row, merge_cols):
+    """Build column to merge jurisdiction DataFrames on"""
+    return " ".join(str(row[c]).casefold() for c in merge_cols)
