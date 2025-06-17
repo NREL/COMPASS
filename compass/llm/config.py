@@ -97,7 +97,7 @@ class OpenAIConfig(LLMConfig):
 
     def __init__(
         self,
-        name="gpt-4o",
+        name="gpt-4o-mini",
         llm_call_kwargs=None,
         llm_service_rate_limit=4000,
         text_splitter_chunk_size=10_000,
