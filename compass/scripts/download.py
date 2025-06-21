@@ -1,9 +1,11 @@
 """Ordinance file downloading logic"""
 
 import logging
+from contextlib import AsyncExitStack
 
 from elm.web.document import PDFDocument
 from elm.web.search.run import web_search_links_as_docs
+from elm.web.search.google import PlaywrightGoogleLinkSearch
 from elm.web.utilities import filter_documents
 
 from compass.extraction import check_for_ordinance_info, extract_date
