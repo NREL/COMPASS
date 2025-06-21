@@ -11,6 +11,7 @@ from compass.services.threaded import TempFileCachePB
 from compass.validation.location import (
     DTreeJurisdictionValidator,
     JurisdictionValidator,
+    JurisdictionWebsiteValidator,
 )
 from compass.utilities.enums import LLMTasks
 from compass.pb import COMPASS_PB
