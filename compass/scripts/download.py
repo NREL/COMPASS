@@ -19,6 +19,79 @@ from compass.pb import COMPASS_PB
 logger = logging.getLogger(__name__)
 
 
+async def find_jurisdiction_website(
+    jurisdiction,
+    model_configs,
+    file_loader_kwargs=None,
+    browser_semaphore=None,
+    usage_tracker=None,
+):
+    """Search for the main landing page of a given jurisdiction
+
+    Parameters
+    ----------
+    jurisdiction : :class:`~compass.utilities.location.Jurisdiction`
+        Jurisdiction instance representing the jurisdiction to find the
+        main webpage for.
+    model_configs : dict
+        Dictionary of :class:`~compass.llm.config.LLMConfig` instances.
+        Should have at minium a "default" key that is used as a fallback
+        for all tasks.
+    file_loader_kwargs : dict, optional
+        Dictionary of keyword arguments pairs to initialize
+        :class:`elm.web.file_loader.AsyncFileLoader`. If found, the
+        "pw_launch_kwargs" key in these will also be used to initialize
+        the :class:`elm.web.search.google.PlaywrightGoogleLinkSearch`
+        used for the Google URL search. By default, ``None``.
+    browser_semaphore : :class:`asyncio.Semaphore`, optional
+        Semaphore instance that can be used to limit the number of
+        playwright browsers open concurrently. If ``None``, no limits
+        are applied. By default, ``None``.
+    usage_tracker : compass.services.usage.UsageTracker, optional
+        Optional tracker instance to monitor token usage during
+        LLM calls. By default, ``None``.
+
+    Returns
+    -------
+    str | None
+        URL for the jurisdiction website, if found; ``None`` otherwise.
+    """
+    if browser_semaphore is None:
+        browser_semaphore = AsyncExitStack()
+
+    file_loader_kwargs = file_loader_kwargs or {}
+    pw_launch_kwargs = file_loader_kwargs.get("pw_launch_kwargs") or {}
+    se = PlaywrightGoogleLinkSearch(**pw_launch_kwargs)
+
+    name = jurisdiction.full_name_the_prefixed
+    name_no_the = name.removeprefix("the ")
+
+    query = f"{name_no_the} website".casefold().replace(",", "")
+
+    potential_website_links, *__ = await se.results(query, num_results=5)
+    if not potential_website_links:
+        return None
+
+    model_config = model_configs.get(
+        LLMTasks.JURISDICTION_MAIN_WEBSITE_VALIDATION,
+        model_configs[LLMTasks.DEFAULT],
+    )
+
+    validator = JurisdictionWebsiteValidator(
+        browser_semaphore=browser_semaphore,
+        file_loader_kwargs=file_loader_kwargs,
+        usage_tracker=usage_tracker,
+        llm_service=model_config.llm_service,
+        **model_config.llm_call_kwargs,
+    )
+
+    for url in potential_website_links:
+        if await validator.check(url, jurisdiction):
+            return url
+
+    return None
+
+
 async def download_jurisdiction_ordinance(  # noqa: PLR0913, PLR0917
     question_templates,
     jurisdiction,
