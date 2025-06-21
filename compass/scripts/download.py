@@ -6,6 +6,7 @@ from contextlib import AsyncExitStack
 from elm.web.document import PDFDocument
 from elm.web.search.run import web_search_links_as_docs
 from elm.web.search.google import PlaywrightGoogleLinkSearch
+from elm.web.website_crawl import ELMWebsiteCrawler, ELMLinkScorer
 from elm.web.utilities import filter_documents
 
 from compass.extraction import check_for_ordinance_info, extract_date
@@ -93,6 +94,76 @@ async def find_jurisdiction_website(
             return url
 
     return None
+
+
+async def download_jurisdiction_ordinances_from_website(
+    website,
+    heuristic,
+    keyword_points,
+    file_loader_kwargs=None,
+    browser_config_kwargs=None,
+    crawler_config_kwargs=None,
+    max_urls=100,
+):
+    """Download ordinance documents from a jurisdiction website
+
+    Parameters
+    ----------
+    website : str
+        URL of the jurisdiction website to search.
+    keyword_points : dict
+        Dictionary of keyword points to use for scoring links.
+        Keys are keywords, values are points to assign to links
+        containing the keyword. If a link contains multiple keywords,
+        the points are summed up.
+    file_loader_kwargs : dict, optional
+        Dictionary of keyword arguments pairs to initialize
+        :class:`elm.web.file_loader.AsyncFileLoader`. If found, the
+        "pw_launch_kwargs" key in these will also be used to initialize
+        the :class:`elm.web.search.google.PlaywrightGoogleLinkSearch`
+        used for the Google URL search. By default, ``None``.
+    browser_config_kwargs : dict, optional
+        Dictionary of keyword arguments pairs to initialize the
+        :class:`crawl4ai.async_configs.BrowserConfig` class used for the
+        web crawl. By default, ``None``.
+    crawler_config_kwargs : dict, optional
+        Dictionary of keyword arguments pairs to initialize the
+        :class:`crawl4ai.async_configs.CrawlerConfig` class used for the
+        web crawl. By default, ``None``.
+    max_urls : int, optional
+        Max number of URLs to check from the website before terminating
+        the search. By default, ``100``.
+
+    Returns
+    -------
+    list
+        List of :obj:`~elm.web.document.BaseDocument` instances
+        containing potential ordinance information, or an empty list if
+        no ordinance document was found.
+    """
+
+    async def _doc_heuristic(doc):  # noqa: RUF029
+        """Heuristic check for wind ordinance documents"""
+        return heuristic.check(doc.text.lower())
+
+    browser_config_kwargs = browser_config_kwargs or {}
+    headless = (
+        (file_loader_kwargs or {})
+        .get("pw_launch_kwargs", {})
+        .get("headless", True)
+    )
+    browser_config_kwargs["headless"] = headless
+
+    crawler = ELMWebsiteCrawler(
+        validator=_doc_heuristic,
+        url_scorer=ELMLinkScorer(keyword_points).score,
+        file_loader_kwargs=file_loader_kwargs,
+        browser_config_kwargs=browser_config_kwargs,
+        crawler_config_kwargs=crawler_config_kwargs,
+        include_external=True,
+        max_pages=max_urls,
+    )
+    return await crawler.run(website, on_result_hook=None)
 
 
 async def download_jurisdiction_ordinance(  # noqa: PLR0913, PLR0917
