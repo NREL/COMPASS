@@ -65,7 +65,7 @@ class DTreeURLJurisdictionValidator(BaseLLMCaller):
         )
         tree = setup_async_decision_tree(
             setup_graph_correct_jurisdiction_from_url,
-            usage_sub_label=LLMUsageCategory.DOCUMENT_JURISDICTION_VALIDATION,
+            usage_sub_label=LLMUsageCategory.URL_JURISDICTION_VALIDATION,
             jurisdiction=self.jurisdiction,
             url=url,
             chat_llm_caller=chat_llm_caller,
