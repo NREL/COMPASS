@@ -113,7 +113,6 @@ class ChatLLMCaller(BaseLLMCaller):
             processing function (i.e. `llm_service.call(**kwargs)`).
             Should *not* contain the following keys:
 
-                - usage_tracker
                 - usage_sub_label
                 - messages
 
