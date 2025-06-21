@@ -19,7 +19,7 @@ from compass.utilities.enums import LLMUsageCategory
 logger = logging.getLogger(__name__)
 
 
-class DTreeURLCountyValidator(BaseLLMCaller):
+class DTreeURLJurisdictionValidator(BaseLLMCaller):
     """Validator that checks whether a URL matches a jurisdiction"""
 
     SYSTEM_MESSAGE = (
@@ -157,7 +157,7 @@ class JurisdictionValidator:
         Uses a :class:`~compass.llm.calling.StructuredLLMCaller` for
         LLM queries and delegates sub-validation to
         :class:`DTreeJurisdictionValidator`,
-        and :class:`DTreeURLCountyValidator`.
+        and :class:`DTreeURLJurisdictionValidator`.
     """
 
     def __init__(self, score_thresh=0.8, text_splitter=None, **kwargs):
@@ -210,8 +210,8 @@ class JurisdictionValidator:
 
         url = doc.attrs.get("source")
         if url:
-            logger.debug("Checking URL (%s) for county name...", url)
-            url_validator = DTreeURLCountyValidator(
+            logger.debug("Checking URL (%s) for jurisdiction name...", url)
+            url_validator = DTreeURLJurisdictionValidator(
                 jurisdiction, **self.kwargs
             )
             url_is_correct_jurisdiction = await url_validator.check(url)
