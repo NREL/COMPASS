@@ -15,7 +15,12 @@ import pandas as pd
 from elm.version import __version__ as elm_version
 
 from compass import __version__ as compass_version
-from compass.scripts.download import download_jurisdiction_ordinance
+from compass.scripts.download import (
+    find_jurisdiction_website,
+    download_jurisdiction_ordinance_using_search_engine,
+    download_jurisdiction_ordinances_from_website,
+    filter_ordinance_docs,
+)
 from compass.exceptions import COMPASSValueError
 from compass.extraction import (
     extract_ordinance_values,
@@ -30,6 +35,7 @@ from compass.extraction.solar import (
     StructuredSolarOrdinanceParser,
     StructuredSolarPermittedUseDistrictsParser,
     SOLAR_QUESTION_TEMPLATES,
+    BEST_SOLAR_ORDINANCE_WEBSITE_URL_KEYWORDS,
 )
 from compass.extraction.wind import (
     WindHeuristic,
@@ -40,7 +46,9 @@ from compass.extraction.wind import (
     StructuredWindOrdinanceParser,
     StructuredWindPermittedUseDistrictsParser,
     WIND_QUESTION_TEMPLATES,
+    BEST_WIND_ORDINANCE_WEBSITE_URL_KEYWORDS,
 )
+from compass.validation.location import JurisdictionWebsiteValidator
 from compass.llm import LLMCaller, OpenAIConfig
 from compass.services.cpu import (
     PDFLoader,
@@ -52,7 +60,8 @@ from compass.services.usage import UsageTracker
 from compass.services.openai import usage_from_response
 from compass.services.provider import RunningAsyncServices
 from compass.services.threaded import (
-    TempFileCachePB,
+    TempFileFromSECachePB,
+    TempFileFromWebpageCachePB,
     FileMover,
     CleanedFileWriter,
     OrdDBFileWriter,
@@ -90,6 +99,7 @@ TechSpec = namedtuple(
         "permitted_use_text_extractor",
         "structured_ordinance_parser",
         "structured_permitted_use_parser",
+        "website_url_keyword_points",
     ],
 )
 ProcessKwargs = namedtuple(
@@ -164,7 +174,14 @@ _TEXT_EXTRACTION_TASKS = {
         "Extracting solar permitted use text"
     ),
 }
-_JUR_COLS = ["Jurisdiction Type", "State", "County", "Subdivision", "FIPS"]
+_JUR_COLS = [
+    "Jurisdiction Type",
+    "State",
+    "County",
+    "Subdivision",
+    "FIPS",
+    "Website",
+]
 
 
 async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
@@ -474,7 +491,11 @@ class _COMPASSRunner:
     def _base_services(self):
         """list: List of required services to run for processing"""
         base_services = [
-            TempFileCachePB(
+            TempFileFromSECachePB(
+                td_kwargs=self.process_kwargs.td_kwargs,
+                tpe_kwargs=self.tpe_kwargs,
+            ),
+            TempFileFromWebpageCachePB(
                 td_kwargs=self.process_kwargs.td_kwargs,
                 tpe_kwargs=self.tpe_kwargs,
             ),
@@ -549,7 +570,7 @@ class _COMPASSRunner:
         async with RunningAsyncServices(services):
             tasks = []
             for __, row in jurisdictions.iterrows():
-                jur_type, state, county, sub, fips = row[_JUR_COLS]
+                jur_type, state, county, sub, fips, website = row[_JUR_COLS]
                 jurisdiction = Jurisdiction(
                     subdivision_type=jur_type,
                     state=state,
@@ -562,7 +583,7 @@ class _COMPASSRunner:
                 )
                 task = asyncio.create_task(
                     self._processed_jurisdiction_info_with_pb(
-                        jurisdiction, usage_tracker=usage_tracker
+                        jurisdiction, website, usage_tracker=usage_tracker
                     ),
                     name=jurisdiction.full_name,
                 )
@@ -596,7 +617,7 @@ class _COMPASSRunner:
         return doc_info
 
     async def _process_jurisdiction_with_logging(
-        self, jurisdiction, usage_tracker=None
+        self, jurisdiction, jurisdiction_website, usage_tracker=None
     ):
         """Retrieve ordinance document with async logs"""
         with LocationFileLog(
@@ -613,6 +634,7 @@ class _COMPASSRunner:
                     self.web_search_params,
                     self.file_loader_kwargs,
                     self.browser_semaphore,
+                    jurisdiction_website=jurisdiction_website,
                     usage_tracker=usage_tracker,
                 ).run(),
                 name=jurisdiction.full_name,
@@ -640,6 +662,7 @@ class _SingleJurisdictionRunner:
         web_search_params,
         file_loader_kwargs,
         browser_semaphore,
+        jurisdiction_website=None,
         usage_tracker=None,
     ):
         self.tech_specs = _compile_tech_specs(tech)
@@ -649,6 +672,8 @@ class _SingleJurisdictionRunner:
         self.file_loader_kwargs = file_loader_kwargs
         self.browser_semaphore = browser_semaphore
         self.usage_tracker = usage_tracker
+        self.jurisdiction_website = jurisdiction_website
+        self.validate_user_website_input = True
         self._jsp = None
 
     @contextmanager
@@ -672,8 +697,19 @@ class _SingleJurisdictionRunner:
 
     async def _run(self):
         """Search for docs and parse them for ordinances"""
-        docs = await self._find_documents_with_jurisdiction_attr()
-        if docs is None:
+        docs = await self._find_documents_using_search_engine()
+        if docs is not None:
+            COMPASS_PB.update_jurisdiction_task(
+                self.jurisdiction.full_name,
+                description="Extracting structured data...",
+            )
+            doc = await self._parse_docs_for_ordinances(docs)
+
+        if doc is not None:
+            return doc
+
+        docs = await self._find_documents_from_website()
+        if not docs:
             return None
 
         COMPASS_PB.update_jurisdiction_task(
@@ -682,10 +718,18 @@ class _SingleJurisdictionRunner:
         )
         return await self._parse_docs_for_ordinances(docs)
 
-    async def _find_documents_with_jurisdiction_attr(self):
+    async def _find_documents_using_search_engine(self):
         """Search the web for an ordinance document and construct it"""
-        docs = await download_jurisdiction_ordinance(
+        docs = await download_jurisdiction_ordinance_using_search_engine(
             self.tech_specs.questions,
+            self.jurisdiction,
+            num_urls=self.web_search_params.num_urls_to_check_per_jurisdiction,
+            file_loader_kwargs=self.file_loader_kwargs,
+            browser_semaphore=self.browser_semaphore,
+            url_ignore_substrings=self.web_search_params.url_ignore_substrings,
+        )
+        docs = await filter_ordinance_docs(
+            docs,
             self.jurisdiction,
             self.models,
             heuristic=self.tech_specs.heuristic,
@@ -695,13 +739,87 @@ class _SingleJurisdictionRunner:
             permitted_use_text_collector_class=(
                 self.tech_specs.permitted_use_text_collector
             ),
-            num_urls=self.web_search_params.num_urls_to_check_per_jurisdiction,
-            file_loader_kwargs=self.file_loader_kwargs,
-            browser_semaphore=self.browser_semaphore,
-            url_ignore_substrings=self.web_search_params.url_ignore_substrings,
             usage_tracker=self.usage_tracker,
+            check_for_correct_jurisdiction=True,
         )
         if docs is None:
+            return None
+
+        for doc in docs:
+            doc.attrs["jurisdiction"] = self.jurisdiction
+            doc.attrs["jurisdiction_name"] = self.jurisdiction.full_name
+
+        await self._record_usage()
+        return docs
+
+    async def _find_documents_from_website(self):
+        """Search the website for ordinance documents"""
+        if self.jurisdiction_website and self.validate_user_website_input:
+            COMPASS_PB.update_jurisdiction_task(
+                self.jurisdiction.full_name,
+                description="Validating input website...",
+            )
+            model_config = self.models.get(
+                LLMTasks.DOCUMENT_JURISDICTION_VALIDATION,
+                self.models[LLMTasks.DEFAULT],
+            )
+            validator = JurisdictionWebsiteValidator(
+                browser_semaphore=self.browser_semaphore,
+                file_loader_kwargs=self.file_loader_kwargs,
+                usage_tracker=self.usage_tracker,
+                llm_service=model_config.llm_service,
+                **model_config.llm_call_kwargs,
+            )
+            is_website_correct = await validator.check(
+                self.jurisdiction_website, self.jurisdiction
+            )
+            if not is_website_correct:
+                self.jurisdiction_website = None
+
+        if not self.jurisdiction_website:
+            COMPASS_PB.update_jurisdiction_task(
+                self.jurisdiction.full_name,
+                description="Searching for jurisdiction website...",
+            )
+            self.jurisdiction_website = await find_jurisdiction_website(
+                self.jurisdiction,
+                self.models,
+                file_loader_kwargs=self.file_loader_kwargs,
+                browser_semaphore=self.browser_semaphore,
+                usage_tracker=self.usage_tracker,
+            )
+
+        if not self.jurisdiction_website:
+            return None
+
+        COMPASS_PB.update_jurisdiction_task(
+            self.jurisdiction.full_name,
+            description=(
+                f"Searching for docs from {self.jurisdiction_website}..."
+            ),
+        )
+        docs = await download_jurisdiction_ordinances_from_website(
+            self.jurisdiction_website,
+            heuristic=self.tech_specs.heuristic,
+            keyword_points=self.tech_specs.website_url_keyword_points,
+            file_loader_kwargs=self.file_loader_kwargs,
+            browser_semaphore=self.browser_semaphore,
+        )
+        docs = await filter_ordinance_docs(
+            docs,
+            self.jurisdiction,
+            self.models,
+            heuristic=self.tech_specs.heuristic,
+            ordinance_text_collector_class=(
+                self.tech_specs.ordinance_text_collector
+            ),
+            permitted_use_text_collector_class=(
+                self.tech_specs.permitted_use_text_collector
+            ),
+            usage_tracker=self.usage_tracker,
+            check_for_correct_jurisdiction=False,
+        )
+        if not docs:
             return None
 
         for doc in docs:
@@ -843,6 +961,7 @@ def _compile_tech_specs(tech):
             WindPermittedUseDistrictsTextExtractor,
             StructuredWindOrdinanceParser,
             StructuredWindPermittedUseDistrictsParser,
+            BEST_WIND_ORDINANCE_WEBSITE_URL_KEYWORDS,
         )
     if tech.casefold() == "solar":
         return TechSpec(
@@ -854,6 +973,7 @@ def _compile_tech_specs(tech):
             SolarPermittedUseDistrictsTextExtractor,
             StructuredSolarOrdinanceParser,
             StructuredSolarPermittedUseDistrictsParser,
+            BEST_SOLAR_ORDINANCE_WEBSITE_URL_KEYWORDS,
         )
 
     msg = f"Unknown tech input: {tech}"
