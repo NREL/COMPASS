@@ -202,6 +202,7 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
     clean_dir=None,
     ordinance_file_dir=None,
     jurisdiction_dbs_dir=None,
+    perform_website_search=True,
     llm_costs=None,
     log_level="INFO",
 ):
@@ -342,6 +343,10 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
         stored for each jurisdiction. If not provided, a
         ``jurisdiction_dbs`` subdirectory will be created inside
         `out_dir`. By default, ``None``.
+    perform_website_search : bool, default=True
+        Option to fallback to a jurisdiction website crawl-based search
+        for ordinance documents if the search engine approach fails to
+        recover any relevant documents. By default, ``True``.
     llm_costs : dict, optional
         Dictionary mapping model names to their token costs, used to
         track the estimated total cost of LLM usage during the run. The
@@ -412,6 +417,7 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
         models=models,
         web_search_params=wsp,
         process_kwargs=pk,
+        perform_website_search=perform_website_search,
         log_level=log_level,
     )
     async with log_listener as ll:
@@ -430,6 +436,7 @@ class _COMPASSRunner:
         models,
         web_search_params=None,
         process_kwargs=None,
+        perform_website_search=True,
         log_level="INFO",
     ):
         self.dirs = dirs
@@ -438,6 +445,7 @@ class _COMPASSRunner:
         self.models = models
         self.web_search_params = web_search_params or WebSearchParams()
         self.process_kwargs = process_kwargs or ProcessKwargs()
+        self.perform_website_search = perform_website_search
         self.log_level = log_level
 
     @cached_property
@@ -635,6 +643,7 @@ class _COMPASSRunner:
                     self.file_loader_kwargs,
                     self.browser_semaphore,
                     jurisdiction_website=jurisdiction_website,
+                    perform_website_search=self.perform_website_search,
                     usage_tracker=usage_tracker,
                 ).run(),
                 name=jurisdiction.full_name,
@@ -663,6 +672,7 @@ class _SingleJurisdictionRunner:
         file_loader_kwargs,
         browser_semaphore,
         jurisdiction_website=None,
+        perform_website_search=True,
         usage_tracker=None,
     ):
         self.tech_specs = _compile_tech_specs(tech)
@@ -673,6 +683,7 @@ class _SingleJurisdictionRunner:
         self.browser_semaphore = browser_semaphore
         self.usage_tracker = usage_tracker
         self.jurisdiction_website = jurisdiction_website
+        self.perform_website_search = perform_website_search
         self.validate_user_website_input = True
         self._jsp = None
 
@@ -705,7 +716,7 @@ class _SingleJurisdictionRunner:
             )
             doc = await self._parse_docs_for_ordinances(docs)
 
-        if doc is not None:
+        if doc is not None or not self.perform_website_search:
             return doc
 
         docs = await self._find_documents_from_website()
