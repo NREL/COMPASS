@@ -88,13 +88,17 @@ UNIT_CLARIFICATIONS = {
     "noise": (
         "For the purposes of this extraction, assume the standard units "
         "for noise are 'dBA'."
-    )
+    ),
+    "coverage": (
+        "Maximum land coverage should be specified as a fraction or "
+        "percentage of the total land."
+    ),
 }
 ER_CLARIFICATIONS = {
     "maximum project size": (
         "Maximum project size is typically specified as a maximum system "
-        "size value or as a maximum total area value."
-    ),
+        "size value or as a maximum number of solar panels."
+    )
 }
 
 
