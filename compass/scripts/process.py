@@ -769,7 +769,10 @@ class _SingleJurisdictionRunner:
         if self.jurisdiction_website and self.validate_user_website_input:
             COMPASS_PB.update_jurisdiction_task(
                 self.jurisdiction.full_name,
-                description="Validating input website...",
+                description=(
+                    "Validating user input website: "
+                    f"{self.jurisdiction_website}"
+                ),
             )
             model_config = self.models.get(
                 LLMTasks.DOCUMENT_JURISDICTION_VALIDATION,
@@ -804,18 +807,13 @@ class _SingleJurisdictionRunner:
         if not self.jurisdiction_website:
             return None
 
-        COMPASS_PB.update_jurisdiction_task(
-            self.jurisdiction.full_name,
-            description=(
-                f"Searching for docs from {self.jurisdiction_website}..."
-            ),
-        )
         docs = await download_jurisdiction_ordinances_from_website(
             self.jurisdiction_website,
             heuristic=self.tech_specs.heuristic,
             keyword_points=self.tech_specs.website_url_keyword_points,
             file_loader_kwargs=self.file_loader_kwargs,
             browser_semaphore=self.browser_semaphore,
+            pb_jurisdiction_name=self.jurisdiction.full_name,
         )
         docs = await filter_ordinance_docs(
             docs,
