@@ -759,6 +759,7 @@ class _SingleJurisdictionRunner:
         for doc in docs:
             doc.attrs["jurisdiction"] = self.jurisdiction
             doc.attrs["jurisdiction_name"] = self.jurisdiction.full_name
+            doc.attrs["jurisdiction_website"] = None
 
         await self._record_usage()
         return docs
@@ -836,6 +837,7 @@ class _SingleJurisdictionRunner:
         for doc in docs:
             doc.attrs["jurisdiction"] = self.jurisdiction
             doc.attrs["jurisdiction_name"] = self.jurisdiction.full_name
+            doc.attrs["jurisdiction_website"] = self.jurisdiction_website
 
         await self._record_usage()
         return docs

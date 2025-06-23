@@ -520,6 +520,7 @@ def _dump_jurisdiction_info(
         "found": False,
         "total_time": seconds_elapsed,
         "total_time_string": str(timedelta(seconds=seconds_elapsed)),
+        "jurisdiction_website": doc.attrs.get("jurisdiction_website"),
         "cost": None,
         "documents": None,
     }
