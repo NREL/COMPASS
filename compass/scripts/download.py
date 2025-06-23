@@ -109,6 +109,7 @@ async def download_jurisdiction_ordinances_from_website(
     crawler_config_kwargs=None,
     max_urls=100,
     browser_semaphore=None,
+    pb_jurisdiction_name=None,
 ):
     """Download ordinance documents from a jurisdiction website
 
@@ -142,6 +143,9 @@ async def download_jurisdiction_ordinances_from_website(
         Semaphore instance that can be used to limit the number of
         playwright browsers open concurrently. If ``None``, no limits
         are applied. By default, ``None``.
+    pb_jurisdiction_name : str, optional
+        Optional jurisdiction name to use to update progress bar, if
+        it's being used. By default, ``None``.
 
     Returns
     -------
@@ -156,7 +160,11 @@ async def download_jurisdiction_ordinances_from_website(
 
     async def _doc_heuristic(doc):  # noqa: RUF029
         """Heuristic check for wind ordinance documents"""
-        return heuristic.check(doc.text.lower())
+        is_valid_document = heuristic.check(doc.text.lower())
+        if is_valid_document and pb_jurisdiction_name:
+            COMPASS_PB.update_website_crawl_doc_found(pb_jurisdiction_name)
+
+        return is_valid_document
 
     file_loader_kwargs = file_loader_kwargs or {}
     file_loader_kwargs.update(
@@ -176,8 +184,24 @@ async def download_jurisdiction_ordinances_from_website(
         include_external=True,
         max_pages=max_urls,
     )
+
+    if pb_jurisdiction_name:
+        COMPASS_PB.update_jurisdiction_task(
+            pb_jurisdiction_name,
+            description=f"Searching for documents from {website} ...",
+        )
+        cpb = COMPASS_PB.website_crawl_prog_bar(pb_jurisdiction_name, max_urls)
+
+        async def _crawl_hook(*__, **___):  # noqa: RUF029
+            COMPASS_PB.update_website_crawl_task(
+                pb_jurisdiction_name, advance=1
+            )
+
+        async with browser_semaphore, cpb:
+            return await crawler.run(website, on_result_hook=_crawl_hook)
+
     async with browser_semaphore:
-        return await crawler.run(website, on_result_hook=None)
+        return await crawler.run(website)
 
 
 async def download_jurisdiction_ordinance_using_search_engine(
