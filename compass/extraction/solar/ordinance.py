@@ -52,7 +52,7 @@ class SolarHeuristic(Heuristic):
         "solar break",
         "solar damage",
         "solar data",
-        "solar resource"
+        "solar resource",
     ]
     GOOD_TECH_KEYWORDS = ["solar", "setback"]
     GOOD_TECH_ACRONYMS = ["secs", "sef", "ses", "cses"]
