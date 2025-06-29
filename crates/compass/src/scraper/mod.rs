@@ -121,12 +121,15 @@ impl ScrappedOrdinance {
             ));
         }
         */
-        let source = source::Source::open(&root).await?;
-        let metadata = metadata::Metadata::open(&root).await?;
-        let usage = usage::Usage::open(&root).await?;
-        let ordinance = ordinance::Ordinance::open(&root).await?;
 
+        let (source, metadata, usage, ordinance) = tokio::try_join!(
+            source::Source::open(&root),
+            metadata::Metadata::open(&root),
+            usage::Usage::open(&root),
+            ordinance::Ordinance::open(&root)
+        )?;
         trace!("Scrapped ordinance opened successfully");
+
         Ok(Self {
             root,
             format_version: SCRAPED_ORDINANCE_VERSION.to_string(),
