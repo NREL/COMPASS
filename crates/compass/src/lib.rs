@@ -78,7 +78,7 @@ pub fn init_db(path: &str) -> Result<()> {
     )?;
 
     let conn = db.transaction()?;
-    scraper::ScrappedOrdinance::init_db(&conn)?;
+    scraper::ScrapedOrdinance::init_db(&conn)?;
     conn.commit()?;
 
     println!("{}", db.is_autocommit());
@@ -124,7 +124,7 @@ pub fn load_ordinance<P: AsRef<std::path::Path> + std::fmt::Debug>(
         .unwrap();
 
     let ordinance = rt
-        .block_on(scraper::ScrappedOrdinance::open(ordinance_path))
+        .block_on(scraper::ScrapedOrdinance::open(ordinance_path))
         .unwrap();
     conn.commit().unwrap();
     tracing::debug!("Transaction committed");

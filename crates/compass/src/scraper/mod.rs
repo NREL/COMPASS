@@ -36,17 +36,17 @@ const MAX_JSON_FILE_SIZE: u64 = 5 * 1024 * 1024;
 // Some concepts:
 //
 // - One single ordinance output is loaded and abstracted as a
-//   ScrappedOrdinance. Everything inside should be accessible through this
+//   ScrapedOrdinance. Everything inside should be accessible through this
 //   abstraction.
 // - It is possible to operate in multiple ordinance outputs at once, such
 //   as loading multiple ordinance outputs into the database.
-// - The ScrappedOrdinance should implement a hash estimate, which will
+// - The ScrapedOrdinance should implement a hash estimate, which will
 //   be used to identify the commit in the database.
-// - Open ScrappedOrdinance is an async operation, and accessing/parsing
+// - Open ScrapedOrdinance is an async operation, and accessing/parsing
 //   each component is also async. Thus, it can load into DB as it goes
 //   until complete all components.
 // - The sequence:
-//   - Open ScrappedOrdinance (async)
+//   - Open ScrapedOrdinance (async)
 //   - Validate the content (async)
 //     - Does it has all the requirements?
 //     - Light check. Without requiring to open everything or loading
@@ -58,9 +58,9 @@ const MAX_JSON_FILE_SIZE: u64 = 5 * 1024 * 1024;
 /// Abstraction for the ordinance scraper raw output
 ///
 /// The ordinance scraper outputs a directory with a standard structure,
-/// including multiple files and sub-directories. The `ScrappedOrdinance`
+/// including multiple files and sub-directories. The `ScrapedOrdinance`
 /// compose all that information.
-pub(crate) struct ScrappedOrdinance {
+pub(crate) struct ScrapedOrdinance {
     /// The data model version
     format_version: String,
     /// The root path of the scraped ordinance output
@@ -75,7 +75,7 @@ pub(crate) struct ScrappedOrdinance {
     ordinance: Ordinance,
 }
 
-impl ScrappedOrdinance {
+impl ScrapedOrdinance {
     /// Initialize the database schema for the scraped ordinance
     ///
     /// This function creates the necessary tables and resources
@@ -86,7 +86,7 @@ impl ScrappedOrdinance {
     ///
     /// `conn`: A reference to the database transaction
     pub(super) fn init_db(conn: &duckdb::Transaction) -> Result<()> {
-        debug!("Initializing ScrappedOrdinance database");
+        debug!("Initializing ScrapedOrdinance database");
 
         source::Source::init_db(conn)?;
         metadata::Metadata::init_db(conn)?;
@@ -105,7 +105,7 @@ impl ScrappedOrdinance {
         let root = root.as_ref().to_path_buf();
         trace!("Scraper output located at: {:?}", root);
 
-        // Do some validation before returning a ScrappedOrdinance
+        // Do some validation before returning a ScrapedOrdinance
 
         if !root.exists() {
             trace!("Root path does not exist");
@@ -128,7 +128,7 @@ impl ScrappedOrdinance {
             usage::Usage::open(&root),
             ordinance::Ordinance::open(&root)
         )?;
-        trace!("Scrapped ordinance opened successfully");
+        trace!("Scraped ordinance opened successfully");
 
         Ok(Self {
             root,
@@ -147,7 +147,7 @@ impl ScrappedOrdinance {
         let conn = conn.transaction().unwrap();
         tracing::trace!("Transaction started");
 
-        // Do I need to extract the hash here from the full ScrappedOutput?
+        // Do I need to extract the hash here from the full ScrapedOutput?
         // What about username?
         self.source.record(&conn, commit_id).unwrap();
         self.metadata.write(&conn, commit_id).unwrap();
@@ -184,6 +184,7 @@ mod tests {
     use super::ordinance;
     use super::source;
     use super::usage;
+    use super::ScrapedOrdinance;
     use std::io::Write;
 
     #[tokio::test]
@@ -194,11 +195,11 @@ mod tests {
 
         // First confirm that the path does not exist
         assert!(!target.exists());
-        ScrappedOrdinance::open(target).await.unwrap_err();
+        ScrapedOrdinance::open(target).await.unwrap_err();
     }
 
     #[tokio::test]
-    /// Open a Scrapped Ordinance raw output
+    /// Open a Scraped Ordinance raw output
     async fn open_scraped_ordinance() {
         // A sample ordinance file for now.
         let target = tempfile::tempdir().unwrap();
@@ -215,7 +216,7 @@ mod tests {
         let _usage_file = usage::sample::as_file(target.path().join("usage.json")).unwrap();
         ordinance::sample::as_file(target.path()).unwrap();
 
-        let demo = ScrappedOrdinance::open(target).await.unwrap();
+        let demo = ScrapedOrdinance::open(target).await.unwrap();
         dbg!(&demo);
 
         /*
@@ -227,7 +228,7 @@ mod tests {
         // let mut db = duckdb::Connection::open_in_memory().unwrap();
         let mut db = duckdb::Connection::open(db_filename).unwrap();
         let conn = db.transaction().unwrap();
-        ScrappedOrdinance::init_db(&conn).unwrap();
+        ScrapedOrdinance::init_db(&conn).unwrap();
         let username = "test";
         let commit_id: usize = conn.query_row(
             "INSERT INTO bookkeeper (hash, username) VALUES (?, ?) RETURNING id",
