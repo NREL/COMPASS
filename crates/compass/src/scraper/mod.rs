@@ -103,7 +103,7 @@ impl ScrappedOrdinance {
         trace!("Opening scraped ordinance");
 
         let root = root.as_ref().to_path_buf();
-        trace!("Scrapper output located at: {:?}", root);
+        trace!("Scraper output located at: {:?}", root);
 
         // Do some validation before returning a ScrappedOrdinance
 
