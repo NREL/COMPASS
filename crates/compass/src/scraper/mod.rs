@@ -17,7 +17,7 @@ use ordinance::Ordinance;
 use source::Source;
 use usage::Usage;
 
-pub(crate) const SCRAPPED_ORDINANCE_VERSION: &str = "0.0.1";
+pub(crate) const SCRAPED_ORDINANCE_VERSION: &str = "0.0.1";
 
 // An arbitrary limit (5MB) to protect against maliciously large JSON files
 const MAX_JSON_FILE_SIZE: u64 = 5 * 1024 * 1024;
@@ -63,7 +63,7 @@ const MAX_JSON_FILE_SIZE: u64 = 5 * 1024 * 1024;
 pub(crate) struct ScrappedOrdinance {
     /// The data model version
     format_version: String,
-    /// The root path of the scrapped ordinance output
+    /// The root path of the scraped ordinance output
     root: PathBuf,
     /// The metadata section
     metadata: Metadata,
@@ -76,10 +76,10 @@ pub(crate) struct ScrappedOrdinance {
 }
 
 impl ScrappedOrdinance {
-    /// Initialize the database schema for the scrapped ordinance
+    /// Initialize the database schema for the scraped ordinance
     ///
     /// This function creates the necessary tables and resources
-    /// in the database to store the scrapped ordinance data model
+    /// in the database to store the scraped ordinance data model
     /// by calling each component, in the correct order.
     ///
     /// # Arguments
@@ -98,9 +98,9 @@ impl ScrappedOrdinance {
 
     // Keep in mind a lazy state.
     #[allow(dead_code)]
-    /// Open an existing scrapped ordinance folder
+    /// Open an existing scraped ordinance folder
     pub(crate) async fn open<P: AsRef<Path>>(root: P) -> Result<Self> {
-        trace!("Opening scrapped ordinance");
+        trace!("Opening scraped ordinance");
 
         let root = root.as_ref().to_path_buf();
         trace!("Scrapper output located at: {:?}", root);
@@ -129,7 +129,7 @@ impl ScrappedOrdinance {
         trace!("Scrapped ordinance opened successfully");
         Ok(Self {
             root,
-            format_version: SCRAPPED_ORDINANCE_VERSION.to_string(),
+            format_version: SCRAPED_ORDINANCE_VERSION.to_string(),
             metadata,
             source,
             usage,
@@ -140,7 +140,7 @@ impl ScrappedOrdinance {
     #[allow(dead_code)]
     pub(crate) async fn push(&self, conn: &mut duckdb::Connection, commit_id: usize) -> Result<()> {
         // Load the ordinance into the database
-        tracing::trace!("Pushing scrapped ordinance into the database");
+        tracing::trace!("Pushing scraped ordinance into the database");
         let conn = conn.transaction().unwrap();
         tracing::trace!("Transaction started");
 
@@ -196,7 +196,7 @@ mod tests {
 
     #[tokio::test]
     /// Open a Scrapped Ordinance raw output
-    async fn open_scrapped_ordinance() {
+    async fn open_scraped_ordinance() {
         // A sample ordinance file for now.
         let target = tempfile::tempdir().unwrap();
 
