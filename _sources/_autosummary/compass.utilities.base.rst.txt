@@ -1,0 +1,30 @@
+compass.utilities.base
+======================
+
+.. automodule:: compass.utilities.base
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      title_preserving_caps
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
