@@ -108,7 +108,7 @@ impl ScrapedOrdinance {
         // Do some validation before returning a ScrapedOrdinance
 
         if !root.exists() {
-            trace!("Root path does not exist");
+            trace!("Root path does not exist: {:?}", root);
             return Err(error::Error::Undefined("Path does not exist".to_string()));
         }
 
