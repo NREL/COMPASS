@@ -112,16 +112,6 @@ impl ScrapedOrdinance {
             return Err(error::Error::Undefined("Path does not exist".to_string()));
         }
 
-        /*
-        let features_file = root.join("ord_db.csv");
-        if !features_file.exists() {
-            trace!("Missing features file: {:?}", features_file);
-            return Err(error::Error::Undefined(
-                "Features file does not exist".to_string(),
-            ));
-        }
-        */
-
         let (source, metadata, usage, ordinance) = tokio::try_join!(
             source::Source::open(&root),
             metadata::Metadata::open(&root),
