@@ -100,7 +100,7 @@ UNIT_CLARIFICATIONS = {
     ),
     "tower density": (
         "For the purposes of this extraction, assume the standard units "
-        "for spacing between turbines are one of the following: "
+        "for spacing between individual turbines are one of the following: "
         "'tip-height-multiplier', 'hub-height-multiplier', "
         "'rotor-diameter-multiplier', 'feet', or 'meters'."
     ),
