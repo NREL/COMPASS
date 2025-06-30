@@ -133,7 +133,7 @@ def plot_compass_confusion_matrix(
             cell.set_facecolor(default_bg)
 
     if num_ords:
-        title = f"{title} (N={num_ords})"
+        title = f"{title} (N={num_ords:,d})"
 
     ax.text(
         -0.2,
