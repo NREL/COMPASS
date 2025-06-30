@@ -87,8 +87,8 @@ class SolarOrdinanceTextCollector(StructuredLLMCaller):
 
     IS_UTILITY_SCALE_PROMPT = (
         "You are a legal scholar that reads ordinance text and determines "
-        f"whether it applies to {_SEARCH_TERMS_OR} for "
-        "large solar energy systems. Large solar energy systems (SES) may "
+        f"whether it applies to {_SEARCH_TERMS_OR} for **large "
+        "solar energy systems**. Large solar energy systems (SES) may "
         f"also be referred to as {_LARGE_SEF_SYNONYMS}. "
         "Your client is a commercial solar developer that does not "
         f"care about ordinances related to {_IGNORE_TYPES} solar energy "

@@ -108,7 +108,7 @@ class WindOrdinanceTextCollector(StructuredLLMCaller):
     IS_UTILITY_SCALE_PROMPT = (
         "You are a legal scholar that reads ordinance text and determines "
         f"whether any of it applies to {_SEARCH_TERMS_OR} for "
-        "large wind energy systems. Large wind energy systems (WES) may "
+        "**large wind energy systems**. Large wind energy systems (WES) may "
         f"also be referred to as {_LARGE_WES_SYNONYMS}. "
         "Your client is a commercial wind developer that does not "
         f"care about ordinances related to {_IGNORE_TYPES} wind energy "
