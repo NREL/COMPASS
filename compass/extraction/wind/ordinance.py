@@ -118,8 +118,8 @@ class WindOrdinanceTextCollector(StructuredLLMCaller):
         "'summary' which contains a string that lists all of the types of "
         "wind energy systems the text applies to (if any). The second key is "
         "'{key}', which is a boolean that is set to True if any part of the "
-        f"text excerpt details {_SEARCH_TERMS_OR} for the large wind energy "
-        "conversion systems that the client is interested in and False "
+        f"text excerpt details {_SEARCH_TERMS_OR} for the **large wind energy "
+        "conversion systems** that the client is interested in and False "
         "otherwise."
     )
 

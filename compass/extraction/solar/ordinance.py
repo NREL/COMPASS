@@ -98,8 +98,8 @@ class SolarOrdinanceTextCollector(StructuredLLMCaller):
         "'summary' which contains a string that summarizes the types of "
         "solar energy systems the text applies to (if any). The second key "
         "is '{key}', which is a boolean that is set to True if any part of "
-        f"the text excerpt details {_SEARCH_TERMS_OR} for the large solar "
-        "energy conversion systems that the client is interested in and "
+        f"the text excerpt details {_SEARCH_TERMS_OR} for the **large solar "
+        "energy conversion systems** that the client is interested in and "
         "False otherwise."
     )
 
