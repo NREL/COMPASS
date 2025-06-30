@@ -83,6 +83,7 @@ EXTRA_QUALITATIVE_RESTRICTIONS = {
     "decommissioning": "decommissioning requirements",
     "glare": "glare restrictions",
     "visual impact": "visual impact assessment requirements",
+    "repowering": "repowering regulations or requirements",
 }
 UNIT_CLARIFICATIONS = {
     "noise": (
