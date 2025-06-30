@@ -126,7 +126,7 @@ class StructuredSolarParser(BaseLLMCaller):
 
         return (
             decision_tree_sef_types_out.get("largest_sef_type")
-            or "utility solar energy systems"
+            or "utility-scale solar energy systems"
         )
 
 

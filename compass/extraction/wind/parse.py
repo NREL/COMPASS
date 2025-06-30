@@ -141,7 +141,7 @@ class StructuredWindParser(BaseLLMCaller):
 
         return (
             decision_tree_wes_types_out.get("largest_wes_type")
-            or "large wind energy systems"
+            or "**large** wind energy systems"
         )
 
 
