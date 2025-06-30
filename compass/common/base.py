@@ -230,7 +230,7 @@ def setup_participating_owner(**kwargs):
         "init",
         prompt=(
             "Does the ordinance for {feature} setbacks explicitly specify "
-            "a value that applies to participating property owners? "
+            "a value that applies to **participating** property owners? "
             "Focus only on setbacks from {feature}; do not respond "
             "based on any text related to {ignore_features}. "
             "Please only consider setbacks specifically for systems that "
