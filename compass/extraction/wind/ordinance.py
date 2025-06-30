@@ -238,7 +238,7 @@ class WindPermittedUseDistrictsTextCollector(StructuredLLMCaller):
         "names for which the text explicitly permits large wind energy "
         "systems (if any). The last key is '{key}', which is a boolean that "
         "is set to True if any part of the text excerpt explains districts "
-        "where large wind energy systems are a permitted use and False "
+        "where **large** wind energy systems are a permitted use and False "
         "otherwise."
     )
 

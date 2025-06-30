@@ -217,8 +217,8 @@ class SolarPermittedUseDistrictsTextCollector(StructuredLLMCaller):
         "'districts' which contains a string that lists all of the district "
         "names for which the text explicitly permits large solar energy farms "
         "(if any). The last key is '{key}', which is a boolean that is set to "
-        "True if any part of the text excerpt mentions districts where large "
-        "solar energy farms are a permitted use and False otherwise."
+        "True if any part of the text excerpt mentions districts where "
+        "**large** solar energy farms are a permitted use and False otherwise."
     )
 
     def __init__(self, *args, **kwargs):
