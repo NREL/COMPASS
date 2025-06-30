@@ -5,7 +5,7 @@ from sklearn.metrics import confusion_matrix
 from sklearn.metrics import precision_recall_fscore_support
 
 
-def _compute_stats(data, score_cats, truth_labels_col, score_col="Score"):
+def compute_stats(data, score_cats, truth_labels_col, score_col="Score"):
     cm = confusion_matrix(
         data[truth_labels_col].to_numpy(),
         data[score_col].isin(
@@ -49,7 +49,7 @@ def _compute_stats(data, score_cats, truth_labels_col, score_col="Score"):
 def plot_compass_confusion_matrix_from_data(
     data, score_cats, title, truth_labels_col, out_fp=None, score_col="Score"
 ):
-    cm, a, p, r = _compute_stats(
+    cm, a, p, r = compute_stats(
         data, score_cats, truth_labels_col, score_col=score_col
     )
 
