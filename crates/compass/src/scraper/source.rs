@@ -319,6 +319,34 @@ impl Source {
     }
 }
 
+#[derive(Debug)]
+struct File {
+    path: std::path::PathBuf,
+    filename: String,
+    checksum: String,
+}
+
+impl File {
+    async fn new<P: AsRef<std::path::Path> + std::fmt::Debug>(path: P) -> Result<Self> {
+        trace!("Processing ordinance file: {:?}", path.as_ref());
+
+        let metadata = tokio::fs::metadata(&path).await?;
+        if !metadata.is_file() {
+            warn!("Expected to be a file. Ignoring: {:?}", path);
+            return Err(crate::error::Error::Undefined(
+                "Expected a file, but found a directory or other type".to_string(),
+            ));
+        }
+        let path = path.as_ref().to_path_buf();
+        let checksum = checksum_file(&path).await?;
+        let filename = path.file_name().unwrap().to_str().unwrap().to_string();
+        Ok(Self {
+            path,
+            filename,
+            checksum,
+        })
+    }
+}
 /// Calculate the checksum of a local file
 ///
 /// # Returns
