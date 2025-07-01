@@ -206,7 +206,7 @@ impl Source {
         let mut walker = tokio::fs::read_dir(&path).await?;
         let mut jobs = tokio::task::JoinSet::new();
         while let Some(entry) = walker.next_entry().await? {
-            debug!("Processing: {:?}", entry);
+            trace!("Spawning job for entry: {:?}", entry.path());
             jobs.spawn(async move { File::new(entry.path()).await });
         }
         trace!("Waiting for all jobs to complete");
@@ -325,7 +325,7 @@ struct File {
 
 impl File {
     async fn new<P: AsRef<std::path::Path> + std::fmt::Debug>(path: P) -> Result<Self> {
-        trace!("Processing ordinance file: {:?}", path.as_ref());
+        debug!("Processing ordinance file: {:?}", path.as_ref());
 
         let metadata = tokio::fs::metadata(&path).await?;
         if !metadata.is_file() {
