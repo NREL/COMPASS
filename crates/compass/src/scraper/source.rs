@@ -206,12 +206,12 @@ impl Source {
         let mut walker = tokio::fs::read_dir(&path).await?;
         let mut jobs = tokio::task::JoinSet::new();
         while let Some(entry) = walker.next_entry().await? {
-            debug!("Spawning task for entry: {:?}", entry);
+            debug!("Processing: {:?}", entry);
             jobs.spawn(async move { File::new(entry.path()).await });
         }
-        debug!("Waiting for all jobs to complete");
+        trace!("Waiting for all jobs to complete");
         let inventory = jobs.join_all().await;
-        debug!("Inventory of files: {:?}", inventory);
+        trace!("Inventory of files: {:?}", inventory);
         debug!("Found a total of {} source documents", inventory.len());
 
         for file in inventory {
@@ -219,7 +219,7 @@ impl Source {
                 Ok(file) => {
                     let (file_name, checksum) = (file.filename, file.checksum);
                     if known_sources.contains(&(file_name, checksum)) {
-                        debug!("File {:?} matches known jurisdiction source", file.path);
+                        trace!("File {:?} matches known jurisdiction source", file.path);
                     } else {
                         warn!("File {:?} doesn't match known sources", file.path);
                     }
