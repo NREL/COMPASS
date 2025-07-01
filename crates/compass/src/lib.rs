@@ -182,6 +182,7 @@ struct QuantitativeRecord {
     source: Option<String>,
 }
 
+#[derive(Debug)]
 /// Technologies supported by the ordinance database
 pub enum Technology {
     /// Everything related to wind energy
