@@ -203,35 +203,32 @@ impl Source {
 
         trace!("Scanning source directory: {:?}", path);
 
-        let mut inventory = tokio::fs::read_dir(path).await?;
+        let mut walker = tokio::fs::read_dir(&path).await?;
+        let mut jobs = tokio::task::JoinSet::new();
+        while let Some(entry) = walker.next_entry().await? {
+            debug!("Spawning task for entry: {:?}", entry);
+            jobs.spawn(async move { File::new(entry.path()).await });
+        }
+        debug!("Waiting for all jobs to complete");
+        let inventory = jobs.join_all().await;
+        debug!("Inventory of files: {:?}", inventory);
+        debug!("Found a total of {} source documents", inventory.len());
 
-        // Should we filter which files to process, such as only PDFs?
-        // We probably will work with more types.
-        while let Some(entry) = inventory.next_entry().await? {
-            trace!("Processing entry: {:?}", entry);
-            let path = entry.path();
-            let ftype = entry.metadata().await?.file_type();
-            if ftype.is_file() {
-                trace!("Processing ordinance file: {:?}", path);
-
-                let checksum = checksum_file(&path).await?;
-                trace!("Checksum for file {:?}: {:?}", path, checksum);
-
-                let file_name = path.file_name().unwrap().to_str().unwrap().to_string();
-                if known_sources.contains(&(file_name, checksum)) {
-                    trace!("File {:?} matches known jurisdiction source", path);
-                } else {
-                    warn!("File {:?} doesn't match known sources", path);
+        for file in inventory {
+            match file {
+                Ok(file) => {
+                    let (file_name, checksum) = (file.filename, file.checksum);
+                    if known_sources.contains(&(file_name, checksum)) {
+                        debug!("File {:?} matches known jurisdiction source", file.path);
+                    } else {
+                        warn!("File {:?} doesn't match known sources", file.path);
+                    }
                 }
-            } else if ftype.is_dir() {
-                trace!(
-                    "Ignoring unexpected directory in ordinance files: {:?}",
-                    path
-                );
+                Err(e) => {
+                    error!("Error processing file: {:?}", e);
+                }
             }
         }
-
-        // trace!("Found a total of {} source documents", sources.len());
 
         Ok(jurisdictions)
     }
