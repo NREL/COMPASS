@@ -182,6 +182,14 @@ struct QuantitativeRecord {
     source: Option<String>,
 }
 
+/// Technologies supported by the ordinance database
+pub enum Technology {
+    /// Everything related to wind energy
+    Wind,
+    /// Everything related to solar energy
+    Solar,
+}
+
 /// Export the database
 ///
 /// Currently, it is a proof of concept. It reads the database and prints
