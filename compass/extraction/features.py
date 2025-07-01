@@ -14,6 +14,7 @@ class SetbackFeatures:
         "property line": [
             "property lines",
             "lot lines",
+            "facility perimeters",
             "parcels",
             "subdivisions",
         ],
