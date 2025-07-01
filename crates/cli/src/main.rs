@@ -97,6 +97,14 @@ fn main() -> Result<()> {
                 .unwrap()
                 .get_one::<String>("TECHNOLOGY")
                 .unwrap();
+            // This is not ideal. It would be best to impl some solution
+            // in Technology enum to handle this, so updates there would
+            // automatically propagate here.
+            let technology = match technology.as_str() {
+                "wind" => infra_compass_db::Technology::Wind,
+                "solar" => infra_compass_db::Technology::Solar,
+                _ => anyhow::bail!("Unknown technology: {}", technology),
+            };
             trace!("Filtering technology: {:?}", &technology);
 
             let format = matches
