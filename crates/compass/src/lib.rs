@@ -184,7 +184,7 @@ struct QuantitativeRecord {
 
 #[derive(Debug)]
 /// Technologies supported by the ordinance database
-pub enum Technology {
+enum Technology {
     /// Everything related to wind energy
     Wind,
     /// Everything related to solar energy
@@ -195,8 +195,19 @@ pub enum Technology {
 ///
 /// Currently, it is a proof of concept. It reads the database and prints
 /// some fields to the standard output in CSV format.
-pub fn export<W: std::io::Write>(wtr: &mut W, db_filename: &str) -> Result<()> {
+pub fn export<W: std::io::Write>(wtr: &mut W, db_filename: &str, technology: &str) -> Result<()> {
     trace!("Exporting database: {:?}", db_filename);
+
+    let technology = match technology {
+        "wind" => Technology::Wind,
+        "solar" => Technology::Solar,
+        _ => {
+            return Err(error::Error::Undefined(format!(
+                "Unknown technology: {}",
+                technology
+            )))
+        }
+    };
 
     let conn = Connection::open(db_filename)?;
     trace!("Database opened: {:?}", &conn);
