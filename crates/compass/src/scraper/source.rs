@@ -165,7 +165,7 @@ impl Source {
     ///
     /// * `root` - The root directory where the scrapped output is located.
     pub(super) async fn open<P: AsRef<std::path::Path>>(root: P) -> Result<Self> {
-        debug!("Opening source documents");
+        debug!("Opening source documents from {:?}", root.as_ref());
 
         trace!("Opening jurisdictions collection");
 
