@@ -192,7 +192,7 @@ enum Technology {
 }
 
 impl std::fmt::Display for Technology {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
             Technology::Wind => write!(f, "wind"),
             Technology::Solar => write!(f, "solar"),
