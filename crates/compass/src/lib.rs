@@ -204,8 +204,15 @@ impl std::fmt::Display for Technology {
 ///
 /// Currently, it is a proof of concept. It reads the database and prints
 /// some fields to the standard output in CSV format.
-pub fn export<W: std::io::Write>(wtr: &mut W, db_filename: &str, technology: &str) -> Result<()> {
+pub fn export<W: std::io::Write>(
+    wtr: &mut W,
+    db_filename: &str,
+    format: &str,
+    technology: &str,
+) -> Result<()> {
     trace!("Exporting database: {:?}", db_filename);
+    // Not used yet, but ready for future use
+    trace!("Export format: {:?}", format);
 
     let technology = match technology {
         "wind" => Technology::Wind,
