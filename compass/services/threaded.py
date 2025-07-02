@@ -524,17 +524,21 @@ def _dump_jurisdiction_info(
         "found": False,
         "total_time": seconds_elapsed,
         "total_time_string": str(timedelta(seconds=seconds_elapsed)),
-        "jurisdiction_website": doc.attrs.get("jurisdiction_website"),
+        "jurisdiction_website": None,
         "cost": None,
         "documents": None,
     }
+
     if usage_tracker is not None:
         cost = _compute_jurisdiction_cost(usage_tracker)
         new_info["cost"] = cost or None
 
-    if num_ordinances_in_doc(doc) > 0:
+    if doc is not None and num_ordinances_in_doc(doc) > 0:
         new_info["found"] = True
         new_info["documents"] = [_compile_doc_info(doc)]
+        new_info["jurisdiction_website"] = doc.attrs.get(
+            "jurisdiction_website"
+        )
 
     jurisdiction_info["jurisdictions"].append(new_info)
     with Path.open(fp, "w", encoding="utf-8") as fh:
