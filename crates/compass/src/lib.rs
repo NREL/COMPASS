@@ -212,9 +212,8 @@ pub fn export<W: std::io::Write>(wtr: &mut W, db_filename: &str, technology: &st
         "solar" => Technology::Solar,
         _ => {
             return Err(error::Error::Undefined(format!(
-                "Unknown technology: {}",
-                technology
-            )))
+                "Unknown technology: {technology}"
+            )));
         }
     };
 
