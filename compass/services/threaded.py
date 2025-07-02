@@ -411,11 +411,13 @@ class UsageUpdater(ThreadedService):
             added to output file.
         """
         self._is_processing = True
-        loop = asyncio.get_running_loop()
-        out = await loop.run_in_executor(
-            self.pool, _dump_usage, self.usage_fp, tracker
-        )
-        self._is_processing = False
+        try:
+            loop = asyncio.get_running_loop()
+            out = await loop.run_in_executor(
+                self.pool, _dump_usage, self.usage_fp, tracker
+            )
+        finally:
+            self._is_processing = False
         return out
 
 
@@ -470,17 +472,19 @@ class JurisdictionUpdater(ThreadedService):
             LLM calls. By default, ``None``.
         """
         self._is_processing = True
-        loop = asyncio.get_running_loop()
-        await loop.run_in_executor(
-            self.pool,
-            _dump_jurisdiction_info,
-            self.jurisdiction_fp,
-            jurisdiction,
-            doc,
-            seconds_elapsed,
-            usage_tracker,
-        )
-        self._is_processing = False
+        try:
+            loop = asyncio.get_running_loop()
+            await loop.run_in_executor(
+                self.pool,
+                _dump_jurisdiction_info,
+                self.jurisdiction_fp,
+                jurisdiction,
+                doc,
+                seconds_elapsed,
+                usage_tracker,
+            )
+        finally:
+            self._is_processing = False
 
 
 def _dump_usage(fp, tracker):
