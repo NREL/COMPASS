@@ -334,15 +334,16 @@ async def filter_ordinance_docs(
             "Did not find any potential ordinance documents for %s",
             jurisdiction.full_name,
         )
-    else:
-        logger.info(
-            "Found %d potential ordinance documents for %s\n\t- %s",
-            len(docs),
-            jurisdiction.full_name,
-            "\n\t- ".join(
-                [doc.attrs.get("source", "Unknown source") for doc in docs]
-            ),
-        )
+        return docs
+
+    logger.info(
+        "Found %d potential ordinance documents for %s\n\t- %s",
+        len(docs),
+        jurisdiction.full_name,
+        "\n\t- ".join(
+            [doc.attrs.get("source", "Unknown source") for doc in docs]
+        ),
+    )
     return _sort_final_ord_docs(docs)
 
 
