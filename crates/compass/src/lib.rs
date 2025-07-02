@@ -191,6 +191,15 @@ enum Technology {
     Solar,
 }
 
+impl std::fmt::Display for Technology {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Technology::Wind => write!(f, "wind"),
+            Technology::Solar => write!(f, "solar"),
+        }
+    }
+}
+
 /// Export the database
 ///
 /// Currently, it is a proof of concept. It reads the database and prints
