@@ -456,7 +456,7 @@ class JurisdictionUpdater(ThreadedService):
         ----------
         jurisdiction : compass.utilities.location.Jurisdiction
             Jurisdiction to record.
-        doc : elm.web.document.Document
+        doc : elm.web.document.Document | None
             Document containing meta information about the jurisdiction.
             Must have relevant processing keys in the ``attrs`` dict,
             otherwise the jurisdiction may not be recorded properly.
