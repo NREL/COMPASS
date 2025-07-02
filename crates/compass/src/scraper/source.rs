@@ -221,7 +221,7 @@ impl Source {
         trace!("Waiting for all jobs to complete");
         let inventory = jobs.join_all().await;
         trace!("Inventory of files: {:?}", inventory);
-        debug!("Found a total of {} source documents", inventory.len());
+        debug!("Finished reading {} source documents", inventory.len());
 
         for file in inventory {
             match file {
