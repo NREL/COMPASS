@@ -222,7 +222,7 @@ pub fn export<W: std::io::Write>(wtr: &mut W, db_filename: &str, technology: &st
     trace!("Database opened: {:?}", &conn);
 
     let mut stmt = conn
-        .prepare("SELECT county, state, subdivison, jurisdiction_type, FIPS, feature, value, units, summary, source from quantitative;"
+        .prepare( &format!("SELECT county, state, subdivison, jurisdiction_type, FIPS, feature, value, units, summary, source FROM quantitative JOIN scraper_metadata ON (quantitative.bookkeeper_lnk=scraper_metadata.bookkeeper_lnk) WHERE scraper_metadata.technology='{technology}';")
             )
         .expect("Failed to prepare statement");
     //dbg!("Row count", stmt.row_count());
