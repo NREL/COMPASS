@@ -129,7 +129,7 @@ fn main() -> Result<()> {
             );
             trace!("Output file created: {:?}", &wrt);
 
-            infra_compass_db::export(&mut wrt, db, technology)?;
+            infra_compass_db::export(&mut wrt, db, format, technology)?;
         }
         Some("load") => {
             trace!("Subcommand load");
