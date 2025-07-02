@@ -754,7 +754,7 @@ class _SingleJurisdictionRunner:
             usage_tracker=self.usage_tracker,
             check_for_correct_jurisdiction=True,
         )
-        if docs is None:
+        if not docs:
             return None
 
         for doc in docs:
