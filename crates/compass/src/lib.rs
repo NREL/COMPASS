@@ -169,11 +169,20 @@ pub fn load_ordinance<P: AsRef<std::path::Path> + std::fmt::Debug>(
 
 #[allow(dead_code, non_snake_case)]
 #[derive(Debug, Serialize)]
+/// Ordinance record that combines quantitative and qualitative
+///
+/// It is currently used for handle reVX ordinance for reVX standard only
+/// but we might expand this in the future to handle more complete outputs.
 struct OrdinanceRecord {
+    /// FIPS code of the jurisdiction
     FIPS: u32,
+    /// Feature type, e.g., "setback", "height", etc.
     feature: String,
+    /// Feature subtype, currently not used but required by reVX standard.
     feature_subtype: Option<String>,
+    /// Quantitative feature value, e.g., 3.14
     quantitative: Option<f64>,
+    /// Qualitative feature value, e.g., "color of the tips of the blades"
     qualitative: Option<String>,
 }
 
