@@ -110,6 +110,7 @@ async def download_jurisdiction_ordinances_from_website(
     max_urls=100,
     browser_semaphore=None,
     pb_jurisdiction_name=None,
+    return_c4ai_results=False,
 ):
     """Download ordinance documents from a jurisdiction website
 
@@ -146,13 +147,22 @@ async def download_jurisdiction_ordinances_from_website(
     pb_jurisdiction_name : str, optional
         Optional jurisdiction name to use to update progress bar, if
         it's being used. By default, ``None``.
+    return_c4ai_results : bool, default=False
+        If ``True``, the crawl4ai results will be returned as a second
+        return value. This is useful for debugging and examining the
+        crawled URLs. If ``False``, only the documents will be returned.
+        By default, ``False``.
 
     Returns
     -------
-    list
+    out_docs : list
         List of :obj:`~elm.web.document.BaseDocument` instances
         containing potential ordinance information, or an empty list if
         no ordinance document was found.
+    results : list, optional
+        List of crawl4ai results containing metadata about the crawled
+        pages. This is only returned if `return_c4ai_results` is
+        ``True``.
     """
 
     if browser_semaphore is None:
@@ -198,10 +208,16 @@ async def download_jurisdiction_ordinances_from_website(
             )
 
         async with browser_semaphore, cpb:
-            return await crawler.run(website, on_result_hook=_crawl_hook)
+            return await crawler.run(
+                website,
+                on_result_hook=_crawl_hook,
+                return_c4ai_results=return_c4ai_results,
+            )
 
     async with browser_semaphore:
-        return await crawler.run(website)
+        return await crawler.run(
+            website, return_c4ai_results=return_c4ai_results
+        )
 
 
 async def download_jurisdiction_ordinance_using_search_engine(
