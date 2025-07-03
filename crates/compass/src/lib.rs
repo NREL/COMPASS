@@ -169,17 +169,12 @@ pub fn load_ordinance<P: AsRef<std::path::Path> + std::fmt::Debug>(
 
 #[allow(dead_code, non_snake_case)]
 #[derive(Debug, Serialize)]
-struct QuantitativeRecord {
-    county: String,
-    state: String,
-    subdivison: Option<String>,
-    jurisdiction_type: Option<String>,
+struct OrdinanceRecord {
     FIPS: u32,
     feature: String,
-    value: f64,
-    units: Option<String>,
-    summary: Option<String>,
-    source: Option<String>,
+    feature_subtype: Option<String>,
+    quantitative: Option<f64>,
+    qualitative: Option<String>,
 }
 
 #[derive(Debug)]
@@ -228,23 +223,18 @@ pub fn export<W: std::io::Write>(
     trace!("Database opened: {:?}", &conn);
 
     let mut stmt = conn
-        .prepare( &format!("SELECT county, state, subdivison, jurisdiction_type, FIPS, feature, value, units, summary, source FROM quantitative JOIN scraper_metadata ON (quantitative.bookkeeper_lnk=scraper_metadata.bookkeeper_lnk) WHERE scraper_metadata.technology='{technology}';")
+        .prepare( &format!("SELECT FIPS, feature, feature_subtype, quantitative, qualitative FROM ordinance JOIN scraper_metadata ON (ordinance.bookkeeper_lnk=scraper_metadata.bookkeeper_lnk) WHERE scraper_metadata.technology='{technology}' ORDER BY FIPS, feature;")
             )
         .expect("Failed to prepare statement");
     //dbg!("Row count", stmt.row_count());
     let row_iter = stmt
         .query_map([], |row| {
-            Ok(QuantitativeRecord {
-                county: row.get(0)?,
-                state: row.get(1)?,
-                subdivison: row.get(2)?,
-                jurisdiction_type: row.get(3)?,
-                FIPS: row.get(4)?,
-                feature: row.get(5)?,
-                value: row.get(6)?,
-                units: row.get(7)?,
-                summary: row.get(8)?,
-                source: row.get(9)?,
+            Ok(OrdinanceRecord {
+                FIPS: row.get(0)?,
+                feature: row.get(1)?,
+                feature_subtype: row.get(2)?,
+                quantitative: row.get(3)?,
+                qualitative: row.get(4)?,
             })
         })
         .expect("Failed to query");
