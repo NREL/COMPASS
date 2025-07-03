@@ -1,0 +1,36 @@
+compass.services.threaded.TempFileFromWebpageCachePB
+====================================================
+
+.. currentmodule:: compass.services.threaded
+
+.. autoclass:: TempFileFromWebpageCachePB
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~TempFileFromWebpageCachePB.acquire_resources
+      ~TempFileFromWebpageCachePB.call
+      ~TempFileFromWebpageCachePB.process
+      ~TempFileFromWebpageCachePB.process_using_futures
+      ~TempFileFromWebpageCachePB.release_resources
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~TempFileFromWebpageCachePB.MAX_CONCURRENT_JOBS
+      ~TempFileFromWebpageCachePB.can_process
+      ~TempFileFromWebpageCachePB.name
+   
+   
