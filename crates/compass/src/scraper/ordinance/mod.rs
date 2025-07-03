@@ -21,15 +21,17 @@ impl Ordinance {
         qualitative::Qualitative::init_db(conn)?;
 
         trace!("Creating ordinance view combining quantiative and qualitative data");
+        // Adding bookkeeper_lnk to allow linking with technology for now,
+        // but this will change in the future.
         conn.execute_batch(
             r"
             CREATE VIEW IF NOT EXISTS ordinance AS
-              SELECT FIPS, feature, value AS 'quantitative',
-                NULL AS 'qualitative'
+              SELECT bookkeeper_lnk, FIPS, feature, NULL as feature_subtype,
+                value AS 'quantitative', NULL AS 'qualitative'
               FROM quantitative
               UNION
-                SELECT FIPS, feature, NULL AS 'quantitative',
-                  summary AS 'qualitative'
+                SELECT bookkeeper_lnk, FIPS, feature, NULL as feature_subtype,
+                  NULL AS 'quantitative', summary AS 'qualitative'
                 FROM qualitative;",
         )?;
 
