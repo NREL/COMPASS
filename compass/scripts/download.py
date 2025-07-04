@@ -163,6 +163,11 @@ async def download_jurisdiction_ordinances_from_website(
         List of crawl4ai results containing metadata about the crawled
         pages. This is only returned if `return_c4ai_results` is
         ``True``.
+
+    Notes
+    -----
+    Requires :class:`~compass.services.threaded.TempFileCache` service
+    to be running.
     """
 
     if browser_semaphore is None:
@@ -261,6 +266,11 @@ async def download_jurisdiction_ordinance_using_search_engine(
         List of :obj:`~elm.web.document.BaseDocument` instances possibly
         containing ordinance information, or ``None`` if no ordinance
         document was found.
+
+    Notes
+    -----
+    Requires :class:`~compass.services.threaded.TempFileFromSECachePB`
+    service to be running.
     """
     COMPASS_PB.update_jurisdiction_task(
         jurisdiction.full_name, description="Downloading files..."
