@@ -6,7 +6,11 @@ from contextlib import AsyncExitStack
 from elm.web.document import PDFDocument
 from elm.web.search.run import web_search_links_as_docs
 from elm.web.search.google import PlaywrightGoogleLinkSearch
-from elm.web.website_crawl import ELMWebsiteCrawler, ELMLinkScorer
+from elm.web.website_crawl import (
+    _SCORE_KEY,  # noqa: PLC2701
+    ELMWebsiteCrawler,
+    ELMLinkScorer,
+)
 from elm.web.utilities import filter_documents
 
 from compass.extraction import check_for_ordinance_info, extract_date
@@ -473,7 +477,7 @@ def _sort_final_ord_docs(all_ord_docs):
 
     return sorted(all_ord_docs, key=_ord_doc_sorting_key, reverse=True)
 
-
+    best_docs_from_website = doc.attrs.get(_SCORE_KEY, 0)
 def _ord_doc_sorting_key(doc):
     """Sorting key for documents. The higher this value, the better"""
     latest_year, latest_month, latest_day = doc.attrs.get("date", (-1, -1, -1))
