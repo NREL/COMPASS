@@ -22,7 +22,8 @@ from urllib.parse import (
 from crawl4ai.models import Link as c4AILink
 from bs4 import BeautifulSoup
 from rebrowser_playwright.async_api import async_playwright
-from rebrowser_playwright.async_api import Error as PlaywrightError
+from rebrowser_playwright.async_api import Error as RBPlaywrightError
+from playwright._impl._errors import Error as PlaywrightError  # noqa: PLC2701
 from elm.web.utilities import pw_page
 from elm.web.file_loader import AsyncFileLoader
 from elm.web.website_crawl import ELMLinkScorer, _SCORE_KEY  # noqa: PLC2701
@@ -343,7 +344,7 @@ class COMPASSCrawler:
         """Get all text from a page; return empty string if pw error"""
         try:
             text = await self._get_text(url)
-        except PlaywrightError:
+        except (PlaywrightError, RBPlaywrightError):
             text = ""
 
         return text
@@ -503,7 +504,7 @@ async def _get_text_from_all_locators(page):
         for index in range(locator_count):
             try:
                 text = await _get_locator_text(locators, index, page)
-            except PlaywrightError:
+            except (PlaywrightError, RBPlaywrightError):
                 continue
             if text:
                 all_text.append(text)
