@@ -8,6 +8,7 @@ interface).
 import logging
 import operator
 from collections import Counter
+from contextlib import AsyncExitStack
 from urllib.parse import (
     urlparse,
     urlunparse,
@@ -122,6 +123,7 @@ class COMPASSCrawler:
         already_visited=None,
         num_link_scores_to_check_per_page=4,
         max_pages=100,
+        browser_semaphore=None,
     ):
         """
 
@@ -161,6 +163,10 @@ class COMPASSCrawler:
             Maximum number of pages to crawl before terminating,
             regardless of whether the document was found or not.
             By default, ``100``.
+        browser_semaphore : :class:`asyncio.Semaphore`, optional
+            Semaphore instance that can be used to limit the number of
+            playwright browsers open concurrently. If ``None``, no
+            limits are applied. By default, ``None``.
         """
         self.validator = validator
         self.url_scorer = url_scorer
@@ -174,6 +180,11 @@ class COMPASSCrawler:
         self.afl = AsyncFileLoader(**flk)
         self.pw_launch_kwargs = (
             file_loader_kwargs.get("pw_launch_kwargs") or {}
+        )
+        self.browser_semaphore = (
+            AsyncExitStack()
+            if browser_semaphore is None
+            else browser_semaphore
         )
 
         self._out_docs = []
@@ -345,7 +356,7 @@ class COMPASSCrawler:
             "ignore_https_errors": True,
             "timeout": 60_0000,
         }
-        async with async_playwright() as p:
+        async with async_playwright() as p, self.browser_semaphore:
             browser = await p.chromium.launch(**self.pw_launch_kwargs)
             async with pw_page(browser, **pw_page_kwargs) as page:
                 await page.goto(url)
