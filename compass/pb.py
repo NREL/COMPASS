@@ -567,7 +567,7 @@ class _COMPASSProgressBars:
     def _remove_compass_website_crawl_prog_bar(self, location):
         """Remove download prog bar and associated task (if any)"""
         pb = self._cwc_pbs.pop(location)
-        if task_id := self.cwc_tasks.get(location):
+        if task_id := self._cwc_tasks.get(location):
             pb.remove_task(task_id)
 
         self._group.renderables.remove(pb)
