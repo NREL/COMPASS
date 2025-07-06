@@ -316,7 +316,19 @@ class COMPASSCrawler:
     async def _website_link_is_pdf(self, link):
         """Fetch page content; keep only PDFs"""
         logger.debug("Loading Link: %s", link)
-        doc = await self.afl.fetch(link.href)
+
+        try:
+            doc = await self.afl.fetch(link.href)
+        except KeyboardInterrupt:
+            raise
+        except Exception as e:
+            msg = (
+                "Encountered error of type %r while trying to fetch "
+                "content from %s"
+            )
+            err_type = type(e)
+            logger.exception(msg, err_type, link)
+            return False
 
         if doc.FILE_EXTENSION == "pdf":
             logger.debug("    - Found PDF!")
