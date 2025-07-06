@@ -393,14 +393,27 @@ async def _docs_from_web_search(
     file_loader_kwargs.update(
         {"file_cache_coroutine": TempFileFromSECachePB.call}
     )
-    return await web_search_links_as_docs(
-        queries,
-        num_urls=num_urls,
-        browser_semaphore=browser_semaphore,
-        ignore_url_parts=url_ignore_substrings,
-        task_name=jurisdiction.full_name,
-        **file_loader_kwargs,
-    )
+
+    try:
+        docs = await web_search_links_as_docs(
+            queries,
+            num_urls=num_urls,
+            browser_semaphore=browser_semaphore,
+            ignore_url_parts=url_ignore_substrings,
+            task_name=jurisdiction.full_name,
+            **file_loader_kwargs,
+        )
+    except KeyboardInterrupt:
+        raise
+    except Exception as e:
+        msg = (
+            "Encountered error of type %r while searching web for docs for %s:"
+        )
+        err_type = type(e)
+        logger.exception(msg, err_type, jurisdiction.full_name)
+        docs = []
+
+    return docs
 
 
 async def _down_select_docs_correct_jurisdiction(
