@@ -276,8 +276,8 @@ class COMPASSCrawler:
                 score=next_link["score"],
                 on_new_page_visit_hook=on_new_page_visit_hook,
             )
-            doc_was_found = prev_len != len(self._out_docs)
-            if doc_was_found:
+            doc_was_just_found = len(self._out_docs) == prev_len + 1
+            if doc_was_just_found:
                 if await self.validator(self._out_docs[-1]):
                     logger.debug("    - Document passed validation check!")
                     self._out_docs[-1].attrs[_SCORE_KEY] = next_link["score"]
