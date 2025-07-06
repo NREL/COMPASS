@@ -40,8 +40,8 @@ _BLACKLIST_SUBSTRINGS = [
     "instagram",
     "youtube",
     "instagram",
-    "pinterest",
-    "tiktok",
+    "pinterest",  # cspell: disable-line
+    "tiktok",  # cspell: disable-line
     "snapchat",
     "reddit",
     "mailto:",
@@ -467,7 +467,7 @@ def _sanitize_url(url):
     safe_path = quote(unquote(parsed.path), safe="/")
 
     query_params = parse_qsl(parsed.query, keep_blank_values=True)
-    safe_query = urlencode(query_params, doseq=True)
+    safe_query = urlencode(query_params, doseq=True)  # cspell: disable-line
 
     return urlunparse(
         (
