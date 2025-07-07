@@ -86,7 +86,7 @@ EXTRA_QUALITATIVE_RESTRICTIONS = {
     "color": "color or finish requirements",
     "decommissioning": "decommissioning requirements",
     "lighting": "lighting requirements",
-    "prohibitions": "prohibitions, moratoriums, or bans",
+    "prohibitions": "prohibitions, moratoria, or bans",
     "visual impact": "visual impact **assessment** requirements",
     "repowering": (
         "requirements or regulations specific to **repowering** of the system"
