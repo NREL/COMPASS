@@ -234,6 +234,7 @@ async def download_jurisdiction_ordinance_using_search_engine(
     jurisdiction,
     num_urls=5,
     file_loader_kwargs=None,
+    search_semaphore=None,
     browser_semaphore=None,
     url_ignore_substrings=None,
 ):
@@ -256,10 +257,18 @@ async def download_jurisdiction_ordinance_using_search_engine(
         "pw_launch_kwargs" key in these will also be used to initialize
         the :class:`elm.web.search.google.PlaywrightGoogleLinkSearch`
         used for the google URL search. By default, ``None``.
+    search_semaphore : :class:`asyncio.Semaphore`, optional
+        Semaphore instance that can be used to limit the number of
+        playwright browsers used to submit search engine queries open
+        concurrently. If this input is ``None``, the input from
+        `browser_semaphore` will be used in its place (i.e. the searches
+        and file downloads will be limited using the same semaphore).
+        By default, None.
     browser_semaphore : :class:`asyncio.Semaphore`, optional
         Semaphore instance that can be used to limit the number of
-        playwright browsers open concurrently. If ``None``, no limits
-        are applied. By default, ``None``.
+        playwright browsers used to download content from the web open
+        concurrently. If ``None``, no limits are applied.
+        By default, ``None``.
     usage_tracker : compass.services.usage.UsageTracker, optional
         Optional tracker instance to monitor token usage during
         LLM calls. By default, ``None``.
@@ -286,6 +295,7 @@ async def download_jurisdiction_ordinance_using_search_engine(
             question_templates,
             jurisdiction,
             num_urls,
+            search_semaphore,
             browser_semaphore,
             url_ignore_substrings,
             **(file_loader_kwargs or {}),
@@ -381,6 +391,7 @@ async def _docs_from_web_search(
     question_templates,
     jurisdiction,
     num_urls,
+    search_semaphore,
     browser_semaphore,
     url_ignore_substrings,
     **file_loader_kwargs,
@@ -398,6 +409,7 @@ async def _docs_from_web_search(
         docs = await web_search_links_as_docs(
             queries,
             num_urls=num_urls,
+            search_semaphore=search_semaphore,
             browser_semaphore=browser_semaphore,
             ignore_url_parts=url_ignore_substrings,
             task_name=jurisdiction.full_name,

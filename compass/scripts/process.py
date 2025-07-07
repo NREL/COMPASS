@@ -737,6 +737,7 @@ class _SingleJurisdictionRunner:
             self.jurisdiction,
             num_urls=self.web_search_params.num_urls_to_check_per_jurisdiction,
             file_loader_kwargs=self.file_loader_kwargs,
+            search_semaphore=self.search_engine_semaphore,
             browser_semaphore=self.browser_semaphore,
             url_ignore_substrings=self.web_search_params.url_ignore_substrings,
         )
