@@ -93,9 +93,9 @@ def setup_multiplier(**kwargs):
             "— for example, systems intended for electricity generation or "
             "sale, or those above thresholds such as height, rotor diameter, "
             "or rated capacity. Ignore any requirements that apply only to "
-            "smaller or clearly non-commercial systems. "
-            "Remember that 1 is a valid multiplier, and treat any mention "
-            "of 'fall zone' as a system height multiplier of 1. "
+            "smaller or clearly non-commercial systems or to meteorological "
+            "towers. Remember that 1 is a valid multiplier, and treat any "
+            "mention of 'fall zone' as a system height multiplier of 1. "
             "Please start your response with either 'Yes' or 'No' and "
             "briefly explain your answer."
         ),
