@@ -182,6 +182,7 @@ def setup_multiplier(**kwargs):
             "Does the ordinance for the setback from {feature} include a "
             "static distance value that should be added to the result of "
             "the multiplication? "
+            "Remember to ignore any text related to {ignore_features}. "
             "Focus only on setbacks specifically for systems that would "
             "typically be defined as {tech} based on the text itself — for "
             "example, systems intended for electricity generation or sale, "
