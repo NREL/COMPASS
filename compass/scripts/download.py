@@ -33,6 +33,8 @@ async def find_jurisdiction_website(
     file_loader_kwargs=None,
     browser_semaphore=None,
     usage_tracker=None,
+    url_ignore_substrings=None,
+    **kwargs,
 ):
     """Search for the main landing page of a given jurisdiction
 
@@ -64,19 +66,21 @@ async def find_jurisdiction_website(
     str | None
         URL for the jurisdiction website, if found; ``None`` otherwise.
     """
-    if browser_semaphore is None:
-        browser_semaphore = AsyncExitStack()
-
-    file_loader_kwargs = file_loader_kwargs or {}
-    pw_launch_kwargs = file_loader_kwargs.get("pw_launch_kwargs") or {}
+    kwargs.update(file_loader_kwargs or {})
 
     name = jurisdiction.full_name_the_prefixed
     name_no_the = name.removeprefix("the ")
-    query = f"{name_no_the} website".casefold().replace(",", "")
+    query_1 = f"{name_no_the} website".casefold().replace(",", "")
+    query_2 = f"main website {name}".casefold().replace(",", "")
 
-    async with browser_semaphore:
-        se = PlaywrightGoogleLinkSearch(**pw_launch_kwargs)
-        potential_website_links, *__ = await se.results(query, num_results=5)
+    potential_website_links = await search_with_fallback(
+        queries=[query_1, query_2],
+        num_urls=3,
+        ignore_url_parts=url_ignore_substrings,
+        browser_sem=browser_semaphore,
+        task_name=jurisdiction.full_name,
+        **kwargs,
+    )
 
     if not potential_website_links:
         return None
