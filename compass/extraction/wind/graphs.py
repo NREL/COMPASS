@@ -113,8 +113,8 @@ def setup_multiplier(**kwargs):
             "— for example, systems intended for electricity generation or "
             "sale, or those above thresholds such as height, rotor diameter, "
             "or rated capacity. Ignore any requirements that apply only to "
-            "smaller or clearly non-commercial systems. "
-            "Please start your response with either 'Yes' or "
+            "smaller or clearly non-commercial systems or to meteorological "
+            "towers. Please start your response with either 'Yes' or "
             "'No' and briefly explain your answer."
         ),
     )
