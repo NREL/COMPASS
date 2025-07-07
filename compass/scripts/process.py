@@ -62,7 +62,7 @@ from compass.services.openai import usage_from_response
 from compass.services.provider import RunningAsyncServices
 from compass.services.threaded import (
     TempFileFromSECachePB,
-    TempFileFromWebpageCachePB,
+    TempFileCache,
     FileMover,
     CleanedFileWriter,
     OrdDBFileWriter,
@@ -504,7 +504,7 @@ class _COMPASSRunner:
                 td_kwargs=self.process_kwargs.td_kwargs,
                 tpe_kwargs=self.tpe_kwargs,
             ),
-            TempFileFromWebpageCachePB(
+            TempFileCache(
                 td_kwargs=self.process_kwargs.td_kwargs,
                 tpe_kwargs=self.tpe_kwargs,
             ),

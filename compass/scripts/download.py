@@ -14,10 +14,7 @@ from elm.web.website_crawl import (
 from elm.web.utilities import filter_documents
 
 from compass.extraction import check_for_ordinance_info, extract_date
-from compass.services.threaded import (
-    TempFileFromSECachePB,
-    TempFileFromWebpageCachePB,
-)
+from compass.services.threaded import TempFileCache, TempFileFromSECachePB
 from compass.validation.location import (
     DTreeJurisdictionValidator,
     JurisdictionValidator,

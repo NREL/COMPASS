@@ -269,38 +269,6 @@ class TempFileFromSECachePB(TempFileCache):
         return out
 
 
-class TempFileFromWebpageCachePB(TempFileCache):
-    """Service that locally caches files downloaded from the internet"""
-
-    async def process(self, doc, file_content, make_name_unique=False):
-        """Write URL doc to file asynchronously
-
-        Parameters
-        ----------
-        doc : elm.web.document.Document
-            Document containing meta information about the file. Must
-            have a "source" key in the ``attrs`` dict containing the
-            URL, which will be converted to a file name using
-            :func:`compute_fn_from_url`.
-        file_content : str or bytes
-            File content, typically string text for HTML files and bytes
-            for PDF file.
-        make_name_unique : bool, optional
-            Option to make file name unique by adding a UUID at the end
-            of the file name. By default, ``False``.
-
-        Returns
-        -------
-        Path
-            Path to output file.
-        """
-        return await super().process(
-            doc=doc,
-            file_content=file_content,
-            make_name_unique=make_name_unique,
-        )
-
-
 class StoreFileOnDisk(ThreadedService):
     """Abstract service that manages the storage of a file on disk
 
