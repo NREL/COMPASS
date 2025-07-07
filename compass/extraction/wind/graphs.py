@@ -171,10 +171,9 @@ def setup_multiplier(**kwargs):
             "example, systems intended for electricity generation or sale, "
             "or those above thresholds such as height, rotor diameter, or "
             "rated capacity. Ignore any requirements that apply only to "
-            "smaller or clearly non-commercial systems. "
-            "If so, select "
-            "and state the largest one. Otherwise, repeat the single "
-            "multiplier value that was given in the text. "
+            "smaller or clearly non-commercial systems or to meteorological "
+            "towers. If so, select and state the largest one. Otherwise, "
+            "repeat the single multiplier value that was given in the text. "
         ),
     )
     G.add_edge("m_single", "m_type")
@@ -188,8 +187,8 @@ def setup_multiplier(**kwargs):
             "example, systems intended for electricity generation or sale, "
             "or those above thresholds such as height, rotor diameter, or "
             "rated capacity. Ignore any requirements that apply only to "
-            "smaller or clearly non-commercial systems. "
-            "Select a value from the following list: "
+            "smaller or clearly non-commercial systems or to meteorological "
+            "towers. Select a value from the following list: "
             "['tip-height-multiplier', 'hub-height-multiplier', "
             "'rotor-diameter-multiplier]. "
             "Default to 'tip-height-multiplier' unless the text explicitly "
