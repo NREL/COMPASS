@@ -452,62 +452,74 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
                 "{SUMMARY_PROMPT} {UNITS_IN_SUMMARY_PROMPT} {SECTION_PROMPT}"
             ),
         )
+    elif "moratorium" in kwargs.get("restriction", ""):
+        G.add_edge(
+            "init",
+            "is_conditional",
+            condition=llm_response_starts_with_yes,
+        )
+        G.add_node(
+            "is_conditional",
+            prompt=(
+                "Does the prohibition, moratorium, or ban only apply "
+                "conditionally? For example, does it only apply to those "
+                "who have not complied with the provisions in this text? "
+                "Please start your response with either 'Yes' or 'No' "
+                "and briefly explain your answer."
+            ),
+        )
+        G.add_edge(
+            "is_conditional",
+            "has_end_date",
+            condition=llm_response_starts_with_no,
+        )
+        G.add_node(
+            "has_end_date",
+            prompt=(
+                "Does the legal text given an expiration date for the "
+                "prohibition, moratorium, or ban? "
+                "Please start your response with either 'Yes' or 'No' "
+                "and briefly explain your answer."
+            ),
+        )
+        G.add_edge(
+            "has_end_date", "final", condition=llm_response_starts_with_no
+        )
+        G.add_edge(
+            "has_end_date",
+            "check_end_date",
+            condition=llm_response_starts_with_yes,
+        )
+        todays_date = datetime.now().strftime("%B %d, %Y")
+        G.add_node(
+            "check_end_date",
+            prompt=(
+                f"Today is {todays_date}. Has the prohibition, "
+                "moratorium, or ban expired? "
+                "Please start your response with either 'Yes' or 'No' "
+                "and briefly explain your answer."
+            ),
+        )
+        G.add_edge(
+            "check_end_date",
+            "final",
+            condition=llm_response_starts_with_no,
+        )
+        G.add_node(
+            "final",
+            prompt=(
+                "Please respond based on our entire conversation so far. "
+                "Return your answer as a dictionary in "
+                "JSON format (not markdown). Your JSON file must include "
+                "exactly two keys. The keys are 'summary' and 'section'. "
+                "{SUMMARY_PROMPT} If the prohibition is a moratorium, be "
+                "sure to include that distinction in your summary and "
+                "provide any relevant expiration dates. {SECTION_PROMPT}"
+            ),
+        )
+
     else:
-        if "moratorium" in kwargs.get("restriction", ""):
-            G.add_edge(
-                "init",
-                "is_conditional",
-                condition=llm_response_starts_with_yes,
-            )
-            G.add_node(
-                "is_conditional",
-                prompt=(
-                    "Does the prohibition, moratorium, or ban only apply "
-                    "conditionally? For example, does it only apply to those "
-                    "who have not complied with the provisions in this text? "
-                    "Please start your response with either 'Yes' or 'No' "
-                    "and briefly explain your answer."
-                ),
-            )
-            G.add_edge(
-                "is_conditional",
-                "has_end_date",
-                condition=llm_response_starts_with_no,
-            )
-            G.add_node(
-                "has_end_date",
-                prompt=(
-                    "Does the legal text given an expiration date for the "
-                    "prohibition, moratorium, or ban? "
-                    "Please start your response with either 'Yes' or 'No' "
-                    "and briefly explain your answer."
-                ),
-            )
-            G.add_edge(
-                "has_end_date", "final", condition=llm_response_starts_with_no
-            )
-            G.add_edge(
-                "has_end_date",
-                "check_end_date",
-                condition=llm_response_starts_with_yes,
-            )
-            todays_date = datetime.now().strftime("%B %d, %Y")
-            G.add_node(
-                "check_end_date",
-                prompt=(
-                    f"Today is {todays_date}. Has the prohibition, "
-                    "moratorium, or ban expired? "
-                    "Please start your response with either 'Yes' or 'No' "
-                    "and briefly explain your answer."
-                ),
-            )
-            G.add_edge(
-                "check_end_date",
-                "final",
-                condition=llm_response_starts_with_no,
-            )
-        else:
-            G.add_edge("init", "final", condition=llm_response_starts_with_yes)
+        G.add_edge("init", "final", condition=llm_response_starts_with_yes)
         G.add_node(
             "final",
             prompt=(
@@ -518,6 +530,7 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
                 "{SUMMARY_PROMPT} {SECTION_PROMPT}"
             ),
         )
+
     return G
 
 
