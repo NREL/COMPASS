@@ -99,8 +99,8 @@ class SolarOrdinanceTextCollector(StructuredLLMCaller):
         "solar energy systems the text applies to (if any). The second key "
         "is '{key}', which is a boolean that is set to True if any part of "
         f"the text excerpt details {_SEARCH_TERMS_OR} for the **large solar "
-        "energy conversion systems** that the client is interested in and "
-        "False otherwise."
+        "energy conversion systems** (or similar) that the client is "
+        "interested in and False otherwise."
     )
 
     def __init__(self, *args, **kwargs):
@@ -215,10 +215,11 @@ class SolarPermittedUseDistrictsTextCollector(StructuredLLMCaller):
         "Return your answer as a dictionary in JSON format (not markdown). "
         "Your JSON file must include exactly two keys. The first key is "
         "'districts' which contains a string that lists all of the district "
-        "names for which the text explicitly permits large solar energy farms "
-        "(if any). The last key is '{key}', which is a boolean that is set to "
-        "True if any part of the text excerpt mentions districts where "
-        "**large** solar energy farms are a permitted use and False otherwise."
+        "names for which the text explicitly permits **large solar energy "
+        "farms** (if any). The last key is '{key}', which is a boolean that "
+        "is set to True if any part of the text excerpt provides information "
+        "on districts where **large solar energy farms** (or similar) are a "
+        "permitted use and False otherwise."
     )
 
     def __init__(self, *args, **kwargs):
