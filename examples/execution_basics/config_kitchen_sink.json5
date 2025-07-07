@@ -70,7 +70,7 @@
     // Number of URLs to check per jurisdiction
     // larger number = more docs to search
     "num_urls_to_check_per_jurisdiction": 5,
-    // Try to keep reasonably low , especially on laptoins
+    // Try to keep reasonably low , especially on laptops
     "max_num_concurrent_browsers": 10,
     // Only search 5 jurisdictions concurrently (at a time)
     // Most likely you are limited by LLM rate limits, so setting this
