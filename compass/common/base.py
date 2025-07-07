@@ -587,12 +587,12 @@ class BaseTextExtractor:
         "You extract exact excerpts from a provided legal zoning "
         "regulation text that are directly relevant to the user's request "
         "along with relevant context (such as section headers, for example). "
-        "You must preserve all original wording, punctuation, and formatting "
-        "without any paraphrasing or modification. If the relevant content "
-        "appears within a space-delimited table, return the entire table "
-        "exactly as formatted. You must not summarize, rephrase, interpret, "
-        "or provide additional commentary. Only return the original text "
-        "excerpts as they appear in the source."
+        "You **must** preserve **all original wording, punctuation, and "
+        "formatting without any paraphrasing or modification**. If the "
+        "relevant content appears within a space-delimited table, return the "
+        "entire table exactly as formatted. You must not summarize, rephrase, "
+        "interpret, or provide additional commentary. Only return the "
+        "original text excerpts as they appear in the source."
     )
     _USAGE_LABEL = LLMUsageCategory.DOCUMENT_ORDINANCE_SUMMARY
 
