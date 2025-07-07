@@ -281,7 +281,9 @@ class COMPASSCrawler:
 
             doc_was_just_found = (  # fmt: off
                 len(self._out_docs) == (prev_len + 1)
-                and (self._out_docs[-1].attrs.get(_DEPTH_KEY, -1))
+                and (
+                    self._out_docs[-1].attrs.get(_DEPTH_KEY, -1) == (depth + 1)
+                )
             )
             if doc_was_just_found:
                 if await self.validator(self._out_docs[-1]):
