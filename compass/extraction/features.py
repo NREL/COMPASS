@@ -41,7 +41,12 @@ class SetbackFeatures:
     }
     FEATURE_CLARIFICATIONS = {
         "structures": "",
-        "property line": "",
+        "property line": (
+            "Dwelling units, structures, occupied buildings, residences, and "
+            "other buildings **are not equivalent** to property lines or "
+            "parcel boundaries unless the text **explicitly** makes that "
+            "connection. "
+        ),
         "roads": "Roads may also be labeled as rights-of-way. ",
         "railroads": "",
         "transmission": "",
