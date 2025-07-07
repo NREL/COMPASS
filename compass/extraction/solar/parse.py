@@ -101,7 +101,12 @@ ER_CLARIFICATIONS = {
     "maximum project size": (
         "Maximum project size is typically specified as a maximum system "
         "size value or as a maximum number of solar panels."
-    )
+    ),
+    "density": (
+        "Do **not** try to infer the spacing requirement based on other "
+        "restrictions such as setbacks from facility perimeters, property "
+        "lines, etc."
+    ),
 }
 _FEATURE_TO_OWNED_TYPE = {
     "structures": "structure",

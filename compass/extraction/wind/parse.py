@@ -117,6 +117,11 @@ ER_CLARIFICATIONS = {
         "If the text prohibits shadow, treat this as a max value of 0 "
         "hours per year."
     ),
+    "tower density": (
+        "Do **not** try to infer the spacing requirement based on other "
+        "restrictions such as setbacks from facility perimeters, property "
+        "lines, etc."
+    ),
 }
 _FEATURE_TO_OWNED_TYPE = {
     "structures": "structure",
