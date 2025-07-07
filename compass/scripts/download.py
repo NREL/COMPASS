@@ -17,7 +17,7 @@ from elm.web.website_crawl import (
 from elm.web.utilities import filter_documents
 
 from compass.extraction import check_for_ordinance_info, extract_date
-from compass.services.threaded import TempFileCache, TempFileFromSECachePB
+from compass.services.threaded import TempFileCache, TempFileCachePB
 from compass.validation.location import (
     DTreeJurisdictionValidator,
     JurisdictionValidator,
@@ -62,7 +62,7 @@ async def download_known_urls(
 
     Notes
     -----
-    Requires :class:`~compass.services.threaded.TempFileFromSECachePB`
+    Requires :class:`~compass.services.threaded.TempFileCachePB`
     service to be running.
     """
 
@@ -72,9 +72,7 @@ async def download_known_urls(
     )
 
     file_loader_kwargs = file_loader_kwargs or {}
-    file_loader_kwargs.update(
-        {"file_cache_coroutine": TempFileFromSECachePB.call}
-    )
+    file_loader_kwargs.update({"file_cache_coroutine": TempFileCachePB.call})
     async with COMPASS_PB.file_download_prog_bar(
         jurisdiction.full_name, len(urls)
     ):
@@ -456,7 +454,7 @@ async def download_jurisdiction_ordinance_using_search_engine(
 
     Notes
     -----
-    Requires :class:`~compass.services.threaded.TempFileFromSECachePB`
+    Requires :class:`~compass.services.threaded.TempFileCachePB`
     service to be running.
     """
     COMPASS_PB.update_jurisdiction_task(
@@ -600,7 +598,7 @@ async def _docs_from_web_search(
         question.format(jurisdiction=jurisdiction.full_name)
         for question in question_templates
     ]
-    kwargs.update({"file_cache_coroutine": TempFileFromSECachePB.call})
+    kwargs.update({"file_cache_coroutine": TempFileCachePB.call})
 
     try:
         docs = await web_search_links_as_docs(
