@@ -542,7 +542,7 @@ def setup_graph_permitted_use_districts(**kwargs):
         prompt=(
             "Does the following legal text explicitly define districts where "
             "{tech} (or similar) are permitted as {use_type}? {clarifications}"
-            "Pay extra attention to clarifying text found in "
+            "Pay extra attention to titles and clarifying text found in "
             "parentheses and footnotes. Please start your response with "
             "either 'Yes' or 'No' and briefly explain your answer."
             '\n\n"""\n{text}\n"""'
