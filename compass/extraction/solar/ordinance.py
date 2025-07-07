@@ -330,7 +330,7 @@ class SolarOrdinanceTextExtractor(BaseTextExtractor):
         "- Do **not** include text that does not pertain to solar energy "
         "systems.\n"
         "\n3. ## Formatting & Structure ##:\n"
-        "- **Preserve all section headers and numbering** for clarity and "
+        "- **Preserve _all_ section headers and numbering** for clarity and "
         "reference.\n"
         "- **Maintain the original wording, formatting, and structure** to "
         "ensure accuracy.\n"
