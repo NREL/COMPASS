@@ -25,14 +25,28 @@ def setup_graph_correct_document_type(**kwargs):
     G.add_node(
         "init",
         prompt=(
-            "Does the following text excerpt detail in-effect legal statutes? "
+            "Does the following text resemble an excerpt from a legal "
+            "statute, such as an ordinance or code?"
             "Please start your response with either 'Yes' or 'No' and "
             "briefly explain your answer."
             '\n\n"""\n{text}\n"""'
         ),
     )
 
+    G.add_edge("init", "check_for_laws", condition=llm_response_starts_with_no)
+    G.add_node(
+        "check_for_laws",
+        prompt=(
+            "Does the text excerpt detail in-effect legal statutes? "
+            "Please start your response with either 'Yes' or 'No' and "
+            "briefly explain your answer."
+        ),
+    )
+
     G.add_edge("init", "is_model", condition=llm_response_starts_with_yes)
+    G.add_edge(
+        "check_for_laws", "is_model", condition=llm_response_starts_with_yes
+    )
     G.add_node(
         "is_model",
         prompt=(
