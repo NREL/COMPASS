@@ -116,6 +116,10 @@ ER_CLARIFICATIONS = {
         "hours per year."
     ),
 }
+_FEATURE_TO_OWNED_TYPE = {
+    "structures": "structure",
+    "property line": "property",
+}
 
 
 class StructuredWindParser(BaseLLMCaller):
@@ -331,41 +335,48 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
         return deepcopy(tree.chat_llm_caller.messages)
 
     async def _extract_setback_values_for_p_or_np(
-        self, text, base_messages, **feature_kwargs
+        self, text, base_messages, feature_id, **feature_kwargs
     ):
         """Extract setback values for participating ordinances"""
         logger.debug("Checking participating vs non-participating")
+        p_np_text = {"participating": "", "non-participating": ""}
         decision_tree_participating_out = await self._run_setback_graph(
             setup_participating_owner,
             text,
             base_messages=deepcopy(base_messages),
+            owned_type=_FEATURE_TO_OWNED_TYPE[feature_id],
             **feature_kwargs,
         )
+        p_np_text.update(decision_tree_participating_out)
         outer_task_name = asyncio.current_task().get_name()
         p_or_np_parsers = [
             asyncio.create_task(
                 self._parse_p_or_np_text(
-                    key, sub_text, base_messages, **feature_kwargs
+                    key, sub_text, base_messages, feature_id, **feature_kwargs
                 ),
                 name=outer_task_name,
             )
-            for key, sub_text in decision_tree_participating_out.items()
+            for key, sub_text in p_np_text.items()
         ]
         return await asyncio.gather(*p_or_np_parsers)
 
     async def _parse_p_or_np_text(
-        self, key, sub_text, base_messages, **feature_kwargs
+        self, p_or_np, sub_text, base_messages, feature_id, **feature_kwargs
     ):
         """Parse participating sub-text for ord values"""
-        feature = feature_kwargs["feature_id"]
-        out_feat_name = f"{feature} ({key})"
+        out_feat_name = f"{feature_id} ({p_or_np})"
         output = {"feature": out_feat_name}
         if not sub_text:
             return output
 
         feature = feature_kwargs["feature"]
-        feature = f"{key} {feature}"
-        feature_kwargs["feature"] = feature
+        if (
+            p_or_np == "participating"
+            or "non-participating"
+            in sub_text.casefold().replace("\n", "").replace(" ", "-")
+        ):
+            feature = f"**{p_or_np}** {feature}"
+            feature_kwargs["feature"] = feature
 
         base_messages = deepcopy(base_messages)
         base_messages[-2]["content"] = EXTRACT_ORIGINAL_TEXT_PROMPT.format(
