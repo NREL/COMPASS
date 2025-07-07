@@ -375,17 +375,17 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
         base_messages[-1]["content"] = sub_text
 
         values = await self._extract_setback_values(
-            sub_text,
-            base_messages=base_messages,
+            text=sub_text,
+            base_messages=deepcopy(base_messages),
             **feature_kwargs,
         )
         output.update(values)
         return output
 
-    async def _extract_setback_values(self, text, **kwargs):
+    async def _extract_setback_values(self, **kwargs):
         """Extract setback values for a given feature from input text"""
         decision_tree_out = await self._run_setback_graph(
-            setup_multiplier, text, **kwargs
+            setup_multiplier, **kwargs
         )
         decision_tree_out = _update_output_keys(decision_tree_out)
         return _sanitize_output(decision_tree_out)

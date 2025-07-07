@@ -397,10 +397,10 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
         output.update(values)
         return output
 
-    async def _extract_setback_values(self, text, **kwargs):
+    async def _extract_setback_values(self, text, base_messages, **kwargs):
         """Extract setback values for a given feature from input text"""
         decision_tree_out = await self._run_setback_graph(
-            setup_multiplier, text, **kwargs
+            setup_multiplier, text, deepcopy(base_messages), **kwargs
         )
         decision_tree_out = _update_output_keys(decision_tree_out)
         decision_tree_out = _sanitize_output(decision_tree_out)
@@ -409,11 +409,11 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
             return decision_tree_out
 
         decision_tree_conditional_min_out = await self._run_setback_graph(
-            setup_conditional_min, text, **kwargs
+            setup_conditional_min, text, deepcopy(base_messages), **kwargs
         )
         decision_tree_out.update(decision_tree_conditional_min_out)
         decision_tree_conditional_max_out = await self._run_setback_graph(
-            setup_conditional_max, text, **kwargs
+            setup_conditional_max, text, deepcopy(base_messages), **kwargs
         )
         decision_tree_out.update(decision_tree_conditional_max_out)
         return decision_tree_out
