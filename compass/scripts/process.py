@@ -18,6 +18,7 @@ from elm.web.utilities import get_redirected_url
 from compass import __version__ as compass_version
 from compass.scripts.download import (
     find_jurisdiction_website,
+    download_known_urls,
     download_jurisdiction_ordinance_using_search_engine,
     download_jurisdiction_ordinances_from_website,
     download_jurisdiction_ordinances_from_website_compass_crawl,
@@ -86,6 +87,7 @@ from compass.utilities.logs import (
     LogListener,
     NoLocationFilter,
 )
+from compass.utilities.parsing import load_config
 from compass.pb import COMPASS_PB
 
 
@@ -107,13 +109,14 @@ TechSpec = namedtuple(
 ProcessKwargs = namedtuple(
     "ProcessKwargs",
     [
+        "known_doc_urls",
         "file_loader_kwargs",
         "td_kwargs",
         "tpe_kwargs",
         "ppe_kwargs",
         "max_num_concurrent_jurisdictions",
     ],
-    defaults=[None, None, None, None],
+    defaults=[None, None, None, None, None],
 )
 Directories = namedtuple(
     "Directories",
@@ -199,6 +202,7 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
     max_num_concurrent_website_searches=10,
     max_num_concurrent_jurisdictions=25,
     url_ignore_substrings=None,
+    known_doc_urls=None,
     file_loader_kwargs=None,
     pytesseract_exe_fp=None,
     td_kwargs=None,
@@ -312,6 +316,14 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
         all websites on the NREL domain, and the specific file located
         at `www.co.delaware.in.us/documents/1649699794_0382.pdf`.
         By default, ``None``.
+    known_doc_urls : dict | str, optional
+        A dictionary where keys are the jurisdiction codes and values
+        are a string or list of strings representing known URL's to
+        check for those jurisdictions. If provided, these URL's will be
+        checked first and if an ordinance document is found, no further
+        scraping will be performed. This inout can also be a path to a
+        JSON file containing the dictionary of code-to-url mappings.
+        By default, ``None``.
     file_loader_kwargs : dict, optional
         Dictionary of keyword arguments pairs to initialize
         :class:`elm.web.file_loader.AsyncFileLoader`. If found, the
@@ -408,6 +420,7 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
         jdd=jurisdiction_dbs_dir,
     )
     pk = ProcessKwargs(
+        known_doc_urls,
         file_loader_kwargs,
         td_kwargs,
         tpe_kwargs,
@@ -519,6 +532,14 @@ class _COMPASSRunner:
         return file_loader_kwargs
 
     @cached_property
+    def known_doc_urls(self):
+        """dict: Known URL's keyed by jurisdiction code"""
+        known_doc_urls = self.process_kwargs.known_doc_urls or {}
+        if isinstance(known_doc_urls, str):
+            known_doc_urls = load_config(known_doc_urls)
+        return {int(key): val for key, val in known_doc_urls.items()}
+
+    @cached_property
     def tpe_kwargs(self):
         """dict: Keyword arguments for `ThreadPoolExecutor`"""
         return _configure_thread_pool_kwargs(self.process_kwargs.tpe_kwargs)
@@ -619,7 +640,10 @@ class _COMPASSRunner:
                 )
                 task = asyncio.create_task(
                     self._processed_jurisdiction_info_with_pb(
-                        jurisdiction, website, usage_tracker=usage_tracker
+                        jurisdiction,
+                        website,
+                        self.known_doc_urls.get(fips),
+                        usage_tracker=usage_tracker,
                     ),
                     name=jurisdiction.full_name,
                 )
@@ -653,7 +677,11 @@ class _COMPASSRunner:
         return doc_info
 
     async def _process_jurisdiction_with_logging(
-        self, jurisdiction, jurisdiction_website, usage_tracker=None
+        self,
+        jurisdiction,
+        jurisdiction_website,
+        known_doc_urls=None,
+        usage_tracker=None,
     ):
         """Retrieve ordinance document with async logs"""
         with LocationFileLog(
@@ -669,6 +697,7 @@ class _COMPASSRunner:
                     self.models,
                     self.web_search_params,
                     self.file_loader_kwargs,
+                    known_doc_urls=known_doc_urls,
                     browser_semaphore=self.browser_semaphore,
                     crawl_semaphore=self.crawl_semaphore,
                     search_engine_semaphore=self.search_engine_semaphore,
@@ -702,6 +731,7 @@ class _SingleJurisdictionRunner:
         web_search_params,
         file_loader_kwargs,
         *,
+        known_doc_urls=None,
         browser_semaphore=None,
         crawl_semaphore=None,
         search_engine_semaphore=None,
@@ -714,6 +744,7 @@ class _SingleJurisdictionRunner:
         self.models = models
         self.web_search_params = web_search_params
         self.file_loader_kwargs = file_loader_kwargs
+        self.known_doc_urls = known_doc_urls
         self.browser_semaphore = browser_semaphore
         self.crawl_semaphore = crawl_semaphore
         self.search_engine_semaphore = search_engine_semaphore
