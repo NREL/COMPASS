@@ -246,7 +246,7 @@ async def download_jurisdiction_ordinances_from_website_compass_crawl(
 ):
     """Download ord documents from a website using the COMPASS crawler
 
-    THe COMPASS crawler is much more simplistic than the Crawl4AI
+    The COMPASS crawler is much more simplistic than the Crawl4AI
     crawler, but is designed to access some links that Crawl4AI cannot
     (such as those behind a button interface).
 
