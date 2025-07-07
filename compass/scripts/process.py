@@ -117,7 +117,7 @@ ProcessKwargs = namedtuple(
         "ppe_kwargs",
         "max_num_concurrent_jurisdictions",
     ],
-    defaults=[None, None, None, None, None],
+    defaults=[None, None, None, None, 25],
 )
 Directories = namedtuple(
     "Directories",
