@@ -155,7 +155,7 @@ PARSED_COLS = [
 ]
 EXCLUDE_FROM_ORD_DOC_CHECK = {
     # if doc only contains these, it's not good enough to count as an
-    # ordinance. Note that moratoriums are explicitly not on this list
+    # ordinance. Note that prohibitions are explicitly not on this list
     "color",
     "decommissioning",
     "lighting",

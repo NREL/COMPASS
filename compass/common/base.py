@@ -452,7 +452,7 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
                 "{SUMMARY_PROMPT} {UNITS_IN_SUMMARY_PROMPT} {SECTION_PROMPT}"
             ),
         )
-    elif "moratorium" in kwargs.get("restriction", ""):
+    elif "prohibitions" in kwargs.get("restriction", ""):
         G.add_edge(
             "init",
             "is_conditional",

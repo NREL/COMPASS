@@ -79,7 +79,7 @@ EXTRA_NUMERICAL_RESTRICTIONS = {
     "coverage": "**maximum** land coverage allowed",
 }
 EXTRA_QUALITATIVE_RESTRICTIONS = {
-    "moratorium": "prohibitions, moratoriums, or bans",
+    "prohibitions": "prohibitions, moratoriums, or bans",
     "decommissioning": "decommissioning requirements",
     "glare": "glare restrictions",
     "visual impact": "visual impact **assessment** requirements",
