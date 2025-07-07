@@ -31,6 +31,7 @@ async def find_jurisdiction_website(
     jurisdiction,
     model_configs,
     file_loader_kwargs=None,
+    search_semaphore=None,
     browser_semaphore=None,
     usage_tracker=None,
     url_ignore_substrings=None,
@@ -53,6 +54,11 @@ async def find_jurisdiction_website(
         "pw_launch_kwargs" key in these will also be used to initialize
         the :class:`elm.web.search.google.PlaywrightGoogleLinkSearch`
         used for the Google URL search. By default, ``None``.
+    search_semaphore : :class:`asyncio.Semaphore`, optional
+        Semaphore instance that can be used to limit the number of
+        playwright browsers used to submit search engine queries open
+        concurrently.  If ``None``, no limits are applied.
+        By default, ``None``.
     browser_semaphore : :class:`asyncio.Semaphore`, optional
         Semaphore instance that can be used to limit the number of
         playwright browsers open concurrently. If ``None``, no limits
@@ -77,7 +83,7 @@ async def find_jurisdiction_website(
         queries=[query_1, query_2],
         num_urls=3,
         ignore_url_parts=url_ignore_substrings,
-        browser_sem=browser_semaphore,
+        browser_sem=search_semaphore,
         task_name=jurisdiction.full_name,
         **kwargs,
     )
@@ -264,7 +270,7 @@ async def download_jurisdiction_ordinance_using_search_engine(
         concurrently. If this input is ``None``, the input from
         `browser_semaphore` will be used in its place (i.e. the searches
         and file downloads will be limited using the same semaphore).
-        By default, None.
+        By default, ``None``.
     browser_semaphore : :class:`asyncio.Semaphore`, optional
         Semaphore instance that can be used to limit the number of
         playwright browsers used to download content from the web open
