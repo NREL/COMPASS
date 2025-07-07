@@ -517,10 +517,10 @@ def _ord_doc_sorting_key(doc):
     shortest_text_length = -1 * len(doc.text)
     return (
         best_docs_from_website,
-        latest_year,
+        latest_year or _NEG_INF,
         prefer_pdf_files,
         highest_jurisdiction_score,
         shortest_text_length,
-        latest_month,
-        latest_day,
+        latest_month or _NEG_INF,
+        latest_day or _NEG_INF,
     )
