@@ -822,6 +822,7 @@ class _SingleJurisdictionRunner:
             self.jurisdiction,
             self.known_doc_urls,
             browser_semaphore=self.browser_semaphore,
+            file_loader_kwargs=self.file_loader_kwargs,
         )
 
         if not docs:
