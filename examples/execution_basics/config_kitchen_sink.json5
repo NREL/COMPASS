@@ -78,6 +78,17 @@
     // to some value will prevent submitting too many concurrent
     // futures to sit idly, awaiting their turn to query the LLM
     "max_num_concurrent_jurisdictions": 25,
+    "url_ignore_substrings": [
+        // ignore any URLs with these strings
+        // useful to filter out known noise
+        "wiki",
+        "nrel.gov",
+        "openei.org",
+        "windexchange.energy.gov",
+        // but can also be very specific if needed
+        // e.g. a giant file with generic ordinances that should be skipped
+        "www.co.delaware.in.us/egov/documents/1649699794_0382.pdf",
+    ],
     "file_loader_kwargs": {
         "pw_launch_kwargs": {
             // set to "false" to see browser open and watch
