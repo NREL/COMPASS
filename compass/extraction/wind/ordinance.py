@@ -330,11 +330,11 @@ class WindOrdinanceTextExtractor(BaseTextExtractor):
     WIND_ENERGY_SYSTEM_FILTER_PROMPT = (
         "# CONTEXT #\n"
         "We want to reduce the provided excerpt to only contain information "
-        "about wind energy systems. The extracted text will be used for "
+        "about **wind energy systems**. The extracted text will be used for "
         "structured data extraction, so it must be both **comprehensive** "
         "(retaining all relevant details) and **focused** (excluding "
         "unrelated content). Ensure that all retained information is "
-        "**directly applicable** to wind energy systems while preserving "
+        "**directly applicable to wind energy systems** while preserving "
         "full context and accuracy.\n"
         "\n# OBJECTIVE #\n"
         "Extract all text **pertaining to wind energy systems** from the "
