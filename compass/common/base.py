@@ -336,7 +336,32 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
     )
 
     if is_numerical:
-        G.add_edge("init", "value", condition=llm_response_starts_with_yes)
+        if "other" in kwargs.get("restriction", ""):
+            G.add_edge(
+                "init",
+                "is_intra_farm",
+                condition=llm_response_starts_with_yes,
+            )
+            G.add_node(
+                "is_intra_farm",
+                prompt=(
+                    "Does the separation requirement apply to full farms "
+                    "and/or utility-size installations? If so, please start "
+                    "your answer with 'Yes'. If the separation requirement "
+                    "only applies to individual farm components (i.e. "
+                    "individual energy generation system units), please start "
+                    "your response with 'No'. In either case, briefly explain "
+                    "your answer."
+                ),
+            )
+            G.add_edge(
+                "is_intra_farm",
+                "value",
+                condition=llm_response_starts_with_yes,
+            )
+        else:
+            G.add_edge("init", "value", condition=llm_response_starts_with_yes)
+
         G.add_node(
             "value",
             prompt=(
