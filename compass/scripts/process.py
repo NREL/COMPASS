@@ -744,6 +744,20 @@ class _SingleJurisdictionRunner:
 
     async def _run(self):
         """Search for docs and parse them for ordinances"""
+        if self.known_doc_urls:
+            docs = await self._download_known_url_documents()
+            if docs is not None:
+                COMPASS_PB.update_jurisdiction_task(
+                    self.jurisdiction.full_name,
+                    description="Extracting structured data...",
+                )
+                doc = await self._parse_docs_for_ordinances(docs)
+            else:
+                doc = None
+
+            if doc is not None:
+                return doc
+
         docs = await self._find_documents_using_search_engine()
         if docs is not None:
             COMPASS_PB.update_jurisdiction_task(
@@ -766,6 +780,47 @@ class _SingleJurisdictionRunner:
             description="Extracting structured data...",
         )
         return await self._parse_docs_for_ordinances(docs)
+
+    async def _download_known_url_documents(self):
+        """Download ordinance documents from known URLs"""
+
+        if isinstance(self.known_doc_urls, str):
+            self.known_doc_urls = [self.known_doc_urls]
+
+        docs = await download_known_urls(
+            self.jurisdiction,
+            self.known_doc_urls,
+            browser_semaphore=self.browser_semaphore,
+        )
+
+        if not docs:
+            return None
+
+        docs = await filter_ordinance_docs(
+            docs,
+            self.jurisdiction,
+            self.models,
+            heuristic=self.tech_specs.heuristic,
+            ordinance_text_collector_class=(
+                self.tech_specs.ordinance_text_collector
+            ),
+            permitted_use_text_collector_class=(
+                self.tech_specs.permitted_use_text_collector
+            ),
+            usage_tracker=self.usage_tracker,
+            check_for_correct_jurisdiction=False,
+        )
+        if not docs:
+            return None
+
+        for doc in docs:
+            doc.attrs["jurisdiction"] = self.jurisdiction
+            doc.attrs["jurisdiction_name"] = self.jurisdiction.full_name
+            doc.attrs["jurisdiction_website"] = None
+            doc.attrs["compass_crawl"] = False
+
+        await self._record_usage()
+        return docs
 
     async def _find_documents_using_search_engine(self):
         """Search the web for an ordinance document and construct it"""
