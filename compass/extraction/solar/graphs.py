@@ -40,8 +40,8 @@ def setup_graph_sef_types(**kwargs):
     G.add_node(
         "get_text",
         prompt=(
-            "What are the different solar energy farm sizes this text "
-            "mentions? List them in order of increasing size. "
+            "What are the different solar energy farm sizes regulated by "
+            "this ordinance? List them in order of increasing size. "
             "Include any relevant numerical qualifiers in the name, if "
             "appropriate. Only include solar energy farm types; do not "
             "include generic types or other energy system types."
@@ -56,8 +56,8 @@ def setup_graph_sef_types(**kwargs):
             "JSON file must include exactly two keys. The keys are "
             "'largest_sef_type' and 'explanation'. The value of the "
             "'largest_sef_type' key should be a string that labels the "
-            "largest solar energy system size mentioned in the text. The "
-            "value of the 'explanation' key should be a string containing "
+            "largest solar energy system size regulated by this ordinance. "
+            "The value of the 'explanation' key should be a string containing "
             "a short explanation for your choice."
         ),
     )
