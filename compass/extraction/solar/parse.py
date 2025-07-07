@@ -357,6 +357,9 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
             feature=feature,
             tech=feature_kwargs["tech"],
             ignore_features=feature_kwargs["ignore_features"],
+            feature_clarifications=feature_kwargs.get(
+                "feature_clarifications", ""
+            ),
         )
         base_messages[-1]["content"] = sub_text
 
