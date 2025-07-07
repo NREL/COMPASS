@@ -84,7 +84,8 @@ def setup_multiplier(**kwargs):
         "init",
         prompt=(
             "Does the text mention a multiplier that should be applied to the "
-            "structure height to compute the setback distance from {feature}? "
+            "structure height to compute the setback distance from {feature} "
+            "for {tech}? "
             "Focus only on {feature}; do not respond based on any text "
             "related to {ignore_features}. "
             "Please only consider setbacks specifically for systems that "

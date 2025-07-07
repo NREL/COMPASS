@@ -85,7 +85,7 @@ def setup_multiplier(**kwargs):
         prompt=(
             "Does the text mention a multiplier that should be applied to a "
             "turbine dimension (e.g. height, rotor diameter, etc) to compute "
-            "the setback distance from {feature}? "
+            "the setback distance from {feature} for {tech}? "
             "Focus only on {feature}; do not respond based on any text "
             "related to {ignore_features}. "
             "Please only consider setbacks specifically for systems that "
