@@ -165,7 +165,8 @@ def setup_multiplier(**kwargs):
         "m_single",
         prompt=(
             "Are multiple values given for the multiplier used to compute the "
-            "setback distance value from {feature}? "
+            "setback distance value from {feature} for {tech}? "
+            "Remember to ignore any text related to {ignore_features}. "
             "Focus only on setbacks specifically for systems that would "
             "typically be defined as {tech} based on the text itself — for "
             "example, systems intended for electricity generation or sale, "
