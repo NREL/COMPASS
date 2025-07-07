@@ -82,8 +82,10 @@ EXTRA_QUALITATIVE_RESTRICTIONS = {
     "moratorium": "prohibitions, moratoriums, or bans",
     "decommissioning": "decommissioning requirements",
     "glare": "glare restrictions",
-    "visual impact": "visual impact assessment requirements",
-    "repowering": "repowering regulations or requirements",
+    "visual impact": "visual impact **assessment** requirements",
+    "repowering": (
+        "requirements or regulations specific to **repowering** of the system"
+    ),
 }
 UNIT_CLARIFICATIONS = {
     "noise": (
