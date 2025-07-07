@@ -4,8 +4,7 @@ import logging
 from contextlib import AsyncExitStack
 
 from elm.web.document import PDFDocument
-from elm.web.search.run import web_search_links_as_docs
-from elm.web.search.google import PlaywrightGoogleLinkSearch
+from elm.web.search.run import search_with_fallback, web_search_links_as_docs
 from elm.web.website_crawl import (
     _SCORE_KEY,  # noqa: PLC2701
     ELMWebsiteCrawler,
@@ -20,11 +19,13 @@ from compass.validation.location import (
     JurisdictionValidator,
     JurisdictionWebsiteValidator,
 )
+from compass.web.website_crawl import COMPASSCrawler, COMPASSLinkScorer
 from compass.utilities.enums import LLMTasks
 from compass.pb import COMPASS_PB
 
 
 logger = logging.getLogger(__name__)
+_NEG_INF = -1 * float("infinity")
 
 
 async def find_jurisdiction_website(
@@ -119,7 +120,7 @@ async def download_jurisdiction_ordinances_from_website(
     browser_config_kwargs=None,
     crawler_config_kwargs=None,
     max_urls=100,
-    browser_semaphore=None,
+    crawl_semaphore=None,
     pb_jurisdiction_name=None,
     return_c4ai_results=False,
 ):
@@ -151,9 +152,9 @@ async def download_jurisdiction_ordinances_from_website(
     max_urls : int, optional
         Max number of URLs to check from the website before terminating
         the search. By default, ``100``.
-    browser_semaphore : :class:`asyncio.Semaphore`, optional
+    crawl_semaphore : :class:`asyncio.Semaphore`, optional
         Semaphore instance that can be used to limit the number of
-        playwright browsers open concurrently. If ``None``, no limits
+        website searches happening concurrently. If ``None``, no limits
         are applied. By default, ``None``.
     pb_jurisdiction_name : str, optional
         Optional jurisdiction name to use to update progress bar, if
@@ -181,8 +182,8 @@ async def download_jurisdiction_ordinances_from_website(
     to be running.
     """
 
-    if browser_semaphore is None:
-        browser_semaphore = AsyncExitStack()
+    if crawl_semaphore is None:
+        crawl_semaphore = AsyncExitStack()
 
     async def _doc_heuristic(doc):  # noqa: RUF029
         """Heuristic check for wind ordinance documents"""
@@ -192,10 +193,12 @@ async def download_jurisdiction_ordinances_from_website(
 
         return is_valid_document
 
+    async def _crawl_hook(*__, **___):  # noqa: RUF029
+        """Update progress bar as pages are searched"""
+        COMPASS_PB.update_website_crawl_task(pb_jurisdiction_name, advance=1)
+
     file_loader_kwargs = file_loader_kwargs or {}
-    file_loader_kwargs.update(
-        {"file_cache_coroutine": TempFileFromWebpageCachePB.call}
-    )
+    file_loader_kwargs.update({"file_cache_coroutine": TempFileCache.call})
 
     browser_config_kwargs = browser_config_kwargs or {}
     pw_launch_kwargs = file_loader_kwargs.get("pw_launch_kwargs", {})
@@ -217,23 +220,119 @@ async def download_jurisdiction_ordinances_from_website(
             description=f"Searching for documents from {website} ...",
         )
         cpb = COMPASS_PB.website_crawl_prog_bar(pb_jurisdiction_name, max_urls)
+        ch = _crawl_hook
+    else:
+        cpb = AsyncExitStack()
+        ch = None
 
-        async def _crawl_hook(*__, **___):  # noqa: RUF029
-            COMPASS_PB.update_website_crawl_task(
-                pb_jurisdiction_name, advance=1
-            )
-
-        async with browser_semaphore, cpb:
-            return await crawler.run(
-                website,
-                on_result_hook=_crawl_hook,
-                return_c4ai_results=return_c4ai_results,
-            )
-
-    async with browser_semaphore:
+    async with crawl_semaphore, cpb:
         return await crawler.run(
-            website, return_c4ai_results=return_c4ai_results
+            website,
+            on_result_hook=ch,
+            return_c4ai_results=return_c4ai_results,
         )
+
+
+async def download_jurisdiction_ordinances_from_website_compass_crawl(
+    website,
+    heuristic,
+    keyword_points,
+    file_loader_kwargs=None,
+    already_visited=None,
+    num_link_scores_to_check_per_page=4,
+    max_urls=100,
+    crawl_semaphore=None,
+    pb_jurisdiction_name=None,
+):
+    """Download ord documents from a website using the COMPASS crawler
+
+    THe COMPASS crawler is much more simplistic than the Crawl4AI
+    crawler, but is designed to access some links that Crawl4AI cannot
+    (such as those behind a button interface).
+
+    Parameters
+    ----------
+    website : str
+        URL of the jurisdiction website to search.
+    keyword_points : dict
+        Dictionary of keyword points to use for scoring links.
+        Keys are keywords, values are points to assign to links
+        containing the keyword. If a link contains multiple keywords,
+        the points are summed up.
+    file_loader_kwargs : dict, optional
+        Dictionary of keyword arguments pairs to initialize
+        :class:`elm.web.file_loader.AsyncFileLoader`. If found, the
+        "pw_launch_kwargs" key in these will also be used to initialize
+        the :class:`elm.web.search.google.PlaywrightGoogleLinkSearch`
+        used for the Google URL search. By default, ``None``.
+    max_urls : int, optional
+        Max number of URLs to check from the website before terminating
+        the search. By default, ``100``.
+    crawl_semaphore : :class:`asyncio.Semaphore`, optional
+        Semaphore instance that can be used to limit the number of
+        website crawls happening concurrently. If ``None``, no limits
+        are applied. By default, ``None``.
+    pb_jurisdiction_name : str, optional
+        Optional jurisdiction name to use to update progress bar, if
+        it's being used. By default, ``None``.
+
+    Returns
+    -------
+    out_docs : list
+        List of :obj:`~elm.web.document.BaseDocument` instances
+        containing potential ordinance information, or an empty list if
+        no ordinance document was found.
+
+    Notes
+    -----
+    Requires :class:`~compass.services.threaded.TempFileCache` service
+    to be running.
+    """
+    if crawl_semaphore is None:
+        crawl_semaphore = AsyncExitStack()
+
+    async def _doc_heuristic(doc):  # noqa: RUF029
+        """Heuristic check for wind ordinance documents"""
+        is_valid_document = heuristic.check(doc.text.lower())
+        if is_valid_document and pb_jurisdiction_name:
+            COMPASS_PB.update_compass_website_crawl_doc_found(
+                pb_jurisdiction_name
+            )
+        return is_valid_document
+
+    async def _crawl_hook(*__, **___):  # noqa: RUF029
+        """Update progress bar as pages are searched"""
+        COMPASS_PB.update_compass_website_crawl_task(
+            pb_jurisdiction_name, advance=1
+        )
+
+    file_loader_kwargs = file_loader_kwargs or {}
+    file_loader_kwargs.update({"file_cache_coroutine": TempFileCache.call})
+
+    crawler = COMPASSCrawler(
+        validator=_doc_heuristic,
+        url_scorer=COMPASSLinkScorer(keyword_points).score,
+        file_loader_kwargs=file_loader_kwargs,
+        num_link_scores_to_check_per_page=num_link_scores_to_check_per_page,
+        already_visited=already_visited,
+        max_pages=max_urls,
+    )
+
+    if pb_jurisdiction_name:
+        COMPASS_PB.update_jurisdiction_task(
+            pb_jurisdiction_name,
+            description=f"Double-checking {website} for documents ...",
+        )
+        cpb = COMPASS_PB.compass_website_crawl_prog_bar(
+            pb_jurisdiction_name, max_urls
+        )
+        ch = _crawl_hook
+    else:
+        cpb = AsyncExitStack()
+        ch = None
+
+    async with crawl_semaphore, cpb:
+        return await crawler.run(website, on_new_page_visit_hook=ch)
 
 
 async def download_jurisdiction_ordinance_using_search_engine(
