@@ -392,20 +392,43 @@ async def download_jurisdiction_ordinance_using_search_engine(
     service to be running.
     """
     COMPASS_PB.update_jurisdiction_task(
-        jurisdiction.full_name, description="Downloading files..."
+        jurisdiction.full_name, description="Searching web..."
     )
-    async with COMPASS_PB.file_download_prog_bar(
-        jurisdiction.full_name, num_urls
-    ):
-        return await _docs_from_web_search(
-            question_templates,
-            jurisdiction,
-            num_urls,
-            search_semaphore,
-            browser_semaphore,
-            url_ignore_substrings,
+
+    pb_store = []
+
+    async def _download_hook(urls):  # noqa: RUF029
+        """Update progress bar as file download starts"""
+        if not urls:
+            return
+
+        COMPASS_PB.update_jurisdiction_task(
+            jurisdiction.full_name, description="Downloading files..."
+        )
+        pb, task = COMPASS_PB.start_file_download_prog_bar(
+            jurisdiction.full_name, len(urls)
+        )
+        pb_store.append((pb, task, len(urls)))
+
+    try:
+        out_docs = await _docs_from_web_search(
+            question_templates=question_templates,
+            jurisdiction=jurisdiction,
+            num_urls=num_urls,
+            search_semaphore=search_semaphore,
+            browser_semaphore=browser_semaphore,
+            url_ignore_substrings=url_ignore_substrings,
+            on_search_complete_hook=_download_hook,
             **(file_loader_kwargs or {}),
         )
+    finally:
+        if pb_store:
+            pb, task, num_urls = pb_store[0]
+            await COMPASS_PB.tear_down_file_download_prog_bar(
+                jurisdiction.full_name, num_urls, pb, task
+            )
+
+    return out_docs
 
 
 async def filter_ordinance_docs(
@@ -500,6 +523,7 @@ async def _docs_from_web_search(
     search_semaphore,
     browser_semaphore,
     url_ignore_substrings,
+    on_search_complete_hook,
     **file_loader_kwargs,
 ):
     """Download docs from web using jurisdiction queries"""
@@ -519,6 +543,7 @@ async def _docs_from_web_search(
             browser_semaphore=browser_semaphore,
             ignore_url_parts=url_ignore_substrings,
             task_name=jurisdiction.full_name,
+            on_search_complete_hook=on_search_complete_hook,
             **file_loader_kwargs,
         )
     except KeyboardInterrupt:

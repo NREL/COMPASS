@@ -363,11 +363,11 @@ class _COMPASSProgressBars:
             )
             yield pb
         finally:
-            self.tear_down_file_download_prog_bar(
+            await self.tear_down_file_download_prog_bar(
                 location, num_downloads, pb, task
             )
 
-    async def start_file_download_prog_bar(self, location, num_downloads):
+    def start_file_download_prog_bar(self, location, num_downloads):
         """Setup a progress bar for download of files for a jurisdiction
 
         Parameters
@@ -429,10 +429,7 @@ class _COMPASSProgressBars:
         """
         pb.update(task, completed=num_downloads)
         await asyncio.sleep(1)
-        self._remove_download_prog_bar(location)
 
-    def _remove_download_prog_bar(self, location):
-        """Remove download prog bar and associated task (if any)"""
         pb = self._dl_pbs.pop(location)
         if task_id := self._dl_tasks.get(location):
             pb.remove_task(task_id)
