@@ -502,11 +502,11 @@ def _sort_final_ord_docs(all_ord_docs):
 
     return sorted(all_ord_docs, key=_ord_doc_sorting_key, reverse=True)
 
-    best_docs_from_website = doc.attrs.get(_SCORE_KEY, 0)
+
 def _ord_doc_sorting_key(doc):
     """Sorting key for documents. The higher this value, the better"""
     latest_year, latest_month, latest_day = doc.attrs.get("date", (-1, -1, -1))
-    best_docs_from_website = doc.attrs.get("website_link_relevance_score", 0)
+    best_docs_from_website = doc.attrs.get(_SCORE_KEY, 0)
     prefer_pdf_files = isinstance(doc, PDFDocument)
     highest_jurisdiction_score = doc.attrs.get(
         # If not present, URL check passed with confidence so we set
