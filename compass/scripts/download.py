@@ -4,7 +4,11 @@ import logging
 from contextlib import AsyncExitStack
 
 from elm.web.document import PDFDocument
-from elm.web.search.run import search_with_fallback, web_search_links_as_docs
+from elm.web.search.run import (
+    _load_docs,  # noqa: PLC2701
+    search_with_fallback,
+    web_search_links_as_docs,
+)
 from elm.web.website_crawl import (
     _SCORE_KEY,  # noqa: PLC2701
     ELMWebsiteCrawler,
@@ -26,6 +30,69 @@ from compass.pb import COMPASS_PB
 
 logger = logging.getLogger(__name__)
 _NEG_INF = -1 * float("infinity")
+
+
+async def download_known_urls(
+    jurisdiction, urls, browser_semaphore=None, file_loader_kwargs=None
+):
+    """Download documents from known URLs
+
+    Parameters
+    ----------
+    jurisdiction : :class:`~compass.utilities.location.Jurisdiction`
+        Jurisdiction instance representing the jurisdiction
+        corresponding to the documents.
+    urls : iterable of str
+        Collection of URLs to download documents from.
+    browser_semaphore : :class:`asyncio.Semaphore`, optional
+        Semaphore instance that can be used to limit the number of
+        downloads happening concurrently. If ``None``, no limits
+        are applied. By default, ``None``.
+    file_loader_kwargs : dict, optional
+        Dictionary of keyword arguments pairs to initialize
+        :class:`elm.web.file_loader.AsyncFileLoader`.
+        By default, ``None``.
+
+    Returns
+    -------
+    out_docs : list
+        List of :obj:`~elm.web.document.BaseDocument` instances
+        containing documents from the URL's, or an empty list if
+        something went wrong during the retrieval process.
+
+    Notes
+    -----
+    Requires :class:`~compass.services.threaded.TempFileFromSECachePB`
+    service to be running.
+    """
+
+    COMPASS_PB.update_jurisdiction_task(
+        jurisdiction.full_name,
+        description="Downloading known URL(s)...",
+    )
+
+    file_loader_kwargs = file_loader_kwargs or {}
+    file_loader_kwargs.update(
+        {"file_cache_coroutine": TempFileFromSECachePB.call}
+    )
+    async with COMPASS_PB.file_download_prog_bar(
+        jurisdiction.full_name, len(urls)
+    ):
+        try:
+            out_docs = await _load_docs(
+                urls, browser_semaphore=browser_semaphore, **file_loader_kwargs
+            )
+        except KeyboardInterrupt:
+            raise
+        except Exception as e:
+            msg = (
+                "Encountered error of type %r while downloading known URLs: %r"
+            )
+            err_type = type(e)
+            logger.exception(msg, err_type, urls)
+            out_docs = []
+
+    return out_docs
 
 
 async def find_jurisdiction_website(
