@@ -337,7 +337,38 @@ class _COMPASSProgressBars:
 
     @asynccontextmanager
     async def file_download_prog_bar(self, location, num_downloads):
-        """Set a progress bar for download of files for one jurisdiction
+        """Display a progress bar for file downloads for a jurisdiction
+
+        Parameters
+        ----------
+        location : str
+            Name of jurisdiction being processed.
+        num_downloads : int
+            Total number of downloads being processed.
+
+        Yields
+        ------
+        rich.progress.Progress
+            `rich` progress bar initialized for this jurisdiction.
+
+        Raises
+        ------
+        COMPASSValueError
+            If a progress bar already exists for file downloads for this
+            location.
+        """
+        try:
+            pb, task = self.start_file_download_prog_bar(
+                location, num_downloads
+            )
+            yield pb
+        finally:
+            self.tear_down_file_download_prog_bar(
+                location, num_downloads, pb, task
+            )
+
+    async def start_file_download_prog_bar(self, location, num_downloads):
+        """Setup a progress bar for download of files for a jurisdiction
 
         Parameters
         ----------
@@ -381,13 +412,24 @@ class _COMPASSProgressBars:
         self._group.renderables.insert(insert_index, pb)
         self._dl_pbs[location] = pb
         self._dl_tasks[location] = task = pb.add_task("", total=num_downloads)
+        return pb, task
 
-        try:
-            yield pb
-        finally:
-            pb.update(task, completed=num_downloads)
-            await asyncio.sleep(1)
-            self._remove_download_prog_bar(location)
+    async def tear_down_file_download_prog_bar(
+        self, location, num_downloads, pb, task
+    ):
+        """Tear down the progress bar showing file downloads
+
+        Parameters
+        ----------
+        location : str
+            Name of jurisdiction that was being processed.
+        num_downloads : int
+            Total number of downloads that were being processed.
+
+        """
+        pb.update(task, completed=num_downloads)
+        await asyncio.sleep(1)
+        self._remove_download_prog_bar(location)
 
     def _remove_download_prog_bar(self, location):
         """Remove download prog bar and associated task (if any)"""
