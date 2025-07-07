@@ -30,6 +30,7 @@ from elm.web.website_crawl import ELMLinkScorer, _SCORE_KEY  # noqa: PLC2701
 
 
 logger = logging.getLogger(__name__)
+_DEPTH_KEY = "web_crawl_depth"
 _CLICKABLE_SELECTORS = [
     "button",  # "a", "p"
 ]
@@ -42,6 +43,7 @@ _BLACKLIST_SUBSTRINGS = [
     "instagram",
     "pinterest",  # cspell: disable-line
     "tiktok",  # cspell: disable-line
+    "x.com",
     "snapchat",
     "reddit",
     "mailto:",
@@ -257,7 +259,7 @@ class COMPASSCrawler:
 
         if (
             link not in self.checked_previously
-            and await self._website_link_is_pdf(link)
+            and await self._website_link_is_pdf(link, depth, score)
         ):
             return
 
@@ -276,11 +278,14 @@ class COMPASSCrawler:
                 score=next_link["score"],
                 on_new_page_visit_hook=on_new_page_visit_hook,
             )
-            doc_was_just_found = len(self._out_docs) == prev_len + 1
+
+            doc_was_just_found = (  # fmt: off
+                len(self._out_docs) == (prev_len + 1)
+                and (self._out_docs[-1].attrs.get(_DEPTH_KEY, -1))
+            )
             if doc_was_just_found:
                 if await self.validator(self._out_docs[-1]):
                     logger.debug("    - Document passed validation check!")
-                    self._out_docs[-1].attrs[_SCORE_KEY] = next_link["score"]
                 else:
                     self._out_docs = self._out_docs[:-1]
             elif (
@@ -313,7 +318,7 @@ class COMPASSCrawler:
             base_domain=base_url,
         )
 
-    async def _website_link_is_pdf(self, link):
+    async def _website_link_is_pdf(self, link, depth, score):
         """Fetch page content; keep only PDFs"""
         logger.debug("Loading Link: %s", link)
 
@@ -332,6 +337,8 @@ class COMPASSCrawler:
 
         if doc.FILE_EXTENSION == "pdf":
             logger.debug("    - Found PDF!")
+            doc.attrs[_DEPTH_KEY] = depth
+            doc.attrs[_SCORE_KEY] = score
             self._out_docs.append(doc)
             return True
 
