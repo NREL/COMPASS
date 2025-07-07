@@ -1,6 +1,7 @@
 """Base COMPASS utility functions"""
 
 from copy import deepcopy
+from functools import cached_property
 
 from elm.web.search.run import SEARCH_ENGINE_OPTIONS
 
@@ -108,7 +109,7 @@ class WebSearchParams:
         self.pytesseract_exe_fp = pytesseract_exe_fp
         self._search_engines_input = search_engines
 
-    @property
+    @cached_property
     def se_kwargs(self):
         """dict: Extra search engine kwargs to pass to ELM"""
         if not self._search_engines_input:
