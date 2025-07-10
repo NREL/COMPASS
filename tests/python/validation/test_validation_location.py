@@ -100,7 +100,9 @@ async def test_url_matches_county(oai_llm_service, loc, url, truth):
         (
             Jurisdiction("county", state="Indiana", county="Decatur"),
             "Decatur Indiana.pdf",
-            True,
+            # Doesn't actually mention Indiana state
+            # - could be Decatur, Georgia for example
+            False,
         ),
         (
             Jurisdiction("county", state="South Dakota", county="Hamlin"),
@@ -142,6 +144,16 @@ async def test_url_matches_county(oai_llm_service, loc, url, truth):
                 "town", state="New York", subdivision_name="Allegany"
             ),
             "Allegany New York.pdf",
+            True,
+        ),
+        (
+            Jurisdiction("county", state="Minnesota", county="Norman"),
+            "Grant Minnesota.pdf",
+            False,
+        ),
+        (
+            Jurisdiction("county", state="Minnesota", county="Grant"),
+            "Grant Minnesota.pdf",
             True,
         ),
     ],
