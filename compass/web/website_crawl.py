@@ -349,9 +349,13 @@ class COMPASSCrawler:
 
     async def _get_links_from_page(self, link, base_url):
         """Get all links from a page sorted by relevance score"""
+        if not link.consistent_domain:
+            logger.debug("Detected new domain, stopping link discovery")
+            return []
+
         html_text = await self._get_text_no_err(link.href)
         page_links = []
-        if html_text and link.consistent_domain:
+        if html_text:
             page_links = _extract_links_from_html(html_text, base_url=base_url)
             page_links = await self.url_scorer(
                 [dict(link) for link in page_links]
