@@ -258,7 +258,7 @@ class COMPASSCrawler:
         self._already_visited[link] = (depth, score)
         logger.trace("self._already_visited=%r", self._already_visited)
 
-        if await self._website_link_is_doc(self, link, depth, score):
+        if await self._website_link_is_doc(link, depth, score):
             return
 
         num_urls_checked_on_this_page = 0
