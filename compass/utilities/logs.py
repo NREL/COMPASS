@@ -5,6 +5,7 @@ https://www.zopatista.com/python/2019/05/11/asyncio-logging/
 """
 
 import os
+import time
 import asyncio
 import logging
 from pathlib import Path
@@ -232,7 +233,9 @@ class LogListener:
 class LocationFileLog:
     """Context manager to write logs for a location to a unique file"""
 
-    def __init__(self, listener, log_dir, location, level="INFO"):
+    def __init__(
+        self, listener, log_dir, location, level="INFO", max_teardown_time=30
+    ):
         """
 
         Parameters
@@ -248,12 +251,17 @@ class LocationFileLog:
             contain only characters valid in a file name.
         level : str, optional
             Log level. By default, ``"INFO"``.
+        max_teardown_time : int | float, default=30
+            Max number of seconds to wait for logs to flush to file
+            before unhooking the handler from the queue listener.
+            By default, ``30``.
         """
         self.log_dir = Path(log_dir)
         self.location = location
         self.level = level
         self._handler = None
         self._listener = listener
+        self.max_teardown_time = max_teardown_time
 
     def _create_log_dir(self):
         """Create log output directory if it doesn't exist"""
@@ -303,6 +311,12 @@ class LocationFileLog:
         self.__enter__()
 
     async def __aexit__(self, exc_type, exc, tb):
+        start_time = time.monotonic()
+        while (
+            not LOGGING_QUEUE.empty()
+            and (time.monotonic() - start_time) < self.max_teardown_time
+        ):
+            await asyncio.sleep(3)
         self.__exit__(exc_type, exc, tb)
 
 
