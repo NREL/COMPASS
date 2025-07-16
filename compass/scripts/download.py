@@ -277,6 +277,7 @@ async def download_jurisdiction_ordinances_from_website(
         crawler_config_kwargs=crawler_config_kwargs,
         include_external=True,
         max_pages=max_urls,
+        page_limit=int(max_urls * 1.2),
     )
 
     if pb_jurisdiction_name:
