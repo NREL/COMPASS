@@ -204,6 +204,18 @@ impl std::fmt::Display for Technology {
     }
 }
 
+impl std::convert::TryFrom<&str> for Technology {
+    type Error = error::Error;
+
+    fn try_from(s: &str) -> Result<Self> {
+        match s {
+            "wind" => Ok(Technology::Wind),
+            "solar" => Ok(Technology::Solar),
+            _ => Err(error::Error::Undefined(format!("Unknown technology: {s}"))),
+        }
+    }
+}
+
 /// Export the database
 ///
 /// Currently, it is a proof of concept. It reads the database and prints
@@ -218,15 +230,7 @@ pub fn export<W: std::io::Write>(
     // Not used yet, but ready for future use
     trace!("Export format: {:?}", format);
 
-    let technology = match technology {
-        "wind" => Technology::Wind,
-        "solar" => Technology::Solar,
-        _ => {
-            return Err(error::Error::Undefined(format!(
-                "Unknown technology: {technology}"
-            )));
-        }
-    };
+    let technology = Technology::try_from(technology)?;
 
     let conn = Connection::open(db_filename)?;
     trace!("Database opened: {:?}", &conn);
