@@ -111,13 +111,6 @@ pub fn load_ordinance<P: AsRef<std::path::Path> + std::fmt::Debug>(
 
     tracing::debug!("Commit id: {:?}", commit_id);
 
-    /*
-    dbg!(&ordinance_path);
-    let raw_filename = ordinance_path.as_ref().join("ord_db.csv");
-    dbg!(&raw_filename);
-    dbg!("========");
-    */
-
     let rt = tokio::runtime::Builder::new_current_thread()
         .enable_all()
         .build()
