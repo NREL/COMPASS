@@ -111,19 +111,20 @@ pub fn load_ordinance<P: AsRef<std::path::Path> + std::fmt::Debug>(
 
     tracing::debug!("Commit id: {:?}", commit_id);
 
-    let rt = tokio::runtime::Builder::new_current_thread()
+    let runtime = tokio::runtime::Builder::new_current_thread()
         .enable_all()
         .build()
         .unwrap();
 
-    let ordinance = rt
+    let ordinance = runtime
         .block_on(scraper::ScrapedOrdinance::open(ordinance_path))
         .unwrap();
     conn.commit().unwrap();
     tracing::debug!("Transaction committed");
 
     trace!("Ordinance: {:?}", ordinance);
-    rt.block_on(ordinance.push(&mut database, commit_id))
+    runtime
+        .block_on(ordinance.push(&mut database, commit_id))
         .unwrap();
 
     /*
