@@ -17,8 +17,20 @@ def test_setup_graph_correct_jurisdiction_type_state():
     loc = Jurisdiction("state", state="New York")
     graph = setup_graph_correct_jurisdiction_type(loc)
 
-    assert set(graph.nodes) == {"init", "is_state", "final"}
-    assert list(graph.edges) == [("init", "is_state"), ("is_state", "final")]
+    assert set(graph.nodes) == {
+        "init",
+        "has_name",
+        "is_state",
+        "has_state_name",
+        "final",
+    }
+    assert set(graph.edges) == {
+        ("init", "has_name"),
+        ("has_name", "is_state"),
+        ("is_state", "has_state_name"),  # is_state --YES-> has_state_name
+        ("is_state", "final"),  # is_state --NO-> has_state_name
+        ("has_state_name", "final"),
+    }
 
     assert f"{loc.state}" in graph.nodes["is_state"]["prompt"]
     assert "state" in graph.nodes["is_state"]["prompt"]
@@ -33,13 +45,23 @@ def test_setup_graph_correct_jurisdiction_type_county(county_type):
     loc = Jurisdiction(county_type, state="New York", county="Test")
     graph = setup_graph_correct_jurisdiction_type(loc)
 
-    assert set(graph.nodes) == {"init", "is_state", "is_county", "final"}
-    assert list(graph.edges) == [
-        ("init", "is_state"),
-        ("is_state", "is_county"),
-        ("is_state", "final"),
-        ("is_county", "final"),
-    ]
+    assert set(graph.nodes) == {
+        "init",
+        "has_name",
+        "is_state",
+        "is_county",
+        "has_county_name",
+        "final",
+    }
+    assert set(graph.edges) == {
+        ("init", "has_name"),
+        ("has_name", "is_state"),
+        ("is_state", "is_county"),  # is_state --NO-> is_county
+        ("is_state", "final"),  # is_state --YES-> final (bad jur)
+        ("is_county", "final"),  # is_county --NO-> final (bad jur)
+        ("is_county", "has_county_name"),  # is_county --YES-> has_county_name
+        ("has_county_name", "final"),
+    }
 
     assert f"{loc.state}" in graph.nodes["is_state"]["prompt"]
     assert "state" in graph.nodes["is_state"]["prompt"]
@@ -60,13 +82,23 @@ def test_setup_graph_correct_jurisdiction_type_city_no_county():
     loc = Jurisdiction("city", state="New York", subdivision_name="test")
     graph = setup_graph_correct_jurisdiction_type(loc)
 
-    assert set(graph.nodes) == {"init", "is_state", "is_city", "final"}
-    assert list(graph.edges) == [
-        ("init", "is_state"),
-        ("is_state", "is_city"),
-        ("is_state", "final"),
-        ("is_city", "final"),
-    ]
+    assert set(graph.nodes) == {
+        "init",
+        "has_name",
+        "is_state",
+        "is_city",
+        "has_city_name",
+        "final",
+    }
+    assert set(graph.edges) == {
+        ("init", "has_name"),
+        ("has_name", "is_state"),
+        ("is_state", "final"),  # is_state --YES-> final (bad jur)
+        ("is_state", "is_city"),  # is_state --NO-> is_county
+        ("is_city", "final"),  # is_city --NO-> final (bad jur)
+        ("is_city", "has_city_name"),  # is_city --YES-> has_city_name
+        ("has_city_name", "final"),
+    }
 
     assert f"{loc.state}" in graph.nodes["is_state"]["prompt"]
     assert "state" in graph.nodes["is_state"]["prompt"]
@@ -90,19 +122,24 @@ def test_setup_graph_correct_jurisdiction_type_city():
 
     assert set(graph.nodes) == {
         "init",
+        "has_name",
         "is_state",
         "is_county",
         "is_city",
+        "has_city_name",
         "final",
     }
-    assert list(graph.edges) == [
-        ("init", "is_state"),
-        ("is_state", "is_county"),
-        ("is_state", "final"),
-        ("is_county", "final"),
-        ("is_county", "is_city"),
-        ("is_city", "final"),
-    ]
+    assert set(graph.edges) == {
+        ("init", "has_name"),
+        ("has_name", "is_state"),
+        ("is_state", "final"),  # is_state --YES-> final (bad jur)
+        ("is_state", "is_county"),  # is_state --NO-> is_county
+        ("is_county", "final"),  # is_county --YES-> final (bad jur)
+        ("is_county", "is_city"),  # is_county --NO-> is_city
+        ("is_city", "final"),  # is_city --NO-> final (bad jur)
+        ("is_city", "has_city_name"),  # is_city --YES-> has_city_name
+        ("has_city_name", "final"),
+    }
 
     assert f"{loc.state}" in graph.nodes["is_state"]["prompt"]
     assert "state" in graph.nodes["is_state"]["prompt"]
