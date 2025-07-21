@@ -418,3 +418,10 @@ def _compile_url_key_explain_text(keys_to_collect):
         f"short explanation for your {choices}. "
     )
     return "".join(explain_text)
+
+
+def _jurisdiction_names_to_extract(jurisdiction):
+    """Determine whether jurisdiction name is required or not"""
+    if not jurisdiction.subdivision_name and not jurisdiction.county:
+        return "the state name"
+    return f"the state name and the {jurisdiction.type.casefold()} name"

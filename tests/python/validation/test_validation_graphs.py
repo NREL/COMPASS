@@ -8,6 +8,7 @@ from compass.utilities.location import Jurisdiction
 from compass.validation.graphs import (
     setup_graph_correct_jurisdiction_type,
     setup_graph_correct_jurisdiction_from_url,
+    _jurisdiction_names_to_extract,
 )
 
 
@@ -234,6 +235,64 @@ def test_setup_graph_correct_jurisdiction_from_url_gore():
 
     assert "correct_gore" in graph.nodes["final"]["prompt"]
     assert loc.full_subdivision_phrase in graph.nodes["final"]["prompt"]
+
+
+@pytest.mark.parametrize(
+    "loc,expected_text",
+    [
+        (
+            Jurisdiction(
+                "town",
+                state="Minnesota",
+                subdivision_name="Jefferson",
+            ),
+            "the state name and the town name",
+        ),
+        (
+            Jurisdiction(
+                "township",
+                state="Minnesota",
+                subdivision_name="Jefferson",
+            ),
+            "the state name and the township name",
+        ),
+        (
+            Jurisdiction(
+                "unincorporated area",
+                state="Minnesota",
+                county="Norman",
+                subdivision_name="Jefferson",
+            ),
+            "the state name and the unincorporated area name",
+        ),
+        (
+            Jurisdiction(
+                "county",
+                state="Minnesota",
+                county="Norman",
+            ),
+            "the state name and the county name",
+        ),
+        (
+            Jurisdiction(
+                "borough",
+                state="Minnesota",
+                county="Norman",
+            ),
+            "the state name and the borough name",
+        ),
+        (
+            Jurisdiction(
+                "state",
+                state="Minnesota",
+            ),
+            "the state name",
+        ),
+    ],
+)
+def test_jurisdiction_names_to_extract(loc, expected_text):
+    """Test the `_jurisdiction_names_to_extract` function"""
+    assert _jurisdiction_names_to_extract(loc) == expected_text
 
 
 if __name__ == "__main__":
