@@ -414,6 +414,15 @@ async def _parse_if_input_text_not_empty(
     text_chunks = text_splitter.split_text(text)
     extracted_text = await parser(text_chunks)
 
+    if len(extracted_text) > len(text):
+        logger.debug(
+            "LLM output more text than was given (IN: %d, OUT: %d). "
+            "Throwing away response due to possible hallucination...",
+            len(text),
+            len(extracted_text),
+        )
+        return ""
+
     logger.debug_to_file(
         "Extracted text for %r is:\n%s", next_text_name, extracted_text
     )
