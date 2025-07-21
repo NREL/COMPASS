@@ -14,6 +14,8 @@ from compass.warn import COMPASSWarning
 
 
 logger = logging.getLogger(__name__)
+# Multiplier used to consider text output from LLM to be hallucination
+_TEXT_OUT_CHAR_BUFFER = 1.05
 
 
 async def check_for_ordinance_info(
@@ -432,7 +434,7 @@ async def _parse_if_input_text_not_empty(
     text_chunks = text_splitter.split_text(text)
     extracted_text = await parser(text_chunks)
 
-    if len(extracted_text) > len(text):
+    if len(extracted_text) > _TEXT_OUT_CHAR_BUFFER * len(text):
         logger.debug(
             "LLM output more text than was given (IN: %d, OUT: %d). "
             "Throwing away response due to possible hallucination...",
