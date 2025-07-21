@@ -86,6 +86,9 @@ EXTRA_QUALITATIVE_RESTRICTIONS = {
     "repowering": (
         "requirements or regulations specific to **repowering** of the system"
     ),
+    "fencing": "fencing requirements",
+    "signage": "signage requirements",
+    "soil": "soil, erosion, and/or sediment control requirements",
 }
 UNIT_CLARIFICATIONS = {
     "noise": (
