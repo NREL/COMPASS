@@ -168,8 +168,9 @@ def setup_graph_correct_document_type(**kwargs):
         "is_court_doc",
         prompt=(
             "Does this text appear to be from a lawsuit, legal complaint, "
-            "or other court document that is not intended to detail specific "
-            "laws and/or regulations? "
+            "application form, or other legal or court document that is not "
+            "intended to detail specific laws, ordinances, and/or "
+            "regulations? "
             "Please start your response with either 'Yes' or 'No' and briefly "
             "explain why you chose your answer."
         ),
