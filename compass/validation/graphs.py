@@ -21,6 +21,38 @@ def setup_graph_correct_document_type(**kwargs):
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
+    doc_is_from_ocr = kwargs.pop("doc_is_from_ocr", False)
+
+    is_draft_prompt = [
+        "Does this text appear to be from a document that is currently "
+        "being edited or formatted, such as a draft or work in progress?\n"
+        "\n**Important**:\n"
+    ]
+    if doc_is_from_ocr:
+        is_draft_prompt.append(
+            "* Disregard formatting inconsistencies, typographical errors, or "
+            "visual artifacts (such as OCR noise, broken lines, or unusual "
+            "spacing). These do **not** indicate draft status unless "
+            "supported by actual content-based cues."
+        )
+    is_draft_prompt.append(
+        "* Do **not** assume that a document is a draft simply because it "
+        "refers to amendments, revisions of law, or changing legal "
+        "standards. Many finalized legal documents contain such "
+        "references as part of their normal content.\n"
+        "\nFocus instead on signs of incompleteness or active "
+        "editing, such as (but not limited to):\n"
+        "* Placeholder content (e.g., 'TBD', 'insert text here', etc.)\n"
+        "* Comments or revision marks\n"
+        "* Incomplete sentences or headings\n"
+        "* Unfinished sections or abrupt endings\n"
+        "* Explicit labels like 'draft', 'working version', or 'not "
+        "final'\n\n"
+        "Please begin your answer with **Yes** or **No**, and briefly "
+        "explain your reasoning based only on these content-based signals."
+    )
+    is_draft_prompt = "\n".join(is_draft_prompt)
+
     G = setup_graph_no_nodes(**kwargs)  # noqa: N806
     G.add_node(
         "init",
