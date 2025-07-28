@@ -14,4 +14,4 @@ RUN echo "#!/bin/bash" > /app/entrypoint.sh
 RUN cat /shell-hook >> /app/entrypoint.sh
 RUN echo 'exec "$@"' >> /app/entrypoint.sh
 
-ENTRYPOINT ["/bin/bash", "/shell-hook.sh"]
+ENTRYPOINT [ "/app/entrypoint.sh" ]
