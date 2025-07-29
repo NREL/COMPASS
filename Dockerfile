@@ -14,4 +14,14 @@ RUN echo "#!/bin/bash" > /app/entrypoint.sh
 RUN cat /shell-hook >> /app/entrypoint.sh
 RUN echo 'exec "$@"' >> /app/entrypoint.sh
 
+FROM ubuntu:24.04 AS production
+
+COPY --from=build /app/.pixi/envs/default /app/.pixi/envs/default
+COPY --from=build /app/compass /app/compass
+COPY --from=build /app/run.sh /app/run.sh
+COPY --from=build --chmod=0755 /app/entrypoint.sh /app/entrypoint.sh
+WORKDIR /app
+
 ENTRYPOINT [ "/app/entrypoint.sh" ]
+
+CMD ["/bin/bash", "run.sh"]
