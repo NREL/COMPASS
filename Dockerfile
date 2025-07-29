@@ -7,6 +7,12 @@ ARG PIXI_ENV=default
 COPY . /app
 WORKDIR /app
 
+RUN apt-get update && \
+		apt-get install -y --no-install-recommends \
+		build-essential \
+		git && \
+		rm -rf /var/lib/apt/lists/*
+
 RUN pixi install --frozen -e ${PIXI_ENV}
 
 RUN pixi run -e ${PIXI_ENV} playwright install
