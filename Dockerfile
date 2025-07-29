@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1
+
 FROM ghcr.io/prefix-dev/pixi:0.49.0 AS build
 
 ARG PIXI_ENV=default
