@@ -6,6 +6,7 @@ import asyncio
 import logging
 import getpass
 from pathlib import Path
+from copy import deepcopy
 from functools import cached_property
 from collections import namedtuple
 from contextlib import AsyncExitStack, contextmanager
@@ -543,6 +544,13 @@ class _COMPASSRunner:
         return file_loader_kwargs
 
     @cached_property
+    def file_loader_kwargs_no_ocr(self):
+        """dict: Keyword arguments for `AsyncFileLoader` with no OCR"""
+        flk = deepcopy(self.file_loader_kwargs)
+        flk.pop("pdf_ocr_read_coroutine", None)
+        return flk
+
+    @cached_property
     def known_doc_urls(self):
         """dict: Known URL's keyed by jurisdiction code"""
         known_doc_urls = self.process_kwargs.known_doc_urls or {}
@@ -953,7 +961,7 @@ class _SingleJurisdictionRunner:
         )
         validator = JurisdictionWebsiteValidator(
             browser_semaphore=self.browser_semaphore,
-            file_loader_kwargs=self.file_loader_kwargs,
+            file_loader_kwargs=self.file_loader_kwargs_no_ocr,
             usage_tracker=self.usage_tracker,
             llm_service=model_config.llm_service,
             **model_config.llm_call_kwargs,
@@ -973,7 +981,7 @@ class _SingleJurisdictionRunner:
         return await find_jurisdiction_website(
             self.jurisdiction,
             self.models,
-            file_loader_kwargs=self.file_loader_kwargs,
+            file_loader_kwargs=self.file_loader_kwargs_no_ocr,
             search_semaphore=self.search_engine_semaphore,
             browser_semaphore=self.browser_semaphore,
             usage_tracker=self.usage_tracker,
@@ -992,7 +1000,7 @@ class _SingleJurisdictionRunner:
             self.jurisdiction_website,
             heuristic=self.tech_specs.heuristic,
             keyword_points=self.tech_specs.website_url_keyword_points,
-            file_loader_kwargs=self.file_loader_kwargs,
+            file_loader_kwargs=self.file_loader_kwargs_no_ocr,
             crawl_semaphore=self.crawl_semaphore,
             pb_jurisdiction_name=self.jurisdiction.full_name,
             return_c4ai_results=True,
@@ -1019,13 +1027,12 @@ class _SingleJurisdictionRunner:
         checked_urls = set()
         for scrape_result in scrape_results:
             checked_urls.update({sub_res.url for sub_res in scrape_result})
-
         docs = (
             await download_jurisdiction_ordinances_from_website_compass_crawl(
                 self.jurisdiction_website,
                 heuristic=self.tech_specs.heuristic,
                 keyword_points=self.tech_specs.website_url_keyword_points,
-                file_loader_kwargs=self.file_loader_kwargs,
+                file_loader_kwargs=self.file_loader_kwargs_no_ocr,
                 already_visited=checked_urls,
                 crawl_semaphore=self.crawl_semaphore,
                 pb_jurisdiction_name=self.jurisdiction.full_name,
