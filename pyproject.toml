@@ -46,6 +46,7 @@ dependencies = [
   "camoufox>=0.4.11,<0.5",
   "crawl4ai>=0.6.3",
   "ddgs>=9.2.3,<10",
+  "fake-useragent>=2.2.0,<3",
   "rebrowser-playwright>=1.47.0,<2",
   "scrapling>=0.2.99,<0.3",
   "tavily-python>=0.5.0,<0.6",
@@ -153,7 +154,6 @@ graphviz = ">=12.2.1,<13"
 aiohttp = ">=3.11.6,<4"
 beautifulsoup4 = ">=4.12.3,<5"
 click = ">=8.1.7,<9"
-fake-useragent = ">=2.0.3,<3"
 google-api-python-client = ">=2.160.0,<3"
 html2text = ">=2024.2.26,<2025"
 httpx = ">=0.28.1,<0.29"
