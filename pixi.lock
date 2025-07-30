@@ -21603,8 +21603,8 @@ packages:
   timestamp: 1733408419340
 - pypi: ./
   name: nrel-compass
-  version: 0.8.1.dev7+gd4177df7.d20250730
-  sha256: 5742bd9a52e7414cd86fdba19476ac6a062436daebca62ced4e430b9ac9ee0d2
+  version: 0.8.1.dev9+g935f9e3.d20250730
+  sha256: 4d8b01212c1ec76a69a4ab1f0a19af1dea386d38d1f7404c6a762e205044d3f3
   requires_dist:
   - click>=8.1.7,<9
   - langchain>=0.3.7,<0.4
@@ -21616,14 +21616,6 @@ packages:
   - pdftotext>=2.2.2,<3
   - pyjson5>=1.6.8,<2
   - rich>=13.9.4,<14
-  - camoufox>=0.4.11,<0.5
-  - crawl4ai>=0.6.3
-  - ddgs>=9.2.3,<10
-  - fake-useragent>=2.2.0,<3
-  - rebrowser-playwright>=1.47.0,<2
-  - scrapling>=0.2.99,<0.3
-  - tavily-python>=0.5.0,<0.6
-  - tf-playwright-stealth>=1.2.0,<2
   - pytesseract>=0.3.13,<0.4 ; extra == 'ocr'
   - jupyter>=1.0.0,<1.1 ; extra == 'dev'
   - pipreqs>=0.4.13,<0.5 ; extra == 'dev'
