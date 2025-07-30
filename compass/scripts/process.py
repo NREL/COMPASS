@@ -544,13 +544,6 @@ class _COMPASSRunner:
         return file_loader_kwargs
 
     @cached_property
-    def file_loader_kwargs_no_ocr(self):
-        """dict: Keyword arguments for `AsyncFileLoader` with no OCR"""
-        flk = deepcopy(self.file_loader_kwargs)
-        flk.pop("pdf_ocr_read_coroutine", None)
-        return flk
-
-    @cached_property
     def known_doc_urls(self):
         """dict: Known URL's keyed by jurisdiction code"""
         known_doc_urls = self.process_kwargs.known_doc_urls or {}
@@ -772,6 +765,13 @@ class _SingleJurisdictionRunner:
         self.perform_website_search = perform_website_search
         self.validate_user_website_input = True
         self._jsp = None
+
+    @cached_property
+    def file_loader_kwargs_no_ocr(self):
+        """dict: Keyword arguments for `AsyncFileLoader` with no OCR"""
+        flk = deepcopy(self.file_loader_kwargs)
+        flk.pop("pdf_ocr_read_coroutine", None)
+        return flk
 
     @contextmanager
     def _tracked_progress(self):
