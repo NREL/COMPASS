@@ -39,6 +39,7 @@ dependencies = [
   "nrel-elm>=0.0.23,<1",
   "openai>=1.1.0",
   "pandas>=2.2.3,<3",
+  "pdftotext>=2.2.2,<3",
   "pyjson5>=1.6.8,<2",
   "rich>=13.9.4,<14",
 
@@ -166,7 +167,6 @@ numpy = ">=1.26.4,<2"
 openai = ">=1.1.0"
 pandas = ">=2.2.3,<3"
 pdf2image = ">=1.17.0,<2"
-pdftotext = ">=2.2.2,<3"
 pillow = ">=10.4,<11.dev0"  # version range required for c4ai
 playwright = ">=1.49.0,<1.52"  # version range required for c4ai
 poppler = ">=24.8.0,<25"
