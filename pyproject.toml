@@ -116,7 +116,7 @@ channels = ["conda-forge", "microsoft", "anaconda", "main"]
 platforms = ["osx-arm64", "osx-64", "linux-64", "win-64"]
 
 [tool.pixi.environments]
-default = { features = ["rust-dev", "python-default"], solve-group = "default" }
+default = { features = ["python-default"], solve-group = "default" }
 rdev = { features = ["rust-dev"], solve-group = "rust" }
 pdev = { features = ["python-default", "python-dev", "python-test", "python-doc", "python-anthropic", "ocr", "dev", "test", "doc"], solve-group = "python" }
 ptest = { features = ["python-default", "python-test", "test"], solve-group = "python" }
