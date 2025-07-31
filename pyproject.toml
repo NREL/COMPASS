@@ -235,8 +235,8 @@ boto3 = ">=1.35.71,<2"
 
 [tool.pixi.feature.python-build.dependencies]
 python-build = ">=1.2.2,<2"
-pkginfo= ">=1.12.1.2,<2"
-twine= ">=6.1.0,<7"
+pkginfo = ">=1.12.1.2,<2"
+twine = ">=6.1.0,<7"
 
 
 [tool.ruff]
