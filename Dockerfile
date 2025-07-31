@@ -15,7 +15,9 @@ RUN apt-get update && \
 
 RUN pixi install --frozen -e ${PIXI_ENV}
 
-RUN pixi run -e ${PIXI_ENV} playwright install
+USER root
+RUN pixi run -e ${PIXI_ENV} playwright install --with-deps
+RUN pixi run -e ${PIXI_ENV} rebrowser_playwright install
 
 RUN pixi shell-hook -e ${PIXI_ENV} -s bash > /shell-hook
 RUN echo "#!/bin/bash" > /app/entrypoint.sh
