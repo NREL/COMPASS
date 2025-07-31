@@ -785,11 +785,15 @@ class _SingleJurisdictionRunner:
     async def run(self):
         """Download and parse document for a single jurisdiction"""
         start_time = time.monotonic()
-        doc = await self._run()
-        await self._record_usage()
-        await _record_jurisdiction_info(
-            self.jurisdiction, doc, start_time, self.usage_tracker
-        )
+        doc = None
+        try:
+            doc = await self._run()
+        finally:
+            await self._record_usage()
+            await _record_jurisdiction_info(
+                self.jurisdiction, doc, start_time, self.usage_tracker
+            )
+
         return doc
 
     async def _run(self):
