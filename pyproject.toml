@@ -186,6 +186,9 @@ compilers = ">=1.11.0,<2"
 clangdev = ">=20.1.8,<21"
 libclang = ">=20.1.8,<21"
 
+[tool.pixi.target.win-64.dependencies]
+pdftotext = ">=2.2.2,<3"
+
 # ELM dependencies explicitly enumerated
 # We should remove this once ELM better defines its dependencies
 [tool.pixi.feature.elm.pypi-dependencies]
