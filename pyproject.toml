@@ -110,10 +110,10 @@ platforms = ["win-64", "osx-arm64", "osx-64", "linux-64", "linux-aarch64"]
 [tool.pixi.environments]
 default = { features = ["python-default", "elm"], solve-group = "default" }
 rdev = { features = ["rust-dev"], solve-group = "rust" }
-pdev = { features = ["python-default", "python-dev", "python-test", "python-doc", "python-anthropic", "ocr", "dev", "test", "doc"], solve-group = "python" }
-ptest = { features = ["python-default", "python-test", "test"], solve-group = "python" }
-pdoc = { features = ["python-default", "python-doc", "doc"], solve-group = "python" }
-pbuild = { features = ["python-build"], solve-group = "python" }
+pdev = { features = ["python-default", "elm", "python-dev", "python-test", "python-doc", "python-anthropic", "ocr", "dev", "test", "doc"], solve-group = "python" }
+ptest = { features = ["python-default", "elm", "python-test", "test"], solve-group = "python" }
+pdoc = { features = ["python-default", "elm", "python-doc", "doc"], solve-group = "python" }
+pbuild = { features = ["python-build", "python-default", "elm"], solve-group = "python" }
 
 [tool.pixi.tasks]
 openai-solar-demo = { cmd = "export OPENAI_API_KEY={{ api_key }}; compass process -c config.json5", args = ["api_key"], cwd = "examples/openai_solar_demo"}
