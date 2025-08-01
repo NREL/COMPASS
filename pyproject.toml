@@ -185,6 +185,8 @@ NREL-COMPASS = { path = ".", editable = true}
 compilers = ">=1.11.0,<2"
 clangdev = ">=20.1.8,<21"
 libclang = ">=20.1.8,<21"
+maturin = ">=1.8.6,<2"
+rust = ">=1.88.0,<1.89"
 
 [tool.pixi.target.win-64.dependencies]
 pdftotext = ">=2.2.2,<3"

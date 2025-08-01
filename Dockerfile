@@ -13,8 +13,10 @@ RUN apt-get update && \
         pkg-config \
         libssl-dev \
 		build-essential \
+        ca-certificates \
 		git && \
-		rm -rf /var/lib/apt/lists/*
+		rm -rf /var/lib/apt/lists/* && \
+		update-ca-certificates
 
 RUN pixi install --frozen -e ${PIXI_ENV}
 
