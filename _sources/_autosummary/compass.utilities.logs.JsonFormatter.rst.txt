@@ -1,0 +1,37 @@
+compass.utilities.logs.JsonFormatter
+====================================
+
+.. currentmodule:: compass.utilities.logs
+
+.. autoclass:: JsonFormatter
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~JsonFormatter.converter
+      ~JsonFormatter.format
+      ~JsonFormatter.formatException
+      ~JsonFormatter.formatMessage
+      ~JsonFormatter.formatStack
+      ~JsonFormatter.formatTime
+      ~JsonFormatter.usesTime
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~JsonFormatter.default_msec_format
+      ~JsonFormatter.default_time_format
+   
+   
