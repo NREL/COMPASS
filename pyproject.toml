@@ -110,7 +110,7 @@ platforms = ["win-64", "osx-arm64", "osx-64", "linux-64", "linux-aarch64"]
 [tool.pixi.environments]
 default = { features = ["python-default", "elm"], solve-group = "default" }
 rdev = { features = ["rust-dev"], solve-group = "rust" }
-pdev = { features = ["python-default", "elm", "python-dev", "python-test", "python-doc", "python-anthropic", "ocr", "dev", "test", "doc"], solve-group = "python" }
+pdev = { features = ["python-default", "elm", "python-dev", "python-build", "python-test", "python-doc", "python-anthropic", "ocr", "dev", "test", "doc"], solve-group = "python" }
 ptest = { features = ["python-default", "elm", "python-test", "test"], solve-group = "python" }
 pdoc = { features = ["python-default", "elm", "python-doc", "doc"], solve-group = "python" }
 pbuild = { features = ["python-build", "python-default", "elm"], solve-group = "python" }
