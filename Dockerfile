@@ -20,6 +20,8 @@ RUN apt-get update && \
 
 RUN pixi install --frozen -e ${PIXI_ENV}
 
+RUN pixi run --frozen build-wheels
+
 RUN pixi shell-hook -e ${PIXI_ENV} -s bash > /shell-hook
 RUN echo "#!/bin/bash" > /app/entrypoint.sh
 RUN cat /shell-hook >> /app/entrypoint.sh
