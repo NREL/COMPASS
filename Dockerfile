@@ -8,15 +8,15 @@ COPY . /app
 WORKDIR /app
 
 RUN apt-get update && \
-		apt-get install -y --no-install-recommends \
+    apt-get install -y --no-install-recommends \
         cmake \
         pkg-config \
         libssl-dev \
-		build-essential \
+        build-essential \
         ca-certificates \
-		git && \
-		rm -rf /var/lib/apt/lists/* && \
-		update-ca-certificates
+        git && \
+    rm -rf /var/lib/apt/lists/* && \
+    update-ca-certificates
 
 RUN pixi install --frozen -e ${PIXI_ENV}
 
