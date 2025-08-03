@@ -302,14 +302,14 @@ linux. To do so, test building a multi-platform image with this command:
 
 .. code-block:: shell
 
-    $ docker build --platform linux/amd64,linux/arm64 -t multi-platform -t test:latest .
+    $ docker build --platform linux/amd64,linux/arm64 -t compass:latest .
 
 
 You can then get a shell in your container using the following command:
 
 .. code-block:: shell
 
-    $ docker run -it --platform linux/amd64 -v my_output_volume:/app/outputs test:latest /bin/bash
+    $ docker run -it --platform linux/amd64 -v my_output_volume:/app/outputs compass:latest /bin/bash
 
 Once you have a shell, you can verify that the container works as expected using the following steps:
 
