@@ -210,7 +210,6 @@ pipreqs = ">=0.4.13,<0.5"
 ruff = ">=0.8.0,<0.9"
 ruff-lsp = ">=0.0.60,<0.0.61"
 seaborn = ">=0.13.2,<0.14"
-uv = ">=0.8.3,<0.9"
 
 [tool.pixi.feature.python-test.dependencies]
 flaky = ">=3.8.1,<4"
