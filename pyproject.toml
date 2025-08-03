@@ -132,7 +132,7 @@ tests-p = "pytest --durations=20 tests/python"
 make-html = { cmd = "make html", cwd = "docs"}
 
 [tool.pixi.feature.python-build.tasks]
-build-wheels = "python -m build --sdist --wheel --outdir dist/ ."
+build-wheels = { cmd = "uv build --sdist --wheel --out-dir dist/ ." }
 check-wheels = { cmd = ["twine", "check", "dist/*"], depends-on = ["build-wheels"] }
 upload-wheels = { cmd = ["twine", "upload", "dist/*"], depends-on = ["check-wheels"] }
 
