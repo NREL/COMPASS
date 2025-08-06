@@ -80,6 +80,9 @@ from compass.utilities import (
     num_ordinances_in_doc,
     num_ordinances_dataframe,
     ordinances_bool_index,
+    Directories,
+    ProcessKwargs,
+    TechSpec,
 )
 from compass.utilities.enums import LLMTasks
 from compass.utilities.location import Jurisdiction
@@ -94,41 +97,6 @@ from compass.pb import COMPASS_PB
 
 
 logger = logging.getLogger(__name__)
-TechSpec = namedtuple(
-    "TechSpec",
-    [
-        "questions",
-        "heuristic",
-        "ordinance_text_collector",
-        "ordinance_text_extractor",
-        "permitted_use_text_collector",
-        "permitted_use_text_extractor",
-        "structured_ordinance_parser",
-        "structured_permitted_use_parser",
-        "website_url_keyword_points",
-    ],
-)
-ProcessKwargs = namedtuple(
-    "ProcessKwargs",
-    [
-        "known_doc_urls",
-        "file_loader_kwargs",
-        "td_kwargs",
-        "tpe_kwargs",
-        "ppe_kwargs",
-        "max_num_concurrent_jurisdictions",
-    ],
-    defaults=[None, None, None, None, 25],
-)
-Directories = namedtuple(
-    "Directories",
-    ["out", "logs", "clean_files", "ordinance_files", "jurisdiction_dbs"],
-)
-AzureParams = namedtuple(
-    "AzureParams",
-    ["azure_api_key", "azure_version", "azure_endpoint"],
-    defaults=[None, None, None],
-)
 PARSED_COLS = [
     "county",
     "state",
