@@ -69,12 +69,11 @@ from compass.services.threaded import (
 )
 from compass.utilities import (
     LLM_COST_REGISTRY,
-    extract_ord_year_from_doc_attrs,
+    doc_infos_to_db,
     load_all_jurisdiction_info,
     load_jurisdictions_from_fp,
     num_ordinances_in_doc,
-    num_ordinances_dataframe,
-    ordinances_bool_index,
+    save_db,
     save_run_meta,
     Directories,
     ProcessKwargs,
@@ -93,24 +92,6 @@ from compass.pb import COMPASS_PB
 
 
 logger = logging.getLogger(__name__)
-PARSED_COLS = [
-    "county",
-    "state",
-    "subdivision",
-    "jurisdiction_type",
-    "FIPS",
-    "feature",
-    "value",
-    "units",
-    "adder",
-    "min_dist",
-    "max_dist",
-    "summary",
-    "ord_year",
-    "section",
-    "source",
-    "quantitative",
-]
 EXCLUDE_FROM_ORD_DOC_CHECK = {
     # if doc only contains these, it's not good enough to count as an
     # ordinance. Note that prohibitions are explicitly not on this list
@@ -586,8 +567,8 @@ class _COMPASSRunner:
 
         doc_infos, total_cost = await self._run_all(jurisdictions)
 
-        db, num_docs_found = _doc_infos_to_db(doc_infos)
-        _save_db(db, self.dirs.out)
+        db, num_docs_found = doc_infos_to_db(doc_infos)
+        save_db(db, self.dirs.out)
         total_time = save_run_meta(
             self.dirs,
             self.tech,
@@ -1372,89 +1353,6 @@ def _concat_scrape_results(doc):
 
     doc.attrs["scraped_values"] = pd.concat(data)
     return doc
-
-
-def _doc_infos_to_db(doc_infos):
-    """Convert list of docs to output database"""
-    db = []
-    for doc_info in doc_infos:
-        if doc_info is None:
-            continue
-
-        ord_db_fp = doc_info.get("ord_db_fp")
-        if ord_db_fp is None:
-            continue
-
-        ord_db = pd.read_csv(ord_db_fp)
-
-        if num_ordinances_dataframe(ord_db) == 0:
-            continue
-
-        results = _db_results(ord_db, doc_info)
-        results = _formatted_db(results)
-        db.append(results)
-
-    if not db:
-        return pd.DataFrame(columns=PARSED_COLS), 0
-
-    logger.info("Compiling final database for %d jurisdiction(s)", len(db))
-    num_jurisdictions_found = len(db)
-    db = pd.concat([df.dropna(axis=1, how="all") for df in db], axis=0)
-    db = _empirical_adjustments(db)
-    return _formatted_db(db), num_jurisdictions_found
-
-
-def _db_results(results, doc_info):
-    """Extract results from doc attrs to DataFrame"""
-
-    results["source"] = doc_info.get("source")
-    results["ord_year"] = extract_ord_year_from_doc_attrs(doc_info)
-
-    jurisdiction = doc_info["jurisdiction"]
-    results["FIPS"] = jurisdiction.code
-    results["county"] = jurisdiction.county
-    results["state"] = jurisdiction.state
-    results["subdivision"] = jurisdiction.subdivision_name
-    results["jurisdiction_type"] = jurisdiction.type
-    return results
-
-
-def _empirical_adjustments(db):
-    """Post-processing adjustments based on empirical observations
-
-    Current adjustments include:
-
-        - Limit adder to max of 250 ft.
-            - Chat GPT likes to report large values here, but in
-            practice all values manually observed in ordinance documents
-            are below 250 ft. If large value is detected, assume it's an
-            error on Chat GPT's part and remove it.
-
-    """
-    if "adder" in db.columns:
-        db.loc[db["adder"] > 250, "adder"] = None  # noqa: PLR2004
-    return db
-
-
-def _formatted_db(db):
-    """Format DataFrame for output"""
-    for col in PARSED_COLS:
-        if col not in db.columns:
-            db[col] = None
-
-    db["quantitative"] = db["quantitative"].astype("boolean").fillna(True)
-    ord_rows = ordinances_bool_index(db)
-    return db[ord_rows][PARSED_COLS].reset_index(drop=True)
-
-
-def _save_db(db, out_dir):
-    """Split DB into qualitative vs quantitative and save to disk"""
-    if db.empty:
-        return
-    qual_db = db[~db["quantitative"]][QUAL_OUT_COLS]
-    quant_db = db[db["quantitative"]][QUANT_OUT_COLS]
-    qual_db.to_csv(out_dir / "qualitative_ordinances.csv", index=False)
-    quant_db.to_csv(out_dir / "quantitative_ordinances.csv", index=False)
 
 
 async def _compute_total_cost():
