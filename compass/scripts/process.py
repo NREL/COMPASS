@@ -1219,6 +1219,13 @@ def _setup_main_logging(log_dir, level, listener):
 def _setup_folders(out_dir, log_dir=None, clean_dir=None, ofd=None, jdd=None):
     """Setup output directory folders"""
     out_dir = _full_path(out_dir)
+    if out_dir.exists():
+        msg = (
+            f"Output directory '{out_dir!s}' already exists! Please specify a "
+            "new directory for every COMPASS run."
+        )
+        raise COMPASSValueError(msg)
+
     out_folders = Directories(
         out_dir,
         _full_path(log_dir) if log_dir else out_dir / "logs",
