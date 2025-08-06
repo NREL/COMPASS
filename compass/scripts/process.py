@@ -74,12 +74,13 @@ from compass.services.threaded import (
 )
 from compass.utilities import (
     LLM_COST_REGISTRY,
+    extract_ord_year_from_doc_attrs,
     load_all_jurisdiction_info,
     load_jurisdictions_from_fp,
-    extract_ord_year_from_doc_attrs,
     num_ordinances_in_doc,
     num_ordinances_dataframe,
     ordinances_bool_index,
+    save_run_meta,
     Directories,
     ProcessKwargs,
     TechSpec,
@@ -586,18 +587,17 @@ class _COMPASSRunner:
 
         num_jurisdictions = len(jurisdictions)
         COMPASS_PB.create_main_task(num_jurisdictions=num_jurisdictions)
-        start_date = datetime.now(UTC).isoformat()
-        start_time = time.monotonic()
+        start_date = datetime.now(UTC)
 
         doc_infos, total_cost = await self._run_all(jurisdictions)
 
         db, num_docs_found = _doc_infos_to_db(doc_infos)
         _save_db(db, self.dirs.out)
-        total_time = _save_run_meta(
+        total_time = save_run_meta(
             self.dirs,
             self.tech,
-            start_time,
-            start_date,
+            start_date=start_date,
+            end_date=datetime.now(UTC),
             num_jurisdictions_searched=num_jurisdictions,
             num_jurisdictions_found=num_docs_found,
             total_cost=total_cost,
@@ -1460,85 +1460,6 @@ def _save_db(db, out_dir):
     quant_db = db[db["quantitative"]][QUANT_OUT_COLS]
     qual_db.to_csv(out_dir / "qualitative_ordinances.csv", index=False)
     quant_db.to_csv(out_dir / "quantitative_ordinances.csv", index=False)
-
-
-def _save_run_meta(
-    dirs,
-    tech,
-    start_time,
-    start_date,
-    num_jurisdictions_searched,
-    num_jurisdictions_found,
-    total_cost,
-    models,
-):
-    """Write out meta information about ordinance collection run"""
-    end_date = datetime.now(UTC).isoformat()
-    end_time = time.monotonic()
-    seconds_elapsed = end_time - start_time
-
-    try:
-        username = getpass.getuser()
-    except OSError:
-        username = "Unknown"
-
-    meta_data = {
-        "username": username,
-        "versions": {"elm": elm_version, "compass": compass_version},
-        "technology": tech,
-        "models": _extract_model_info_from_all_models(models),
-        "time_start_utc": start_date,
-        "time_end_utc": end_date,
-        "total_time": seconds_elapsed,
-        "total_time_string": str(timedelta(seconds=seconds_elapsed)),
-        "num_jurisdictions_searched": num_jurisdictions_searched,
-        "num_jurisdictions_found": num_jurisdictions_found,
-        "cost": total_cost or None,
-        "manifest": {},
-    }
-    manifest = {
-        "LOG_DIR": dirs.logs,
-        "CLEAN_FILE_DIR": dirs.clean_files,
-        "JURISDICTION_DBS_DIR": dirs.jurisdiction_dbs,
-        "ORDINANCE_FILES_DIR": dirs.ordinance_files,
-        "USAGE_FILE": dirs.out / "usage.json",
-        "JURISDICTION_FILE": dirs.out / "jurisdictions.json",
-        "QUANT_DATA_FILE": dirs.out / "quantitative_ordinances.csv",
-        "QUAL_DATA_FILE": dirs.out / "quantitative_ordinances.csv",
-    }
-    for name, file_path in manifest.items():
-        if file_path.exists():
-            meta_data["manifest"][name] = str(file_path.relative_to(dirs.out))
-        else:
-            meta_data["manifest"][name] = None
-
-    meta_data["manifest"]["META_FILE"] = "meta.json"
-    with (dirs.out / "meta.json").open("w", encoding="utf-8") as fh:
-        json.dump(meta_data, fh, indent=4)
-
-    return seconds_elapsed
-
-
-def _extract_model_info_from_all_models(models):
-    """Group model info together"""
-    models_to_tasks = {}
-    for task, caller_args in models.items():
-        models_to_tasks.setdefault(caller_args, []).append(task)
-
-    return [
-        {
-            "name": caller_args.name,
-            "llm_call_kwargs": caller_args.llm_call_kwargs or None,
-            "llm_service_rate_limit": caller_args.llm_service_rate_limit,
-            "text_splitter_chunk_size": caller_args.text_splitter_chunk_size,
-            "text_splitter_chunk_overlap": (
-                caller_args.text_splitter_chunk_overlap
-            ),
-            "client_type": caller_args.client_type,
-            "tasks": tasks,
-        }
-        for caller_args, tasks in models_to_tasks.items()
-    ]
 
 
 async def _compute_total_cost():
