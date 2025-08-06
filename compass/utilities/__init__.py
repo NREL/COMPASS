@@ -1,7 +1,7 @@
 """Ordinance utilities"""
 
 from .base import title_preserving_caps
-from .finalize import save_run_meta
+from .finalize import doc_infos_to_db, save_d, save_run_meta
 from .jurisdictions import (
     load_all_jurisdiction_info,
     load_jurisdictions_from_fp,
@@ -14,7 +14,7 @@ from .parsing import (
     num_ordinances_dataframe,
     ordinances_bool_index,
 )
-from .nt import Directories, ProcessKwargs, TechSpec, doc_infos_to_db, save_db
+from .nt import Directories, ProcessKwargs, TechSpec
 
 
 RTS_SEPARATORS = [
