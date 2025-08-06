@@ -11,6 +11,12 @@
 # Documentation
 docs/
 
+# Examples
+examples/
+
+# Tests
+tests/
+
 # Dynamic version
 compass/_version.py
 
