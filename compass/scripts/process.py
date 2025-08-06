@@ -105,8 +105,6 @@ EXCLUDE_FROM_ORD_DOC_CHECK = {
     "special use districts",
     "accessory use districts",
 }
-QUANT_OUT_COLS = PARSED_COLS[:-1]
-QUAL_OUT_COLS = PARSED_COLS[:6] + PARSED_COLS[-5:-1]
 _TEXT_EXTRACTION_TASKS = {
     WindOrdinanceTextExtractor: "Extracting wind ordinance text",
     WindPermittedUseDistrictsTextExtractor: (
@@ -1180,29 +1178,17 @@ def _setup_main_logging(log_dir, level, listener, keep_async_logs):
 
 def _setup_folders(out_dir, log_dir=None, clean_dir=None, ofd=None, jdd=None):
     """Setup output directory folders"""
-    out_dir = _full_path(out_dir)
-    if out_dir.exists():
+    out_folders = Directories(out_dir, log_dir, clean_dir, ofd, jdd)
+
+    if out_folders.out.exists():
         msg = (
             f"Output directory '{out_dir!s}' already exists! Please specify a "
             "new directory for every COMPASS run."
         )
         raise COMPASSValueError(msg)
 
-    out_folders = Directories(
-        out_dir,
-        _full_path(log_dir) if log_dir else out_dir / "logs",
-        _full_path(clean_dir) if clean_dir else out_dir / "cleaned_text",
-        _full_path(ofd) if ofd else out_dir / "ordinance_files",
-        _full_path(jdd) if jdd else out_dir / "jurisdiction_dbs",
-    )
-    for folder in out_folders:
-        folder.mkdir(exist_ok=True, parents=True)
+    out_folders.make_dirs()
     return out_folders
-
-
-def _full_path(in_path):
-    """Expand and resolve input path"""
-    return Path(in_path).expanduser().resolve()
 
 
 def _initialize_model_params(user_input):
