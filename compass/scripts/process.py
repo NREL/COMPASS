@@ -207,6 +207,7 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
     perform_website_search=True,
     llm_costs=None,
     log_level="INFO",
+    keep_async_logs=False,
 ):
     """Download and extract ordinances for a list of jurisdictions
 
@@ -407,6 +408,12 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
     log_level : str, optional
         Logging level for ordinance scraping and parsing (e.g., "TRACE",
         "DEBUG", "INFO", "WARNING", or "ERROR"). By default, ``"INFO"``.
+    keep_async_logs : bool, default=False
+        Option to store the full asynchronous log record to a file. This
+        is only useful if you intend to monitor overall processing
+        progress from a file instead of from the terminal. If ``True``,
+        all of the unordered records are written to a "all.log" file in
+        the `log_dir` directory. By default, ``False``.
 
     Returns
     -------
@@ -458,7 +465,7 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
         log_level=log_level,
     )
     async with log_listener as ll:
-        _setup_main_logging(dirs.logs, log_level, ll)
+        _setup_main_logging(dirs.logs, log_level, ll, keep_async_logs)
         return await runner.run(jurisdiction_fp)
 
 
@@ -1208,12 +1215,23 @@ def _compile_tech_specs(tech):
     raise COMPASSValueError(msg)
 
 
-def _setup_main_logging(log_dir, level, listener):
+def _setup_main_logging(log_dir, level, listener, keep_async_logs):
     """Setup main logger for catching exceptions during execution"""
+    fmt = logging.Formatter(fmt="[%(asctime)s] %(levelname)s: %(message)s")
     handler = logging.FileHandler(log_dir / "main.log", encoding="utf-8")
+    handler.setFormatter(fmt)
     handler.setLevel(level)
     handler.addFilter(NoLocationFilter())
     listener.addHandler(handler)
+
+    if keep_async_logs:
+        handler = logging.FileHandler(log_dir / "all.log", encoding="utf-8")
+        fmt = logging.Formatter(
+            fmt="[%(asctime)s] %(levelname)s - %(taskName)s: %(message)s",
+        )
+        handler.setFormatter(fmt)
+        handler.setLevel(level)
+        listener.addHandler(handler)
 
 
 def _setup_folders(out_dir, log_dir=None, clean_dir=None, ofd=None, jdd=None):
