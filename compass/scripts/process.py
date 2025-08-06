@@ -1,22 +1,17 @@
 """Ordinance full processing logic"""
 
 import time
-import json
 import asyncio
 import logging
-import getpass
 from pathlib import Path
 from copy import deepcopy
 from functools import cached_property
-from collections import namedtuple
 from contextlib import AsyncExitStack, contextmanager
-from datetime import datetime, timedelta, UTC
+from datetime import datetime, UTC
 
 import pandas as pd
-from elm.version import __version__ as elm_version
 from elm.web.utilities import get_redirected_url
 
-from compass import __version__ as compass_version
 from compass.scripts.download import (
     find_jurisdiction_website,
     download_known_urls,
