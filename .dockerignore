@@ -49,6 +49,12 @@ share/python-wheels/
 *.egg
 MANIFEST
 
+# Scrapy stuff:
+.scrapy
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
 # Unit test / coverage reports
 htmlcov/
 .tox/
