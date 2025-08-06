@@ -5,6 +5,9 @@
 # VSCode
 .vscode
 
+# Scratch files
+*scratch*
+
 # Documentation
 docs/_build/
 docs/source/_autosummary/
