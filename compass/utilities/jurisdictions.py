@@ -83,10 +83,11 @@ def load_jurisdictions_from_fp(jurisdiction_fp):
         ].reset_index(drop=True)
 
     jurisdictions = (  # remove dupes
-        jurisdictions.groupby(merge_cols)
+        jurisdictions.groupby(merge_cols, dropna=False)
         .first()
         .reset_index()
         .drop(columns="Unnamed: 0", errors="ignore")
+        .replace({np.nan: None})
     )
     jurisdictions["jur_merge"] = jurisdictions.apply(
         _build_merge_col, axis=1, merge_cols=merge_cols

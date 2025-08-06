@@ -167,5 +167,29 @@ def test_load_jurisdictions_no_repeated_townships(tmp_path):
     assert {type(val) for val in jurisdictions["FIPS"]} == {int}
 
 
+def test_load_jurisdictions_no_repeated_townships_and_counties(tmp_path):
+    """Test that `load_jurisdictions_from_fp` doesn't have repeats"""
+
+    test_jurisdiction_fp = tmp_path / "out.csv"
+    input_jurisdictions = pd.DataFrame(
+        {
+            "County": "Aroostook",
+            "State": "Maine",
+            "Subdivision": ["Perham", "Oakfield", "Perham", None, None],
+            "Jurisdiction Type": ["town", "town", "town", "county", "county"],
+        }
+    )
+    input_jurisdictions.to_csv(test_jurisdiction_fp)
+
+    jurisdictions = load_jurisdictions_from_fp(test_jurisdiction_fp)
+
+    assert len(jurisdictions) == 3
+    assert set(jurisdictions["County"]) == {"Aroostook"}
+    assert set(jurisdictions["State"]) == {"Maine"}
+    assert set(jurisdictions["Subdivision"]) == {"Perham", "Oakfield", None}
+    assert set(jurisdictions["Jurisdiction Type"]) == {"town", "county"}
+    assert {type(val) for val in jurisdictions["FIPS"]} == {int}
+
+
 if __name__ == "__main__":
     pytest.main(["-q", "--show-capture=all", Path(__file__), "-rapP"])
