@@ -14,7 +14,7 @@ from .parsing import (
     num_ordinances_dataframe,
     ordinances_bool_index,
 )
-from .nt import Directories, ProcessKwargs, TechSpec
+from .nt import Directories, ProcessKwargs, TechSpec, doc_infos_to_db, save_db
 
 
 RTS_SEPARATORS = [
