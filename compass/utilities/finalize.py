@@ -56,7 +56,7 @@ def save_run_meta(
 
     Parameters
     ----------
-    dirs : :class:`~compass.utilities.nt.Directories`
+    dirs : :class:`~compass.utilities.base.Directories`
         Directories instance containing information about the output
         directories used for the run.
     tech : {"wind", "solar"}
