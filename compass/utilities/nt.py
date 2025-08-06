@@ -2,11 +2,6 @@
 
 from collections import namedtuple
 
-Directories = namedtuple(
-    "Directories",
-    ["out", "logs", "clean_files", "ordinance_files", "jurisdiction_dbs"],
-)
-
 ProcessKwargs = namedtuple(
     "ProcessKwargs",
     [
