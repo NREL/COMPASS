@@ -11,6 +11,7 @@ from datetime import datetime, UTC
 import pandas as pd
 from elm.web.utilities import get_redirected_url
 
+from compass import __version__
 from compass.scripts.download import (
     find_jurisdiction_website,
     download_known_urls,
@@ -560,6 +561,7 @@ class _COMPASSRunner:
             DataFrame containing scraped ordinance values (could be
             empty if no ordinances found).
         """
+        logger.info("Running COMPASS version %s", __version__)
         jurisdictions = _load_jurisdictions_to_process(jurisdiction_fp)
 
         num_jurisdictions = len(jurisdictions)
