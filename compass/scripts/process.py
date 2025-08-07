@@ -3,7 +3,6 @@
 import time
 import asyncio
 import logging
-from copy import deepcopy
 from functools import cached_property
 from contextlib import AsyncExitStack, contextmanager
 from datetime import datetime, UTC
@@ -1177,16 +1176,23 @@ def _setup_main_logging(log_dir, level, listener, keep_async_logs):
 
 def _setup_folders(out_dir, log_dir=None, clean_dir=None, ofd=None, jdd=None):
     """Setup output directory folders"""
-    out_folders = Directories(out_dir, log_dir, clean_dir, ofd, jdd)
-
-    if out_folders.out.exists():
+    out_dir = _full_path(out_dir)
+    if out_dir.exists():
         msg = (
             f"Output directory '{out_dir!s}' already exists! Please specify a "
             "new directory for every COMPASS run."
         )
         raise COMPASSValueError(msg)
 
-    out_folders.make_dirs()
+    out_folders = Directories(
+        out_dir,
+        _full_path(log_dir) if log_dir else out_dir / "logs",
+        _full_path(clean_dir) if clean_dir else out_dir / "cleaned_text",
+        _full_path(ofd) if ofd else out_dir / "ordinance_files",
+        _full_path(jdd) if jdd else out_dir / "jurisdiction_dbs",
+    )
+    for folder in out_folders:
+        folder.mkdir(exist_ok=True, parents=True)
     return out_folders
 
 
