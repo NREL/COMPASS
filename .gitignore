@@ -101,3 +101,5 @@ __pypackages__/
 
 # Added by cargo
 /target
+
+docs/installation-troubleshooting/_generated_index.md
