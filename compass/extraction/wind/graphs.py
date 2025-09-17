@@ -42,8 +42,8 @@ def setup_graph_wes_types(**kwargs):
     G.add_node(
         "get_text",
         prompt=(
-            "What are the different wind energy system sizes regulated by "
-            "this ordinance? List them in order of increasing size. "
+            "What are the different wind energy system sizes **regulated by "
+            "this ordinance**? List them in order of increasing size. "
             "Include any relevant numerical qualifiers in the name, if "
             "appropriate. Only list wind energy system types; do not "
             "include generic types or other energy system types."
@@ -58,9 +58,9 @@ def setup_graph_wes_types(**kwargs):
             "file must include exactly two keys. The keys are "
             "'largest_wes_type' and 'explanation'. The value of the "
             "'largest_wes_type' key should be a string that labels the "
-            "largest wind energy conversion system size regulated by this "
-            "ordinance. The value of the 'explanation' key should be a string "
-            "containing a short explanation for your choice."
+            "largest wind energy conversion system size **regulated by this "
+            "ordinance**. The value of the 'explanation' key should be a "
+            "string containing a short explanation for your choice."
         ),
     )
     return G
