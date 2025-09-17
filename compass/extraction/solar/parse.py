@@ -14,7 +14,6 @@ from compass.common import (
     EXTRACT_ORIGINAL_TEXT_PROMPT,
     run_async_tree,
     run_async_tree_with_bm,
-    found_ord,
     empty_output,
     setup_async_decision_tree,
     setup_base_setback_graph,
@@ -298,9 +297,9 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
         feature_kwargs["tech"] = largest_sef_type
         logger.debug("Parsing feature %r", feature)
 
-        base_messages = await self._base_messages(text, **feature_kwargs)
-        if not found_ord(base_messages):
-            logger.debug("Failed `found_ord` check for feature %r", feature)
+        out, base_messages = await self._base_messages(text, **feature_kwargs)
+        if not out:
+            logger.debug("Did not find ordinance for feature %r", feature)
             sub_pb.update(task_id, advance=1, just_parsed=feature)
             return empty_output(feature)
 
@@ -332,15 +331,15 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
             chat_llm_caller=self._init_chat_llm_caller(system_message),
             **feature_kwargs,
         )
-        await run_async_tree(tree, response_as_json=False)
-        return deepcopy(tree.chat_llm_caller.messages)
+        out = await run_async_tree(tree, response_as_json=False)
+        return out, deepcopy(tree.chat_llm_caller.messages)
 
     async def _extract_setback_values_for_p_or_np(
         self, text, base_messages, feature_id, **feature_kwargs
     ):
         """Extract setback values for participating ordinances"""
         logger.debug("Checking participating vs non-participating")
-        p_np_text = {"participating": "", "non-participating": ""}
+        p_np_text = {"participating": "", "non-participating": text}
         decision_tree_participating_out = await self._run_setback_graph(
             setup_participating_owner,
             text,
