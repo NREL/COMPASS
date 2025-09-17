@@ -119,7 +119,11 @@ class AsyncDecisionTree(DecisionTree):
             prompt, usage_sub_label=self.usage_sub_label
         )
         logger.debug_to_file(
-            "Chat GPT prompt:\n%s\nChat GPT response:\n%s", prompt, out
+            "Chat GPT prompt (node=%r; name=%r):\n%s\nChat GPT response:\n%s",
+            node0,
+            self.tree_name,
+            prompt,
+            out,
         )
         return self._parse_graph_output(node0, out or "")
 
@@ -173,6 +177,8 @@ class AsyncDecisionTree(DecisionTree):
             else:
                 break
 
-        logger.info("Final decision tree output: %s", out)
+        logger.info(
+            "Final decision tree output (name=%r): %s", self.tree_name, out
+        )
 
         return out
