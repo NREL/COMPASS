@@ -91,7 +91,33 @@ def setup_graph_correct_document_type(**kwargs):
         ),
     )
 
-    G.add_edge("is_model", "is_pd", condition=llm_response_starts_with_no)
+    G.add_edge("is_model", "is_meeting", condition=llm_response_starts_with_no)
+    G.add_node(
+        "is_meeting",
+        prompt=(
+            "Does this text appear to be from town or board meeting notes? "
+            "Please start your response with either 'Yes' or 'No' and briefly "
+            "explain why you chose your answer."
+        ),
+    )
+
+    G.add_edge(
+        "is_meeting",
+        "is_single_project",
+        condition=llm_response_starts_with_no,
+    )
+    G.add_node(
+        "is_single_project",
+        prompt=(
+            "Does this text appear to apply for a single specific project? "
+            "Please start your response with either 'Yes' or 'No' and briefly "
+            "explain why you chose your answer."
+        ),
+    )
+
+    G.add_edge(
+        "is_single_project", "is_pd", condition=llm_response_starts_with_no
+    )
     G.add_node(
         "is_pd",
         prompt=(
