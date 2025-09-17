@@ -218,6 +218,29 @@ def setup_base_setback_graph(**kwargs):
             "explain your answer."
         ),
     )
+    if "roads" in kwargs.get("feature", ""):
+        G.add_edge(
+            "verify_feature",
+            "check_if_property_line",
+            condition=llm_response_starts_with_no,
+        )
+        G.add_node(
+            "check_if_property_line",
+            prompt=(
+                "Is this requirement better classified as a setback from "
+                "property lines? Please start your response with "
+                "either 'Yes' or 'No' and briefly explain your answer."
+            ),
+        )
+        G.add_edge(
+            "check_if_property_line",
+            "get_text",
+            condition=llm_response_starts_with_no,
+        )
+    else:
+        G.add_edge(
+            "verify_feature", "get_text", condition=llm_response_starts_with_no
+        )
 
     G.add_node("get_text", prompt=EXTRACT_ORIGINAL_TEXT_PROMPT)
 
