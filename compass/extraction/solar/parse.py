@@ -44,8 +44,8 @@ SETBACKS_SYSTEM_MESSAGE = (
     "Please only consider ordinances for systems that would typically be "
     "defined as {tech} based on the text itself — for example, systems "
     "intended for electricity generation or sale, or those above thresholds "
-    "such as height or rated capacity. Ignore any requirements that apply "
-    "only to smaller or clearly non-commercial systems. "
+    "such as height or rated capacity. Disregard any requirements that apply "
+    "**only** to smaller or clearly non-commercial systems. "
 )
 RESTRICTIONS_SYSTEM_MESSAGE = (
     f"{DEFAULT_SYSTEM_MESSAGE} "

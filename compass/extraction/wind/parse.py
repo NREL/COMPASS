@@ -57,8 +57,8 @@ RESTRICTIONS_SYSTEM_MESSAGE = (
     "typically be defined as {tech} based on the text itself — for "
     "example, systems intended for electricity generation or sale, "
     "or those above thresholds such as height, rotor diameter, or rated "
-    "capacity. Ignore any requirements that apply only to smaller or clearly "
-    "non-commercial systems. "
+    "capacity. Disregard any requirements that apply **only** to smaller "
+    "or clearly non-commercial systems. "
 )
 PERMITTED_USE_SYSTEM_MESSAGE = (
     f"{DEFAULT_SYSTEM_MESSAGE} "
