@@ -47,21 +47,34 @@ EXTRACT_ORIGINAL_TEXT_PROMPT = (
 )
 
 
-def setup_graph_no_nodes(**kwargs):
+def setup_graph_no_nodes(d_tree_name="Unknown Decision Tree", **kwargs):
     """Setup a graph with no nodes
 
     This function is used to set keywords on the graph that can be used
     in text prompts on the graph nodes.
+
+    Parameters
+    ----------
+    d_tree_name : str, default="Unknown Decision Tree"
+        Name of the decision tree being set up (used for logging).
+        By default, "Unknown Decision Tree".
+    **kwargs
+        Keyword-value pairs to add to graph.
 
     Returns
     -------
     nx.DiGraph
         Graph with no nodes but with global keywords set.
     """
+    feat = kwargs.get("feature_id", kwargs.get("feature", kwargs.get("url")))
+    if feat:
+        d_tree_name = f"{d_tree_name} ({feat})"
+
     return nx.DiGraph(
         SECTION_PROMPT=_SECTION_PROMPT,
         SUMMARY_PROMPT=_SUMMARY_PROMPT,
         UNITS_IN_SUMMARY_PROMPT=_UNITS_IN_SUMMARY_PROMPT,
+        _d_tree_name=d_tree_name,
         **kwargs,
     )
 
