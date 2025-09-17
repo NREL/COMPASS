@@ -181,7 +181,9 @@ def setup_base_setback_graph(**kwargs):
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
-    G = setup_graph_no_nodes(**kwargs)  # noqa: N806
+    G = setup_graph_no_nodes(  # noqa: N806
+        d_tree_name="Base setback questions", **kwargs
+    )
 
     G.add_node(
         "init",
@@ -227,7 +229,9 @@ def setup_participating_owner(**kwargs):
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
-    G = setup_graph_no_nodes(**kwargs)  # noqa: N806
+    G = setup_graph_no_nodes(  # noqa: N806
+        d_tree_name="Participating owner", **kwargs
+    )
 
     G.add_node(
         "init",
@@ -304,7 +308,9 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
     """
     kwargs.setdefault("unit_clarification", "")
     kwargs.setdefault("feature_clarifications", "")
-    G = setup_graph_no_nodes(**kwargs)  # noqa: N806
+    G = setup_graph_no_nodes(  # noqa: N806
+        d_tree_name="Extra restriction", **kwargs
+    )
 
     G.add_node(
         "init",
@@ -547,7 +553,9 @@ def setup_graph_permitted_use_districts(**kwargs):
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
-    G = setup_graph_no_nodes(**kwargs)  # noqa: N806
+    G = setup_graph_no_nodes(  # noqa: N806
+        d_tree_name="Permitted use districts", **kwargs
+    )
 
     G.add_node(
         "init",
