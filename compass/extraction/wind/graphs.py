@@ -21,7 +21,9 @@ def setup_graph_wes_types(**kwargs):
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
-    G = setup_graph_no_nodes(**kwargs)  # noqa: N806
+    G = setup_graph_no_nodes(  # noqa: N806
+        d_tree_name="Wind Energy Farm types", **kwargs
+    )
 
     G.add_node(
         "init",
@@ -78,7 +80,9 @@ def setup_multiplier(**kwargs):
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
-    G = setup_graph_no_nodes(**kwargs)  # noqa: N806
+    G = setup_graph_no_nodes(  # noqa: N806
+        d_tree_name="Setback distance", **kwargs
+    )
 
     G.add_node(
         "init",
@@ -307,7 +311,9 @@ def setup_conditional_min(**kwargs):
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
-    G = setup_graph_no_nodes(**kwargs)  # noqa: N806
+    G = setup_graph_no_nodes(  # noqa: N806
+        d_tree_name="Minimum setback distance", **kwargs
+    )
 
     G.add_node(
         "init",
@@ -390,7 +396,9 @@ def setup_conditional_max(**kwargs):
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
-    G = setup_graph_no_nodes(**kwargs)  # noqa: N806
+    G = setup_graph_no_nodes(  # noqa: N806
+        d_tree_name="Maximum setback distance", **kwargs
+    )
 
     G.add_node(
         "init",
