@@ -1,8 +1,9 @@
 """Ordinance async decision tree"""
 
-import networkx as nx
 import logging
+from functools import cached_property
 
+import networkx as nx
 from elm.tree import DecisionTree
 
 from compass.utilities.enums import LLMUsageCategory
@@ -68,6 +69,11 @@ class AsyncDecisionTree(DecisionTree):
     def chat_llm_caller(self):
         """ChatLLMCaller: ChatLLMCaller instance for this tree"""
         return self.graph.graph["chat_llm_caller"]
+
+    @cached_property
+    def tree_name(self):
+        """str: Name of the decision tree"""
+        return self._g.graph.get("_d_tree_name", "Unknown decision tree")
 
     @property
     def messages(self):
