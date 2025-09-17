@@ -268,36 +268,83 @@ def setup_participating_owner(**kwargs):
     G.add_node(
         "init",
         prompt=(
-            "Does the ordinance for {feature} setbacks explicitly specify "
-            "a value that applies to **participating** {owned_type} owners? "
-            "{feature_clarifications}"
-            "Focus only on setbacks from {feature}; do not respond "
-            "based on any text related to {ignore_features}. "
+            "Does the ordinance for {feature} setbacks explicitly distinguish "
+            "between **participating** and **non-participating** {owned_type} "
+            "owners? {feature_clarifications} We are only interested in "
+            "setbacks from {feature}; do not base your response on any text "
+            "related to {ignore_features}. "
             "Please only consider setbacks specifically for systems that "
             "would typically be defined as {tech} based on the text itself "
             "— for example, systems intended for electricity generation or "
             "sale, or those above thresholds such as height or rated "
-            "capacity. Ignore any requirements that apply only to smaller "
-            "or clearly non-commercial systems. "
-            "If your answer is 'yes', justify it by quoting the raw text "
-            "directly."
+            "capacity. Please disregard any requirements that apply **only** "
+            "to smaller or clearly non-commercial systems. "
+            "Please start your response with either 'Yes' or 'No' and "
+            "briefly explain your answer."
         ),
     )
-    G.add_edge("init", "non_part")
+    G.add_edge("init", "waiver", condition=llm_response_starts_with_yes)
+    G.add_node(
+        "waiver",
+        prompt=(
+            "Does the ordinance allow **participating** {owned_type} owners "
+            "to completely waive or reduce by an unspecified amount the "
+            "{feature} setbacks requirements? "
+            "Please start your response with either 'Yes' or 'No' and "
+            "briefly explain your answer."
+        ),
+    )
+
+    G.add_edge("waiver", "p_same_as_np", condition=llm_response_starts_with_no)
+    G.add_node(
+        "p_same_as_np",
+        prompt=(
+            "Does the ordinance for {feature} setbacks explicitly specify "
+            "that **participating** {owned_type} owners must abide to the "
+            "same setbacks as **non-participating** {owned_type} owners? "
+            "Please start your response with either 'Yes' or 'No' and "
+            "briefly explain your answer."
+        ),
+    )
+
+    G.add_edge(
+        "p_same_as_np",
+        "final_p_same_as_np",
+        condition=llm_response_starts_with_yes,
+    )
+    G.add_node(
+        "final_p_same_as_np",
+        prompt=(
+            "Please respond based on our entire conversation so far. "
+            "Return your answer as a single dictionary in JSON format (not "
+            "markdown). Your JSON file must include exactly one key. The "
+            "key is 'participating'. The value of the 'participating' key "
+            "should be a string containing the raw text with original "
+            "formatting from the ordinance that applies to both "
+            "**participating** and **non-participating** owners. Be sure to "
+            "include the numerical value for {feature} setbacks that these "
+            "owners must abide by."
+        ),
+    )
+
+    G.add_edge("p_same_as_np", "part", condition=llm_response_starts_with_no)
+    G.add_node(
+        "part",
+        prompt=(
+            "Does the ordinance for {feature} setbacks explicitly specify "
+            "a **numerical** value that applies to **participating** "
+            "{owned_type} owners? "
+            "Please start your response with either 'Yes' or 'No' and "
+            "briefly explain your answer."
+        ),
+    )
+    G.add_edge("part", "non_part", condition=llm_response_starts_with_yes)
     G.add_node(
         "non_part",
         prompt=(
             "Does the ordinance for {feature} setbacks explicitly specify "
-            "a value that applies to **non-participating** {owned_type} "
-            "owners? {feature_clarifications}"
-            "Focus only on setbacks from {feature}; do not respond "
-            "based on any text related to {ignore_features}. "
-            "Please only consider setbacks specifically for systems that "
-            "would typically be defined as {tech} based on the text itself "
-            "— for example, systems intended for electricity generation or "
-            "sale, or those above thresholds such as height or rated "
-            "capacity. Ignore any requirements that apply only to smaller "
-            "or clearly non-commercial systems. "
+            "a **numerical** value that applies to **non-participating** "
+            "{owned_type} owners? "
             "If your answer is 'yes', justify it by quoting the raw text "
             "directly."
         ),
@@ -312,13 +359,10 @@ def setup_participating_owner(**kwargs):
             "keys are 'participating' and 'non-participating'. The value of "
             "the 'participating' key should be a string containing the raw "
             "text with original formatting from the ordinance that applies to "
-            "**participating** owners if you answered 'yes' to the first "
-            "question or `null` if you answered 'no'. The value of the "
-            "'non-participating' key should be a string containing the raw "
-            "text with original formatting from the ordinance that applies to "
-            "**non-participating** owners _or_ simply the full ordinance for "
-            "{feature} setbacks if the text did not make the distinction "
-            "between **participating** and **non-participating** owners."
+            "**participating** owners. The value of the 'non-participating' "
+            "key should be a string containing the raw text with original "
+            "formatting from the ordinance that applies to "
+            "**non-participating** owners for {feature} setbacks."
         ),
     )
     return G
