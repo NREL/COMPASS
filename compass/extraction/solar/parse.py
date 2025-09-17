@@ -102,14 +102,19 @@ UNIT_CLARIFICATIONS = {
 }
 ER_CLARIFICATIONS = {
     "maximum project size": (
-        "Maximum project size is typically specified as a maximum system "
-        "size value (in MW) or as a maximum number of solar panels. It "
-        "should never be specified in terms of area."
+        "Maximum project size should be specified as a maximum system "
+        "size value (in MW) or as a maximum number of solar panels within "
+        "some geographical area. Do not confuse this with lot coverage or "
+        "min/max lot size."
     ),
     "density": (
         "Do **not** try to infer the spacing requirement based on other "
         "restrictions such as setbacks from facility perimeters, property "
         "lines, etc."
+    ),
+    "visual impact": (
+        "Do **not** consider glare restrictions as part of visual impact - "
+        "these are collected separately."
     ),
 }
 _FEATURE_TO_OWNED_TYPE = {
