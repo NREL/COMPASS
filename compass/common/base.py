@@ -364,6 +364,41 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
                 "value",
                 condition=llm_response_starts_with_yes,
             )
+        elif "maximum project size" in kwargs.get("restriction", ""):
+            G.add_edge(
+                "init",
+                "is_mps_area",
+                condition=llm_response_starts_with_yes,
+            )
+            G.add_node(
+                "is_mps_area",
+                prompt=(
+                    "Does the project size requirement specifically provide "
+                    "a system size in MW or number of solar panels? "
+                    "Please start your response with either 'Yes' or 'No' and "
+                    "briefly explain your answer."
+                ),
+            )
+            G.add_edge(
+                "is_mps_area",
+                "is_mps_conditional",
+                condition=llm_response_starts_with_yes,
+            )
+            G.add_node(
+                "is_mps_conditional",
+                prompt=(
+                    "Can the project size requirement be bypassed by applying "
+                    "for a permit? "
+                    "Please start your response with either 'Yes' or 'No' and "
+                    "briefly explain your answer."
+                ),
+            )
+
+            G.add_edge(
+                "is_mps_conditional",
+                "value",
+                condition=llm_response_starts_with_no,
+            )
         else:
             G.add_edge("init", "value", condition=llm_response_starts_with_yes)
 
