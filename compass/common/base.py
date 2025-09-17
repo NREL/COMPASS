@@ -191,8 +191,7 @@ def setup_base_setback_graph(**kwargs):
             "Is there text in the following legal document that describes "
             "how far I have to setback {tech} from {feature}? "
             "{feature_clarifications}"  # expected to end in space
-            "Focus only on setbacks from {feature}; do not respond "
-            "based on any text related to {ignore_features}. "
+            "Focus only on setbacks from {feature}. "
             "Please only consider setbacks specifically for systems that "
             "would typically be defined as {tech} based on the text itself "
             "— for example, systems intended for electricity generation or "
@@ -208,8 +207,18 @@ def setup_base_setback_graph(**kwargs):
     )
 
     G.add_edge(
-        "init", "get_text", condition=llm_response_does_not_start_with_no
+        "init", "verify_feature", condition=llm_response_does_not_start_with_no
     )
+    G.add_node(
+        "verify_feature",
+        prompt=(
+            "Did you infer your answer based on setback requirements from "
+            "something other than {feature}, such as {ignore_features}? "
+            "Please start your response with either 'Yes' or 'No' and briefly "
+            "explain your answer."
+        ),
+    )
+
     G.add_node("get_text", prompt=EXTRACT_ORIGINAL_TEXT_PROMPT)
 
     return G
