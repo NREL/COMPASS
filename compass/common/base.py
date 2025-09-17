@@ -124,20 +124,6 @@ def setup_async_decision_tree(
     return tree
 
 
-def found_ord(messages):
-    """Check messages from the base graph to see if ordinance was found
-
-    ..IMPORTANT:: This function may break if the base graph structure
-                  changes. Always update the hardcoded values to match
-                  the base graph message containing the LLM response
-                  about ordinance content.
-    """
-    num_messages_in_base_tree = 3
-    if len(messages) < num_messages_in_base_tree:
-        return False
-    return llm_response_starts_with_yes(messages[2].get("content", ""))
-
-
 async def run_async_tree(tree, response_as_json=True):
     """Run Async Decision Tree and return output as dict"""
     try:
