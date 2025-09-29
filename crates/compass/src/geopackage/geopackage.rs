@@ -22,7 +22,7 @@ pub(super) async fn init_geopackage<P: AsRef<std::path::Path>>(path: P) -> Resul
     // User_version for GeoPackage 1.3.0 is 10300
     query("PRAGMA user_version = 10300;").execute(&pool).await?;
 
-    trace!("Creating gpkg_spatial_ref_sys table (mandatory)");
+    trace!("Creating gpkg_spatial_ref_sys table (required)");
     query(
         r#"
         CREATE TABLE IF NOT EXISTS gpkg_spatial_ref_sys (
