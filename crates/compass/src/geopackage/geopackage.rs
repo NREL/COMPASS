@@ -118,6 +118,81 @@ pub(super) async fn init_geopackage<P: AsRef<std::path::Path>>(path: P) -> Resul
     .execute(&pool)
     .await?;
 
+    // 1.3.0, sections 1.1.2, required content
+    trace!("Inserting required records into gpkg_spatial_ref_sys");
+    query(
+    r#"
+      INSERT
+        INTO gpkg_spatial_ref_sys (
+          srs_name, srs_id, organization,
+          organization_coordsys_id, definition, description
+          )
+        VALUES (
+          'Undefined Cartesian SRS', -1, 'NONE', -1,
+          'undefined',
+          'undefined Cartesian coordinate reference system'
+          );
+
+        INSERT
+          INTO gpkg_spatial_ref_sys (
+            srs_name, srs_id, organization,
+            organization_coordsys_id, definition, description
+            )
+          VALUES (
+            'Undefined geographic SRS', 0, 'NONE', 0,
+            'undefined',
+            'undefined geographic coordinate reference system'
+            );
+
+        INSERT
+          INTO gpkg_spatial_ref_sys (
+            srs_name, srs_id, organization,
+            organization_coordsys_id, definition, description
+            )
+          VALUES (
+            'WGS 84 geodetic', 4326, 'EPSG', 4326,
+            'GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AXIS["Latitude",NORTH],AXIS["Longitude",EAST],AUTHORITY["EPSG","4326"]]',
+            'longitude/latitude coordinates in decimal degrees on the WGS 84 spheroid'
+            );
+        "#,
+    )
+    .execute(&pool)
+    .await?;
+
+    // Should max/min values be computed from the data instead?
+    trace!("Inserting reference of feature table `ord_areas`");
+    query(
+        r#"
+      INSERT
+        INTO gpkg_contents (
+          table_name, data_type, identifier, description,
+          last_change, min_x, min_y, max_x, max_y, srs_id)
+        VALUES (
+          'ord_areas', 'features', 'ord_areas', '',
+          strftime('%Y-%m-%dT%H:%M:%fZ','now'),
+          -179.148909, 18.910361,
+          179.778470112501, 71.365162, 4326);
+        "#,
+    )
+    .execute(&pool)
+    .await?;
+
+    //trace!("Inserting reference to geometry column in `o");
+    trace!("Linking geometry column `geom` in table `ord_areas`");
+    query(
+        r#"
+        INSERT
+          INTO gpkg_geometry_columns (
+            table_name, column_name, geometry_type_name,
+            srs_id, z, m
+            )
+          VALUES (
+            'ord_areas', 'geom', 'GEOMETRY', 4326, 0, 0);
+            "#,
+    )
+    .execute(&pool)
+    .await?;
+
     query("PRAGMA integrity_check").execute(&pool).await?; // -> ok
     query("PRAGMA foreign_key_check").execute(&pool).await?; // -> empty
 
