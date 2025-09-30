@@ -38,7 +38,8 @@ pub(super) async fn init_geopackage<P: AsRef<std::path::Path>>(path: P) -> Resul
     .execute(&pool)
     .await?;
 
-    trace!("Creating gpkg_contents table (mandatory)");
+    // table_name shall contain the name of a sqlite table
+    trace!("Creating gpkg_contents table (required)");
     query(
         r#"
         CREATE TABLE IF NOT EXISTS gpkg_contents (
