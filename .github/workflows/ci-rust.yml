@@ -19,13 +19,13 @@ on:
 
 jobs:
   check:
-    name: Check
+    name: Rust - Check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
-      - uses: prefix-dev/setup-pixi@v0.8.14
+      - uses: prefix-dev/setup-pixi@v0.9.1
         with:
           pixi-version: v0.50.2
           frozen: true
@@ -46,13 +46,13 @@ jobs:
   lints:
     # Only run tests if code looks OK
     needs: check
-    name: Lints
+    name: Rust - Lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
-      - uses: prefix-dev/setup-pixi@v0.8.14
+      - uses: prefix-dev/setup-pixi@v0.9.1
         with:
           pixi-version: v0.50.2
           frozen: true
@@ -77,6 +77,7 @@ jobs:
   test:
     # Only run tests if code looks OK
     needs: check
+    name: Rust - Test
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -84,9 +85,9 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: prefix-dev/setup-pixi@v0.8.14
+      - uses: prefix-dev/setup-pixi@v0.9.1
         with:
           pixi-version: v0.50.2
           frozen: true
@@ -102,16 +103,16 @@ jobs:
       - run: pixi run -e rdev --frozen tests-r
 
   publish-dry:
-    name: Publish (dry-run)
+    name: Rust - Publish (dry-run)
     # Only run tests if code looks OK
     needs: check
     runs-on: ubuntu-latest
     if: ${{ !startsWith(github.ref, 'refs/heads/main') && !startsWith(github.ref, 'refs/tags/c') && !startsWith(github.ref, 'refs/tags/d') }}
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
-      - uses: prefix-dev/setup-pixi@v0.8.14
+      - uses: prefix-dev/setup-pixi@v0.9.1
         with:
           pixi-version: v0.50.2
           frozen: true
@@ -140,9 +141,9 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/c')
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
-      - uses: prefix-dev/setup-pixi@v0.8.14
+      - uses: prefix-dev/setup-pixi@v0.9.1
         with:
           pixi-version: v0.50.2
           frozen: true
@@ -169,9 +170,9 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/d')
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
-      - uses: prefix-dev/setup-pixi@v0.8.14
+      - uses: prefix-dev/setup-pixi@v0.9.1
         with:
           pixi-version: v0.50.2
           frozen: true

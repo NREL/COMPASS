@@ -37,7 +37,7 @@ dependencies = [
   "langchain>=0.3.7,<0.4",
   "networkx>=3.4.2,<4",
   "nltk>=3.9.1,<4",
-  "nrel-elm>=0.0.24,<1",
+  "nrel-elm>=0.0.26,<1",
   "openai>=1.1.0",
   "pandas>=2.2.3,<3",
   "pdftotext>=2.2.2,<3",
@@ -100,6 +100,7 @@ repository = "https://github.com/NREL/COMPASS"
 find = { include = ["compass*"] }
 
 [tool.setuptools_scm]
+fallback_version = "9999"
 # Default git command uses "*[0-9]*", which breaks with cX.X.X tags.
 # This spec below forces setuptools_scm to look strictly for vX.X.X tags
 git_describe_command = [ "git", "describe", "--dirty", "--tags", "--long", "--match", "v*[0-9]*" ]
@@ -142,7 +143,7 @@ upload-wheels = { cmd = ["twine", "upload", "dist/*"], depends-on = ["check-whee
 poppler = ">=24.8.0,<25"
 
 [tool.pixi.feature.rust-dev.dependencies]
-rust = ">=1.88.0,<1.89"
+rust = ">=1.89.0,<1.90"
 cxx-compiler = ">=1.9.0,<2"
 graphviz = ">=12.2.1,<13"
 
@@ -189,7 +190,7 @@ compilers = ">=1.11.0,<2"
 clangdev = ">=20.1.8,<21"
 libclang = ">=20.1.8,<21"
 maturin = ">=1.8.6,<2"
-rust = ">=1.88.0,<1.89"
+rust = ">=1.89.0,<1.90"
 
 [tool.pixi.target.win-64.dependencies]
 pdftotext = ">=2.2.2,<3"
@@ -201,6 +202,7 @@ camoufox = ">=0.4.11,<0.5"
 crawl4ai = ">=0.6.3"
 ddgs = ">=9.2.3,<10"
 fake-useragent = ">=2.0.3,<3"
+google-search-results = ">=2.4.2,<3"
 rebrowser-playwright = ">=1.47.0,<2"
 scrapling = ">=0.2.99,<0.3"
 tavily-python = ">=0.5.0,<0.6"
