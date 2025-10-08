@@ -1,0 +1,63 @@
+compass.web.website\_crawl.Link
+===============================
+
+.. currentmodule:: compass.web.website_crawl
+
+.. autoclass:: Link
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Link.construct
+      ~Link.copy
+      ~Link.dict
+      ~Link.from_orm
+      ~Link.json
+      ~Link.model_parametrized_name
+      ~Link.model_post_init
+      ~Link.model_rebuild
+      ~Link.model_validate
+      ~Link.model_validate_json
+      ~Link.model_validate_strings
+      ~Link.parse_file
+      ~Link.parse_obj
+      ~Link.parse_raw
+      ~Link.schema
+      ~Link.schema_json
+      ~Link.update_forward_refs
+      ~Link.validate
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Link.consistent_domain
+      ~Link.model_computed_fields
+      ~Link.model_config
+      ~Link.model_extra
+      ~Link.model_fields
+      ~Link.model_fields_set
+      ~Link.resembles_pdf
+      ~Link.href
+      ~Link.text
+      ~Link.title
+      ~Link.base_domain
+      ~Link.head_data
+      ~Link.head_extraction_status
+      ~Link.head_extraction_error
+      ~Link.intrinsic_score
+      ~Link.contextual_score
+      ~Link.total_score
+   
+   

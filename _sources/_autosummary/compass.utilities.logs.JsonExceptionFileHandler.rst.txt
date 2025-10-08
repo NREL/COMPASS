@@ -1,0 +1,45 @@
+compass.utilities.logs.JsonExceptionFileHandler
+===============================================
+
+.. currentmodule:: compass.utilities.logs
+
+.. autoclass:: JsonExceptionFileHandler
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~JsonExceptionFileHandler.acquire
+      ~JsonExceptionFileHandler.addFilter
+      ~JsonExceptionFileHandler.close
+      ~JsonExceptionFileHandler.createLock
+      ~JsonExceptionFileHandler.emit
+      ~JsonExceptionFileHandler.filter
+      ~JsonExceptionFileHandler.flush
+      ~JsonExceptionFileHandler.format
+      ~JsonExceptionFileHandler.get_name
+      ~JsonExceptionFileHandler.handle
+      ~JsonExceptionFileHandler.handleError
+      ~JsonExceptionFileHandler.release
+      ~JsonExceptionFileHandler.removeFilter
+      ~JsonExceptionFileHandler.setFormatter
+      ~JsonExceptionFileHandler.setLevel
+      ~JsonExceptionFileHandler.set_name
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~JsonExceptionFileHandler.name
+   
+   
