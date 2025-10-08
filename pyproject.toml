@@ -70,6 +70,7 @@ test = [
 doc = [
   "ghp-import>=2.1",
   "make>=0.1",
+  "myst-parser>=4.0.1,<5",
   "pydata-sphinx-theme>=0.16.1,<0.17",
   "sphinx-click>=5.1",
   "sphinx-copybutton>=0.5",
@@ -230,6 +231,7 @@ tox = ">=4.23.2,<5"
 [tool.pixi.feature.python-doc.dependencies]
 ghp-import = ">=2.1.0,<3"
 make = ">=4.4.1,<5"
+myst-parser = ">=4.0.1,<5"
 pydata-sphinx-theme = ">=0.16.1,<0.17"
 sphinx-click = ">=6.0.0,<7"
 sphinx-copybutton = ">=0.5.2,<0.6"
