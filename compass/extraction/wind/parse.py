@@ -466,7 +466,8 @@ class StructuredWindPermittedUseDistrictsParser(StructuredWindParser):
         "facilities (WEF), wind energy turbines (WET), large wind energy "
         "turbines (LWET), utility-scale wind energy turbines (UWET), "
         "commercial wind energy conversion systems (CWECS), alternate "
-        "energy systems (AES), or similar. "
+        "energy systems (AES), commercial energy production systems (CEPCS), "
+        "or similar"
     )
     _USE_TYPES = [
         {

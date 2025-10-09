@@ -21,7 +21,8 @@ _LARGE_SEF_SYNONYMS = (
     "facilities (SEF), solar energy farms (SEF), solar farms (SF), "
     "utility-scale solar energy systems (USES), commercial solar energy "
     "systems (CSES), ground-mounted solar energy systems (GSES), "
-    "alternate energy systems (AES), or similar"
+    "alternate energy systems (AES), commercial energy production "
+    "systems (CEPCS), or similar"
 )
 _SEARCH_TERMS_AND = (
     "zoning, siting, setback, system design, and operational "
