@@ -30,7 +30,7 @@ _SEARCH_TERMS_AND = (
 )
 _SEARCH_TERMS_OR = _SEARCH_TERMS_AND.replace("and", "or")
 _IGNORE_TYPES = (
-    "private, residential, roof-mounted, micro, small, or medium sized"
+    "CSP, private, residential, roof-mounted, micro, small, or medium sized"
 )
 
 
