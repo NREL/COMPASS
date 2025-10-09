@@ -440,6 +440,21 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
                 "value",
                 condition=llm_response_starts_with_yes,
             )
+        elif "coverage" in kwargs.get("restriction", ""):
+            G.add_edge(
+                "init", "is_area", condition=llm_response_starts_with_yes
+            )
+            G.add_node(
+                "is_area",
+                prompt=(
+                    "Is the coverage reported as an area value? "
+                    "Please start your response with either 'Yes' or 'No' and "
+                    "briefly explain your answer."
+                ),
+            )
+            G.add_edge(
+                "is_area", "value", condition=llm_response_starts_with_no
+            )
         elif "maximum project size" in kwargs.get("restriction", ""):
             G.add_edge(
                 "init",

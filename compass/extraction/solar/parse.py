@@ -115,6 +115,9 @@ ER_CLARIFICATIONS = {
         "Do **not** consider glare restrictions as part of visual impact - "
         "these are collected separately."
     ),
+    "coverage": (
+        "Do not confuse this with density or min/max lot size requirements."
+    ),
 }
 _FEATURE_TO_OWNED_TYPE = {
     "structures": "structure",
