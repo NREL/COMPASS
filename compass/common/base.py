@@ -734,9 +734,8 @@ class BaseTextExtractor:
         "verbatim, **unmodified** excerpts from provided legal or policy "
         "documents. Do not interpret or paraphrase. Do not summarize. Only "
         "return exactly copied segments that match the specified scope. If "
-        "the relevant content appears within a space-delimited table, return "
-        "the entire table, including headers and footers, exactly as "
-        "formatted."
+        "the relevant content appears within a table, return the entire "
+        "table, including headers and footers, exactly as formatted."
     )
     _USAGE_LABEL = LLMUsageCategory.DOCUMENT_ORDINANCE_SUMMARY
 
