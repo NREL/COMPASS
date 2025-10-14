@@ -31,6 +31,8 @@ jobs:
 
       - name: Build Docs
         # Make documentation with warnings as errors.
+        # The stricter Sphinx options below are currently disabled due to known documentation warnings.
+        # Once all warnings are resolved, consider enabling this line to catch documentation issues early.
         # run: SPHINXOPTS="-W --keep-going -n" pixi run -e pdoc make-html
         run: pixi run -e pdoc make-html
 
