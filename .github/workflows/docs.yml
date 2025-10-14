@@ -25,13 +25,14 @@ jobs:
         with:
           pixi-version: v0.50.2
           locked: true
-          cache: false
-          environments: pdev
+          cache: true
+          cache-write: ${{ github.ref == 'refs/heads/main' }}
+          environments: pdoc
 
       - name: Build Docs
         # Make documentation with warnings as errors.
         # run: SPHINXOPTS="-W --keep-going -n" pixi run -e pdoc make-html
-        run: pixi run -e pdev make-html
+        run: pixi run -e pdoc make-html
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
