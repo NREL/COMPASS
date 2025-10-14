@@ -27,10 +27,10 @@ jobs:
           pixi-version: v0.50.2
           locked: true
           cache: false
-          environments: pdev
+          environments: pdoc
 
       - name: Build Docs
-        run: pixi run -e pdev make-html
+        run: pixi run -e pdoc make-html
 
       - name: deploy
         uses: peaceiris/actions-gh-pages@v4.0.0
