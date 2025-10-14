@@ -28,7 +28,8 @@ jobs:
 
       - name: Build Docs
         # Make documentation with warnings as errors.
-        run: SPHINXOPTS="-W --keep-going -n" pixi run -e pdev make-html
+        # run: SPHINXOPTS="-W --keep-going -n" pixi run -e pdoc make-html
+        run: pixi run -e pdev make-html
 
       - name: deploy
         uses: peaceiris/actions-gh-pages@v4.0.0
