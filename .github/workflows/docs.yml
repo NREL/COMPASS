@@ -30,6 +30,7 @@ jobs:
 
       - name: deploy
         uses: peaceiris/actions-gh-pages@v4.0.0
+        if: startsWith(github.ref, 'refs/tags/v')
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs/_build/html
