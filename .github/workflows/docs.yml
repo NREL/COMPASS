@@ -16,6 +16,8 @@ permissions:
 jobs:
   build_docs:
     name: Build docs
+    environment:
+      name: github-pages
     runs-on: ubuntu-latest
 
     steps:
