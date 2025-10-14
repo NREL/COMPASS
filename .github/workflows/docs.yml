@@ -3,6 +3,7 @@ name: Release Documentation
 permissions: write-all
 
 on:
+  pull_request:
   push:
     branches: [main]
   release:
