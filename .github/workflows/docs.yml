@@ -30,6 +30,8 @@ jobs:
           environments: pdoc
 
       - name: Build Docs
+        # Make documentation with warnings as errors.
+        # run: SPHINXOPTS="-W --keep-going -n" pixi run -e pdoc make-html
         run: pixi run -e pdoc make-html
 
       - name: deploy
