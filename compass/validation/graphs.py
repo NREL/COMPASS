@@ -116,10 +116,12 @@ def setup_graph_correct_document_type(**kwargs):
     )
 
     G.add_edge(
-        "is_single_project", "is_pd", condition=llm_response_starts_with_no
+        "is_single_project",
+        "is_planning_doc",
+        condition=llm_response_starts_with_no,
     )
     G.add_node(
-        "is_pd",
+        "is_planning_doc",
         prompt=(
             "Does this text appear to be from a project planning document? "
             "Please start your response with either 'Yes' or 'No' and briefly "
@@ -127,7 +129,9 @@ def setup_graph_correct_document_type(**kwargs):
         ),
     )
 
-    G.add_edge("is_pd", "is_pres", condition=llm_response_starts_with_no)
+    G.add_edge(
+        "is_planning_doc", "is_pres", condition=llm_response_starts_with_no
+    )
     G.add_node(
         "is_pres",
         prompt=(
