@@ -137,7 +137,19 @@ def setup_graph_correct_document_type(**kwargs):
     )
 
     G.add_edge(
-        "is_meeting",
+        "is_meeting", "is_public_notice", condition=llm_response_starts_with_no
+    )
+    G.add_node(
+        "is_public_notice",
+        prompt=(
+            "Does this text appear to be from a public notice or letter? "
+            "Please start your response with either 'Yes' or 'No' and briefly "
+            "explain why you chose your answer."
+        ),
+    )
+
+    G.add_edge(
+        "is_public_notice",
         "is_single_project",
         condition=llm_response_starts_with_no,
     )
