@@ -90,6 +90,12 @@ UNIT_CLARIFICATIONS = {
         "Maximum land coverage should be specified as a fraction or "
         "percentage of the total land."
     ),
+    "minimum lot size": (
+        "Minimum lot size should **always** be specified as an area value."
+    ),
+    "maximum lot size": (
+        "Maximum lot size should **always** be specified as an area value."
+    ),
 }
 ER_CLARIFICATIONS = {
     "maximum project size": (
