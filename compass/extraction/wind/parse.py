@@ -22,6 +22,7 @@ from compass.common import (
     setup_graph_permitted_use_districts,
 )
 from compass.extraction.wind.graphs import (
+    WES_SYSTEM_SIZE_REMINDER,
     setup_graph_wes_types,
     setup_multiplier,
     setup_conditional_min,
@@ -42,28 +43,18 @@ SETBACKS_SYSTEM_MESSAGE = (
     "For the duration of this conversation, only focus on ordinances "
     "relating to setbacks from {feature}; do not respond based on any text "
     "related to {ignore_features}. "
-    "Please only consider ordinances for systems that would typically be "
-    "defined as {tech} based on the text itself — for example, systems "
-    "intended for electricity generation or sale, or those above thresholds "
-    "such as height, rotor diameter, or rated capacity. Ignore any "
-    "requirements that apply only to smaller or clearly non-commercial "
-    "systems. "
+    f"Please only consider ordinances for {WES_SYSTEM_SIZE_REMINDER}"
 )
 RESTRICTIONS_SYSTEM_MESSAGE = (
     f"{DEFAULT_SYSTEM_MESSAGE} "
     "For the duration of this conversation, only focus on "
-    "ordinances relating to {restriction} for systems that would "
-    "typically be defined as {tech} based on the text itself — for "
-    "example, systems intended for electricity generation or sale, "
-    "or those above thresholds such as height, rotor diameter, or rated "
-    "capacity. Disregard any requirements that apply **only** to smaller "
-    "or clearly non-commercial systems. "
+    "ordinances relating to {restriction} for "
+    f"{WES_SYSTEM_SIZE_REMINDER}"
 )
 PERMITTED_USE_SYSTEM_MESSAGE = (
     f"{DEFAULT_SYSTEM_MESSAGE} "
     "For the duration of this conversation, only focus on permitted uses for "
-    "{tech} (or similar). Ignore all text that only pertains to private, "
-    "micro, small, or medium sized wind energy systems."
+    f"{WES_SYSTEM_SIZE_REMINDER}"
 )
 EXTRA_NUMERICAL_RESTRICTIONS = {
     "other wecs": (
