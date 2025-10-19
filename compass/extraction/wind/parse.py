@@ -144,10 +144,20 @@ class StructuredWindParser(BaseLLMCaller):
         )
         decision_tree_wes_types_out = await run_async_tree(tree)
 
-        return (
+        largest_system = (
             decision_tree_wes_types_out.get("largest_wes_type")
             or "**large** wind energy systems"
         )
+        if not decision_tree_wes_types_out.get("is_large", True):
+            logger.info(
+                "Did not find utility-scale systems in text. Largest "
+                "system found: %r",
+                largest_system,
+            )
+            return None
+
+        logger.info("Largest WES type found in text: %r", largest_system)
+        return largest_system
 
 
 class StructuredWindOrdinanceParser(StructuredWindParser):

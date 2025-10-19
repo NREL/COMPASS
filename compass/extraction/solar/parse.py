@@ -146,11 +146,21 @@ class StructuredSolarParser(BaseLLMCaller):
             chat_llm_caller=self._init_chat_llm_caller(DEFAULT_SYSTEM_MESSAGE),
         )
         decision_tree_sef_types_out = await run_async_tree(tree)
-
-        return (
+        largest_system = (
             decision_tree_sef_types_out.get("largest_sef_type")
             or "utility-scale solar energy systems"
         )
+
+        if not decision_tree_sef_types_out.get("is_large", True):
+            logger.info(
+                "Did not find utility-scale systems in text. Largest "
+                "system found: %r",
+                largest_system,
+            )
+            return None
+
+        logger.info("Largest SEF type found in text: %r", largest_system)
+        return largest_system
 
 
 class StructuredSolarOrdinanceParser(StructuredSolarParser):
