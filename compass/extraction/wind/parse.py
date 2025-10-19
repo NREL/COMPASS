@@ -473,19 +473,39 @@ class StructuredWindPermittedUseDistrictsParser(StructuredWindParser):
     _USE_TYPES = [
         {
             "feature_id": "primary use districts",
-            "use_type": "primary use or similar (e.g., without special "
-            "conditions or approval)",
+            "use_type": (
+                "permitted as primary use or similar (e.g., without special "
+                "conditions or approval)"
+            ),
+            "clarifications": (
+                "Consider any solar overlay districts as "
+                "primary use districts. {wes_clarification}"
+            ),
         },
         {
             "feature_id": "special use districts",
-            "use_type": "special use or similar (e.g., requires approval "
-            "by the zoning appeals board or meeting certain conditions like "
-            "completing a permitting process)",
+            "use_type": (
+                "permitted as special use or similar (e.g., requires approval "
+                "by the zoning appeals board or meeting certain conditions "
+                "like completing a permitting process)"
+            ),
+            "clarifications": (
+                "Consider any solar overlay districts as "
+                "primary use and **do not include** them in the output. "
+                "{wes_clarification}"
+            ),
         },
         {
             "feature_id": "accessory use districts",
-            "use_type": "accessory use or similar (e.g., when integrated "
-            "with an existing structure or secondary to another use)",
+            "use_type": (
+                "permitted as accessory use or similar (e.g., when integrated "
+                "with an existing structure or secondary to another use)"
+            ),
+            "clarifications": (
+                "Consider any solar overlay districts as "
+                "primary use and **do not include** them in the output. "
+                "{wes_clarification}"
+            ),
         },
     ]
 
@@ -545,7 +565,9 @@ class StructuredWindPermittedUseDistrictsParser(StructuredWindParser):
             setup_graph_permitted_use_districts,
             usage_sub_label=LLMUsageCategory.PERMITTED_USE_VALUE_EXTRACTION,
             tech=largest_wes_type,
-            clarifications=self._LARGE_WES_CLARIFICATION,
+            clarifications=clarifications.format(
+                wes_clarification=self._LARGE_WES_CLARIFICATION
+            ),
             text=text,
             use_type=use_type,
             chat_llm_caller=self._init_chat_llm_caller(system_message),
