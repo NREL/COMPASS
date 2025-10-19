@@ -71,7 +71,7 @@ def setup_graph_correct_document_type(**kwargs):
     G.add_node(
         "check_for_laws",
         prompt=(
-            "Does the text excerpt detail in-effect legal statutes? "
+            "Does the text excerpt detail legal statutes/regulations? "
             "Please start your response with either 'Yes' or 'No' and "
             "briefly explain your answer."
         ),
