@@ -193,7 +193,8 @@ class WindOrdinanceTextCollector(StructuredLLMCaller):
     def ordinance_text(self):
         """str: Combined ordinance text from the individual chunks"""
         logger.debug(
-            "Grabbing %d chunk(s) from original text at these indices: %s",
+            "Grabbing %d ordinance chunk(s) from original text at these "
+            "indices: %s",
             len(self._ordinance_chunks),
             list(self._ordinance_chunks),
         )
@@ -309,7 +310,8 @@ class WindPermittedUseDistrictsTextCollector(StructuredLLMCaller):
     def permitted_use_district_text(self):
         """str: Combined permitted use districts text from the chunks"""
         logger.debug(
-            "Grabbing %d chunk(s) from original text at these indices: %s",
+            "Grabbing %d permitted use chunk(s) from original text at "
+            "these indices: %s",
             len(self._district_chunks),
             list(self._district_chunks),
         )
