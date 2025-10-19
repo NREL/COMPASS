@@ -387,8 +387,8 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
         "init",
         prompt=(
             "Does the following legal text explicitly enact {restriction} for "
-            "{tech} for a particular jurisdiction that an energy system "
-            "developer would have to abide to? {feature_clarifications}\n"
+            "{tech} that an energy system developer would have to abide to? "
+            "{feature_clarifications}\n"
             "Make sure your answer adheres to these guidelines:\n"
             "1) Respond based only on the explicit text provided for "
             "{restriction}. Do not infer or assume relevance based on general "
