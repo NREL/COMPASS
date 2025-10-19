@@ -379,6 +379,7 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
     """
     kwargs.setdefault("unit_clarification", "")
     kwargs.setdefault("feature_clarifications", "")
+    feature_id = kwargs.get("feature_id", "")
     G = setup_graph_no_nodes(  # noqa: N806
         d_tree_name="Extra restriction", **kwargs
     )
@@ -410,148 +411,22 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
     )
 
     if is_numerical:
-        if "other" in kwargs.get("restriction", ""):
-            G.add_edge(
-                "init",
-                "is_intra_farm",
-                condition=llm_response_starts_with_yes,
-            )
-            G.add_node(
-                "is_intra_farm",
-                prompt=(
-                    "Does the separation requirement apply to full farms "
-                    "and/or utility-size installations? If so, please start "
-                    "your answer with 'Yes'. If the separation requirement "
-                    "only applies to individual farm components (i.e. "
-                    "individual energy generation system units), please start "
-                    "your response with 'No'. In either case, briefly explain "
-                    "your answer."
-                ),
-            )
-            G.add_edge(
-                "is_intra_farm",
-                "value",
-                condition=llm_response_starts_with_yes,
-            )
-        elif "coverage" in kwargs.get("restriction", ""):
-            G.add_edge(
-                "init", "is_area", condition=llm_response_starts_with_yes
-            )
-            G.add_node(
-                "is_area",
-                prompt=(
-                    "Is the coverage reported as an area value? "
-                    "Please start your response with either 'Yes' or 'No' and "
-                    "briefly explain your answer."
-                ),
-            )
-            G.add_edge(
-                "is_area", "value", condition=llm_response_starts_with_no
-            )
-        elif "maximum project size" in kwargs.get("restriction", ""):
-            G.add_edge(
-                "init",
-                "is_mps_area",
-                condition=llm_response_starts_with_yes,
-            )
-            G.add_node(
-                "is_mps_area",
-                prompt=(
-                    "Does the project size requirement specifically provide "
-                    "a system size in MW or an installation size (e.g. "
-                    "maximum number of systems or maximum number of solar "
-                    "panels)? "
-                    "Please start your response with either 'Yes' or 'No' and "
-                    "briefly explain your answer."
-                ),
-            )
-            G.add_edge(
-                "is_mps_area",
-                "is_mps_conditional",
-                condition=llm_response_starts_with_yes,
-            )
-            G.add_node(
-                "is_mps_conditional",
-                prompt=(
-                    "Can the project size requirement be bypassed by applying "
-                    "for a permit? "
-                    "Please start your response with either 'Yes' or 'No' and "
-                    "briefly explain your answer."
-                ),
-            )
-
-            G.add_edge(
-                "is_mps_conditional",
-                "value",
-                condition=llm_response_starts_with_no,
-            )
+        if "other" in feature_id:
+            _add_other_system_setback_clarification_nodes(G)
+        elif "coverage" in feature_id:
+            _add_coverage_clarification_nodes(G)
+        elif "land density" in feature_id:
+            _add_land_density_clarification_nodes(G)
+        elif "minimum lot size" in feature_id:
+            _add_minimum_lot_size_clarification_nodes(G)
+        elif "maximum lot size" in feature_id:
+            _add_maximum_lot_size_clarification_nodes(G)
+        elif "maximum project size" in feature_id:
+            _add_maximum_project_size_clarification_nodes(G)
         else:
             G.add_edge("init", "value", condition=llm_response_starts_with_yes)
 
-        G.add_node(
-            "value",
-            prompt=(
-                "What is the **numerical** value given for the {restriction} "
-                "for {tech}? Follow these guidelines:\n"
-                "1) Extract only the explicit numerical value provided for "
-                "the restriction. Do not infer values from related "
-                "restrictions.\n"
-                "2) If multiple values are given, select the most restrictive "
-                "one (i.e., the smallest allowable limit, the lowest maximum, "
-                "etc.).\n"
-                "3) Please focus only on {restriction} that would apply for "
-                f"{SYSTEM_SIZE_REMINDER}\n"
-                "4) Pay close attention to clarifying details in parentheses, "
-                "footnotes, or additional explanatory text.\n\n"
-                "Example Inputs and Outputs:\n"
-                "Text: 'For all WES there is a limitation of overall height "
-                "of 200 feet (including blades).'\n"
-                "Output: 200\n"
-                "Text: 'The noise level of all SES shall be no greater than "
-                "thirty-two (32) decibels measured from the nearest property "
-                "line. This level may only be exceeded during short-term "
-                "events such as utility outages and/or severe wind storms.'\n"
-                "Output: 32\n"
-                "Text: 'At no time shall a wind turbine tower, nacelle, or "
-                "blade create shadow flicker on any non-participating "
-                "landowner property'\n"
-                "Output: 0\n"
-                "Text: Solar Panels shall not exceed 22'6\" in height. The "
-                "height is determined from the ground to the top of the panel "
-                "at any angle.\n"
-                "Output: 22.5\n"
-            ),
-        )
-
-        G.add_edge("value", "units")
-        G.add_node(
-            "units",
-            prompt=(
-                "What are the units for the {restriction} for {tech}? Ensure "
-                "that:\n"
-                "1) You accurately identify the unit value associated with "
-                "the restriction.\n"
-                "2) The unit is expressed using standard, conventional unit "
-                "names (e.g., 'feet', 'meters', 'acres', 'dBA', etc.). "
-                "{unit_clarification}\n"
-                "3) If multiple values are mentioned, return only the units "
-                "for the most restrictive value that directly pertains to the "
-                "restriction.\n"
-                "\nExample Inputs and Outputs:\n"
-                "Text: 'For all WES there is a limitation of overall height "
-                "of 200 feet (including blades).'\n"
-                "Output: 'feet'\n"
-                "Text: 'The noise level of all SES shall be no greater than "
-                "thirty-two (32) decibels measured from the nearest property "
-                "line. This level may only be exceeded during short-term "
-                "events such as utility outages and/or severe wind storms.'\n"
-                "Output: 'dBA'\n"
-                "Text: 'At no time shall a wind turbine tower, nacelle, or "
-                "blade create shadow flicker on any non-participating "
-                "landowner property'\n"
-                "Output: 'hr/year'\n"
-            ),
-        )
+        _add_value_and_units_clarification_nodes(G)
 
         G.add_edge("units", "final")
         G.add_node(
@@ -575,71 +450,9 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
                 "{SUMMARY_PROMPT} {UNITS_IN_SUMMARY_PROMPT} {SECTION_PROMPT}"
             ),
         )
-    elif "prohibitions" in kwargs.get("restriction", ""):
-        G.add_edge(
-            "init",
-            "is_conditional",
-            condition=llm_response_starts_with_yes,
-        )
-        G.add_node(
-            "is_conditional",
-            prompt=(
-                "Does the prohibition, moratorium, or ban only apply "
-                "conditionally? For example, does it only apply to those "
-                "who have not complied with the provisions in this text? "
-                "Please start your response with either 'Yes' or 'No' "
-                "and briefly explain your answer."
-            ),
-        )
-        G.add_edge(
-            "is_conditional",
-            "has_end_date",
-            condition=llm_response_starts_with_no,
-        )
-        G.add_node(
-            "has_end_date",
-            prompt=(
-                "Does the legal text given an expiration date for the "
-                "prohibition, moratorium, or ban? "
-                "Please start your response with either 'Yes' or 'No' "
-                "and briefly explain your answer."
-            ),
-        )
-        G.add_edge(
-            "has_end_date", "final", condition=llm_response_starts_with_no
-        )
-        G.add_edge(
-            "has_end_date",
-            "check_end_date",
-            condition=llm_response_starts_with_yes,
-        )
-        todays_date = datetime.now().strftime("%B %d, %Y")
-        G.add_node(
-            "check_end_date",
-            prompt=(
-                f"Today is {todays_date}. Has the prohibition, "
-                "moratorium, or ban expired? "
-                "Please start your response with either 'Yes' or 'No' "
-                "and briefly explain your answer."
-            ),
-        )
-        G.add_edge(
-            "check_end_date",
-            "final",
-            condition=llm_response_starts_with_no,
-        )
-        G.add_node(
-            "final",
-            prompt=(
-                "Please respond based on our entire conversation so far. "
-                "Return your answer as a dictionary in "
-                "JSON format (not markdown). Your JSON file must include "
-                "exactly two keys. The keys are 'summary' and 'section'. "
-                "{SUMMARY_PROMPT} If the prohibition is a moratorium, be "
-                "sure to include that distinction in your summary and "
-                "provide any relevant expiration dates. {SECTION_PROMPT}"
-            ),
-        )
+
+    elif "prohibitions" in feature_id:
+        _add_prohibitions_extraction_nodes(G)
 
     else:
         G.add_edge("init", "final", condition=llm_response_starts_with_yes)
@@ -654,6 +467,288 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
             ),
         )
 
+    return G
+
+
+def _add_other_system_setback_clarification_nodes(G):  # noqa: N803
+    """Add nodes and edges to clarify "other system" setbacks"""
+    G.add_edge("init", "is_intra_farm", condition=llm_response_starts_with_yes)
+    G.add_node(
+        "is_intra_farm",
+        prompt=(
+            "Does the separation requirement apply to full farms "
+            "and/or utility-size installations? If so, please start "
+            "your answer with 'Yes'. If the separation requirement "
+            "only applies to individual farm components (i.e. "
+            "individual energy generation system units), please start "
+            "your response with 'No'. In either case, briefly explain "
+            "your answer."
+        ),
+    )
+    G.add_edge(
+        "is_intra_farm", "value", condition=llm_response_starts_with_yes
+    )
+    return G
+
+
+def _add_coverage_clarification_nodes(G):  # noqa: N803
+    """Add nodes and edges to clarify "coverage" extraction"""
+    G.add_edge("init", "is_area", condition=llm_response_starts_with_yes)
+    G.add_node(
+        "is_area",
+        prompt=(
+            "Is the coverage reported as an area value? "
+            "Please start your response with either 'Yes' or 'No' and "
+            "briefly explain your answer."
+        ),
+    )
+    G.add_edge("is_area", "value", condition=llm_response_starts_with_no)
+    return G
+
+
+def _add_land_density_clarification_nodes(G):  # noqa: N803
+    """Add nodes and edges to clarify "land density" extraction"""
+    G.add_edge(
+        "init", "correct_density_units", condition=llm_response_starts_with_yes
+    )
+    G.add_node(
+        "correct_density_units",
+        prompt=(
+            "Is the density reported as a system size **per area** "
+            "value? "
+            "Please start your response with either 'Yes' or 'No' and "
+            "briefly explain your answer."
+        ),
+    )
+    G.add_edge(
+        "correct_density_units",
+        "value",
+        condition=llm_response_starts_with_yes,
+    )
+    return G
+
+
+def _add_minimum_lot_size_clarification_nodes(G):  # noqa: N803
+    """Add nodes and edges to clarify "minimum lot size" extraction"""
+    G.add_edge(
+        "init", "correct_min_ls_units", condition=llm_response_starts_with_yes
+    )
+    G.add_node(
+        "correct_min_ls_units",
+        prompt=(
+            "Is the minimum lot size reported as an **area** value? "
+            "Please start your response with either 'Yes' or 'No' and "
+            "briefly explain your answer."
+        ),
+    )
+    G.add_edge(
+        "correct_min_ls_units", "value", condition=llm_response_starts_with_yes
+    )
+    return G
+
+
+def _add_maximum_lot_size_clarification_nodes(G):  # noqa: N803
+    """Add nodes and edges to clarify "maximum lot size" extraction"""
+    G.add_edge(
+        "init", "correct_max_ls_units", condition=llm_response_starts_with_yes
+    )
+    G.add_node(
+        "correct_max_ls_units",
+        prompt=(
+            "Is the maximum lot size reported as an **area** value? "
+            "Please start your response with either 'Yes' or 'No' and "
+            "briefly explain your answer."
+        ),
+    )
+    G.add_edge(
+        "correct_max_ls_units", "value", condition=llm_response_starts_with_yes
+    )
+    return G
+
+
+def _add_maximum_project_size_clarification_nodes(G):  # noqa: N803
+    """Add nodes and edges to clarify "max project size" extraction"""
+    G.add_edge("init", "is_mps_area", condition=llm_response_starts_with_yes)
+    G.add_node(
+        "is_mps_area",
+        prompt=(
+            "Does the project size requirement specifically provide "
+            "a system size in MW or an installation size (e.g. "
+            "maximum number of systems or maximum number of solar "
+            "panels)? "
+            "Please start your response with either 'Yes' or 'No' and "
+            "briefly explain your answer."
+        ),
+    )
+    G.add_edge(
+        "is_mps_area",
+        "is_mps_conditional",
+        condition=llm_response_starts_with_yes,
+    )
+    G.add_node(
+        "is_mps_conditional",
+        prompt=(
+            "Can the project size requirement be bypassed by applying "
+            "for a permit? "
+            "Please start your response with either 'Yes' or 'No' and "
+            "briefly explain your answer."
+        ),
+    )
+
+    G.add_edge(
+        "is_mps_conditional", "value", condition=llm_response_starts_with_no
+    )
+    return G
+
+
+def _add_value_and_units_clarification_nodes(G):  # noqa: N803
+    """Add nodes and edges to clarify value and units extraction"""
+
+    G.add_node(
+        "value",
+        prompt=(
+            "What is the **numerical** value given for the "  # noqa: S608
+            "{restriction} for {tech}? Follow these guidelines:\n"
+            "1) Extract only the explicit numerical value provided for "
+            "the restriction. Do not infer values from related "
+            "restrictions.\n"
+            "2) If multiple values are given, select the most restrictive "
+            "one (i.e., the smallest allowable limit, the lowest maximum, "
+            "etc.).\n"
+            "3) Please focus only on {restriction} that would apply for "
+            f"{SYSTEM_SIZE_REMINDER}\n"
+            "4) Pay close attention to clarifying details in parentheses, "
+            "footnotes, or additional explanatory text.\n\n"
+            "Example Inputs and Outputs:\n"
+            "Text: 'For all WES there is a limitation of overall height "
+            "of 200 feet (including blades).'\n"
+            "Output: 200\n"
+            "Text: 'The noise level of all SES shall be no greater than "
+            "thirty-two (32) decibels measured from the nearest property "
+            "line. This level may only be exceeded during short-term "
+            "events such as utility outages and/or severe wind storms.'\n"
+            "Output: 32\n"
+            "Text: 'At no time shall a wind turbine tower, nacelle, or "
+            "blade create shadow flicker on any non-participating "
+            "landowner property'\n"
+            "Output: 0\n"
+            "Text: Solar Panels shall not exceed 22'6\" in height. The "
+            "height is determined from the ground to the top of the panel "
+            "at any angle.\n"
+            "Output: 22.5\n"
+        ),
+    )
+
+    G.add_edge("value", "units")
+    G.add_node(
+        "units",
+        prompt=(
+            "What are the units for the {restriction} for {tech}? Ensure "
+            "that:\n"
+            "1) You accurately identify the unit value associated with "
+            "the restriction.\n"
+            "2) The unit is expressed using standard, conventional unit "
+            "names (e.g., 'feet', 'meters', 'acres', 'dBA', etc.). "
+            "{unit_clarification}\n"
+            "3) If multiple values are mentioned, return only the units "
+            "for the most restrictive value that directly pertains to the "
+            "restriction.\n"
+            "\nExample Inputs and Outputs:\n"
+            "Text: 'For all WES there is a limitation of overall height "
+            "of 200 feet (including blades).'\n"
+            "Output: 'feet'\n"
+            "Text: 'The noise level of all SES shall be no greater than "
+            "thirty-two (32) decibels measured from the nearest property "
+            "line. This level may only be exceeded during short-term "
+            "events such as utility outages and/or severe wind storms.'\n"
+            "Output: 'dBA'\n"
+            "Text: 'At no time shall a wind turbine tower, nacelle, or "
+            "blade create shadow flicker on any non-participating "
+            "landowner property'\n"
+            "Output: 'hr/year'\n"
+        ),
+    )
+    return G
+
+
+def _add_prohibitions_extraction_nodes(G):  # noqa: N803
+    """Add nodes and edges to extract 'prohibitions'"""
+
+    G.add_edge("init", "is_proposed", condition=llm_response_starts_with_yes)
+    G.add_node(
+        "is_proposed",
+        prompt=(
+            "Is there reason to believe that this prohibition is only "
+            "being proposed and not yet in effect? "
+            "Please start your response with either 'Yes' or 'No' "
+            "and briefly explain your answer."
+        ),
+    )
+    G.add_edge(
+        "is_proposed", "is_conditional", condition=llm_response_starts_with_no
+    )
+    G.add_node(
+        "is_conditional",
+        prompt=(
+            "Does the prohibition, moratorium, or ban only apply "
+            "conditionally? For example:\n"
+            "  - Does it only apply to those who have not complied "
+            "with the provisions in this text?\n"
+            "  - Does it only apply within some distance of an area, "
+            "landmark, or feature?\n"
+            "  - Does it only apply to a subset of districts/areas "
+            "within the jurisdiction?\n"
+            "  - Does it only apply if a permit application has **not** "
+            "been previously approved?\n"
+            "  - Does it only apply if some other condition is met?\n"
+            "  - etc.\n"
+            "Please start your response with either 'Yes' or 'No' "
+            "and briefly explain your answer."
+        ),
+    )
+    G.add_edge(
+        "is_conditional", "has_end_date", condition=llm_response_starts_with_no
+    )
+    G.add_node(
+        "has_end_date",
+        prompt=(
+            "Does the legal text given an expiration date for the "
+            "prohibition, moratorium, or ban? "
+            "Please start your response with either 'Yes' or 'No' "
+            "and briefly explain your answer."
+        ),
+    )
+    G.add_edge("has_end_date", "final", condition=llm_response_starts_with_no)
+    G.add_edge(
+        "has_end_date",
+        "check_end_date",
+        condition=llm_response_starts_with_yes,
+    )
+    todays_date = datetime.now().strftime("%B %d, %Y")
+    G.add_node(
+        "check_end_date",
+        prompt=(
+            f"Today is {todays_date}. Has the prohibition, "
+            "moratorium, or ban expired? "
+            "Please start your response with either 'Yes' or 'No' "
+            "and briefly explain your answer."
+        ),
+    )
+    G.add_edge(
+        "check_end_date", "final", condition=llm_response_starts_with_no
+    )
+    G.add_node(
+        "final",
+        prompt=(
+            "Please respond based on our entire conversation so far. "
+            "Return your answer as a dictionary in "
+            "JSON format (not markdown). Your JSON file must include "
+            "exactly two keys. The keys are 'summary' and 'section'. "
+            "{SUMMARY_PROMPT} If the prohibition is a moratorium, be "
+            "sure to include that distinction in your summary and "
+            "provide any relevant expiration dates. {SECTION_PROMPT}"
+        ),
+    )
     return G
 
 
