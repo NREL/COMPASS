@@ -115,9 +115,10 @@ UNIT_CLARIFICATIONS = {
 ER_CLARIFICATIONS = {
     "maximum project size": (
         "Maximum project size should be specified as a maximum system "
-        "size value (in MW) or as a maximum number of solar panels within "
-        "some geographical area. Do not confuse this with lot coverage or "
-        "min/max lot size."
+        "size value (in MW) or as a limit on installation size (e.g. maximum "
+        "number of systems or maximum number of solar panels). "
+        "Do not confuse this with lot coverage or min/max lot size "
+        "requirements."
     ),
     "land density": (
         "Do **not** try to infer the density requirement based on other "
