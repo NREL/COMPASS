@@ -496,6 +496,18 @@ class StructuredSolarPermittedUseDistrictsParser(StructuredSolarParser):
                 "{sef_clarification}"
             ),
         },
+        {
+            "feature_id": "prohibited use districts",
+            "use_type": (
+                "prohibited or similar (e.g., where solar energy "
+                "systems are not allowed or banned)"
+            ),
+            "clarifications": (
+                "Only output specific districts where solar energy systems "
+                "are prohibited **unconditionally**. "
+                "{sef_clarification}"
+            ),
+        },
     ]
 
     async def parse(self, text):

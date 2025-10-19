@@ -507,6 +507,18 @@ class StructuredWindPermittedUseDistrictsParser(StructuredWindParser):
                 "{wes_clarification}"
             ),
         },
+        {
+            "feature_id": "prohibited use districts",
+            "use_type": (
+                "prohibited or similar (e.g., where wind energy "
+                "systems are not allowed or banned)"
+            ),
+            "clarifications": (
+                "Only output specific districts where wind energy systems "
+                "are prohibited **unconditionally**. "
+                "{wes_clarification}"
+            ),
+        },
     ]
 
     async def parse(self, text):
