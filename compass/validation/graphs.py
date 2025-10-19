@@ -60,7 +60,7 @@ def setup_graph_correct_document_type(**kwargs):
         "init",
         prompt=(
             "Does the following text resemble an excerpt from a legal "
-            "statute, such as an ordinance or code?"
+            "statute, such as an ordinance or code? "
             "Please start your response with either 'Yes' or 'No' and "
             "briefly explain your answer."
             '\n\n"""\n{text}\n"""'
