@@ -230,8 +230,11 @@ class WindPermittedUseDistrictsTextCollector(StructuredLLMCaller):
 
     DISTRICT_PROMPT = (
         "You are a legal scholar that reads ordinance text and determines "
-        "whether the text explicitly details the districts where large "
-        "wind energy systems are a permitted use. Large wind energy systems "
+        "whether the text explicitly contains relevant information to "
+        "determine the districts (and especially the district names) where "
+        "large wind energy systems are a permitted use (primary, special, "
+        "accessory, or otherwise), as well as the districts where large wind "
+        "energy systems are prohibited entirely. Large wind energy systems "
         f"(WES) may also be referred to as {_LARGE_WES_SYNONYMS}. "
         "Do not make any inferences; only answer based on information that "
         "is explicitly stated in the text. "

@@ -213,9 +213,12 @@ class SolarPermittedUseDistrictsTextCollector(StructuredLLMCaller):
 
     DISTRICT_PROMPT = (
         "You are a legal scholar that reads ordinance text and determines "
-        "whether the text explicitly details the districts where large "
-        "solar energy farms are a permitted use. Large solar energy systems "
-        f"(SES) may also be referred to as {_LARGE_SEF_SYNONYMS}. "
+        "whether it explicitly contains relevant information to determine the "
+        "districts (and especially the district names) where large solar "
+        "energy farms are a permitted use (primary, special, accessory, or "
+        "otherwise), as well as the districts where large solar energy farms "
+        "are prohibited entirely. Large solar energy systems (SES) may also "
+        f"be referred to as {_LARGE_SEF_SYNONYMS}. "
         "Do not make any inferences; only answer based on information that "
         "is explicitly stated in the text. "
         "Note that relevant information may sometimes be found in tables. "
