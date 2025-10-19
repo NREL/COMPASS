@@ -12,6 +12,7 @@ from compass.llm.calling import BaseLLMCaller, ChatLLMCaller
 from compass.extraction.features import SetbackFeatures
 from compass.common import (
     EXTRACT_ORIGINAL_TEXT_PROMPT,
+    SYSTEM_SIZE_REMINDER,
     run_async_tree,
     run_async_tree_with_bm,
     empty_output,
@@ -40,27 +41,18 @@ SETBACKS_SYSTEM_MESSAGE = (
     "For the duration of this conversation, only focus on ordinances"
     "relating to setbacks from {feature}; do not respond based on any text "
     "related to {ignore_features}. "
-    "Please only consider ordinances for systems that would typically be "
-    "defined as {tech} based on the text itself — for example, systems "
-    "intended for electricity generation or sale, or those above thresholds "
-    "such as height or rated capacity. Disregard any requirements that apply "
-    "**only** to smaller or clearly non-commercial systems. "
+    f"Please only consider ordinances for {SYSTEM_SIZE_REMINDER}"
 )
 RESTRICTIONS_SYSTEM_MESSAGE = (
     f"{DEFAULT_SYSTEM_MESSAGE} "
     "For the duration of this conversation, only focus on "
-    "ordinances relating to {restriction} for systems that would "
-    "typically be defined as {tech} based on the text itself — for "
-    "example, systems intended for electricity generation or sale, "
-    "or those above thresholds such as height or rated capacity. Ignore "
-    "any requirements that apply only to smaller or clearly "
-    "non-commercial systems. "
+    "ordinances relating to {restriction} for "
+    f"{SYSTEM_SIZE_REMINDER}"
 )
 PERMITTED_USE_SYSTEM_MESSAGE = (
     f"{DEFAULT_SYSTEM_MESSAGE} "
     "For the duration of this conversation, only focus on permitted uses for "
-    "{tech} (or similar). Ignore all text that only pertains to private, "
-    "micro, small, or medium sized wind energy systems."
+    f"{SYSTEM_SIZE_REMINDER}"
 )
 EXTRA_NUMERICAL_RESTRICTIONS = {
     "other secs": (
