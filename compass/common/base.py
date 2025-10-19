@@ -30,6 +30,13 @@ _SUMMARY_PROMPT = (
 _UNITS_IN_SUMMARY_PROMPT = (
     "Include any clarifications about the units in the summary."
 )
+SYSTEM_SIZE_REMINDER = (
+    "systems that would typically be defined as {tech} based on the text "
+    "itself — for example, systems intended for offsite electricity "
+    "generation or sale, or those above thresholds such as height or rated "
+    "capacity (often 1MW+). Do not consider any text that applies **only** "
+    "to smaller or clearly non-commercial systems. "
+)
 EXTRACT_ORIGINAL_TEXT_PROMPT = (
     "Extract all portions of the text (with original formatting) "
     "that state how close I can site {tech} to {feature}. "
@@ -39,11 +46,7 @@ EXTRACT_ORIGINAL_TEXT_PROMPT = (
     "The extracted text will be used for structured data extraction, so it "
     "must be both **comprehensive** (retaining all relevant details) and "
     "**focused** (excluding unrelated content). Ensure that all retained "
-    "information is **directly applicable** to systems that would typically "
-    "be defined as {tech} based on the text itself — for example, systems "
-    "intended for electricity generation or sale, or those above "
-    "thresholds such as height or rated capacity. Ignore any text that "
-    "applies **only** to smaller or clearly non-commercial systems. "
+    f"information is **directly applicable** to {SYSTEM_SIZE_REMINDER}"
 )
 
 
@@ -191,13 +194,9 @@ def setup_base_setback_graph(**kwargs):
             "Is there text in the following legal document that describes "
             "how far I have to setback {tech} from {feature}? "
             "{feature_clarifications}"  # expected to end in space
-            "Focus only on setbacks from {feature}. "
-            "Please only consider setbacks specifically for systems that "
-            "would typically be defined as {tech} based on the text itself "
-            "— for example, systems intended for electricity generation or "
-            "sale, or those above thresholds such as height or rated "
-            "capacity. Ignore any requirements that apply only to smaller "
-            "or clearly non-commercial systems. "
+            "Please consider only setbacks from {feature}. "
+            "Please also only consider setbacks that would apply for "
+            f"{SYSTEM_SIZE_REMINDER}"
             "Don't forget to pay extra attention to clarifying text found "
             "in parentheses and footnotes. "
             "Please start your response with either 'Yes' or 'No' and briefly "
@@ -273,14 +272,10 @@ def setup_participating_owner(**kwargs):
             "owners? {feature_clarifications} We are only interested in "
             "setbacks from {feature}; do not base your response on any text "
             "related to {ignore_features}. "
-            "Please only consider setbacks specifically for systems that "
-            "would typically be defined as {tech} based on the text itself "
-            "— for example, systems intended for electricity generation or "
-            "sale, or those above thresholds such as height or rated "
-            "capacity. Please disregard any requirements that apply **only** "
-            "to smaller or clearly non-commercial systems. "
-            "Please start your response with either 'Yes' or 'No' and "
-            "briefly explain your answer."
+            "Please only consider setbacks that would apply for "
+            f"{SYSTEM_SIZE_REMINDER}"
+            "Please start your response with either 'Yes' or 'No' "
+            "and briefly explain your answer."
         ),
     )
     G.add_edge("init", "waiver", condition=llm_response_starts_with_yes)
@@ -404,10 +399,8 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
             "respond with 'No'.\n"
             "2) If the text only provides a definition of what {restriction} "
             "are without providing specifics, please respond with 'No'.\n"
-            "3) Focus only on {restriction} specifically for systems that "
-            "would typically be defined as {tech} based on the text itself. "
-            "Ignore any requirements that apply only to smaller or clearly "
-            "non-commercial systems. "
+            "3) Please focus only on {restriction} that would apply for "
+            f"{SYSTEM_SIZE_REMINDER}\n"
             "4) Pay close attention to clarifying details in parentheses, "
             "footnotes, or additional explanatory text.\n"
             "5) Please start your response with either 'Yes' or 'No' and "
@@ -504,10 +497,8 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
                 "2) If multiple values are given, select the most restrictive "
                 "one (i.e., the smallest allowable limit, the lowest maximum, "
                 "etc.).\n"
-                "3) Focus only on {restriction} specifically for systems that "
-                "would typically be defined as {tech} based on the text "
-                "itself. Ignore any requirements that apply only to smaller "
-                "or clearly non-commercial systems. "
+                "3) Please focus only on {restriction} that would apply for "
+                f"{SYSTEM_SIZE_REMINDER}\n"
                 "4) Pay close attention to clarifying details in parentheses, "
                 "footnotes, or additional explanatory text.\n\n"
                 "Example Inputs and Outputs:\n"
@@ -578,8 +569,7 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
                 "below, or `null` if the text does not mention such a "
                 "restriction. "
                 "As before, focus only on {restriction} specifically for "
-                "systems that would typically be defined as {tech} based on "
-                "the text itself. "
+                f"{SYSTEM_SIZE_REMINDER}"
                 "{SUMMARY_PROMPT} {UNITS_IN_SUMMARY_PROMPT} {SECTION_PROMPT}"
             ),
         )

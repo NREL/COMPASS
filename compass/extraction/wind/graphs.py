@@ -4,6 +4,14 @@ from compass.common import (
     setup_graph_no_nodes,
     llm_response_starts_with_yes,
     llm_response_starts_with_no,
+    SYSTEM_SIZE_REMINDER,
+)
+
+WES_SYSTEM_SIZE_REMINDER = SYSTEM_SIZE_REMINDER.replace(
+    "height or rated capacity", "height, rotor diameter, or rated capacity"
+).replace(
+    "smaller or clearly non-commercial systems",
+    "smaller or clearly non-commercial systems or to meteorological towers",
 )
 
 
@@ -92,13 +100,9 @@ def setup_multiplier(**kwargs):
             "the setback distance from {feature} for {tech}? "
             "Focus only on {feature}; do not respond based on any text "
             "related to {ignore_features}. "
-            "Please only consider setbacks specifically for systems that "
-            "would typically be defined as {tech} based on the text itself "
-            "— for example, systems intended for electricity generation or "
-            "sale, or those above thresholds such as height, rotor diameter, "
-            "or rated capacity. Ignore any requirements that apply only to "
-            "smaller or clearly non-commercial systems or to meteorological "
-            "towers. Remember that 1 is a valid multiplier, and treat any "
+            "Please also only consider setbacks specifically for "
+            f"{WES_SYSTEM_SIZE_REMINDER}"
+            "Remember that 1 is a valid multiplier, and treat any "
             "mention of 'fall zone' as a system height multiplier of 1. "
             "Please start your response with either 'Yes' or 'No' and "
             "briefly explain your answer."
@@ -112,13 +116,9 @@ def setup_multiplier(**kwargs):
             "distance value? "
             "Focus only on {feature}; do not respond based on any text "
             "related to {ignore_features}. "
-            "Please only consider setbacks specifically for systems that "
-            "would typically be defined as {tech} based on the text itself "
-            "— for example, systems intended for electricity generation or "
-            "sale, or those above thresholds such as height, rotor diameter, "
-            "or rated capacity. Ignore any requirements that apply only to "
-            "smaller or clearly non-commercial systems or to meteorological "
-            "towers. Please start your response with either 'Yes' or "
+            "Please also only consider setbacks specifically for "
+            f"{WES_SYSTEM_SIZE_REMINDER}"
+            "Please start your response with either 'Yes' or "
             "'No' and briefly explain your answer."
         ),
     )
@@ -158,8 +158,8 @@ def setup_multiplier(**kwargs):
             "The value of the 'units' key should be a string corresponding to "
             "the (standard) units of the setback distance value from "
             "{feature} or `null` if there was no such value. "
-            "As before, focus only on setbacks specifically for systems that "
-            "would typically be defined as {tech} based on the text itself. "
+            "As before, focus only on setbacks that would apply for "
+            f"{WES_SYSTEM_SIZE_REMINDER}"
             "{SUMMARY_PROMPT} {SECTION_PROMPT}"
         ),
     )
@@ -171,13 +171,9 @@ def setup_multiplier(**kwargs):
             "Are multiple values given for the multiplier used to compute the "
             "setback distance value from {feature} for {tech}? "
             "Remember to ignore any text related to {ignore_features}. "
-            "Focus only on setbacks specifically for systems that would "
-            "typically be defined as {tech} based on the text itself — for "
-            "example, systems intended for electricity generation or sale, "
-            "or those above thresholds such as height, rotor diameter, or "
-            "rated capacity. Ignore any requirements that apply only to "
-            "smaller or clearly non-commercial systems or to meteorological "
-            "towers. If so, select and state the largest one. Otherwise, "
+            "Please consider only on setbacks specifically for "
+            f"{WES_SYSTEM_SIZE_REMINDER}"
+            "If so, select and state the largest one. Otherwise, "
             "repeat the single multiplier value that was given in the text. "
         ),
     )
@@ -188,13 +184,9 @@ def setup_multiplier(**kwargs):
             "What kind of multiplier is stated in the text to compute the "
             "setback distance from {feature}? "
             "Remember to ignore any text related to {ignore_features}. "
-            "Focus only on setbacks specifically for systems that would "
-            "typically be defined as {tech} based on the text itself — for "
-            "example, systems intended for electricity generation or sale, "
-            "or those above thresholds such as height, rotor diameter, or "
-            "rated capacity. Ignore any requirements that apply only to "
-            "smaller or clearly non-commercial systems or to meteorological "
-            "towers. Select a value from the following list: "
+            "Please consider only setbacks specifically for "
+            f"{WES_SYSTEM_SIZE_REMINDER}"
+            "Select a value from the following list: "
             "['tip-height-multiplier', 'hub-height-multiplier', "
             "'rotor-diameter-multiplier]. "
             "Default to 'tip-height-multiplier' unless the text explicitly "
@@ -211,12 +203,8 @@ def setup_multiplier(**kwargs):
             "Does the ordinance for the setback from {feature} include a "
             "static distance value that should be added to the result of "
             "the multiplication? "
-            "Focus only on setbacks specifically for systems that would "
-            "typically be defined as {tech} based on the text itself — for "
-            "example, systems intended for electricity generation or sale, "
-            "or those above thresholds such as height, rotor diameter, or "
-            "rated capacity. Ignore any requirements that apply only to "
-            "smaller or clearly non-commercial systems. "
+            "Please consider only setbacks specifically for "
+            f"{WES_SYSTEM_SIZE_REMINDER}"
             "Do not confuse this value with static setback requirements. "
             "Ignore text with clauses such as "
             "'no lesser than', 'no greater than', 'the lesser of', or 'the "
@@ -318,15 +306,10 @@ def setup_conditional_min(**kwargs):
     G.add_node(
         "init",
         prompt=(
-            "Focus on setbacks from {feature}. Exclude any setbacks that "
-            "relate to {ignore_features}. "
-            "Consider only setbacks that apply to systems that "
-            "would typically be defined as {tech} based on the text itself "
-            "— for example, systems intended for electricity generation or "
-            "sale, or those above thresholds such as height, rotor diameter, "
-            "or rated capacity. Do not consider any requirements that apply "
-            "only to smaller or clearly non-commercial systems or to "
-            "meteorological towers.\n"
+            "Please consider only setbacks from {feature}; do not base your "
+            "response off of any setbacks that relate to {ignore_features}. "
+            "Please also consider only setbacks that apply to "
+            f"{WES_SYSTEM_SIZE_REMINDER}\n"
             "Does the setback from {feature} for {tech} define a **minimum** "
             "setback distance that must be met in all cases, even "
             "when a multiplier is used for the calculation? This value acts "
@@ -403,15 +386,10 @@ def setup_conditional_max(**kwargs):
     G.add_node(
         "init",
         prompt=(
-            "Focus on setbacks from {feature}. Exclude any setbacks that "
-            "relate to {ignore_features}. "
-            "Consider only setbacks that apply to systems that "
-            "would typically be defined as {tech} based on the text itself "
-            "— for example, systems intended for electricity generation or "
-            "sale, or those above thresholds such as height, rotor diameter, "
-            "or rated capacity. Do not consider any requirements that apply "
-            "only to smaller or clearly non-commercial systems or to "
-            "meteorological towers.\n"
+            "Please consider only setbacks from {feature}; do not base your "
+            "response on any setbacks that relate to {ignore_features}. "
+            "Please also consider only setbacks that apply to"
+            f"{WES_SYSTEM_SIZE_REMINDER}\n"
             "Does the setback from {feature} for {tech} define a **maximum** "
             "setback distance that must be observed in all cases, even when "
             "a multiplier is used for the calculation? This value acts like "

@@ -4,6 +4,7 @@ from compass.common import (
     setup_graph_no_nodes,
     llm_response_starts_with_yes,
     llm_response_starts_with_no,
+    SYSTEM_SIZE_REMINDER,
 )
 
 
@@ -92,12 +93,8 @@ def setup_multiplier(**kwargs):
             "for {tech}? "
             "Focus only on {feature}; do not respond based on any text "
             "related to {ignore_features}. "
-            "Please only consider setbacks specifically for systems that "
-            "would typically be defined as {tech} based on the text itself "
-            "— for example, systems intended for electricity generation or "
-            "sale, or those above thresholds such as height or rated "
-            "capacity. Ignore any requirements that apply only to smaller "
-            "or clearly non-commercial systems. "
+            "Please also only consider setbacks specifically for "
+            f"{SYSTEM_SIZE_REMINDER}"
             "Please start your response with either 'Yes' or 'No' and briefly "
             "explain your answer."
         ),
@@ -108,14 +105,10 @@ def setup_multiplier(**kwargs):
         prompt=(
             "Does the ordinance give the setback from {feature} as a fixed "
             "distance value? "
-            "Focus only on {feature}; do not respond based on any text "
-            "related to {ignore_features}. "
-            "Please only consider setbacks specifically for systems that "
-            "would typically be defined as {tech} based on the text itself "
-            "— for example, systems intended for electricity generation or "
-            "sale, or those above thresholds such as height or rated "
-            "capacity. Ignore any requirements that apply only to smaller "
-            "or clearly non-commercial systems. "
+            "Please consider only on {feature}; do not respond based on any "
+            "text related to {ignore_features}. "
+            "Please also only consider setbacks specifically for "
+            f"{SYSTEM_SIZE_REMINDER}"
             "Please start your response with either 'Yes' or "
             "'No' and briefly explain your answer."
         ),
@@ -156,8 +149,8 @@ def setup_multiplier(**kwargs):
             "of the 'units' key should be a string corresponding to the "
             "(standard) units of the setback distance value from {feature} "
             "or `null` if there was no such value. "
-            "As before, focus only on setbacks specifically for systems that "
-            "would typically be defined as {tech} based on the text itself. "
+            "As before, focus only on setbacks that would apply for"
+            f"{SYSTEM_SIZE_REMINDER}"
             "{SUMMARY_PROMPT} {SECTION_PROMPT}"
         ),
     )
@@ -169,12 +162,8 @@ def setup_multiplier(**kwargs):
             "Are multiple values given for the multiplier used to "
             "compute the setback distance value from {feature} for {tech}? "
             "Remember to ignore any text related to {ignore_features}. "
-            "Focus only on setbacks specifically for systems that would "
-            "typically be defined as {tech} based on the text itself — for "
-            "example, systems intended for electricity generation or sale, "
-            "or those above thresholds such as height or rated capacity. "
-            "Ignore any requirements that apply only to smaller or clearly "
-            "non-commercial systems. "
+            "Please only consider setbacks specifically for "
+            f"{SYSTEM_SIZE_REMINDER}"
             "If so, select and state the largest one. Otherwise, repeat the "
             "single multiplier value that was given in the text. "
         ),
@@ -187,12 +176,8 @@ def setup_multiplier(**kwargs):
             "static distance value that should be added to the result of "
             "the multiplication? "
             "Remember to ignore any text related to {ignore_features}. "
-            "Focus only on setbacks specifically for systems that would "
-            "typically be defined as {tech} based on the text itself — for "
-            "example, systems intended for electricity generation or sale, "
-            "or those above thresholds such as height or rated capacity. "
-            "Ignore any requirements that apply only to smaller or clearly "
-            "non-commercial systems. "
+            "Please only consider setbacks specifically for "
+            f"{SYSTEM_SIZE_REMINDER}"
             "Do not confuse this value with static setback requirements. "
             "Ignore text with clauses such as 'no lesser than', 'no greater "
             "than', 'the lesser of', or 'the greater of'. Please start your "
