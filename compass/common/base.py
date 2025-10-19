@@ -669,6 +669,7 @@ def setup_graph_permitted_use_districts(**kwargs):
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
+    feature_id = kwargs.get("feature_id", "")
     G = setup_graph_no_nodes(  # noqa: N806
         d_tree_name="Permitted use districts", **kwargs
     )
@@ -677,7 +678,7 @@ def setup_graph_permitted_use_districts(**kwargs):
         "init",
         prompt=(
             "Does the following legal text explicitly define districts where "
-            "{tech} (or similar) are permitted as {use_type}? {clarifications}"
+            "{tech} (or similar) are {use_type}? {clarifications}"
             "Pay extra attention to titles and clarifying text found in "
             "parentheses and footnotes. Please start your response with "
             "either 'Yes' or 'No' and briefly explain your answer."
@@ -692,10 +693,43 @@ def setup_graph_permitted_use_districts(**kwargs):
         "district_names",
         prompt=(
             "What are all of the district names (and abbreviations if given) "
-            "where {tech} (or similar) are permitted as {use_type}?"
+            "where {tech} (or similar) are {use_type}?"
         ),
     )
-    G.add_edge("district_names", "final")
+
+    if "primary" in feature_id:
+        G.add_edge("district_names", "check_primary")
+        G.add_node(
+            "check_primary",
+            prompt=(
+                "Are these districts representative of locations where "
+                "developers can site {tech} (or similar) as the primary "
+                "use of the land/parcel/lot? Remember that this is true "
+                "by assumption for all overlay districts. "
+                "Please start your response with either 'Yes' or 'No' and "
+                "briefly explain your answer."
+            ),
+        )
+        G.add_edge(
+            "check_primary", "final", condition=llm_response_starts_with_yes
+        )
+    elif "accessory" in feature_id:
+        G.add_edge("district_names", "check_accessory")
+        G.add_node(
+            "check_accessory",
+            prompt=(
+                "Are these districts representative of locations where "
+                "developers can site {tech} (or similar) as an accessory "
+                "structure and/or as a secondary use of the land/parcel/lot? "
+                "Please start your response with either 'Yes' or 'No' and "
+                "briefly explain your answer."
+            ),
+        )
+        G.add_edge(
+            "check_accessory", "final", condition=llm_response_starts_with_yes
+        )
+    else:
+        G.add_edge("district_names", "final")
 
     G.add_node(
         "final",
