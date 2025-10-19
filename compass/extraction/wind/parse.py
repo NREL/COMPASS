@@ -244,16 +244,18 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
                     sub_pb,
                     task_id,
                     text,
-                    feature,
+                    feature_id,
                     r_text,
                     largest_wes_type,
                     is_numerical=True,
-                    unit_clarification=UNIT_CLARIFICATIONS.get(feature, ""),
-                    feature_clarifications=ER_CLARIFICATIONS.get(feature, ""),
+                    unit_clarification=UNIT_CLARIFICATIONS.get(feature_id, ""),
+                    feature_clarifications=ER_CLARIFICATIONS.get(
+                        feature_id, ""
+                    ),
                 ),
                 name=outer_task_name,
             )
-            for feature, r_text in EXTRA_NUMERICAL_RESTRICTIONS.items()
+            for feature_id, r_text in EXTRA_NUMERICAL_RESTRICTIONS.items()
         ]
         extras_parsers += [
             asyncio.create_task(
@@ -261,15 +263,17 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
                     sub_pb,
                     task_id,
                     text,
-                    feature,
+                    feature_id,
                     r_text,
                     largest_wes_type,
                     is_numerical=False,
-                    feature_clarifications=ER_CLARIFICATIONS.get(feature, ""),
+                    feature_clarifications=ER_CLARIFICATIONS.get(
+                        feature_id, ""
+                    ),
                 ),
                 name=outer_task_name,
             )
-            for feature, r_text in EXTRA_QUALITATIVE_RESTRICTIONS.items()
+            for feature_id, r_text in EXTRA_QUALITATIVE_RESTRICTIONS.items()
         ]
         return await asyncio.gather(*(feature_parsers + extras_parsers))
 
@@ -278,7 +282,7 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
         sub_pb,
         task_id,
         text,
-        feature,
+        feature_id,
         restriction_text,
         largest_wes_type,
         is_numerical,
@@ -286,7 +290,7 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
         feature_clarifications="",
     ):
         """Parse a non-setback restriction from the text"""
-        logger.debug("Parsing extra feature %r", feature)
+        logger.debug("Parsing extra feature %r", feature_id)
         system_message = RESTRICTIONS_SYSTEM_MESSAGE.format(
             restriction=restriction_text, tech=largest_wes_type
         )
@@ -295,6 +299,7 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
             usage_sub_label=LLMUsageCategory.ORDINANCE_VALUE_EXTRACTION,
             is_numerical=is_numerical,
             tech=largest_wes_type,
+            feature_id=feature_id,
             restriction=restriction_text,
             text=text,
             chat_llm_caller=self._init_chat_llm_caller(system_message),
@@ -302,28 +307,28 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
             feature_clarifications=feature_clarifications,
         )
         info = await run_async_tree(tree)
-        info.update({"feature": feature, "quantitative": is_numerical})
+        info.update({"feature": feature_id, "quantitative": is_numerical})
         if is_numerical:
             info = _sanitize_output(info)
-        sub_pb.update(task_id, advance=1, just_parsed=feature)
+        sub_pb.update(task_id, advance=1, just_parsed=feature_id)
         return [info]
 
     async def _parse_setback_feature(
         self, sub_pb, task_id, text, feature_kwargs, largest_wes_type
     ):
         """Parse values for a setback feature"""
-        feature = feature_kwargs["feature_id"]
+        feature_id = feature_kwargs["feature_id"]
         feature_kwargs["tech"] = largest_wes_type
-        logger.debug("Parsing feature %r", feature)
+        logger.debug("Parsing feature %r", feature_id)
 
         out, base_messages = await self._base_messages(text, **feature_kwargs)
         if not out:
-            logger.debug("Did not find ordinance for feature %r", feature)
-            sub_pb.update(task_id, advance=1, just_parsed=feature)
-            return empty_output(feature)
+            logger.debug("Did not find ordinance for feature %r", feature_id)
+            sub_pb.update(task_id, advance=1, just_parsed=feature_id)
+            return empty_output(feature_id)
 
-        if feature not in {"structures", "property line"}:
-            output = {"feature": feature}
+        if feature_id not in {"structures", "property line"}:
+            output = {"feature": feature_id}
             output.update(
                 await self._extract_setback_values(
                     text,
@@ -331,13 +336,13 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
                     **feature_kwargs,
                 )
             )
-            sub_pb.update(task_id, advance=1, just_parsed=feature)
+            sub_pb.update(task_id, advance=1, just_parsed=feature_id)
             return [output]
 
         output = await self._extract_setback_values_for_p_or_np(
             text, base_messages, **feature_kwargs
         )
-        sub_pb.update(task_id, advance=1, just_parsed=feature)
+        sub_pb.update(task_id, advance=1, just_parsed=feature_id)
         return output
 
     async def _base_messages(self, text, **feature_kwargs):
