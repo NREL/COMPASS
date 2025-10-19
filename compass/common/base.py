@@ -458,7 +458,9 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
                 "is_mps_area",
                 prompt=(
                     "Does the project size requirement specifically provide "
-                    "a system size in MW or number of solar panels? "
+                    "a system size in MW or an installation size (e.g. "
+                    "maximum number of systems or maximum number of solar "
+                    "panels)? "
                     "Please start your response with either 'Yes' or 'No' and "
                     "briefly explain your answer."
                 ),
