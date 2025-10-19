@@ -192,11 +192,14 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
 
         Returns
         -------
-        pd.DataFrame
-            DataFrame containing parsed-out ordinance values.
+        pd.DataFrame | None
+            DataFrame containing parsed-out ordinance values. Can also
+            be ``None`` if a large solar energy system is not found in
+            the text.
         """
         largest_sef_type = await self._check_solar_farm_type(text)
-        logger.info("Largest SEF type found in text: %r", largest_sef_type)
+        if not largest_sef_type:
+            return None
 
         outer_task_name = asyncio.current_task().get_name()
         num_to_process = (
@@ -521,11 +524,14 @@ class StructuredSolarPermittedUseDistrictsParser(StructuredSolarParser):
 
         Returns
         -------
-        pd.DataFrame
+        pd.DataFrame | None
             DataFrame containing parsed-out allowed-use district names.
+            Can also be ``None`` if a large solar energy system is not
+            found in the text.
         """
         largest_sef_type = await self._check_solar_farm_type(text)
-        logger.info("Largest SEF type found in text: %r", largest_sef_type)
+        if not largest_sef_type:
+            return None
 
         loc = asyncio.current_task().get_name()
         with COMPASS_PB.jurisdiction_sub_prog_bar(loc) as sub_pb:

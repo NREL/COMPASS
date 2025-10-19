@@ -189,11 +189,14 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
 
         Returns
         -------
-        pd.DataFrame
-            DataFrame containing parsed-out ordinance values.
+        pd.DataFrame | None
+            DataFrame containing parsed-out ordinance values. Can also
+            be ``None`` if a large wind energy system is not found in
+            the text.
         """
         largest_wes_type = await self._check_wind_turbine_type(text)
-        logger.info("Largest WES type found in text: %r", largest_wes_type)
+        if not largest_wes_type:
+            return None
 
         outer_task_name = asyncio.current_task().get_name()
         num_to_process = (
@@ -532,11 +535,14 @@ class StructuredWindPermittedUseDistrictsParser(StructuredWindParser):
 
         Returns
         -------
-        pd.DataFrame
+        pd.DataFrame | None
             DataFrame containing parsed-out allowed-use district names.
+            Can also be ``None`` if a large wind energy system is not
+            found in the text.
         """
         largest_wes_type = await self._check_wind_turbine_type(text)
-        logger.info("Largest WES type found in text: %r", largest_wes_type)
+        if not largest_wes_type:
+            return None
 
         outer_task_name = asyncio.current_task().get_name()
         with COMPASS_PB.jurisdiction_sub_prog_bar(outer_task_name) as sub_pb:
