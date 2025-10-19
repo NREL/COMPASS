@@ -564,7 +564,6 @@ class StructuredWindPermittedUseDistrictsParser(StructuredWindParser):
             sub_pb.remove_task(task_id)
 
         return pd.DataFrame(chain.from_iterable(outputs))
-            feature_id=feature_id,
 
     async def _parse_permitted_use_districts(
         self,
