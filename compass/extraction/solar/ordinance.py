@@ -337,6 +337,8 @@ class SolarOrdinanceTextExtractor(BaseTextExtractor):
         f"\t{_LARGE_SEF_SYNONYMS.capitalize()}.\n"
         "- Explicitly include any text related to **bans or prohibitions** "
         "on solar energy systems.\n"
+        "- Explicitly include any text related to the adoption or enactment "
+        "date of the ordinance (if any).\n"
         "\n2. ## Exclusions ##:\n"
         "- Do **not** include text that does not pertain to solar energy "
         "systems.\n"
