@@ -564,9 +564,17 @@ class StructuredWindPermittedUseDistrictsParser(StructuredWindParser):
             sub_pb.remove_task(task_id)
 
         return pd.DataFrame(chain.from_iterable(outputs))
+            feature_id=feature_id,
 
     async def _parse_permitted_use_districts(
-        self, sub_pb, task_id, text, largest_wes_type, feature_id, use_type
+        self,
+        sub_pb,
+        task_id,
+        text,
+        largest_wes_type,
+        feature_id,
+        use_type,
+        clarifications,
     ):
         """Parse a non-setback restriction from the text"""
         logger.debug("Parsing use type: %r", feature_id)
@@ -576,6 +584,7 @@ class StructuredWindPermittedUseDistrictsParser(StructuredWindParser):
         tree = setup_async_decision_tree(
             setup_graph_permitted_use_districts,
             usage_sub_label=LLMUsageCategory.PERMITTED_USE_VALUE_EXTRACTION,
+            feature_id=feature_id,
             tech=largest_wes_type,
             clarifications=clarifications.format(
                 wes_clarification=self._LARGE_WES_CLARIFICATION
