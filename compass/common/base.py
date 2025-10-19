@@ -707,7 +707,7 @@ def setup_graph_permitted_use_districts(**kwargs):
             "and 'section'. The value of the 'value' key "
             "should be a list of all district names (and abbreviations if "
             "given) where {tech} (or similar) "
-            "are permitted as {use_type}, or `null` if the text does not "
+            "are {use_type}, or `null` if the text does not "
             "mention this use type for {tech} (or similar). Use our "
             "conversation to fill out this value. {SUMMARY_PROMPT} "
             "{SECTION_PROMPT}"
