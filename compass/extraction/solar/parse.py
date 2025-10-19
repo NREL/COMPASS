@@ -66,7 +66,10 @@ EXTRA_NUMERICAL_RESTRICTIONS = {
     ),
     "minimum lot size": "**minimum** lot, parcel, or tract size allowed",
     "maximum lot size": "**maximum** lot, parcel, or tract size allowed",
-    "density": "**minimum** allowed spacing between individual solar panels",
+    "panel spacing": (
+        "**minimum** allowed spacing between individual solar panels"
+    ),
+    "land density": "**maximum** allowed system size **per unit area**",
     "coverage": "**maximum** land coverage allowed",
 }
 EXTRA_QUALITATIVE_RESTRICTIONS = {
@@ -87,6 +90,17 @@ UNIT_CLARIFICATIONS = {
         "For the purposes of this extraction, assume the standard units "
         "for noise are 'dBA'."
     ),
+    "panel spacing": (
+        "For the purposes of this extraction, assume the standard units for"
+        "spacing between individual solar panels are one of the following: "
+        "'height-multiplier', 'feet', or 'meters'."
+    ),
+    "land density": (
+        "This value should be specified as a maximum system "
+        "size value (in MW) per area (square meters, acres, etc.). "
+        "Do not confuse this with lot coverage or min/max lot size "
+        "requirements."
+    ),
     "coverage": (
         "Maximum land coverage should be specified as a fraction or "
         "percentage of the total land."
@@ -105,14 +119,19 @@ ER_CLARIFICATIONS = {
         "some geographical area. Do not confuse this with lot coverage or "
         "min/max lot size."
     ),
-    "density": (
-        "Do **not** try to infer the spacing requirement based on other "
+    "land density": (
+        "Do **not** try to infer the density requirement based on other "
         "restrictions such as setbacks from facility perimeters, property "
         "lines, etc."
     ),
     "visual impact": (
         "Do **not** consider glare restrictions as part of visual impact - "
         "these are collected separately."
+    ),
+    "panel spacing": (
+        "Do **not** try to infer the spacing requirement based on other "
+        "restrictions such as setbacks from facility perimeters, property "
+        "lines, etc."
     ),
     "coverage": (
         "Do not confuse this with density or min/max lot size requirements."
