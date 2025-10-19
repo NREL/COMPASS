@@ -91,7 +91,42 @@ def setup_graph_correct_document_type(**kwargs):
         ),
     )
 
-    G.add_edge("is_model", "is_meeting", condition=llm_response_starts_with_no)
+    G.add_edge("is_model", "in_effect", condition=llm_response_starts_with_no)
+    G.add_node(
+        "in_effect",
+        prompt=(
+            "Is this regulation in effect? Use only the **document's "
+            "content** to determine your answer (ignore editing/version "
+            "labels, track changes, and metadata).\n\n"
+            "Decision rules:\n\n"
+            "* If {tech} regulations are present, rely **only on the status "
+            "of those regulations in particular**.\n"
+            "* If the text explicitly states adoption/approval/enactment "
+            "status, rely only on that.\n"
+            "* If the text contains proposal-stage indicators (e.g., "
+            '"proposed ordinance," "notice of proposed rulemaking," "for '
+            'public comment," "draft for review," "public hearing scheduled," '
+            '"introduced," "pending adoption," etc.), treat it as **not** in '
+            "effect.\n"
+            '* If the text contains adoption indicators (e.g., "adopted," '
+            '"enacted," "approved," "codified," "final rule," "effective '
+            '[date]"), treat it as in effect.\n'
+            "* If the text contains other final-stage indicators (e.g., "
+            '"rejected," "not approved," etc.), treat it as **not** in '
+            "effect.\n\n"
+            "**IMPORTANT**\n"
+            "If evidence is mixed, or the text does not explicitly give the "
+            "adoption status, or there is not enough information to "
+            "**confidently** conclude one way or another, default to "
+            '"Yes".\n\n'
+            "Please start your response with either 'Yes' or 'No' and briefly "
+            "explain why you chose your answer."
+        ),
+    )
+
+    G.add_edge(
+        "in_effect", "is_meeting", condition=llm_response_starts_with_yes
+    )
     G.add_node(
         "is_meeting",
         prompt=(
