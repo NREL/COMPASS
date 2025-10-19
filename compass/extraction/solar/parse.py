@@ -79,6 +79,7 @@ EXTRA_QUALITATIVE_RESTRICTIONS = {
     ),
     "fencing": "fencing requirements",
     "signage": "signage requirements",
+    "screening": "vegetative buffer and/or other screening requirements",
     "soil": "soil, erosion, and/or sediment control requirements",
 }
 UNIT_CLARIFICATIONS = {
