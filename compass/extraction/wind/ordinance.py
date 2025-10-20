@@ -73,8 +73,11 @@ class WindHeuristic(Heuristic):
         "prevailing wind",
         "downwind",
     ]
+    """Words and phrases that indicate text is NOT about WECS"""
     GOOD_TECH_KEYWORDS = ["wind", "setback"]
+    """Words that indicate we should keep a chunk for analysis"""
     GOOD_TECH_ACRONYMS = ["wecs", "wes", "lwet", "uwet", "wef"]
+    """Acronyms for WECS that we want to capture"""
     GOOD_TECH_PHRASES = [
         "wind energy conversion",
         "wind turbine",
@@ -84,6 +87,7 @@ class WindHeuristic(Heuristic):
         "wind energy farm",
         "utility wind energy system",
     ]
+    """Phrases that indicate text is about WECS"""
 
 
 class WindOrdinanceTextCollector(StructuredLLMCaller):
@@ -108,6 +112,7 @@ class WindOrdinanceTextCollector(StructuredLLMCaller):
         f"{_SEARCH_TERMS_OR} for a wind energy system (or wind turbine/tower) "
         "and False otherwise. "
     )
+    """Prompt to check if chunk contains WES ordinance info"""
 
     IS_UTILITY_SCALE_PROMPT = (
         "You are a legal scholar that reads ordinance text and determines "
@@ -126,15 +131,9 @@ class WindOrdinanceTextCollector(StructuredLLMCaller):
         "conversion systems** (or similar) that the client is interested in "
         "and False otherwise."
     )
+    """Prompt to check if chunk is for utility-scale WES"""
 
     def __init__(self, *args, **kwargs):
-        """
-
-        Parameters
-        ----------
-        *args, **kwargs
-            Parameters to pass to the StructuredLLMCaller initializer.
-        """
         super().__init__(*args, **kwargs)
         self._ordinance_chunks = {}
 
@@ -247,15 +246,9 @@ class WindPermittedUseDistrictsTextCollector(StructuredLLMCaller):
         "on districts where **large wind energy systems** (or similar) are a "
         "permitted use in and False otherwise."
     )
+    """Prompt to check if chunk contains info on permitted districts"""
 
     def __init__(self, *args, **kwargs):
-        """
-
-        Parameters
-        ----------
-        *args, **kwargs
-            Parameters to pass to the StructuredLLMCaller initializer.
-        """
         super().__init__(*args, **kwargs)
         self._district_chunks = {}
 
@@ -371,6 +364,8 @@ class WindOrdinanceTextExtractor(BaseTextExtractor):
         "- If **no relevant text** is found, return the response: "
         "'No relevant text.'"
     )
+    """Prompt to extract ordinance text for WECS"""
+
     LARGE_WIND_ENERGY_SYSTEM_SECTION_FILTER_PROMPT = (
         "# CONTEXT #\n"
         "We want to reduce the provided excerpt to only contain information "
@@ -425,6 +420,7 @@ class WindOrdinanceTextExtractor(BaseTextExtractor):
         "- If **no relevant text** is found, return the response: "
         "'No relevant text.'"
     )
+    """Prompt to extract ordinance text for utility-scale WECS"""
 
     async def extract_wind_energy_system_section(self, text_chunks):
         """Extract ordinance text from input text chunks for WES
@@ -549,6 +545,7 @@ class WindPermittedUseDistrictsTextExtractor(BaseTextExtractor):
         "- If **no relevant text** is found, return the response: "
         "'No relevant text.'"
     )
+    """Prompt to extract ordinance text for permitted uses"""
 
     WES_PERMITTED_USES_FILTER_PROMPT = (
         "# CONTEXT #\n"
@@ -593,6 +590,7 @@ class WindPermittedUseDistrictsTextExtractor(BaseTextExtractor):
         "- If **no relevant text** is found, return the response: "
         "'No relevant text.'"
     )
+    """Prompt to extract ordinance text for permitted uses for WECS"""
 
     async def extract_permitted_uses(self, text_chunks):
         """Extract permitted uses text from input text chunks

@@ -301,6 +301,8 @@ napoleon_type_aliases = {
     "StructuredLLMCaller": ":class:`~compass.llm.calling.StructuredLLMCaller`",
     "LayeredFile": "~revrt.utilities.handlers.LayeredFile",
     "Service": ":class:`~compass.services.base.Service`",
+    "LLMService": ":class:`~compass.services.base.LLMService`",
+    "OpenAIService": ":class:`~compass.services.openai.OpenAIService`",
     "UsageTracker": ":class:`~compass.services.usage.UsageTracker`",
     "WindOrdinanceTextExtractor": ":class:`~compass.extraction.wind.ordinance.WindOrdinanceTextExtractor`",
 }
