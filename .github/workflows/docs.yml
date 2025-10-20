@@ -4,8 +4,20 @@ permissions: write-all
 
 on:
   pull_request:
+    paths:
+      - compass/**
+      - pyproject.toml
+      - .github/workflows/docs.yml
+      - pyproject.toml
+      - pixi.lock
   push:
     branches: [main]
+    paths:
+      - compass/**
+      - pyproject.toml
+      - .github/workflows/docs.yml
+      - pyproject.toml
+      - pixi.lock
   release:
     types: [created, published]
   workflow_dispatch:
