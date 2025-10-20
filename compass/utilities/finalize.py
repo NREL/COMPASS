@@ -61,9 +61,8 @@ def save_run_meta(
         directories used for the run.
     tech : {"wind", "solar"}
         Technology that was the target of the run.
-    start_date, end_date : datetime
-        ``datetime`` instances representing the start and end dates,
-        respectively.
+    start_date, end_date : datetime.datetime
+        Instances representing the start and end dates, respectively.
     num_jurisdictions_searched, num_jurisdictions_found : int
         Total number of jurisdictions that were searched and actually
         found, respectively.

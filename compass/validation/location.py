@@ -178,10 +178,8 @@ class JurisdictionValidator:
         score_thresh : float, optional
             Score threshold to exceed when voting on content from raw
             pages. By default, ``0.8``.
-        text_splitter : TextSplitter, optional
-            Optional
-            :class:`langchain_text_splitters.character.TextSplitter`
-            text splitter instance to attach to doc (used for
+        text_splitter : LCTextSplitter, optional
+            Optional text splitter instance to attach to doc (used for
             splitting out pages in an HTML document).
             By default, ``None``.
         **kwargs
@@ -197,7 +195,7 @@ class JurisdictionValidator:
 
         Parameters
         ----------
-        doc : :class:`elm.web.document.BaseDocument`
+        doc : elm.web.document.BaseDocument
             Document instance. Should contain a "source" key in the
             ``attrs`` that contains a URL (used for the URL validation
             check). Raw content will be parsed for county name and

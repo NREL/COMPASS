@@ -37,7 +37,7 @@ def jurisdiction_websites(jurisdiction_info=None):
     jurisdiction_info : pandas.DataFrame, optional
         DataFrame containing jurisdiction names and websites. If
         ``None``, this info is loaded using
-        :func:`load_jurisdiction_info`.
+        :func:`load_all_jurisdiction_info`.
         By default, ``None``.
 
     Returns
