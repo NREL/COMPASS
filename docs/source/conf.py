@@ -299,10 +299,10 @@ napoleon_type_aliases = {
     "LLMCaller": ":class:`~compass.llm.calling.LLMCaller`",
     "ChatLLMCaller": ":class:`~compass.llm.calling.ChatLLMCaller`",
     "StructuredLLMCaller": ":class:`~compass.llm.calling.StructuredLLMCaller`",
-    "LayeredFile": "~revrt.utilities.handlers.LayeredFile",
     "Service": ":class:`~compass.services.base.Service`",
     "LLMService": ":class:`~compass.services.base.LLMService`",
     "OpenAIService": ":class:`~compass.services.openai.OpenAIService`",
     "UsageTracker": ":class:`~compass.services.usage.UsageTracker`",
+    "ParseChunksWithMemory": ":class:`~compass.validation.content.ParseChunksWithMemory`",
     "WindOrdinanceTextExtractor": ":class:`~compass.extraction.wind.ordinance.WindOrdinanceTextExtractor`",
 }

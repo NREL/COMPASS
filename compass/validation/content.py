@@ -264,8 +264,7 @@ class LegalTextValidator(StructuredLLMCaller):
         Parameters
         ----------
         chunk_parser : ParseChunksWithMemory
-            Instance of `ParseChunksWithMemory` that contains a
-            `parse_from_ind` method.
+            Instance that contains a ``parse_from_ind`` method.
         ind : int
             Index of the chunk to check.
 
@@ -326,9 +325,9 @@ async def parse_by_chunks(
     Parameters
     ----------
     chunk_parser : ParseChunksWithMemory
-        Instance of `ParseChunksWithMemory` that contains the attributes
-        `text_chunks` and `num_to_recall`. The chunks in the
-        `text_chunks` attribute will be iterated over.
+        Instance that contains the attributes ``text_chunks`` and
+        ``num_to_recall``. The chunks in the ``text_chunks`` attribute
+        will be iterated over.
     heuristic : Heuristic
         Instance of `Heuristic` with a `check` method. This should be a
         fast check meant to quickly dispose of chunks of text. Any chunk

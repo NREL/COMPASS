@@ -126,8 +126,7 @@ class SolarOrdinanceTextCollector(StructuredLLMCaller):
         Parameters
         ----------
         chunk_parser : ParseChunksWithMemory
-            Instance of `ParseChunksWithMemory` that contains a
-            `parse_from_ind` method.
+            Instance that contains a ``parse_from_ind`` method.
         ind : int
             Index of the chunk to check.
 
@@ -241,8 +240,7 @@ class SolarPermittedUseDistrictsTextCollector(StructuredLLMCaller):
         Parameters
         ----------
         chunk_parser : ParseChunksWithMemory
-            Instance of `ParseChunksWithMemory` that contains a
-            `parse_from_ind` method.
+            Instance that contains a ``parse_from_ind`` method.
         ind : int
             Index of the chunk to check.
 
@@ -379,9 +377,9 @@ class SolarOrdinanceTextExtractor(BaseTextExtractor):
         ------
         name : str
             Name describing the type of text output by the parser.
-        parser
-            Parser that takes a `text_chunks` input and outputs parsed
-            text.
+        parser : callable
+            Async function that takes a ``text_chunks`` input and
+            outputs parsed text.
         """
         yield (
             "cleaned_ordinance_text",
@@ -545,9 +543,9 @@ class SolarPermittedUseDistrictsTextExtractor(BaseTextExtractor):
         ------
         name : str
             Name describing the type of text output by the parser.
-        parser
-            Parser that takes a `text_chunks` input and outputs parsed
-            text.
+        parser : callable
+            Async function that takes a ``text_chunks`` input and
+            outputs parsed text.
         """
         yield "permitted_use_only_text", self.extract_permitted_uses
         yield "districts_text", self.extract_sef_permitted_uses

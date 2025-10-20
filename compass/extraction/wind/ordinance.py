@@ -143,8 +143,7 @@ class WindOrdinanceTextCollector(StructuredLLMCaller):
         Parameters
         ----------
         chunk_parser : ParseChunksWithMemory
-            Instance of `ParseChunksWithMemory` that contains a
-            `parse_from_ind` method.
+            Instance that contains a ``parse_from_ind`` method.
         ind : int
             Index of the chunk to check.
 
@@ -258,8 +257,7 @@ class WindPermittedUseDistrictsTextCollector(StructuredLLMCaller):
         Parameters
         ----------
         chunk_parser : ParseChunksWithMemory
-            Instance of `ParseChunksWithMemory` that contains a
-            `parse_from_ind` method.
+            Instance that contains a ``parse_from_ind`` method.
         ind : int
             Index of the chunk to check.
 
@@ -472,9 +470,9 @@ class WindOrdinanceTextExtractor(BaseTextExtractor):
         ------
         name : str
             Name describing the type of text output by the parser.
-        parser
-            Parser that takes a `text_chunks` input and outputs parsed
-            text.
+        parser : callable
+            Async function that takes a ``text_chunks`` input and
+            outputs parsed text.
         """
         yield (
             "wind_energy_systems_text",
@@ -642,9 +640,9 @@ class WindPermittedUseDistrictsTextExtractor(BaseTextExtractor):
         ------
         name : str
             Name describing the type of text output by the parser.
-        parser
-            Parser that takes a `text_chunks` input and outputs parsed
-            text.
+        parser : callable
+            Async function that takes a ``text_chunks`` input and
+            outputs parsed text.
         """
         yield "permitted_use_only_text", self.extract_permitted_uses
         yield "districts_text", self.extract_wes_permitted_uses
