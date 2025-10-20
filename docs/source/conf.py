@@ -289,6 +289,9 @@ napoleon_type_aliases = {
     # objects with abbreviated namespace (from pandas)
     "pd.Index": "~pandas.Index",
     "pd.NaT": "~pandas.NaT",
+    # fixing ELM docstrings
+    "nx.DiGraph": ":class:`networkx.DiGraph`",
+    "ApiBase": ":class:`~elm.base.ApiBase`",
     # objects from COMPASS
     "LLMCaller": ":class:`~compass.llm.calling.LLMCaller`",
     "ChatLLMCaller": ":class:`~compass.llm.calling.ChatLLMCaller`",
@@ -296,4 +299,5 @@ napoleon_type_aliases = {
     "LayeredFile": "~revrt.utilities.handlers.LayeredFile",
     "Service": ":class:`~compass.services.base.Service`",
     "UsageTracker": ":class:`~compass.services.usage.UsageTracker`",
+    "WindOrdinanceTextExtractor": ":class:`~compass.extraction.wind.ordinance.WindOrdinanceTextExtractor`",
 }

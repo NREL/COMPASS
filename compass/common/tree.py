@@ -39,7 +39,7 @@ class AsyncDecisionTree(DecisionTree):
 
         Parameters
         ----------
-        graph : nx.DiGraph
+        graph : networkx.DiGraph
             Directed acyclic graph where nodes are LLM prompts and edges
             are logical transitions based on the response. Must have
             high-level graph attribute "chat_llm_caller" which is a
@@ -137,7 +137,7 @@ class AsyncDecisionTree(DecisionTree):
 
         Returns
         -------
-        out : str | None
+        out : str or None
             Final response from LLM at the leaf node or ``None`` if an
             ``AttributeError`` was raised during execution.
         """

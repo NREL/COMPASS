@@ -17,7 +17,7 @@ def setup_graph_correct_document_type(**kwargs):
 
     Returns
     -------
-    nx.DiGraph
+    networkx.DiGraph
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
@@ -288,7 +288,7 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
 
     Returns
     -------
-    nx.DiGraph
+    networkx.DiGraph
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
@@ -508,7 +508,7 @@ def setup_graph_correct_jurisdiction_from_url(jurisdiction, **kwargs):
 
     Returns
     -------
-    nx.DiGraph
+    networkx.DiGraph
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
