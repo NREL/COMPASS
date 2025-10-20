@@ -177,8 +177,8 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
            each value to be extracted.
     Key Relationships:
         Uses a StructuredLLMCaller for LLM queries and multiple
-        :class:`~compass.extraction.tree.AsyncDecisionTree` instances
-        to guide the extraction of individual values.
+        AsyncDecisionTree instances to guide the extraction of
+        individual values.
     """
 
     async def parse(self, text):
@@ -469,8 +469,8 @@ class StructuredWindPermittedUseDistrictsParser(StructuredWindParser):
            each value to be extracted.
     Key Relationships:
         Uses a StructuredLLMCaller for LLM queries and multiple
-        :class:`~compass.extraction.tree.AsyncDecisionTree` instances
-        to guide the extraction of individual values.
+        AsyncDecisionTree instances to guide the extraction of
+        individual values.
     """
 
     _LARGE_WES_CLARIFICATION = (

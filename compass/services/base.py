@@ -65,7 +65,7 @@ class Service(ABC):
 
         Returns
         -------
-        obj
+        object
             A response object from the underlying service.
         """
         fut = asyncio.Future()
@@ -195,7 +195,7 @@ class LLMService(Service):
 
         Returns
         -------
-        obj
+        object
             A response object from the underlying service.
         """
         fut = asyncio.Future()

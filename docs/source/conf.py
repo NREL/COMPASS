@@ -292,10 +292,12 @@ napoleon_type_aliases = {
     "pd.NaT": "~pandas.NaT",
     # LC
     "LCTextSplitter": ":class:`~langchain_text_splitters.base.TextSplitter`",
+    "RCTextSplitter": ":class:`~langchain_text_splitters.character.RecursiveCharacterTextSplitter`",
     # fixing ELM docstrings
     "nx.DiGraph": ":class:`networkx.DiGraph`",
     "ApiBase": ":class:`~elm.base.ApiBase`",
     # objects from COMPASS
+    "AsyncDecisionTree": ":class:`~compass.common.tree.AsyncDecisionTree`",
     "LLMCaller": ":class:`~compass.llm.calling.LLMCaller`",
     "ChatLLMCaller": ":class:`~compass.llm.calling.ChatLLMCaller`",
     "StructuredLLMCaller": ":class:`~compass.llm.calling.StructuredLLMCaller`",
