@@ -30,7 +30,7 @@ jobs:
           environments: pdev  # Don't use pdoc here to keep pixi Github cache small
 
       - name: Build Docs
-        run: SPHINXOPTS="--fail-on-warning --keep-going" pixi run -e pdev make-html
+        run: SPHINXOPTS="--fail-on-warning --keep-going --nitpicky" pixi run -e pdev make-html
 
       - name: deploy
         uses: peaceiris/actions-gh-pages@v4.0.0
