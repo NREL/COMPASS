@@ -210,8 +210,26 @@ texinfo_documents = [
 ]
 
 
-def skip_pydantic_methods(app, what, name, obj, skip, options):
-    if name in (
+def skip_external_methods(app, what, name, obj, skip, options):
+    if name in {
+        "clear",
+        "pop",
+        "popitem",
+        "setdefault",
+        "update",
+    } and "MutableMapping" in str(obj):
+        return True
+
+    if name in {"copy", "fromkeys"} and "UsageTracker" in str(obj):
+        return True
+
+    if name in {"items", "keys", "values"} and "Mapping" in str(obj):
+        return True
+
+    if name == "get" and "UserDict" in str(obj):
+        return True
+
+    if name in {
         "model_dump_json",
         "model_json_schema",
         "model_dump",
@@ -219,13 +237,13 @@ def skip_pydantic_methods(app, what, name, obj, skip, options):
         "model_copy",
         "model_fields",
         "model_computed_fields",
-    ):
+    } and "BaseModel" in str(obj):
         return True
     return None
 
 
 def setup(app):
-    app.connect("autodoc-skip-member", skip_pydantic_methods)
+    app.connect("autodoc-skip-member", skip_external_methods)
 
 
 # -- Extension configuration -------------------------------------------------
