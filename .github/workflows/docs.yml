@@ -30,11 +30,7 @@ jobs:
           environments: pdev  # Don't use pdoc here to keep pixi Github cache small
 
       - name: Build Docs
-        # Make documentation with warnings as errors.
-        # The stricter Sphinx options below are currently disabled due to known documentation warnings.
-        # Once all warnings are resolved, consider enabling this line to catch documentation issues early.
-        # run: SPHINXOPTS="-W --keep-going -n" pixi run -e pdoc make-html
-        run: pixi run -e pdoc make-html
+        run: SPHINXOPTS="--fail-on-warning --keep-going" pixi run -e pdev make-html
 
       - name: deploy
         uses: peaceiris/actions-gh-pages@v4.0.0
