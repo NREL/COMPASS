@@ -42,7 +42,7 @@ jobs:
           environments: pdoc
 
       - name: Build Docs
-        run: SPHINXOPTS="--fail-on-warning --keep-going --nitpicky" pixi run -e pdoc make-html
+        run: pixi run -e pdoc make-html  # This errors on warnings
 
       - name: deploy
         uses: peaceiris/actions-gh-pages@v4.0.0
