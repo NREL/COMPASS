@@ -108,6 +108,9 @@ pygments_style = "sphinx"
 # Avoid errors with self-signed certificates
 tls_verify = False
 
+# Avoid warning about api.rst not in TOC
+suppress_warnings = ["toc.not_included"]
+
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
