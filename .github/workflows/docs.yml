@@ -26,11 +26,11 @@ jobs:
         with:
           pixi-version: v0.50.2
           locked: true
-          cache: false
-          environments: pdev  # Don't use pdoc here to keep pixi Github cache small
+          cache: false  # Don't use cache because we use the ``pdoc`` environment
+          environments: pdoc
 
       - name: Build Docs
-        run: SPHINXOPTS="--fail-on-warning --keep-going --nitpicky" pixi run -e pdev make-html
+        run: SPHINXOPTS="--fail-on-warning --keep-going --nitpicky" pixi run -e pdoc make-html
 
       - name: deploy
         uses: peaceiris/actions-gh-pages@v4.0.0
