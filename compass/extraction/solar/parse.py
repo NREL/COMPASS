@@ -210,7 +210,7 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
 
         Returns
         -------
-        pd.DataFrame | None
+        pd.DataFrame or None
             DataFrame containing parsed-out ordinance values. Can also
             be ``None`` if a large solar energy system is not found in
             the text.

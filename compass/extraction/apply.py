@@ -40,11 +40,10 @@ async def check_for_ordinance_info(
     tech : str
         Technology of interest (e.g. "solar", "wind", etc). This is
         used to set up some document validation decision trees.
-    text_splitter : object
-        Instance of an object that implements a `split_text` method.
-        The method should take text as input (str) and return a list
-        of text chunks. The text splitters in the
-        ``langchain-text-splitters`` library should work for this input.
+    text_splitter : LCTextSplitter, optional
+        Optional Langchain text splitter (or subclass instance), or any
+        object that implements a `split_text` method. The method should
+        take text as input (str) and return a list of text chunks.
     usage_tracker : UsageTracker, optional
         Optional tracker instance to monitor token usage during
         LLM calls. By default, ``None``.
@@ -170,11 +169,10 @@ async def extract_ordinance_text_with_llm(
         that are found to contain ordinance data. Note that if the
         document's attrs does not contain the ``"ordinance_text"``
         key, you will get an error.
-    text_splitter : object
-        Instance of an object that implements a `split_text` method.
-        The method should take text as input (str) and return a list
-        of text chunks. Langchain's text splitters should work for this
-        input.
+    text_splitter : LCTextSplitter, optional
+        Optional Langchain text splitter (or subclass instance), or any
+        object that implements a `split_text` method. The method should
+        take text as input (str) and return a list of text chunks.
     extractor : WindOrdinanceTextExtractor
         Object used for ordinance text extraction.
     original_text_key : str
@@ -235,11 +233,10 @@ async def extract_ordinance_text_with_ngram_validation(
         that are found to contain ordinance data. Note that if the
         document's attrs does not contain the ``"ordinance_text"``
         key, it will not be processed.
-    text_splitter : object
-        Instance of an object that implements a `split_text` method.
-        The method should take text as input (str) and return a list
-        of text chunks. Langchain's text splitters should work for this
-        input.
+    text_splitter : LCTextSplitter, optional
+        Optional Langchain text splitter (or subclass instance), or any
+        object that implements a `split_text` method. The method should
+        take text as input (str) and return a list of text chunks.
     original_text_key : str
         String corresponding to the `doc.attrs` key containing the
         original text (before extraction).

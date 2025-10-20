@@ -60,15 +60,16 @@ extensions = [
 ]
 
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/3/", None),
-    "numpy": ("https://numpy.org/doc/stable/", None),
-    "pandas": ("https://pandas.pydata.org/pandas-docs/stable", None),
+    "elm": ("https://nrel.github.io/elm", None),
+    "lc": ("https://python.langchain.com/api_reference/", None),
     "matplotlib": ("https://matplotlib.org/stable", None),
     "networkx": ("https://networkx.org/documentation/stable", None),
-    "sqlalchemy": ("https://docs.sqlalchemy.org/en/20/", None),
-    "psycopg": ("https://www.psycopg.org/psycopg3/docs", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
+    "pandas": ("https://pandas.pydata.org/pandas-docs/stable", None),
     "plotly": ("https://plotly.com/python-api-reference", None),
-    "elm": ("https://nrel.github.io/elm", None),
+    "psycopg": ("https://www.psycopg.org/psycopg3/docs", None),
+    "python": ("https://docs.python.org/3/", None),
+    "sqlalchemy": ("https://docs.sqlalchemy.org/en/20/", None),
 }
 
 # Add any paths that contain templates here, relative to this directory.
@@ -289,6 +290,8 @@ napoleon_type_aliases = {
     # objects with abbreviated namespace (from pandas)
     "pd.Index": "~pandas.Index",
     "pd.NaT": "~pandas.NaT",
+    # LC
+    "LCTextSplitter": ":class:`~langchain_text_splitters.base.TextSplitter`",
     # fixing ELM docstrings
     "nx.DiGraph": ":class:`networkx.DiGraph`",
     "ApiBase": ":class:`~elm.base.ApiBase`",
