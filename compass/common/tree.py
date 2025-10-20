@@ -31,8 +31,7 @@ class AsyncDecisionTree(DecisionTree):
            graph.
     Key Relationships:
         Inherits from :class:`~elm.tree.DecisionTree` to add ``async``
-        capabilities. Uses a
-        :class:`~compass.llm.calling.ChatLLMCaller` for LLm queries.
+        capabilities. Uses a ChatLLMCaller for LLm queries.
     """
 
     def __init__(self, graph, usage_sub_label=None):

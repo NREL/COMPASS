@@ -162,8 +162,8 @@ class JurisdictionValidator:
         1. Use a combination of heuristics and LLM queries to determine
            whether or not a document pertains to a particular county.
     Key Relationships:
-        Uses a :class:`~compass.llm.calling.StructuredLLMCaller` for
-        LLM queries and delegates sub-validation to
+        Uses a StructuredLLMCaller for LLM queries and delegates
+        sub-validation to
         :class:`DTreeJurisdictionValidator`,
         and :class:`DTreeURLJurisdictionValidator`.
     """

@@ -865,7 +865,7 @@ class BaseTextExtractor:
 
         Parameters
         ----------
-        llm_caller : compass.llm.LLMCaller
+        llm_caller : LLMCaller
             LLM Caller instance used to extract ordinance info with.
         """
         self.llm_caller = llm_caller

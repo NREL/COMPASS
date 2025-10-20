@@ -237,10 +237,10 @@ html_show_sourcelink = False
 mermaid_version = "11.6.0"
 numpy_show_class_member = True
 napoleon_google_docstring = False
-napoleon_use_param = False
 napoleon_use_ivar = False
 napoleon_use_rtype = False
 napoleon_preprocess_types = True
+napoleon_use_param = True
 napoleon_type_aliases = {
     # general terms
     "sequence": ":term:`sequence`",
@@ -289,4 +289,11 @@ napoleon_type_aliases = {
     # objects with abbreviated namespace (from pandas)
     "pd.Index": "~pandas.Index",
     "pd.NaT": "~pandas.NaT",
+    # objects from COMPASS
+    "LLMCaller": ":class:`~compass.llm.calling.LLMCaller`",
+    "ChatLLMCaller": ":class:`~compass.llm.calling.ChatLLMCaller`",
+    "StructuredLLMCaller": ":class:`~compass.llm.calling.StructuredLLMCaller`",
+    "LayeredFile": "~revrt.utilities.handlers.LayeredFile",
+    "Service": ":class:`~compass.services.base.Service`",
+    "UsageTracker": ":class:`~compass.services.usage.UsageTracker`",
 }

@@ -176,8 +176,7 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
            a decision-tree-based chain-of-thought prompt on the text for
            each value to be extracted.
     Key Relationships:
-        Uses a :class:`~compass.llm.calling.StructuredLLMCaller` for
-        LLM queries and multiple
+        Uses a StructuredLLMCaller for LLM queries and multiple
         :class:`~compass.extraction.tree.AsyncDecisionTree` instances
         to guide the extraction of individual values.
     """
@@ -469,8 +468,7 @@ class StructuredWindPermittedUseDistrictsParser(StructuredWindParser):
            a decision-tree-based chain-of-thought prompt on the text for
            each value to be extracted.
     Key Relationships:
-        Uses a :class:`~compass.llm.calling.StructuredLLMCaller` for
-        LLM queries and multiple
+        Uses a StructuredLLMCaller for LLM queries and multiple
         :class:`~compass.extraction.tree.AsyncDecisionTree` instances
         to guide the extraction of individual values.
     """

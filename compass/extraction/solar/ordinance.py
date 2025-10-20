@@ -116,9 +116,7 @@ class SolarOrdinanceTextCollector(StructuredLLMCaller):
         Parameters
         ----------
         *args, **kwargs
-            Parameters to pass to the
-            :class:`~compass.llm.calling.StructuredLLMCaller`
-            initializer.
+            Parameters to pass to the StructuredLLMCaller initializer.
         """
         super().__init__(*args, **kwargs)
         self._ordinance_chunks = {}
@@ -239,9 +237,7 @@ class SolarPermittedUseDistrictsTextCollector(StructuredLLMCaller):
         Parameters
         ----------
         *args, **kwargs
-            Parameters to pass to the
-            :class:`~compass.llm.calling.StructuredLLMCaller`
-            initializer.
+            Parameters to pass to the StructuredLLMCaller initializer.
         """
         super().__init__(*args, **kwargs)
         self._district_chunks = {}
@@ -314,8 +310,7 @@ class SolarOrdinanceTextExtractor(BaseTextExtractor):
            particular ordinance type (e.g. solar zoning for
            utility-scale systems).
     Key Relationships:
-        Uses a :class:`~compass.llm.calling.StructuredLLMCaller` for
-        LLM queries.
+        Uses a StructuredLLMCaller for LLM queries.
     """
 
     SOLAR_ENERGY_SYSTEM_FILTER_PROMPT = (
@@ -410,8 +405,7 @@ class SolarPermittedUseDistrictsTextExtractor(BaseTextExtractor):
            particular ordinance type (e.g. solar zoning for
            utility-scale systems).
     Key Relationships:
-        Uses a :class:`~compass.llm.calling.StructuredLLMCaller` for
-        LLM queries.
+        Uses a StructuredLLMCaller for LLM queries.
     """
 
     _USAGE_LABEL = LLMUsageCategory.DOCUMENT_PERMITTED_USE_DISTRICTS_SUMMARY

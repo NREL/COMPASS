@@ -242,9 +242,7 @@ class LegalTextValidator(StructuredLLMCaller):
             check for the whole document to be considered legal text.
             By default, ``0.8``.
         *args, **kwargs
-            Parameters to pass to the
-            :class:`~compass.llm.calling.StructuredLLMCaller`
-            initializer.
+            Parameters to pass to the StructuredLLMCaller initializer.
         """
         super().__init__(*args, **kwargs)
         self.tech = tech
