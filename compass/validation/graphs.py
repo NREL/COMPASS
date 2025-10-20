@@ -281,7 +281,7 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
 
     Parameters
     ----------
-    jurisdiction : compass.utilities.location.Jurisdiction
+    jurisdiction : Jurisdiction
         Jurisdiction for which validation is being performed.
     **kwargs
         Keyword-value pairs to add to graph.
@@ -501,7 +501,7 @@ def setup_graph_correct_jurisdiction_from_url(jurisdiction, **kwargs):
 
     Parameters
     ----------
-    jurisdiction : compass.utilities.location.Jurisdiction
+    jurisdiction : Jurisdiction
         Jurisdiction for which validation is being performed.
     **kwargs
         Keyword-value pairs to add to graph.

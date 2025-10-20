@@ -122,7 +122,7 @@ class ChatLLMCaller(BaseLLMCaller):
             LLM service used for queries.
         system_message : str
             System message to use for chat with LLM.
-        usage_tracker : compass.services.usage.UsageTracker, optional
+        usage_tracker : UsageTracker, optional
             Optional tracker instance to monitor token usage during
             LLM calls. By default, ``None``.
         **kwargs

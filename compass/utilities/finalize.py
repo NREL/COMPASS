@@ -138,10 +138,8 @@ def doc_infos_to_db(doc_infos):
               extracted
             - "date": Tuple of (year, month, day). Any of the values can
               be ``None``.
-            - "jurisdiction": Instance of
-              :class:`compass.utilities.location.Jurisdiction`
-              representing the jurisdiction associated with these
-              ordinance values.
+            - "jurisdiction": Instance of Jurisdiction representing the
+              jurisdiction associated with these ordinance values.
 
         If this iterable is empty, and empty DataFrame (with the correct
         columns) is returned.

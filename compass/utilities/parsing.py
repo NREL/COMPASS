@@ -129,7 +129,7 @@ def num_ordinances_in_doc(doc, exclude_features=None):
 
     Parameters
     ----------
-    doc : elm.web.document.Document
+    doc : elm.web.document.BaseDocument
         Document potentially containing ordinances for a jurisdiction.
         If no ordinance values are found, this function returns ``0``.
     exclude_features : iterable of str, optional

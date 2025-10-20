@@ -130,7 +130,7 @@ async def extract_date(doc, model_config, usage_tracker=None):
     ----------
     doc : elm.web.document.BaseDocument
         A document potentially containing date information.
-    usage_tracker : compass.services.usage.UsageTracker, optional
+    usage_tracker : UsageTracker, optional
         Optional tracker instance to monitor token usage during
         LLM calls. By default, ``None``.
 

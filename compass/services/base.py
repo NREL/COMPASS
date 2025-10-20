@@ -153,9 +153,9 @@ class LLMService(Service):
             if the rate tracker is set to compute the total over
             minute-long intervals, this value should be the max usage
             per minute.
-        rate_tracker : `TimeBoundedUsageTracker`
-            A TimeBoundedUsageTracker instance. This will be used to
-            track usage per time interval and compare to `rate_limit`.
+        rate_tracker : TimeBoundedUsageTracker
+            Instance used to track usage per time interval and compare
+            to `rate_limit` input.
         service_tag : str, optional
             Optional tag to use to distinguish service (i.e. make unique
             from other services). Must set this if multiple models with

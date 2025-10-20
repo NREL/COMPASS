@@ -118,10 +118,10 @@ class OpenAIService(LLMService):
             interval is ultimately controlled by the `rate_tracker`
             instance). By default, ``1e3``.
         rate_tracker : TimeBoundedUsageTracker, optional
-            A TimeBoundedUsageTracker instance. This will be used to
-            track usage per time interval and compare to `rate_limit`.
-            If ``None``, a `TimeBoundedUsageTracker` instance is created
-            with default parameters. By default, ``None``.
+            Instance used to track usage per time interval and compare
+            to `rate_limit` input. If ``None``, a
+            TimeBoundedUsageTracker instance is created with default
+            parameters. By default, ``None``.
         service_tag : str, optional
             Optional tag to use to distinguish service (i.e. make unique
             from other services). Must set this if multiple models with
@@ -150,7 +150,7 @@ class OpenAIService(LLMService):
         ----------
         model : str
             OpenAI GPT model to query.
-        usage_tracker : `compass.services.usage.UsageTracker`, optional
+        usage_tracker : UsageTracker, optional
             UsageTracker instance. Providing this input will update your
             tracker with this call's token usage info.
             By default, ``None``.
