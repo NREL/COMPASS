@@ -27,7 +27,7 @@ jobs:
           pixi-version: v0.50.2
           locked: true
           cache: false
-          environments: pdoc
+          environments: pdev  # Don't use pdoc here to keep pixi Github cache small
 
       - name: Build Docs
         # Make documentation with warnings as errors.
