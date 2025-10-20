@@ -194,7 +194,7 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
 
         Returns
         -------
-        pd.DataFrame | None
+        pandas.DataFrame or None
             DataFrame containing parsed-out ordinance values. Can also
             be ``None`` if a large wind energy system is not found in
             the text.
@@ -544,7 +544,7 @@ class StructuredWindPermittedUseDistrictsParser(StructuredWindParser):
 
         Returns
         -------
-        pd.DataFrame | None
+        pandas.DataFrame or None
             DataFrame containing parsed-out allowed-use district names.
             Can also be ``None`` if a large wind energy system is not
             found in the text.

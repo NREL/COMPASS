@@ -249,7 +249,7 @@ class LocationFileLog:
 
         Parameters
         ----------
-        listener : `LoggingListener`
+        listener : LoggingListener
             A listener instance. The file handler will be added to this
             listener.
         log_dir : path-like
@@ -260,7 +260,7 @@ class LocationFileLog:
             contain only characters valid in a file name.
         level : str, optional
             Log level. By default, ``"INFO"``.
-        max_teardown_time : int | float, default=30
+        max_teardown_time : int or float, default=30
             Max number of seconds to wait for logs to flush to file
             before unhooking the handler from the queue listener.
             By default, ``30``.
@@ -416,7 +416,7 @@ class JsonExceptionFileHandler(logging.Handler):
         filename : path-like
             Path to file where JSON output on exceptions should be
             stored.
-        encoding : str, optional
+        encoding : str, default="utf-8"
             File read/write encoding. By default, ``"utf-8"``.
         """
         super().__init__()

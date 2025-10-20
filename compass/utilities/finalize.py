@@ -148,7 +148,7 @@ def doc_infos_to_db(doc_infos):
 
     Returns
     -------
-    ordinances : pd.DataFrame
+    ordinances : pandas.DataFrame
         DataFrame containing ordinances collected from all individual
         CSV's.
     count : int
@@ -187,7 +187,7 @@ def save_db(db, out_dir):
 
     Parameters
     ----------
-    db : pd.DataFrame
+    db : pandas.DataFrame
         Pandas DataFrame containing ordinance data to save. Must have
         all columns in :obj:`QUANT_OUT_COLS` and :obj:`QUAL_OUT_COLS`
         as well as a ``"quantitative"`` column that contains a boolean
@@ -279,9 +279,9 @@ def compile_run_summary_message(
 
     Parameters
     ----------
-    total_seconds : int | float
+    total_seconds : int or float
         Total number of seconds the run took to complete.
-    total_cost : int | float
+    total_cost : int or float
         Total cost of the run, in $.
     out_dir : path-like
         Path to output directory where the run results are saved.

@@ -135,7 +135,7 @@ async def find_jurisdiction_website(
 
     Returns
     -------
-    str | None
+    str or None
         URL for the jurisdiction website, if found; ``None`` otherwise.
     """
     kwargs.update(file_loader_kwargs or {})
