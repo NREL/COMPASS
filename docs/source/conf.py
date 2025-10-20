@@ -204,7 +204,6 @@ texinfo_documents = [
         "COMPASS Documentation",
         author,
         "COMPASS",
-        "Geospatial Analysis Pipelines.",
         "Miscellaneous",
     ),
 ]
@@ -226,7 +225,7 @@ def skip_external_methods(app, what, name, obj, skip, options):
     if name in {"items", "keys", "values"} and "Mapping" in str(obj):
         return True
 
-    if name == "get" and "UserDict" in str(obj):
+    if name in {"copy", "get"} and "UserDict" in str(obj):
         return True
 
     if name in {
@@ -237,8 +236,27 @@ def skip_external_methods(app, what, name, obj, skip, options):
         "model_copy",
         "model_fields",
         "model_computed_fields",
+        "model_rebuild",
+        "model_parametrized_name",
+        "model_post_init",
+        "model_validate",
+        "model_validate_json",
+        "model_validate_strings",
+        "copy",
+        "construct",
+        "dict",
+        "from_orm",
+        "json",
+        "parse_file",
+        "parse_obj",
+        "parse_raw",
+        "schema",
+        "schema_json",
+        "update_forward_refs",
+        "validate",
     } and "BaseModel" in str(obj):
         return True
+
     return None
 
 
@@ -316,6 +334,7 @@ napoleon_type_aliases = {
     # fixing ELM docstrings
     "nx.DiGraph": ":class:`networkx.DiGraph`",
     "ApiBase": ":class:`~elm.base.ApiBase`",
+    "dicts": "dict",
     # objects from COMPASS
     "AsyncDecisionTree": ":class:`~compass.common.tree.AsyncDecisionTree`",
     "Jurisdiction": ":class:`~compass.utilities.location.Jurisdiction`",
