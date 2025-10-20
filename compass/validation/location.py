@@ -29,15 +29,15 @@ class DTreeURLJurisdictionValidator(BaseLLMCaller):
         "they contain information about jurisdictions. Only ever answer "
         "based on the information in the URL itself."
     )
+    """System message for URL jurisdiction validation LLM calls"""
 
     def __init__(self, jurisdiction, **kwargs):
         """
 
         Parameters
         ----------
-        structured_llm_caller : `StructuredLLMCaller`
-            StructuredLLMCaller instance. Used for structured validation
-            queries.
+        structured_llm_caller : StructuredLLMCaller
+            Instance used for structured validation queries.
         **kwargs
             Additional keyword arguments to pass to the
             :class:`~compass.llm.calling.BaseLLMCaller` instance.
@@ -90,19 +90,21 @@ class DTreeJurisdictionValidator(BaseLLMCaller):
     """Jurisdiction Validation using a decision tree"""
 
     META_SCORE_KEY = "Jurisdiction Validation Score"
+    """Key in doc.attrs where score is stored"""
+
     SYSTEM_MESSAGE = (
         "You are a legal expert assisting a user with determining the scope "
         "of applicability for their legal ordinance documents."
     )
+    """System message for jurisdiction validation LLM calls"""
 
     def __init__(self, jurisdiction, **kwargs):
         """
 
         Parameters
         ----------
-        structured_llm_caller : `StructuredLLMCaller`
-            StructuredLLMCaller instance. Used for structured validation
-            queries.
+        structured_llm_caller : StructuredLLMCaller
+            Instance used for structured validation queries.
         **kwargs
             Additional keyword arguments to pass to the
             :class:`~compass.llm.calling.BaseLLMCaller` instance.
@@ -252,6 +254,7 @@ class JurisdictionWebsiteValidator:
         "jurisdiction. Only ever answer based on the information from the "
         "website itself."
     )
+    """System message for main jurisdiction website validation calls"""
 
     def __init__(
         self, browser_semaphore=None, file_loader_kwargs=None, **kwargs

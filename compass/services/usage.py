@@ -25,7 +25,7 @@ class TimedEntry:
 
         Parameters
         ----------
-        value : obj
+        value : object
             Some value to store as an entry.
         """
         self.value = value

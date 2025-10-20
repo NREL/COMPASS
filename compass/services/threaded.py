@@ -375,7 +375,7 @@ class UsageUpdater(ThreadedService):
 
         Parameters
         ----------
-        tracker : elm.ods.services.usage.UsageTracker
+        tracker : UsageTracker
             A usage tracker instance that contains usage info to be
             added to output file.
         """

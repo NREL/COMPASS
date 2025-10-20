@@ -155,7 +155,7 @@ class COMPASSCrawler:
             initialize the playwright instances used for the crawl.
             By default, ``None``.
         already_visited : set, optional
-            A set of URLs (either strings or :class:``Link`` objects)
+            A set of URLs (either strings or :class:`Link` objects)
             that have already been visited. This is used to avoid
             re-visiting links that have already been checked.
             By default, ``None``.

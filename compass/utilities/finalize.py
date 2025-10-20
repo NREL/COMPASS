@@ -129,7 +129,7 @@ def doc_infos_to_db(doc_infos):
 
     Parameters
     ----------
-    doc_infos : iter of dicts
+    doc_infos : iterable of dict
         Iterable of dictionaries, where each dictionary has at least the
         following keys:
 

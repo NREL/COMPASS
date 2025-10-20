@@ -217,6 +217,8 @@ def skip_pydantic_methods(app, what, name, obj, skip, options):
         "model_dump",
         "model_construct",
         "model_copy",
+        "model_fields",
+        "model_computed_fields",
     ):
         return True
     return None
@@ -245,7 +247,7 @@ napoleon_use_param = True
 napoleon_type_aliases = {
     # general terms
     "sequence": ":term:`sequence`",
-    "iterable": ":term:`iterable`",
+    "iterable": ":class:`~collections.abc.Iterable`",
     "callable": ":py:func:`callable`",
     "dict_like": ":term:`dict-like <mapping>`",
     "dict-like": ":term:`dict-like <mapping>`",
@@ -286,11 +288,11 @@ napoleon_type_aliases = {
     "Series": "~pandas.Series",
     "DataFrame": "~pandas.DataFrame",
     "Categorical": "~pandas.Categorical",
-    "Path": "~~pathlib.Path",
+    "Path": "~pathlib.Path",
     # objects with abbreviated namespace (from pandas)
     "pd.Index": "~pandas.Index",
     "pd.NaT": "~pandas.NaT",
-    # LC
+    # Langchain
     "LCTextSplitter": ":class:`~langchain_text_splitters.base.TextSplitter`",
     "RCTextSplitter": ":class:`~langchain_text_splitters.character.RecursiveCharacterTextSplitter`",
     # fixing ELM docstrings
