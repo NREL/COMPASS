@@ -203,8 +203,7 @@ async def test_google_search_with_logging(tmp_path):
         output, expected_words, strict=False
     ):
         assert len(query_results) == 1
-        # Currently bugged in ELM; uncomment when updated
-        # assert len(query_results[0]) == num_requested_links
+        assert len(query_results[0]) == num_requested_links
         assert any(expected_word in link for link in query_results[0])
 
     log_files = list(log_dir.glob("*.log"))
