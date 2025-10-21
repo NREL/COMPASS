@@ -14,6 +14,7 @@ import elm.web.html_pw
 from elm.web.search.dux import DuxDistributedGlobalSearch
 from elm.web.file_loader import AsyncFileLoader
 from elm.web.document import HTMLDocument
+from flaky import flaky
 
 from compass.services.usage import TimeBoundedUsageTracker, UsageTracker
 from compass.services.openai import OpenAIService, usage_from_response
@@ -156,6 +157,7 @@ async def test_openai_query(sample_openai_response, monkeypatch):
         }
 
 
+@flaky(max_runs=3, min_passes=1)
 @pytest.mark.asyncio
 async def test_google_search_with_logging(tmp_path):
     """Test searching google for some locations with logging"""
