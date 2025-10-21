@@ -131,7 +131,7 @@ tests-p = "pytest --durations=20 tests/python"
 # it = "pytest --durations=20 tests/integration"
 
 [tool.pixi.feature.python-doc.tasks]
-make-html = { cmd = "make html", cwd = "docs", env = { SPHINXOPTS = "--fail-on-warning --keep-going --nitpicky" }}
+python-doc = { cmd = "make html", cwd = "docs", env = { SPHINXOPTS = "--fail-on-warning --keep-going --nitpicky" }}
 
 [tool.pixi.feature.python-build.tasks]
 build-wheels = { cmd = "uv build --sdist --wheel --out-dir dist/ ." }
