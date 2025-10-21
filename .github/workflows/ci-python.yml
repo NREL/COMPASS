@@ -96,7 +96,7 @@ jobs:
       max-parallel: 8
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ['3.14', '3.13', '3.12']
+        python-version: ['3.13', '3.12']
 
     steps:
     - uses: actions/checkout@v5
@@ -126,8 +126,6 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install tox tox-gh-actions>=2.0
         python -m pip install pdftotext
-        python -m pip install greenlet==3.1.1
-        python -m pip install pyee==12.0.0
 
     - name: Load tox cache
       uses: actions/cache/restore@v4
