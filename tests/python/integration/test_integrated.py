@@ -32,9 +32,9 @@ class MockResponse:
 
 
 @pytest.fixture
-def sample_file(test_data_dir):
+def sample_file(test_data_files_dir):
     """Sample file with contents to use for integration test"""
-    return test_data_dir / "Whatcom.txt"
+    return test_data_files_dir / "Whatcom.txt"
 
 
 @pytest.fixture
