@@ -117,7 +117,6 @@ jobs:
           sudo apt-get install -y libpoppler-cpp-dev poppler-utils
         elif [ "$RUNNER_OS" == "macOS" ]; then
           brew install poppler
-
         elif [ "$RUNNER_OS" == "Windows" ]; then
           choco install poppler -y
         fi
