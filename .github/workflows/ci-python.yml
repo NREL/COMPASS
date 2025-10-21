@@ -118,7 +118,13 @@ jobs:
         elif [ "$RUNNER_OS" == "macOS" ]; then
           brew install poppler
         elif [ "$RUNNER_OS" == "Windows" ]; then
-          choco install poppler -y
+          echo "Installing Poppler via MSYS2..."
+          choco install msys2 -y
+          C:\tools\msys64\usr\bin\bash -lc "pacman -Sy --noconfirm mingw-w64-x86_64-poppler mingw-w64-x86_64-pkg-config"
+
+          echo "Adding MSYS2 Mingw64 binaries to PATH..."
+          echo "C:\tools\msys64\mingw64\bin" >> $GITHUB_PATH
+          echo "C:\tools\msys64\usr\bin" >> $GITHUB_PATH
         fi
 
     - name: Install Dependencies
