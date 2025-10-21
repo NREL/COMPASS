@@ -334,7 +334,6 @@ napoleon_type_aliases = {
     # fixing ELM docstrings
     "nx.DiGraph": ":class:`networkx.DiGraph`",
     "ApiBase": ":class:`~elm.base.ApiBase`",
-    "dicts": "dict",
     # objects from COMPASS
     "AsyncDecisionTree": ":class:`~compass.common.tree.AsyncDecisionTree`",
     "Jurisdiction": ":class:`~compass.utilities.location.Jurisdiction`",
