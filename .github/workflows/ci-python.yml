@@ -131,7 +131,7 @@ jobs:
 
     - name: Install Dependencies
       run: |
-        conda install -c conda-forge poppler
+        conda install -c conda-forge poppler pkg-config
         python -m pip install --upgrade pip
         python -m pip install tox tox-gh-actions>=2.0
         python -m pip install pdftotext
