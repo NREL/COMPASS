@@ -103,35 +103,46 @@ jobs:
       with:
         fetch-depth: 0
 
-    # - name: Set up Python ${{ matrix.python-version }}
-    #   uses: actions/setup-python@v6
-    #   with:
-    #     python-version: ${{ matrix.python-version }}
-    #     cache: 'pip'
-
     - name: Set up Python ${{ matrix.python-version }}
-      uses: conda-incubator/setup-miniconda@v3
+      uses: actions/setup-python@v6
       with:
-        auto-update-conda: true
-        channels: conda-forge,defaults
         python-version: ${{ matrix.python-version }}
-        miniconda-version: "latest"
+        cache: 'pip'
 
-    - name: Install Poppler Reqs
+    # - name: Set up Python ${{ matrix.python-version }}
+    #   uses: conda-incubator/setup-miniconda@v3
+    #   with:
+    #     auto-update-conda: true
+    #     channels: conda-forge,defaults
+    #     python-version: ${{ matrix.python-version }}
+    #     miniconda-version: "latest"
+
+    - name: Install Poppler Reqs (Linux)
+      if: ${{ runner.os == 'Linux' }}
       shell: bash
       run: |
-        if [ "$RUNNER_OS" == "Linux" ]; then
-          sudo apt-get update
-          sudo apt-get install -y libpoppler-cpp-dev poppler-utils
-        elif [ "$RUNNER_OS" == "macOS" ]; then
-          brew install poppler
-        elif [ "$RUNNER_OS" == "Windows" ]; then
-          choco install poppler -y
-        fi
+        sudo apt-get update
+        sudo apt-get install -y libpoppler-cpp-dev poppler-utils
+
+    - name: Install Poppler Reqs (Mac)
+      if: ${{ runner.os == 'macOS' }}
+      shell: bash
+      run: |
+        brew install poppler
+
+    - name: Install Poppler Reqs (Windows)
+      if: ${{ runner.os == 'Windows' }}
+      shell: powershell
+      run: |
+        choco install -y poppler
+
+        # Add Poppler tools to PATH for this job
+        echo "C:\ProgramData\chocolatey\lib\poppler\tools" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        pdftotext -v
 
     - name: Install Dependencies
       run: |
-        conda install -c conda-forge poppler pkg-config
+        # conda install -c conda-forge poppler pkg-config
         python -m pip install --upgrade pip
         python -m pip install tox tox-gh-actions>=2.0
         python -m pip install pdftotext
