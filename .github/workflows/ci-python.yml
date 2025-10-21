@@ -103,11 +103,19 @@ jobs:
       with:
         fetch-depth: 0
 
+    # - name: Set up Python ${{ matrix.python-version }}
+    #   uses: actions/setup-python@v6
+    #   with:
+    #     python-version: ${{ matrix.python-version }}
+    #     cache: 'pip'
+
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v6
+      uses: conda-incubator/setup-miniconda@v3
       with:
+        auto-update-conda: true
+        channels: conda-forge,defaults
         python-version: ${{ matrix.python-version }}
-        cache: 'pip'
+        miniconda-version: "latest"
 
     - name: Install Poppler Reqs
       shell: bash
@@ -118,13 +126,7 @@ jobs:
         elif [ "$RUNNER_OS" == "macOS" ]; then
           brew install poppler
         elif [ "$RUNNER_OS" == "Windows" ]; then
-          echo "Installing Poppler via MSYS2..."
-          choco install msys2 -y
-          C:\tools\msys64\usr\bin\bash -lc "pacman -Sy --noconfirm mingw-w64-x86_64-poppler mingw-w64-x86_64-pkg-config"
-
-          echo "Adding MSYS2 Mingw64 binaries to PATH..."
-          echo "C:\tools\msys64\mingw64\bin" >> $GITHUB_PATH
-          echo "C:\tools\msys64\usr\bin" >> $GITHUB_PATH
+          choco install poppler -y
         fi
 
     - name: Install Dependencies
