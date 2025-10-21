@@ -48,9 +48,9 @@ def test_link_resembles_pdf():
     """Test `Link.resembles_pdf` property"""
 
     assert not _Link().resembles_pdf
-    assert _Link(title="example.pdf").consistent_domain
-    assert _Link(href="example.pdf").consistent_domain
-    assert not _Link(base_domain="example.pdf").consistent_domain
+    assert _Link(title="example.pdf").resembles_pdf
+    assert _Link(href="example.pdf").resembles_pdf
+    assert not _Link(base_domain="example.pdf").resembles_pdf
 
 
 if __name__ == "__main__":
