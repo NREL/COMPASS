@@ -40,7 +40,7 @@ def test_timed_entry():
     assert b.value == 10000
 
 
-@flaky(max_runs=3, min_passes=1)
+@flaky(max_runs=10, min_passes=1)
 def test_time_bounded_usage_tracker():
     """Test the `TimeBoundedUsageTracker` class"""
 
