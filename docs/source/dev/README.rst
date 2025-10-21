@@ -133,7 +133,7 @@ You can run python COMPASS tests locally using ``pixi``:
 
 .. code-block:: shell
 
-    pixi r -e ptest tests
+    pixi run -e ptest tests
 
 Tests for a module should ideally cover all code in that module,
 i.e., statement coverage should be at 100%, though this alone does not ensure that
