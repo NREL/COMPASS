@@ -258,7 +258,6 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
                     feature_clarifications=ER_CLARIFICATIONS.get(
                         feature_id, ""
                     ),
-                    system_size_reminder=SYSTEM_SIZE_REMINDER,
                 ),
                 name=outer_task_name,
             )
@@ -276,7 +275,7 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
                     is_numerical=False,
                     feature_clarifications=ER_CLARIFICATIONS.get(
                         feature_id, ""
-                    system_size_reminder=SYSTEM_SIZE_REMINDER,
+                    ),
                 ),
                 name=outer_task_name,
             )
