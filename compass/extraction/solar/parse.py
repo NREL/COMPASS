@@ -273,7 +273,6 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
                     feature_clarifications=ER_CLARIFICATIONS.get(
                         feature_id, ""
                     ),
-                    system_size_reminder=SYSTEM_SIZE_REMINDER,
                 ),
                 name=outer_task_name,
             )
@@ -292,7 +291,6 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
                     feature_clarifications=ER_CLARIFICATIONS.get(
                         feature_id, ""
                     ),
-                    system_size_reminder=SYSTEM_SIZE_REMINDER,
                 ),
                 name=outer_task_name,
             )
@@ -357,14 +355,17 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
                 await self._extract_setback_values(
                     text=text,
                     base_messages=base_messages,
-                    **feature_kwargs,
+                    system_size_reminder=SYSTEM_SIZE_REMINDER**feature_kwargs,
                 )
             )
             sub_pb.update(task_id, advance=1, just_parsed=feature_id)
             return [output]
 
         output = await self._extract_setback_values_for_p_or_np(
-            text, base_messages, **feature_kwargs
+            text,
+            base_messages,
+            system_size_reminder=SYSTEM_SIZE_REMINDER,
+            **feature_kwargs,
         )
         sub_pb.update(task_id, advance=1, just_parsed=feature_id)
         return output
@@ -435,7 +436,9 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
                 feature_clarifications=feature_kwargs.get(
                     "feature_clarifications", ""
                 ),
-                system_size_reminder=SYSTEM_SIZE_REMINDER,
+                system_size_reminder=feature_kwargs.get(
+                    "system_size_reminder", SYSTEM_SIZE_REMINDER
+                ),
             )
         )
         base_messages[-1]["content"] = sub_text
