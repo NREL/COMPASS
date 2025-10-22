@@ -1,7 +1,7 @@
 """COMPASS common extraction utilities and graphs"""
 
 from .base import (
-    EXTRACT_ORIGINAL_TEXT_PROMPT,
+    EXTRACT_ORIGINAL_SETBACK_TEXT_PROMPT,
     BaseTextExtractor,
     empty_output,
     llm_response_starts_with_no,
