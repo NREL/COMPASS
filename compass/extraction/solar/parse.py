@@ -12,7 +12,6 @@ from compass.llm.calling import BaseLLMCaller, ChatLLMCaller
 from compass.extraction.features import SetbackFeatures
 from compass.common import (
     EXTRACT_ORIGINAL_TEXT_PROMPT,
-    SYSTEM_SIZE_REMINDER,
     run_async_tree,
     run_async_tree_with_bm,
     empty_output,
@@ -35,6 +34,13 @@ logger = logging.getLogger(__name__)
 DEFAULT_SYSTEM_MESSAGE = (
     "You are a legal scholar informing a solar energy developer about local "
     "zoning ordinances."
+)
+SYSTEM_SIZE_REMINDER = (
+    "systems that would typically be defined as {tech} based on the text "
+    "itself — for example, systems intended for offsite electricity "
+    "generation or sale, or those above thresholds such as height or rated "
+    "capacity (often 1MW+). Do not consider any text that applies **only** "
+    "to smaller or clearly non-commercial systems. "
 )
 SETBACKS_SYSTEM_MESSAGE = (
     f"{DEFAULT_SYSTEM_MESSAGE} "
@@ -267,6 +273,7 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
                     feature_clarifications=ER_CLARIFICATIONS.get(
                         feature_id, ""
                     ),
+                    system_size_reminder=SYSTEM_SIZE_REMINDER,
                 ),
                 name=outer_task_name,
             )
@@ -285,6 +292,7 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
                     feature_clarifications=ER_CLARIFICATIONS.get(
                         feature_id, ""
                     ),
+                    system_size_reminder=SYSTEM_SIZE_REMINDER,
                 ),
                 name=outer_task_name,
             )
@@ -320,6 +328,7 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
             chat_llm_caller=self._init_chat_llm_caller(system_message),
             unit_clarification=unit_clarification,
             feature_clarifications=feature_clarifications,
+            system_size_reminder=SYSTEM_SIZE_REMINDER,
         )
         info = await run_async_tree(tree)
         info.update({"feature": feature_id, "quantitative": is_numerical})
@@ -425,6 +434,7 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
             feature_clarifications=feature_kwargs.get(
                 "feature_clarifications", ""
             ),
+            system_size_reminder=SYSTEM_SIZE_REMINDER,
         )
         base_messages[-1]["content"] = sub_text
 

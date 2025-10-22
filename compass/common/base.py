@@ -30,13 +30,6 @@ _SUMMARY_PROMPT = (
 _UNITS_IN_SUMMARY_PROMPT = (
     "Include any clarifications about the units in the summary."
 )
-SYSTEM_SIZE_REMINDER = (
-    "systems that would typically be defined as {tech} based on the text "
-    "itself — for example, systems intended for offsite electricity "
-    "generation or sale, or those above thresholds such as height or rated "
-    "capacity (often 1MW+). Do not consider any text that applies **only** "
-    "to smaller or clearly non-commercial systems. "
-)
 EXTRACT_ORIGINAL_TEXT_PROMPT = (
     "Extract all portions of the text (with original formatting) "
     "that state how close I can site {tech} to {feature}. "
@@ -46,7 +39,7 @@ EXTRACT_ORIGINAL_TEXT_PROMPT = (
     "The extracted text will be used for structured data extraction, so it "
     "must be both **comprehensive** (retaining all relevant details) and "
     "**focused** (excluding unrelated content). Ensure that all retained "
-    f"information is **directly applicable** to {SYSTEM_SIZE_REMINDER}"
+    "information is **directly applicable** to {system_size_reminder}"
 )
 
 
@@ -196,7 +189,7 @@ def setup_base_setback_graph(**kwargs):
             "{feature_clarifications}"  # expected to end in space
             "Please consider only setbacks from {feature}. "
             "Please also only consider setbacks that would apply for "
-            f"{SYSTEM_SIZE_REMINDER}"
+            "{system_size_reminder}"
             "Don't forget to pay extra attention to clarifying text found "
             "in parentheses and footnotes. "
             "Please start your response with either 'Yes' or 'No' and briefly "
@@ -273,7 +266,7 @@ def setup_participating_owner(**kwargs):
             "setbacks from {feature}; do not base your response on any text "
             "related to {ignore_features}. "
             "Please only consider setbacks that would apply for "
-            f"{SYSTEM_SIZE_REMINDER}"
+            "{system_size_reminder}"
             "Please start your response with either 'Yes' or 'No' "
             "and briefly explain your answer."
         ),
@@ -401,7 +394,7 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
             "2) If the text only provides a definition of what {restriction} "
             "are without providing specifics, please respond with 'No'.\n"
             "3) Please focus only on {restriction} that would apply for "
-            f"{SYSTEM_SIZE_REMINDER}\n"
+            "{system_size_reminder}\n"
             "4) Pay close attention to clarifying details in parentheses, "
             "footnotes, or additional explanatory text.\n"
             "5) Please start your response with either 'Yes' or 'No' and "
@@ -446,7 +439,7 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
                 "below, or `null` if the text does not mention such a "
                 "restriction. "
                 "As before, focus only on {restriction} specifically for "
-                f"{SYSTEM_SIZE_REMINDER}"
+                "{system_size_reminder}"
                 "{SUMMARY_PROMPT} {UNITS_IN_SUMMARY_PROMPT} {SECTION_PROMPT}"
             ),
         )
@@ -607,7 +600,7 @@ def _add_value_and_units_clarification_nodes(G):  # noqa: N803
     G.add_node(
         "value",
         prompt=(
-            "What is the **numerical** value given for the "  # noqa: S608
+            "What is the **numerical** value given for the "
             "{restriction} for {tech}? Follow these guidelines:\n"
             "1) Extract only the explicit numerical value provided for "
             "the restriction. Do not infer values from related "
@@ -616,7 +609,7 @@ def _add_value_and_units_clarification_nodes(G):  # noqa: N803
             "one (i.e., the smallest allowable limit, the lowest maximum, "
             "etc.).\n"
             "3) Please focus only on {restriction} that would apply for "
-            f"{SYSTEM_SIZE_REMINDER}\n"
+            "{system_size_reminder}\n"
             "4) Pay close attention to clarifying details in parentheses, "
             "footnotes, or additional explanatory text.\n\n"
             "Example Inputs and Outputs:\n"

@@ -22,7 +22,6 @@ from compass.common import (
     setup_graph_permitted_use_districts,
 )
 from compass.extraction.wind.graphs import (
-    WES_SYSTEM_SIZE_REMINDER,
     setup_graph_wes_types,
     setup_multiplier,
     setup_conditional_min,
@@ -38,23 +37,31 @@ DEFAULT_SYSTEM_MESSAGE = (
     "You are a legal scholar informing a wind energy developer about local "
     "zoning ordinances."
 )
+SYSTEM_SIZE_REMINDER = (
+    "systems that would typically be defined as {tech} based on the text "
+    "itself — for example, systems intended for offsite electricity "
+    "generation or sale, or those above thresholds such as height, rotor "
+    "diameter, or rated capacity (often 1MW+). Do not consider any text "
+    "that applies **only** to smaller or clearly non-commercial systems or "
+    "to meteorological towers. "
+)
 SETBACKS_SYSTEM_MESSAGE = (
     f"{DEFAULT_SYSTEM_MESSAGE} "
     "For the duration of this conversation, only focus on ordinances "
     "relating to setbacks from {feature}; do not respond based on any text "
     "related to {ignore_features}. "
-    f"Please only consider ordinances for {WES_SYSTEM_SIZE_REMINDER}"
+    f"Please only consider ordinances for {SYSTEM_SIZE_REMINDER}"
 )
 RESTRICTIONS_SYSTEM_MESSAGE = (
     f"{DEFAULT_SYSTEM_MESSAGE} "
     "For the duration of this conversation, only focus on "
     "ordinances relating to {restriction} for "
-    f"{WES_SYSTEM_SIZE_REMINDER}"
+    f"{SYSTEM_SIZE_REMINDER}"
 )
 PERMITTED_USE_SYSTEM_MESSAGE = (
     f"{DEFAULT_SYSTEM_MESSAGE} "
     "For the duration of this conversation, only focus on permitted uses for "
-    f"{WES_SYSTEM_SIZE_REMINDER}"
+    f"{SYSTEM_SIZE_REMINDER}"
 )
 EXTRA_NUMERICAL_RESTRICTIONS = {
     "other wecs": (
@@ -251,6 +258,7 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
                     feature_clarifications=ER_CLARIFICATIONS.get(
                         feature_id, ""
                     ),
+                    system_size_reminder=SYSTEM_SIZE_REMINDER,
                 ),
                 name=outer_task_name,
             )
@@ -269,6 +277,7 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
                     feature_clarifications=ER_CLARIFICATIONS.get(
                         feature_id, ""
                     ),
+                    system_size_reminder=SYSTEM_SIZE_REMINDER,
                 ),
                 name=outer_task_name,
             )
@@ -304,6 +313,7 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
             chat_llm_caller=self._init_chat_llm_caller(system_message),
             unit_clarification=unit_clarification,
             feature_clarifications=feature_clarifications,
+            system_size_reminder=SYSTEM_SIZE_REMINDER,
         )
         info = await run_async_tree(tree)
         info.update({"feature": feature_id, "quantitative": is_numerical})
@@ -409,6 +419,7 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
             feature_clarifications=feature_kwargs.get(
                 "feature_clarifications", ""
             ),
+            system_size_reminder=SYSTEM_SIZE_REMINDER,
         )
         base_messages[-1]["content"] = sub_text
 
