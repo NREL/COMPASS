@@ -58,7 +58,7 @@ jobs:
         environments: pdev
 
     - run: |
-        pixi run -e pdev --frozen tests-u
+        pixi run -e pdev --locked tests-u
 
   integration-tests:
     needs: lint
@@ -85,7 +85,7 @@ jobs:
         environments: pdev
 
     - run: |
-        pixi run -e pdev --frozen tests-i
+        pixi run -e pdev --locked tests-i
 
   tox-tests:
     needs: lint
