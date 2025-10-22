@@ -547,30 +547,6 @@ class StructuredDistributedWindPermittedUseDistrictsParser(
     )
     _USE_TYPES = [
         {
-            "feature_id": "primary use districts",
-            "use_type": (
-                "permitted as primary use or similar (e.g., without special "
-                "conditions or approval)"
-            ),
-            "clarifications": (
-                "Consider any solar overlay districts as "
-                "primary use districts. {wes_clarification}"
-            ),
-        },
-        {
-            "feature_id": "special use districts",
-            "use_type": (
-                "permitted as special use or similar (e.g., requires approval "
-                "by the zoning appeals board or meeting certain conditions "
-                "like completing a permitting process)"
-            ),
-            "clarifications": (
-                "Consider any solar overlay districts as "
-                "primary use and **do not include** them in the output. "
-                "{wes_clarification}"
-            ),
-        },
-        {
             "feature_id": "accessory use districts",
             "use_type": (
                 "permitted as accessory use or similar (e.g., when integrated "
