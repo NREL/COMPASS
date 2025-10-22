@@ -11,7 +11,7 @@ import pandas as pd
 from compass.llm.calling import BaseLLMCaller, ChatLLMCaller
 from compass.extraction.features import SetbackFeatures
 from compass.common import (
-    EXTRACT_ORIGINAL_TEXT_PROMPT,
+    EXTRACT_ORIGINAL_SETBACK_TEXT_PROMPT,
     run_async_tree,
     run_async_tree_with_bm,
     empty_output,
@@ -412,14 +412,16 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
             feature_kwargs["feature"] = feature
 
         base_messages = deepcopy(base_messages)
-        base_messages[-2]["content"] = EXTRACT_ORIGINAL_TEXT_PROMPT.format(
-            feature=feature,
-            tech=feature_kwargs["tech"],
-            ignore_features=feature_kwargs["ignore_features"],
-            feature_clarifications=feature_kwargs.get(
-                "feature_clarifications", ""
-            ),
-            system_size_reminder=SYSTEM_SIZE_REMINDER,
+        base_messages[-2]["content"] = (
+            EXTRACT_ORIGINAL_SETBACK_TEXT_PROMPT.format(
+                feature=feature,
+                tech=feature_kwargs["tech"],
+                ignore_features=feature_kwargs["ignore_features"],
+                feature_clarifications=feature_kwargs.get(
+                    "feature_clarifications", ""
+                ),
+                system_size_reminder=SYSTEM_SIZE_REMINDER,
+            )
         )
         base_messages[-1]["content"] = sub_text
 

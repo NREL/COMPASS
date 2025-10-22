@@ -30,7 +30,7 @@ _SUMMARY_PROMPT = (
 _UNITS_IN_SUMMARY_PROMPT = (
     "Include any clarifications about the units in the summary."
 )
-EXTRACT_ORIGINAL_TEXT_PROMPT = (
+EXTRACT_ORIGINAL_SETBACK_TEXT_PROMPT = (
     "Extract all portions of the text (with original formatting) "
     "that state how close I can site {tech} to {feature}. "
     "{feature_clarifications}"
@@ -234,7 +234,7 @@ def setup_base_setback_graph(**kwargs):
             "verify_feature", "get_text", condition=llm_response_starts_with_no
         )
 
-    G.add_node("get_text", prompt=EXTRACT_ORIGINAL_TEXT_PROMPT)
+    G.add_node("get_text", prompt=EXTRACT_ORIGINAL_SETBACK_TEXT_PROMPT)
 
     return G
 
