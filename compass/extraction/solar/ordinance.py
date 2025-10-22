@@ -1,7 +1,7 @@
-"""Ordinance document content Validation logic
+"""Solar ordinance document content collection and extraction
 
-These are primarily used to validate that a legal document applies to a
-particular technology (e.g. Solar Energy Conversion System).
+These methods help filter down the document text to only the portions
+relevant to utility-scale solar ordinances.
 """
 
 import logging
