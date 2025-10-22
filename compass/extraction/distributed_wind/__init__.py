@@ -7,6 +7,10 @@ from .ordinance import (
     DistributedWindPermittedUseDistrictsTextCollector,
     DistributedWindPermittedUseDistrictsTextExtractor,
 )
+from .parse import (
+    StructuredDistributedWindOrdinanceParser,
+    StructuredDistributedWindPermittedUseDistrictsParser,
+)
 
 
 DISTRIBUTED_WIND_QUESTION_TEMPLATES = [
