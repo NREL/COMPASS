@@ -378,6 +378,7 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
             usage_sub_label=LLMUsageCategory.ORDINANCE_VALUE_EXTRACTION,
             text=text,
             chat_llm_caller=self._init_chat_llm_caller(system_message),
+            system_size_reminder=SYSTEM_SIZE_REMINDER,
             **feature_kwargs,
         )
         out = await run_async_tree(tree, response_as_json=False)
