@@ -38,7 +38,7 @@ dependencies = [
   "networkx>=3.4.2,<4",
   "nltk>=3.9.1,<4",
   "nrel-elm>=0.0.31,<1",
-  "numpy>=1.26.4,<2",
+  "numpy>=2.2.4,<3",
   "openai>=1.1.0",
   "pandas>=2.2.3,<3",
   "pdftotext>=2.2.2,<3",
@@ -161,7 +161,7 @@ langchain-text-splitters = ">=1.0.0,<2"
 lxml = ">=5.3.0,<6"
 networkx = ">=3.4.2,<4"
 nltk = ">=3.9.1,<4"
-numpy = ">=1.26.4,<2"
+numpy = ">=2.2.4,<3"
 openai = ">=1.1.0"
 pandas = ">=2.2.3,<3"
 pdf2image = ">=1.17.0,<2"
