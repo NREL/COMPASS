@@ -152,6 +152,7 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
     clean_dir=None,
     ordinance_file_dir=None,
     jurisdiction_dbs_dir=None,
+    perform_se_search=True,
     perform_website_search=True,
     llm_costs=None,
     log_level="INFO",
@@ -326,6 +327,14 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
         stored for each jurisdiction. If not provided, a
         ``jurisdiction_dbs`` subdirectory will be created inside
         `out_dir`. By default, ``None``.
+    perform_se_search : bool, default=True
+        Option to perform a search engine-based search for ordinance
+        documents. This is the standard way to collect ordinance
+        documents, and it is recommended to leave this set to ``True``
+        unless you are re-processing local documents. If ``True``, the
+        search engine approach is used to locate ordinance documents
+        before falling back to a website crawl-based search (if that has
+        been selected). By default, ``True``.
     perform_website_search : bool, default=True
         Option to fallback to a jurisdiction website crawl-based search
         for ordinance documents if the search engine approach fails to
@@ -408,6 +417,7 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
         models=models,
         web_search_params=wsp,
         process_kwargs=pk,
+        perform_se_search=perform_se_search,
         perform_website_search=perform_website_search,
         log_level=log_level,
     )
@@ -427,6 +437,7 @@ class _COMPASSRunner:
         models,
         web_search_params=None,
         process_kwargs=None,
+        perform_se_search=True,
         perform_website_search=True,
         log_level="INFO",
     ):
@@ -436,6 +447,7 @@ class _COMPASSRunner:
         self.models = models
         self.web_search_params = web_search_params or WebSearchParams()
         self.process_kwargs = process_kwargs or ProcessKwargs()
+        self.perform_se_search = perform_se_search
         self.perform_website_search = perform_website_search
         self.log_level = log_level
 
@@ -681,6 +693,7 @@ class _COMPASSRunner:
                     crawl_semaphore=self.crawl_semaphore,
                     search_engine_semaphore=self.search_engine_semaphore,
                     jurisdiction_website=jurisdiction_website,
+                    perform_se_search=self.perform_se_search,
                     perform_website_search=self.perform_website_search,
                     usage_tracker=usage_tracker,
                 ).run(),
@@ -715,6 +728,7 @@ class _SingleJurisdictionRunner:
         crawl_semaphore=None,
         search_engine_semaphore=None,
         jurisdiction_website=None,
+        perform_se_search=True,
         perform_website_search=True,
         usage_tracker=None,
     ):
@@ -729,6 +743,7 @@ class _SingleJurisdictionRunner:
         self.search_engine_semaphore = search_engine_semaphore
         self.usage_tracker = usage_tracker
         self.jurisdiction_website = jurisdiction_website
+        self.perform_se_search = perform_se_search
         self.perform_website_search = perform_website_search
         self.validate_user_website_input = True
         self._jsp = None
