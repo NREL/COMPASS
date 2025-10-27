@@ -1,7 +1,7 @@
-"""Distributed wind ordinance document content collection and extraction
+"""Accessory wind ordinance document content collection and extraction
 
 These methods help filter down the document text to only the portions
-relevant to distributed wind ordinances.
+relevant to accessory wind ordinances.
 """
 
 import logging
@@ -34,7 +34,7 @@ _SEARCH_TERMS_OR = _SEARCH_TERMS_AND.replace("and", "or")
 _IGNORE_TYPES = "large, utility-scale, for-sale, or commercial"
 
 
-class DistributedWindHeuristic(Heuristic):
+class AccessoryWindHeuristic(Heuristic):
     """Perform a heuristic check for mention of wind turbines in text"""
 
     NOT_TECH_WORDS = [
@@ -131,7 +131,7 @@ class DistributedWindHeuristic(Heuristic):
     """Phrases that indicate text is about WECS"""
 
 
-class DistributedWindOrdinanceTextCollector(StructuredLLMCaller):
+class AccessoryWindOrdinanceTextCollector(StructuredLLMCaller):
     """Check text chunks for ordinances and collect them if they do"""
 
     CONTAINS_ORD_PROMPT = (
@@ -264,7 +264,7 @@ class DistributedWindOrdinanceTextCollector(StructuredLLMCaller):
         return content.get(key, False)
 
 
-class DistributedWindPermittedUseDistrictsTextCollector(StructuredLLMCaller):
+class AccessoryWindPermittedUseDistrictsTextCollector(StructuredLLMCaller):
     """Check text chunks for permitted wind districts; collect them"""
 
     DISTRICT_PROMPT = (
@@ -351,7 +351,7 @@ class DistributedWindPermittedUseDistrictsTextCollector(StructuredLLMCaller):
         return merge_overlapping_texts(text)
 
 
-class DistributedWindOrdinanceTextExtractor(BaseTextExtractor):
+class AccessoryWindOrdinanceTextExtractor(BaseTextExtractor):
     """Extract succinct ordinance text from input
 
     Purpose:
@@ -528,7 +528,7 @@ class DistributedWindOrdinanceTextExtractor(BaseTextExtractor):
         )
 
 
-class DistributedWindPermittedUseDistrictsTextExtractor(BaseTextExtractor):
+class AccessoryWindPermittedUseDistrictsTextExtractor(BaseTextExtractor):
     """Extract succinct ordinance text from input
 
     Purpose:

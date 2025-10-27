@@ -1,19 +1,19 @@
-"""Distributed wind ordinance extraction utilities"""
+"""Accessory wind ordinance extraction utilities"""
 
 from .ordinance import (
-    DistributedWindHeuristic,
-    DistributedWindOrdinanceTextCollector,
-    DistributedWindOrdinanceTextExtractor,
-    DistributedWindPermittedUseDistrictsTextCollector,
-    DistributedWindPermittedUseDistrictsTextExtractor,
+    AccessoryWindHeuristic,
+    AccessoryWindOrdinanceTextCollector,
+    AccessoryWindOrdinanceTextExtractor,
+    AccessoryWindPermittedUseDistrictsTextCollector,
+    AccessoryWindPermittedUseDistrictsTextExtractor,
 )
 from .parse import (
-    StructuredDistributedWindOrdinanceParser,
-    StructuredDistributedWindPermittedUseDistrictsParser,
+    StructuredAccessoryWindOrdinanceParser,
+    StructuredAccessoryWindPermittedUseDistrictsParser,
 )
 
 
-DISTRIBUTED_WIND_QUESTION_TEMPLATES = [
+ACCESSORY_WIND_QUESTION_TEMPLATES = [
     "filetype:pdf {jurisdiction} wind energy conversion system ordinances",
     "wind energy conversion system ordinances {jurisdiction}",
     "{jurisdiction} wind WECS ordinance",

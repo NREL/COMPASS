@@ -1,4 +1,4 @@
-"""Distributed wind ordinance structured parsing class"""
+"""Accessory wind ordinance structured parsing class"""
 
 import asyncio
 import logging
@@ -133,8 +133,8 @@ _FEATURE_TO_OWNED_TYPE = {
 }
 
 
-class DistributedWindSetbackFeatures(SetbackFeatures):
-    """Mutually-exclusive feature descriptions for distributed wind"""
+class AccessoryWindSetbackFeatures(SetbackFeatures):
+    """Mutually-exclusive feature descriptions for accessory wind"""
 
     DEFAULT_FEATURE_DESCRIPTIONS = {
         "structures": [
@@ -190,7 +190,7 @@ class DistributedWindSetbackFeatures(SetbackFeatures):
     """Clarifications to add to feature prompts"""
 
 
-class StructuredDistributedWindParser(BaseLLMCaller):
+class StructuredAccessoryWindParser(BaseLLMCaller):
     """Base class for parsing structured data"""
 
     def _init_chat_llm_caller(self, system_message):
@@ -228,9 +228,7 @@ class StructuredDistributedWindParser(BaseLLMCaller):
         return accessory_system
 
 
-class StructuredDistributedWindOrdinanceParser(
-    StructuredDistributedWindParser
-):
+class StructuredAccessoryWindOrdinanceParser(StructuredAccessoryWindParser):
     """LLM ordinance document structured data scraping utility
 
     Purpose:
@@ -269,7 +267,7 @@ class StructuredDistributedWindOrdinanceParser(
 
         outer_task_name = asyncio.current_task().get_name()
         num_to_process = (
-            len(DistributedWindSetbackFeatures.DEFAULT_FEATURE_DESCRIPTIONS)
+            len(AccessoryWindSetbackFeatures.DEFAULT_FEATURE_DESCRIPTIONS)
             + len(EXTRA_NUMERICAL_RESTRICTIONS)
             + len(EXTRA_QUALITATIVE_RESTRICTIONS)
         )
@@ -299,7 +297,7 @@ class StructuredDistributedWindOrdinanceParser(
                 ),
                 name=outer_task_name,
             )
-            for feature_kwargs in DistributedWindSetbackFeatures()
+            for feature_kwargs in AccessoryWindSetbackFeatures()
         ]
         extras_parsers = [
             asyncio.create_task(
@@ -533,8 +531,8 @@ class StructuredDistributedWindOrdinanceParser(
         return await run_async_tree(tree)
 
 
-class StructuredDistributedWindPermittedUseDistrictsParser(
-    StructuredDistributedWindParser
+class StructuredAccessoryWindPermittedUseDistrictsParser(
+    StructuredAccessoryWindParser
 ):
     """LLM permitted use districts scraping utility
 
