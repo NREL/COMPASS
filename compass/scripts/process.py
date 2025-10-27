@@ -158,12 +158,24 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
     log_level="INFO",
     keep_async_logs=False,
 ):
-    """Download and extract ordinances for a list of jurisdictions
+    """Extract ordinances for one or more jurisdiction(s)
 
     This function scrapes ordinance documents (PDFs or HTML text) for a
-    list of specified jurisdictions and processes them using one or more
+    given set of jurisdictions and processes them using one or more
     LLM models. Output files, logs, and intermediate artifacts are
     stored in configurable directories.
+
+    The processing has a well-defined order:
+
+        1. Process any/all known local documents
+        2. Process any/all known document URLs
+        3. Search engine-based search for ordinance documents
+        4. Jurisdiction website crawl-based search for ordinance
+           documents
+
+    Users can disable any of these steps via inputs to this function. If
+    any step returns a document with extractable ordinance information,
+    subsequent steps are skipped for that jurisdiction.
 
     Parameters
     ----------
