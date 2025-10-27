@@ -262,7 +262,10 @@ def setup_participating_owner(**kwargs):
         prompt=(
             "Does the ordinance for {feature} setbacks explicitly distinguish "
             "between **participating** and **non-participating** {owned_type} "
-            "owners? {feature_clarifications} We are only interested in "
+            "owners? Participating may, for example, be able to sign a waiver "
+            "or enter some sort of agreement to reduce or completely "
+            "eliminate the setback requirement. "
+            "{feature_clarifications} We are only interested in "
             "setbacks from {feature}; do not base your response on any text "
             "related to {ignore_features}. "
             "Please only consider setbacks that would apply for "
