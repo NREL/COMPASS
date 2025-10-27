@@ -69,7 +69,7 @@ EXTRA_NUMERICAL_RESTRICTIONS = {
         "planned wind energy conversion systems"
     ),
     "noise": "maximum noise level allowed",
-    "maximum height": "maximum turbine height allowed",
+    "maximum turbine height": "maximum turbine height allowed",
     "maximum project size": (
         "maximum project size or total installation allowed"
     ),
@@ -127,6 +127,11 @@ ER_CLARIFICATIONS = {
         "Do **not** try to infer the spacing requirement based on other "
         "restrictions such as setbacks from facility perimeters, property "
         "lines, etc."
+    ),
+    "maximum turbine height": (
+        "Maximum turbine height should be given in total feet or meters "
+        "from the ground and **should not be relative to some other "
+        "feature like structure height, airspace level, etc."
     ),
 }
 _FEATURE_TO_OWNED_TYPE = {

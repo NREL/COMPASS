@@ -68,7 +68,7 @@ EXTRA_NUMERICAL_RESTRICTIONS = {
         "maximum rated capacity (in kW or MW) allowed for the system (turbine)"
     ),
     "noise": "maximum noise level allowed",
-    "maximum height": "maximum turbine height allowed",
+    "maximum turbine height": "maximum turbine height allowed",
     "minimum lot size": "**minimum** lot, parcel, or tract size allowed",
     "maximum lot size": "**maximum** lot, parcel, or tract size allowed",
     "shadow flicker": "maximum shadow flicker allowed",
@@ -108,6 +108,11 @@ ER_CLARIFICATIONS = {
     "shadow flicker": (
         "If the text prohibits shadow, treat this as a max value of 0 "
         "hours per year."
+    ),
+    "maximum turbine height": (
+        "Maximum turbine height should be given in total feet or meters "
+        "from the ground and **should not be relative to some other "
+        "feature like structure height, airspace level, etc."
     ),
 }
 _FEATURE_TO_OWNED_TYPE = {

@@ -416,6 +416,8 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
             _add_maximum_lot_size_clarification_nodes(G)
         elif "maximum project size" in feature_id:
             _add_maximum_project_size_clarification_nodes(G)
+        elif "maximum turbine height" in feature_id:
+            _add_maximum_turbine_height_clarification_nodes(G)
         else:
             G.add_edge("init", "value", condition=llm_response_starts_with_yes)
 
@@ -590,6 +592,43 @@ def _add_maximum_project_size_clarification_nodes(G):  # noqa: N803
 
     G.add_edge(
         "is_mps_conditional", "value", condition=llm_response_starts_with_no
+    )
+    return G
+
+
+def _add_maximum_turbine_height_clarification_nodes(G):  # noqa: N803
+    """Add nodes and edges to clarify max turbine height extraction"""
+    G.add_edge("init", "has_relative", condition=llm_response_starts_with_yes)
+    G.add_node(
+        "has_relative",
+        prompt=(
+            "Are any of the turbine height restrictions measured from a point "
+            "other than the ground (e.g. a building height or an airspace "
+            "level, etc.)? "
+            "Please start your response with either 'Yes' or 'No' and "
+            "briefly explain your answer."
+        ),
+    )
+    G.add_edge(
+        "has_relative",
+        "has_non_relative",
+        condition=llm_response_starts_with_yes,
+    )
+    G.add_edge("has_relative", "value", condition=llm_response_starts_with_no)
+
+    G.add_node(
+        "has_non_relative",
+        prompt=(
+            "We are not interested in restrictions that are relative to some "
+            "level. Does the legal text enact any turbine height restrictions "
+            "measured from the ground? "
+            "Please start your response with either 'Yes' or 'No' and "
+            "briefly explain your answer."
+        ),
+    )
+
+    G.add_edge(
+        "has_non_relative", "value", condition=llm_response_starts_with_yes
     )
     return G
 
