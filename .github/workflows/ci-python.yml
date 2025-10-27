@@ -108,7 +108,7 @@ jobs:
       uses: actions/setup-python@v6
       with:
         python-version: ${{ matrix.python-version }}
-        cache: 'pip'
+        cache: ${{ github.ref == 'refs/heads/main' && 'pip' || false }}
 
     - name: Install Poppler Reqs (Linux)
       if: ${{ runner.os == 'Linux' }}
