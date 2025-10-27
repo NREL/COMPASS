@@ -781,34 +781,32 @@ class _SingleJurisdictionRunner:
     async def _run(self):
         """Search for docs and parse them for ordinances"""
         if self.known_doc_urls:
-            docs = await self._download_known_url_documents()
-            if docs is not None:
-                COMPASS_PB.update_jurisdiction_task(
-                    self.jurisdiction.full_name,
-                    description="Extracting structured data...",
-                )
-                doc = await self._parse_docs_for_ordinances(docs)
-            else:
-                doc = None
-
+            doc = await self._try_find_ordinances(
+                method=self._download_known_url_documents,
+            )
             if doc is not None:
                 return doc
 
-        docs = await self._find_documents_using_search_engine()
-        if docs is not None:
-            COMPASS_PB.update_jurisdiction_task(
-                self.jurisdiction.full_name,
-                description="Extracting structured data...",
+        if self.perform_se_search:
+            doc = await self._try_find_ordinances(
+                method=self._find_documents_using_search_engine,
             )
-            doc = await self._parse_docs_for_ordinances(docs)
-        else:
-            doc = None
+            if doc is not None:
+                return doc
 
-        if doc is not None or not self.perform_website_search:
-            return doc
+        if self.perform_website_search:
+            doc = await self._try_find_ordinances(
+                method=self._find_documents_from_website,
+            )
+            if doc is not None:
+                return doc
 
-        docs = await self._find_documents_from_website()
-        if not docs:
+        return None
+
+    async def _try_find_ordinances(self, method, *args, **kwargs):
+        """Try to find ordinances using specified method"""
+        docs = await method(*args, **kwargs)
+        if docs is None:
             return None
 
         COMPASS_PB.update_jurisdiction_task(
