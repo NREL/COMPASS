@@ -101,7 +101,7 @@ UNIT_CLARIFICATIONS = {
     ),
     "permitting fees": (
         "For the purposes of this extraction, assume the standard units "
-        "for permitting fees are '$'."
+        "for permitting fees are USD or USD per system size."
     ),
 }
 ER_CLARIFICATIONS = {
