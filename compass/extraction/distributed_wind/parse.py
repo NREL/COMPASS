@@ -72,6 +72,7 @@ EXTRA_NUMERICAL_RESTRICTIONS = {
     "minimum lot size": "**minimum** lot, parcel, or tract size allowed",
     "maximum lot size": "**maximum** lot, parcel, or tract size allowed",
     "shadow flicker": "maximum shadow flicker allowed",
+    "tower density": "**minimum** allowed spacing between individual turbines",
     "blade clearance": "minimum blade clearance allowed",
     "permitting fees": "permitting fees",
 }
@@ -93,6 +94,12 @@ UNIT_CLARIFICATIONS = {
         "For the purposes of this extraction, assume the standard units "
         "for shadow flicker are 'hr/year'."
     ),
+    "tower density": (
+        "For the purposes of this extraction, assume the standard units "
+        "for spacing between individual turbines are one of the following: "
+        "'tip-height-multiplier', 'hub-height-multiplier', "
+        "'rotor-diameter-multiplier', 'feet', or 'meters'."
+    ),
     "minimum lot size": (
         "Minimum lot size should **always** be specified as an area value."
     ),
@@ -108,6 +115,11 @@ ER_CLARIFICATIONS = {
     "shadow flicker": (
         "If the text prohibits shadow, treat this as a max value of 0 "
         "hours per year."
+    ),
+    "tower density": (
+        "Do **not** try to infer the spacing requirement based on other "
+        "restrictions such as setbacks from facility perimeters, property "
+        "lines, etc."
     ),
     "maximum turbine height": (
         "Maximum turbine height should be given in total feet or meters "
