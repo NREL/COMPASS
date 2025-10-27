@@ -21,7 +21,7 @@ from compass.common import (
     setup_graph_extra_restriction,
     setup_graph_permitted_use_districts,
 )
-from compass.extraction.distributed_wind.graphs import (
+from compass.extraction.accessory_wind.graphs import (
     setup_graph_wes_types,
     setup_multiplier,
     setup_conditional_min,

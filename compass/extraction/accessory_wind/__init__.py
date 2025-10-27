@@ -23,7 +23,7 @@ ACCESSORY_WIND_QUESTION_TEMPLATES = [
     "ordinances for accessory wind turbines in {jurisdiction}?",
 ]
 
-BEST_DISTRIBUTED_WIND_ORDINANCE_WEBSITE_URL_KEYWORDS = {
+BEST_ACCESSORY_WIND_ORDINANCE_WEBSITE_URL_KEYWORDS = {
     "pdf": 92160,
     "wecs": 46080,
     "wind": 23040,
