@@ -1,6 +1,7 @@
 """COMPASS Ordinance Threaded services"""
 
 import json
+import uuid
 import shutil
 import asyncio
 import hashlib
@@ -29,6 +30,13 @@ logger = logging.getLogger(__name__)
 
 def _cache_file_with_hash(doc, file_content, out_dir, make_name_unique=False):
     """Cache file and compute its hash"""
+    if "source" not in doc.attrs:
+        doc.attrs["source"] = (
+            str(doc.attrs["source_fp"])
+            if "source_fp" in doc.attrs
+            else str(uuid.uuid4())
+        )
+
     cache_fp = write_url_doc_to_file(
         doc=doc,
         file_content=file_content,
