@@ -280,7 +280,7 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
         mappings. By default, ``None``.
     file_loader_kwargs : dict, optional
         Dictionary of keyword arguments pairs to initialize
-        :class:`elm.web.file_loader.AsyncFileLoader`. If found, the
+        :class:`elm.web.file_loader.AsyncWebFileLoader`. If found, the
         "pw_launch_kwargs" key in these will also be used to initialize
         the :class:`elm.web.search.google.PlaywrightGoogleLinkSearch`
         used for the google URL search. By default, ``None``.
@@ -510,7 +510,7 @@ class _COMPASSRunner:
 
     @cached_property
     def file_loader_kwargs(self):
-        """dict: Keyword arguments for `AsyncFileLoader`"""
+        """dict: Keyword arguments for `AsyncWebFileLoader`"""
         file_loader_kwargs = _configure_file_loader_kwargs(
             self.process_kwargs.file_loader_kwargs
         )
@@ -762,7 +762,7 @@ class _SingleJurisdictionRunner:
 
     @cached_property
     def file_loader_kwargs_no_ocr(self):
-        """dict: Keyword arguments for `AsyncFileLoader` with no OCR"""
+        """dict: Keyword arguments for `AsyncWebFileLoader` (no OCR)"""
         flk = deepcopy(self.file_loader_kwargs)
         flk.pop("pdf_ocr_read_coroutine", None)
         return flk

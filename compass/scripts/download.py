@@ -50,7 +50,7 @@ async def download_known_urls(
         are applied. By default, ``None``.
     file_loader_kwargs : dict, optional
         Dictionary of keyword arguments pairs to initialize
-        :class:`elm.web.file_loader.AsyncFileLoader`.
+        :class:`elm.web.file_loader.AsyncWebFileLoader`.
         By default, ``None``.
 
     Returns
@@ -116,7 +116,7 @@ async def find_jurisdiction_website(
         for all tasks.
     file_loader_kwargs : dict, optional
         Dictionary of keyword arguments pairs to initialize
-        :class:`elm.web.file_loader.AsyncFileLoader`. If found, the
+        :class:`elm.web.file_loader.AsyncWebFileLoader`. If found, the
         "pw_launch_kwargs" key in these will also be used to initialize
         the :class:`elm.web.search.google.PlaywrightGoogleLinkSearch`
         used for the Google URL search. By default, ``None``.
@@ -202,7 +202,7 @@ async def download_jurisdiction_ordinances_from_website(
         the points are summed up.
     file_loader_kwargs : dict, optional
         Dictionary of keyword arguments pairs to initialize
-        :class:`elm.web.file_loader.AsyncFileLoader`. If found, the
+        :class:`elm.web.file_loader.AsyncWebFileLoader`. If found, the
         "pw_launch_kwargs" key in these will also be used to initialize
         the :class:`elm.web.search.google.PlaywrightGoogleLinkSearch`
         used for the Google URL search. By default, ``None``.
@@ -327,7 +327,7 @@ async def download_jurisdiction_ordinances_from_website_compass_crawl(
         the points are summed up.
     file_loader_kwargs : dict, optional
         Dictionary of keyword arguments pairs to initialize
-        :class:`elm.web.file_loader.AsyncFileLoader`. If found, the
+        :class:`elm.web.file_loader.AsyncWebFileLoader`. If found, the
         "pw_launch_kwargs" key in these will also be used to initialize
         the :class:`elm.web.search.google.PlaywrightGoogleLinkSearch`
         used for the Google URL search. By default, ``None``.
@@ -426,9 +426,10 @@ async def download_jurisdiction_ordinance_using_search_engine(
         ordinance document. By default, ``5``.
     file_loader_kwargs : dict, optional
         Dictionary of keyword-argument pairs to initialize
-        :class:`elm.web.file_loader.AsyncFileLoader` with. If found, the
-        "pw_launch_kwargs" key in these will also be used to initialize
-        the :class:`elm.web.search.google.PlaywrightGoogleLinkSearch`
+        :class:`elm.web.file_loader.AsyncWebFileLoader` with. If found,
+        the "pw_launch_kwargs" key in these will also be used to
+        initialize the
+        :class:`elm.web.search.google.PlaywrightGoogleLinkSearch`
         used for the google URL search. By default, ``None``.
     search_semaphore : :class:`asyncio.Semaphore`, optional
         Semaphore instance that can be used to limit the number of
