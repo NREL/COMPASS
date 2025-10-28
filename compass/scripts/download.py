@@ -113,7 +113,7 @@ async def load_known_docs(jurisdiction, fps, local_file_loader_kwargs=None):
     -------
     out_docs : list
         List of :obj:`~elm.web.document.BaseDocument` instances
-        containing documents from the URL's, or an empty list if
+        containing documents from the paths, or an empty list if
         something went wrong during the retrieval process.
 
     Notes
