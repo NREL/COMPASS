@@ -286,38 +286,45 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
         all websites on the NREL domain, and the specific file located
         at `www.co.delaware.in.us/documents/1649699794_0382.pdf`.
         By default, ``None``.
-    known_local_docs : dict or str, optional
+    known_local_docs : dict or path-like, optional
         A dictionary where keys are the jurisdiction codes (as strings)
         and values are lists of dictionaries containing information
         about each document. The latter dictionaries should contain at
-        least the key "source_fp" pointing to the **full** path of the
-        local document file. All other keys will be added as attributes
-        to the loaded document instance. You can include the key
-        "is_legal_doc" to skip the legal document check for known
-        documents. Similarly, you can provide the "date" key, which is a
-        list of [year, month, day], some or all of which can be null,
-        to skip the date extraction step of the processing pipeline. If
-        this input is provided, local documents will be checked first.
-        See the top-level documentation of this function for the full
-        processing of the pipeline. This input can also be a path to a
-        JSON file containing the dictionary of code-to-doc_info
-          mappings. By default, ``None``.
-    known_doc_urls : dict or str, optional
+        least the key ``"source_fp"`` pointing to the **full** path of
+        the local document file. All other keys will be added as
+        attributes to the loaded document instance. You can include the
+        key ``"is_legal_doc"`` to skip the legal document check for
+        known documents. Similarly, you can provide the ``"date"`` key,
+        which is a list of ``[year, month, day]``, some or all of which
+        can be null, to skip the date extraction step of the processing
+        pipeline. If this input is provided, local documents will be
+        checked first. See the top-level documentation of this function
+        for the full processing of the pipeline. This input can also be
+        a path to a JSON file containing the dictionary of
+        code-to-document-info mappings. By default, ``None``.
+    known_doc_urls : dict or path-like, optional
         A dictionary where keys are the jurisdiction codes (as strings)
         and values are lists of dictionaries containing information
         about each document. The latter dictionaries should contain at
-        least the key "source" representing the known URL to check for
-        that document. All other keys will be added as attributes
+        least the key ``"source"`` representing the known URL to check
+        for that document. All other keys will be added as attributes
         to the loaded document instance. You can include the key
-        "is_legal_doc" to skip the legal document check for known
-        documents. Similarly, you can provide the "date" key, which is a
-        list of [year, month, day], some or all of which can be null,
-        to skip the date extraction step of the processing pipeline. If
-        this input is provided, the known URLs will be checked before
-        the applying the search engine search. See the top-level
-        documentation of this function for the full processing order of
-        the pipeline. This input can also be a path to a JSON file
-        containing the dictionary of code-to-doc_info mappings.
+        ``"is_legal_doc"`` to skip the legal document check for known
+        documents. Similarly, you can provide the ``"date"`` key, which
+        is a list of ``[year, month, day]``, some or all of which can
+        be null, to skip the date extraction step of the processing
+        pipeline. If this input is provided, the known URLs will be
+        checked before applying the search engine search. See the
+        top-level documentation of this function for the full processing
+        order of the pipeline. This input can also be a path to a JSON
+        file containing the dictionary of code-to-document-info
+        mappings.
+
+        .. Note:: The same input can be used for both `known_local_docs`
+                  and `known_doc_urls` as long as both ``"source_fp"``
+                  and ``"source"`` keys are provided in each document
+                  info dictionary.
+
         By default, ``None``.
     file_loader_kwargs : dict, optional
         Dictionary of keyword arguments pairs to initialize
