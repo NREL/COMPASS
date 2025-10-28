@@ -25,6 +25,7 @@ from compass.validation.location import (
 )
 from compass.web.website_crawl import COMPASSCrawler, COMPASSLinkScorer
 from compass.utilities.enums import LLMTasks
+from compass.utilities.io import load_local_docs
 from compass.pb import COMPASS_PB
 
 
@@ -88,6 +89,61 @@ async def download_known_urls(
             )
             err_type = type(e)
             logger.exception(msg, err_type, urls)
+            out_docs = []
+
+    return out_docs
+
+
+async def load_known_docs(jurisdiction, fps, local_file_loader_kwargs=None):
+    """Load documents from known local paths
+
+    Parameters
+    ----------
+    jurisdiction : Jurisdiction
+        Jurisdiction instance representing the jurisdiction
+        corresponding to the documents.
+    fps : iterable of path-like
+        Collection of paths to load documents from.
+    local_file_loader_kwargs : dict, optional
+        Dictionary of keyword arguments pairs to initialize
+        :class:`elm.web.file_loader.AsyncLocalFileLoader`.
+        By default, ``None``.
+
+    Returns
+    -------
+    out_docs : list
+        List of :obj:`~elm.web.document.BaseDocument` instances
+        containing documents from the URL's, or an empty list if
+        something went wrong during the retrieval process.
+
+    Notes
+    -----
+    Requires :class:`~compass.services.threaded.TempFileCachePB`
+    service to be running.
+    """
+
+    COMPASS_PB.update_jurisdiction_task(
+        jurisdiction.full_name, description="Loading known document(s)..."
+    )
+
+    local_file_loader_kwargs = local_file_loader_kwargs or {}
+    local_file_loader_kwargs.update(
+        {"file_cache_coroutine": TempFileCachePB.call}
+    )
+    async with COMPASS_PB.file_download_prog_bar(
+        jurisdiction.full_name, len(fps)
+    ):
+        try:
+            out_docs = await load_local_docs(fps, **local_file_loader_kwargs)
+        except KeyboardInterrupt:
+            raise
+        except Exception as e:
+            msg = (
+                "Encountered error of type %r while loading known documents: "
+                "%r"
+            )
+            err_type = type(e)
+            logger.exception(msg, err_type, fps)
             out_docs = []
 
     return out_docs
