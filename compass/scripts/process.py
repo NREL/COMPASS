@@ -4,7 +4,6 @@ import time
 import asyncio
 import logging
 from copy import deepcopy
-from pathlib import Path
 from functools import cached_property
 from contextlib import AsyncExitStack, contextmanager
 from datetime import datetime, UTC
@@ -298,18 +297,26 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
         documents. Similarly, you can provide the "effective_year" key
         to skip the date extraction step of the processing pipeline. If
         this input is provided, local documents will be checked first.
-        See the top-level documentation of this function for the
-        processing order for the rest of the pipeline. This input can
-        also be a path to a JSON file containing the dictionary of
-        code-to-doc_info mappings. By default, ``None``.
+        See the top-level documentation of this function for the full
+        processing of the pipeline. This input can also be a path to a
+        JSON file containing the dictionary of code-to-doc_info
+          mappings. By default, ``None``.
     known_doc_urls : dict or str, optional
         A dictionary where keys are the jurisdiction codes (as strings)
-        and values are a string or list of strings representing known
-        URL's to check for those jurisdictions. If provided, these URL's
-        will be checked first and if an ordinance document is found, no
-        further scraping will be performed. This input can also be a
-        path to a JSON file containing the dictionary of code-to-url
-        mappings. By default, ``None``.
+        and values are lists of dictionaries containing information
+        about each document. The latter dictionaries should contain at
+        least the key "source" representing the known URL to check for
+        that document. All other keys will be added as attributes
+        to the loaded document instance. You can include the key
+        "is_legal_doc" to skip the legal document check for known
+        documents. Similarly, you can provide the "effective_year" key
+        to skip the date extraction step of the processing pipeline. If
+        this input is provided, the known URLs will be checked before
+        the applying the search engine search. See the top-level
+        documentation of this function for the full processing order of
+        the pipeline. This input can also be a path to a JSON file
+        containing the dictionary of code-to-doc_info mappings.
+        By default, ``None``.
     file_loader_kwargs : dict, optional
         Dictionary of keyword arguments pairs to initialize
         :class:`elm.web.file_loader.AsyncWebFileLoader`. If found, the
@@ -917,7 +924,9 @@ class _SingleJurisdictionRunner:
         if not docs:
             return None
 
-        _add_known_doc_attrs_to_all_docs(docs, self.known_local_docs)
+        _add_known_doc_attrs_to_all_docs(
+            docs, self.known_local_docs, key="source_fp"
+        )
         docs = await filter_ordinance_docs(
             docs,
             self.jurisdiction,
@@ -948,12 +957,9 @@ class _SingleJurisdictionRunner:
     async def _download_known_url_documents(self):
         """Download ordinance documents from known URLs"""
 
-        if isinstance(self.known_doc_urls, str):
-            self.known_doc_urls = [self.known_doc_urls]
-
         docs = await download_known_urls(
             self.jurisdiction,
-            self.known_doc_urls,
+            [info["source"] for info in self.known_doc_urls],
             browser_semaphore=self.browser_semaphore,
             file_loader_kwargs=self.file_loader_kwargs,
         )
@@ -961,6 +967,9 @@ class _SingleJurisdictionRunner:
         if not docs:
             return None
 
+        _add_known_doc_attrs_to_all_docs(
+            docs, self.known_doc_urls, key="source"
+        )
         docs = await filter_ordinance_docs(
             docs,
             self.jurisdiction,
@@ -1552,19 +1561,19 @@ def _compute_total_cost_from_usage(tracked_usage):
     return total_cost
 
 
-def _add_known_doc_attrs_to_all_docs(docs, known_local_docs):
+def _add_known_doc_attrs_to_all_docs(docs, doc_infos, key):
     """Add user-defined doc attributes to all loaded docs"""
     for doc in docs:
-        source_fp = doc.attrs.get("source_fp")
+        source_fp = doc.attrs.get(key)
         if not source_fp:
             continue
 
-        _add_known_doc_attrs(doc, source_fp, known_local_docs)
+        _add_known_doc_attrs(doc, source_fp, doc_infos, key)
 
 
-def _add_known_doc_attrs(doc, source_fp, known_local_docs):
+def _add_known_doc_attrs(doc, source_fp, doc_infos, key):
     """Add user-defined doc attributes to a loaded doc"""
-    for info in known_local_docs:
-        if Path(info["source_fp"]) == Path(source_fp):
+    for info in doc_infos:
+        if str(info[key]) == str(source_fp):
             doc.attrs.update(info)
             return
