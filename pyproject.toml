@@ -147,6 +147,7 @@ poppler = ">=24.8.0,<25"
 rust = ">=1.89.0,<1.90"
 cxx-compiler = ">=1.9.0,<2"
 graphviz = ">=12.2.1,<13"
+python = ">=3.12,<3.14"
 
 [tool.pixi.feature.python-default.dependencies]
 aiohttp = ">=3.11.6,<4"
