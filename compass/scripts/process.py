@@ -4,6 +4,7 @@ import time
 import asyncio
 import logging
 from copy import deepcopy
+from pathlib import Path
 from functools import cached_property
 from contextlib import AsyncExitStack, contextmanager
 from datetime import datetime, UTC
@@ -15,6 +16,7 @@ from compass import __version__
 from compass.scripts.download import (
     find_jurisdiction_website,
     download_known_urls,
+    load_known_docs,
     download_jurisdiction_ordinance_using_search_engine,
     download_jurisdiction_ordinances_from_website,
     download_jurisdiction_ordinances_from_website_compass_crawl,
@@ -65,6 +67,8 @@ from compass.services.cpu import (
     OCRPDFLoader,
     read_pdf_doc,
     read_pdf_doc_ocr,
+    read_pdf_file,
+    read_pdf_file_ocr,
 )
 from compass.services.usage import UsageTracker
 from compass.services.openai import usage_from_response
@@ -77,6 +81,7 @@ from compass.services.threaded import (
     OrdDBFileWriter,
     UsageUpdater,
     JurisdictionUpdater,
+    HTMLFileLoader,
 )
 from compass.utilities import (
     LLM_COST_REGISTRY,
@@ -152,6 +157,7 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
     max_num_concurrent_website_searches=10,
     max_num_concurrent_jurisdictions=25,
     url_ignore_substrings=None,
+    known_local_docs=None,
     known_doc_urls=None,
     file_loader_kwargs=None,
     search_engines=None,
@@ -281,6 +287,21 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
         all websites on the NREL domain, and the specific file located
         at `www.co.delaware.in.us/documents/1649699794_0382.pdf`.
         By default, ``None``.
+    known_local_docs : dict or str, optional
+        A dictionary where keys are the jurisdiction codes (as strings)
+        and values are lists of dictionaries containing information
+        about each document. The latter dictionaries should contain at
+        least the key "source_fp" pointing to the **full** path of the
+        local document file. All other keys will be added as attributes
+        to the loaded document instance. You can include the key
+        "is_legal_doc" to skip the legal document check for known
+        documents. Similarly, you can provide the "effective_year" key
+        to skip the date extraction step of the processing pipeline. If
+        this input is provided, local documents will be checked first.
+        See the top-level documentation of this function for the
+        processing order for the rest of the pipeline. This input can
+        also be a path to a JSON file containing the dictionary of
+        code-to-doc_info mappings. By default, ``None``.
     known_doc_urls : dict or str, optional
         A dictionary where keys are the jurisdiction codes (as strings)
         and values are a string or list of strings representing known
@@ -417,6 +438,7 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
         jdd=jurisdiction_dbs_dir,
     )
     pk = ProcessKwargs(
+        known_local_docs,
         known_doc_urls,
         file_loader_kwargs,
         td_kwargs,
@@ -533,6 +555,34 @@ class _COMPASSRunner:
         return file_loader_kwargs
 
     @cached_property
+    def local_file_loader_kwargs(self):
+        """dict: Keyword arguments for `AsyncLocalFileLoader`"""
+        file_loader_kwargs = {
+            "pdf_read_coroutine": read_pdf_file,
+            "pdf_read_kwargs": (
+                self.process_kwargs.file_loader_kwargs.get("pdf_read_kwargs")
+            ),
+            "html_read_kwargs": (
+                self.process_kwargs.file_loader_kwargs.get("html_read_kwargs")
+            ),
+        }
+
+        if self.web_search_params.pytesseract_exe_fp is not None:
+            _setup_pytesseract(self.web_search_params.pytesseract_exe_fp)
+            file_loader_kwargs.update(
+                {"pdf_ocr_read_coroutine": read_pdf_file_ocr}
+            )
+        return file_loader_kwargs
+
+    @cached_property
+    def known_local_docs(self):
+        """dict: Known filepaths by jurisdiction code"""
+        known_local_docs = self.process_kwargs.known_local_docs or {}
+        if isinstance(known_local_docs, str):
+            known_local_docs = load_config(known_local_docs)
+        return {int(key): val for key, val in known_local_docs.items()}
+
+    @cached_property
     def known_doc_urls(self):
         """dict: Known URL's keyed by jurisdiction code"""
         known_doc_urls = self.process_kwargs.known_doc_urls or {}
@@ -572,6 +622,7 @@ class _COMPASSRunner:
                 tpe_kwargs=self.tpe_kwargs,
             ),
             PDFLoader(**(self.process_kwargs.ppe_kwargs or {})),
+            HTMLFileLoader(**self.tpe_kwargs),
         ]
 
         if self.web_search_params.pytesseract_exe_fp is not None:
@@ -637,6 +688,7 @@ class _COMPASSRunner:
         services = [model.llm_service for model in set(self.models.values())]
         services += self._base_services
         _ = self.file_loader_kwargs  # init loader kwargs once
+        _ = self.local_file_loader_kwargs  # init local loader kwargs once
         logger.info("Processing %d jurisdiction(s)", len(jurisdictions))
         async with RunningAsyncServices(services):
             tasks = []
@@ -656,6 +708,7 @@ class _COMPASSRunner:
                     self._processed_jurisdiction_info_with_pb(
                         jurisdiction,
                         website,
+                        self.known_local_docs.get(fips),
                         self.known_doc_urls.get(fips),
                         usage_tracker=usage_tracker,
                     ),
@@ -694,6 +747,7 @@ class _COMPASSRunner:
         self,
         jurisdiction,
         jurisdiction_website,
+        known_local_docs=None,
         known_doc_urls=None,
         usage_tracker=None,
     ):
@@ -711,6 +765,8 @@ class _COMPASSRunner:
                     self.models,
                     self.web_search_params,
                     self.file_loader_kwargs,
+                    local_file_loader_kwargs=self.local_file_loader_kwargs,
+                    known_local_docs=known_local_docs,
                     known_doc_urls=known_doc_urls,
                     browser_semaphore=self.browser_semaphore,
                     crawl_semaphore=self.crawl_semaphore,
@@ -746,6 +802,8 @@ class _SingleJurisdictionRunner:
         web_search_params,
         file_loader_kwargs,
         *,
+        local_file_loader_kwargs=None,
+        known_local_docs=None,
         known_doc_urls=None,
         browser_semaphore=None,
         crawl_semaphore=None,
@@ -760,6 +818,8 @@ class _SingleJurisdictionRunner:
         self.models = models
         self.web_search_params = web_search_params
         self.file_loader_kwargs = file_loader_kwargs
+        self.local_file_loader_kwargs = local_file_loader_kwargs
+        self.known_local_docs = known_local_docs
         self.known_doc_urls = known_doc_urls
         self.browser_semaphore = browser_semaphore
         self.crawl_semaphore = crawl_semaphore
@@ -803,6 +863,13 @@ class _SingleJurisdictionRunner:
 
     async def _run(self):
         """Search for docs and parse them for ordinances"""
+        if self.known_local_docs:
+            doc = await self._try_find_ordinances(
+                method=self._load_known_local_documents,
+            )
+            if doc is not None:
+                return doc
+
         if self.known_doc_urls:
             doc = await self._try_find_ordinances(
                 method=self._download_known_url_documents,
@@ -837,6 +904,46 @@ class _SingleJurisdictionRunner:
             description="Extracting structured data...",
         )
         return await self._parse_docs_for_ordinances(docs)
+
+    async def _load_known_local_documents(self):
+        """Load local ordinance documents"""
+
+        docs = await load_known_docs(
+            self.jurisdiction,
+            [info["source_fp"] for info in self.known_local_docs],
+            local_file_loader_kwargs=self.local_file_loader_kwargs,
+        )
+
+        if not docs:
+            return None
+
+        _add_known_doc_attrs_to_all_docs(docs, self.known_local_docs)
+        docs = await filter_ordinance_docs(
+            docs,
+            self.jurisdiction,
+            self.models,
+            heuristic=self.tech_specs.heuristic,
+            tech=self.tech_specs.name,
+            ordinance_text_collector_class=(
+                self.tech_specs.ordinance_text_collector
+            ),
+            permitted_use_text_collector_class=(
+                self.tech_specs.permitted_use_text_collector
+            ),
+            usage_tracker=self.usage_tracker,
+            check_for_correct_jurisdiction=False,
+        )
+        if not docs:
+            return None
+
+        for doc in docs:
+            doc.attrs["jurisdiction"] = self.jurisdiction
+            doc.attrs["jurisdiction_name"] = self.jurisdiction.full_name
+            doc.attrs["jurisdiction_website"] = None
+            doc.attrs["compass_crawl"] = False
+
+        await self._record_usage()
+        return docs
 
     async def _download_known_url_documents(self):
         """Download ordinance documents from known URLs"""
@@ -1443,3 +1550,21 @@ def _compute_total_cost_from_usage(tracked_usage):
             )
 
     return total_cost
+
+
+def _add_known_doc_attrs_to_all_docs(docs, known_local_docs):
+    """Add user-defined doc attributes to all loaded docs"""
+    for doc in docs:
+        source_fp = doc.attrs.get("source_fp")
+        if not source_fp:
+            continue
+
+        _add_known_doc_attrs(doc, source_fp, known_local_docs)
+
+
+def _add_known_doc_attrs(doc, source_fp, known_local_docs):
+    """Add user-defined doc attributes to a loaded doc"""
+    for info in known_local_docs:
+        if Path(info["source_fp"]) == Path(source_fp):
+            doc.attrs.update(info)
+            return
