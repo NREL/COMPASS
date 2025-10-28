@@ -146,6 +146,15 @@ async def extract_date(doc, model_config, usage_tracker=None):
         the attrs will contain a ``"date"`` key that will contain the
         parsed date information.
     """
+    if "date" in doc.attrs:
+        logger.debug(
+            "Not extracting date for doc from %s. "
+            "Found existing date in doc attrs: %r",
+            doc.attrs.get("source"),
+            doc.attrs["date"],
+        )
+        return doc
+
     date_llm_caller = StructuredLLMCaller(
         llm_service=model_config.llm_service,
         usage_tracker=usage_tracker,
