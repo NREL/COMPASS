@@ -189,7 +189,7 @@ def setup_base_setback_graph(**kwargs):
             "{feature_clarifications}"  # expected to end in space
             "Please consider only setbacks from {feature}. "
             "Please also only consider setbacks that would apply for "
-            "{system_size_reminder}"
+            "{system_size_reminder}"  # expected to end in space
             "Don't forget to pay extra attention to clarifying text found "
             "in parentheses and footnotes. "
             "Please start your response with either 'Yes' or 'No' and briefly "
