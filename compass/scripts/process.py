@@ -134,6 +134,12 @@ _TEXT_EXTRACTION_TASKS = {
     SolarPermittedUseDistrictsTextExtractor: (
         "Extracting solar permitted use text"
     ),
+    AccessoryWindOrdinanceTextExtractor: (
+        "Extracting small wind ordinance text"
+    ),
+    AccessoryWindPermittedUseDistrictsTextExtractor: (
+        "Extracting small wind permitted use text"
+    ),
 }
 _JUR_COLS = [
     "Jurisdiction Type",
