@@ -35,15 +35,17 @@ from compass.pb import COMPASS_PB
 logger = logging.getLogger(__name__)
 DEFAULT_SYSTEM_MESSAGE = (
     "You are a legal scholar informing a private resident about local "
-    "zoning ordinances for accessory wind energy systems. "
+    "zoning ordinances for small. medium, or non-commercial wind energy "
+    "systems. "
 )
 SYSTEM_SIZE_REMINDER = (
     "systems that would typically be defined as {tech} based on the text "
     "itself — for example, systems intended for onsite electricity "
     "generation or sale, systems that are a secondary or accessory use on "
-    "a parsel, or systems below defined thresholds such as height or rated "
+    "a parcel, or systems below defined thresholds such as height or rated "
     "capacity (often <1MW). Do not consider any text that applies **only** "
-    "to larger, utility, or commercial systems. "
+    "to private, micro, or building mounted systems, or larger, utility, or "
+    "commercial systems. "
 )
 SETBACKS_SYSTEM_MESSAGE = (
     f"{DEFAULT_SYSTEM_MESSAGE} "
