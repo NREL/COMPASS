@@ -8,7 +8,7 @@ from compass.common import (
 
 
 def setup_graph_wes_types(**kwargs):
-    """Setup graph to get the accessory turbine size in the text
+    """Setup graph to get the small turbine size in the text
 
     Parameters
     ----------
@@ -49,9 +49,9 @@ def setup_graph_wes_types(**kwargs):
             "include generic types or other energy system types."
         ),
     )
-    G.add_edge("get_text", "get_accessory")
+    G.add_edge("get_text", "get_small_label")
     G.add_node(
-        "get_accessory",
+        "get_small_label",
         prompt=(
             "Based on your list, what is the wind energy system size that is "
             "**closest to the definition of small, medium, or non-commercial "
@@ -60,7 +60,7 @@ def setup_graph_wes_types(**kwargs):
         ),
     )
 
-    G.add_edge("get_accessory", "check_matches_definition")
+    G.add_edge("get_small_label", "check_matches_definition")
     G.add_node(
         "check_matches_definition",
         prompt=(

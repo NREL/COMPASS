@@ -1,4 +1,4 @@
-"""Accessory wind ordinance structured parsing class"""
+"""Small wind ordinance structured parsing class"""
 
 import asyncio
 import logging
@@ -135,8 +135,8 @@ _FEATURE_TO_OWNED_TYPE = {
 }
 
 
-class AccessoryWindSetbackFeatures(SetbackFeatures):
-    """Mutually-exclusive feature descriptions for accessory wind"""
+class SmallWindSetbackFeatures(SetbackFeatures):
+    """Mutually-exclusive feature descriptions for small wind systems"""
 
     DEFAULT_FEATURE_DESCRIPTIONS = {
         "structures": [
@@ -203,7 +203,7 @@ class AccessoryWindSetbackFeatures(SetbackFeatures):
     """Clarifications to add to feature prompts"""
 
 
-class StructuredAccessoryWindParser(BaseLLMCaller):
+class StructuredSmallWindParser(BaseLLMCaller):
     """Base class for parsing structured data"""
 
     def _init_chat_llm_caller(self, system_message):
@@ -216,7 +216,7 @@ class StructuredAccessoryWindParser(BaseLLMCaller):
         )
 
     async def _check_wind_turbine_type(self, text):
-        """Get the accessory turbine size mentioned in the text"""
+        """Get the small turbine size mentioned in the text"""
         logger.info("Checking turbine types...")
         tree = setup_async_decision_tree(
             setup_graph_wes_types,
@@ -225,23 +225,23 @@ class StructuredAccessoryWindParser(BaseLLMCaller):
         )
         decision_tree_wes_types_out = await run_async_tree(tree)
 
-        accessory_system = (
+        small_wind_system = (
             decision_tree_wes_types_out.get("wes_type")
             or "**small, medium, or non-commercial** wind energy systems"
         )
         if not decision_tree_wes_types_out.get("is_small", True):
             logger.info(
-                "Did not find accessory systems in text. Closest "
+                "Did not find small wind systems in text. Closest "
                 "system found: %r",
-                accessory_system,
+                small_wind_system,
             )
             return None
 
-        logger.info("Accessory WES type found in text: %r", accessory_system)
-        return accessory_system
+        logger.info("Small WES type found in text: %r", small_wind_system)
+        return small_wind_system
 
 
-class StructuredAccessoryWindOrdinanceParser(StructuredAccessoryWindParser):
+class StructuredSmallWindOrdinanceParser(StructuredSmallWindParser):
     """LLM ordinance document structured data scraping utility
 
     Purpose:
@@ -271,7 +271,7 @@ class StructuredAccessoryWindOrdinanceParser(StructuredAccessoryWindParser):
         -------
         pandas.DataFrame or None
             DataFrame containing parsed-out ordinance values. Can also
-            be ``None`` if an accessory wind energy system is not found
+            be ``None`` if a small wind energy system is not found
             in the text.
         """
         wes_type = await self._check_wind_turbine_type(text)
@@ -280,7 +280,7 @@ class StructuredAccessoryWindOrdinanceParser(StructuredAccessoryWindParser):
 
         outer_task_name = asyncio.current_task().get_name()
         num_to_process = (
-            len(AccessoryWindSetbackFeatures.DEFAULT_FEATURE_DESCRIPTIONS)
+            len(SmallWindSetbackFeatures.DEFAULT_FEATURE_DESCRIPTIONS)
             + len(EXTRA_NUMERICAL_RESTRICTIONS)
             + len(EXTRA_QUALITATIVE_RESTRICTIONS)
         )
@@ -310,7 +310,7 @@ class StructuredAccessoryWindOrdinanceParser(StructuredAccessoryWindParser):
                 ),
                 name=outer_task_name,
             )
-            for feature_kwargs in AccessoryWindSetbackFeatures()
+            for feature_kwargs in SmallWindSetbackFeatures()
         ]
         extras_parsers = [
             asyncio.create_task(
@@ -549,8 +549,8 @@ class StructuredAccessoryWindOrdinanceParser(StructuredAccessoryWindParser):
         return await run_async_tree(tree)
 
 
-class StructuredAccessoryWindPermittedUseDistrictsParser(
-    StructuredAccessoryWindParser
+class StructuredSmallWindPermittedUseDistrictsParser(
+    StructuredSmallWindParser
 ):
     """LLM permitted use districts scraping utility
 
@@ -566,17 +566,12 @@ class StructuredAccessoryWindPermittedUseDistrictsParser(
         individual values.
     """
 
-    _ACCESSORY_WES_CLARIFICATION = (
-        "Accessory wind energy systems (AWES) may also be referred to as "
-        "wind turbines, wind energy conversion systems (WECS), wind energy "
-        "turbines (WET), small wind energy turbines (SWET), private wind "
-        "energy turbines (PWET), on-site wind energy systems, distributed "
-        "wind energy systems (DWES), medium wind energy systems (MWES), "
+    _SMALL_WES_CLARIFICATION = (
+        "Small wind energy systems (AWES) may also be referred to as "
+        "non-commercial wind energy systems, on-site wind energy systems, "
+        "distributed wind energy systems, medium wind energy systems (MWES), "
         "agricultural wind energy systems (AWES), residential wind energy "
-        "systems (RWES), personal wind energy systems (PWES), private wind "
-        "turbines (PWT), micro turbines, small wind turbines (SWT), "
-        "accessory wind energy conversion systems (AWECS), alternate energy "
-        "systems (AES), or similar"
+        "systems, small wind turbines (SWT), or similar"
     )
     _USE_TYPES = [
         {
@@ -618,8 +613,8 @@ class StructuredAccessoryWindPermittedUseDistrictsParser(
         -------
         pandas.DataFrame or None
             DataFrame containing parsed-out allowed-use district names.
-            Can also be ``None`` if an accessory wind energy system is
-            not found in the text.
+            Can also be ``None`` if a small wind energy system is not
+            found in the text.
         """
         wes_type = await self._check_wind_turbine_type(text)
         if not wes_type:
@@ -671,7 +666,7 @@ class StructuredAccessoryWindPermittedUseDistrictsParser(
             feature_id=feature_id,
             tech=wes_type,
             clarifications=clarifications.format(
-                wes_clarification=self._ACCESSORY_WES_CLARIFICATION
+                wes_clarification=self._SMALL_WES_CLARIFICATION
             ),
             text=text,
             use_type=use_type,
