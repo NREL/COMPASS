@@ -24,11 +24,13 @@ _SECTION_PROMPT = (
     "and `null` otherwise."
 )
 _SUMMARY_PROMPT = (
-    "The value of the 'summary' key should be a short summary "
-    "of the ordinance, using direct text excerpts as much as possible."
+    "The value of the 'summary' key should be a short summary of the relevant "
+    "ordinance, **using direct text excerpts as much as possible.** "
+    "If you had to make a selection when reporting the ordinance, be sure to "
+    "list out all the other options and their conditions in the summary."
 )
 _UNITS_IN_SUMMARY_PROMPT = (
-    "Include any clarifications about the units in the summary."
+    "Also include any clarifications about the units in the summary."
 )
 EXTRACT_ORIGINAL_SETBACK_TEXT_PROMPT = (
     "Extract all portions of the text (with original formatting) "
