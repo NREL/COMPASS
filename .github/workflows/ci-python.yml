@@ -52,7 +52,7 @@ jobs:
         pixi-version: v0.59.0
         locked: true
         cache: true
-        cache-write: ${{ github.ref == 'refs/heads/main' }}
+        cache-write: false
         environments: pdev
 
     - run: |
@@ -108,7 +108,7 @@ jobs:
         pixi-version: v0.59.0
         locked: true
         cache: true
-        cache-write: ${{ github.ref == 'refs/heads/main' }}
+        cache-write: false
         environments: pdev
 
     - run: |
