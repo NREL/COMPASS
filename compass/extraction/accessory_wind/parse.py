@@ -216,9 +216,9 @@ class StructuredAccessoryWindParser(BaseLLMCaller):
 
         accessory_system = (
             decision_tree_wes_types_out.get("wes_type")
-            or "**accessory** wind energy systems"
+            or "**small, medium, or non-commercial** wind energy systems"
         )
-        if not decision_tree_wes_types_out.get("is_accessory", True):
+        if not decision_tree_wes_types_out.get("is_small", True):
             logger.info(
                 "Did not find accessory systems in text. Closest "
                 "system found: %r",
