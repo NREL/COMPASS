@@ -28,7 +28,10 @@ jobs:
           cache: false
 
       - name: Run Pixi update
-        run: pixi update
+        run: |
+          pixi update
+          pixi update nrel-compass
+          pixi install
 
       - name: Determine trigger message
         id: trigger
