@@ -49,7 +49,7 @@ jobs:
           fi
 
       - name: Create PR
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v7
         with:
           commit-message: "chore: update pixi dependencies"
           title: "Update pixi lockfile"
@@ -66,4 +66,5 @@ jobs:
           branch: "auto/pixi-update"
           base: "main"
           delete-branch: true
+          draft: always-true
           labels: dependencies, github_actions, chore
