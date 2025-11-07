@@ -35,7 +35,7 @@ from compass.pb import COMPASS_PB
 logger = logging.getLogger(__name__)
 DEFAULT_SYSTEM_MESSAGE = (
     "You are a legal scholar informing a private resident about local "
-    "zoning ordinances for small. medium, or non-commercial wind energy "
+    "zoning ordinances for small, medium, or non-commercial wind energy "
     "systems. "
 )
 SYSTEM_SIZE_REMINDER = (
