@@ -467,6 +467,54 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
             ),
         )
 
+    G.add_edge("init", "enr", condition=llm_response_starts_with_no)
+    G.add_node(
+        "enr",
+        prompt=(
+            "Does the legal text **directly** mention not regulating "
+            "{restriction} for {tech}? "
+            "As before, focus only on {restriction} specifically for "
+            "{system_size_reminder}"
+            "Please start your response with either 'Yes' or 'No' and "
+            "briefly explain your answer."
+        ),
+    )
+    G.add_edge("enr", "enr_text", condition=llm_response_starts_with_yes)
+    G.add_node(
+        "enr_text",
+        prompt=(
+            "What is the **exact text excerpt** that explicitly states there "
+            "are no regulations around {restriction} for {tech}? "
+        ),
+    )
+    G.add_edge("enr_text", "enr_validate")
+    G.add_node(
+        "enr_validate",
+        prompt=(
+            "Based on your response, are you still confident that the text "
+            "**directly** states that there are no regulations around "
+            "{restriction} for {tech}? "
+            "Please start your response with either 'Yes' or 'No' and "
+            "briefly explain your answer."
+        ),
+    )
+    G.add_edge(
+        "enr_validate", "final_enr", condition=llm_response_starts_with_yes
+    )
+    G.add_node(
+        "final_enr",
+        prompt=(
+            "Please respond based on our entire conversation so far. "
+            "Return your answer as a dictionary in JSON format (not "
+            "markdown). Your JSON file must include exactly three keys. "
+            "The keys are 'value', 'summary', and 'section'. The value of "
+            "the 'value' key should be the string 'ENR' if the text "
+            "clearly states that the jurisdiction does not regulate "
+            "{restriction} for {tech} or `null` otherwise. "
+            "{SUMMARY_PROMPT} {SECTION_PROMPT}"
+        ),
+    )
+
     return G
 
 
