@@ -168,6 +168,11 @@ class AccessoryWindSetbackFeatures(SetbackFeatures):
             "transmission lines",
         ],
         "water": ["lakes", "reservoirs", "streams", "rivers", "wetlands"],
+        "public conservation lands": [
+            "public conservation lands",
+            "natural resource protection areas",
+            "preservation areas",
+        ],
     }
     """Aliases for mutually-exclusive setback features"""
     FEATURES_AS_IGNORE = {
@@ -178,6 +183,7 @@ class AccessoryWindSetbackFeatures(SetbackFeatures):
         "railroads": "railroads",
         "transmission": "transmission lines",
         "water": "wetlands",
+        "public conservation lands": "public conservation lands",
     }
     """Features as they should appear in ignore phrases"""
     FEATURE_CLARIFICATIONS = {
@@ -185,6 +191,11 @@ class AccessoryWindSetbackFeatures(SetbackFeatures):
             "Dwelling units, structures, occupied buildings, residences, and "
             "other buildings **are not equivalent** to property lines or "
             "parcel boundaries unless the text **explicitly** makes that "
+            "connection. "
+        ),
+        "water": (
+            "Public conservation lands (or similar) **are not equivalent** to "
+            "wetlands (or similar) unless the text **explicitly** makes that "
             "connection. "
         ),
         "roads": "Roads may also be labeled as rights-of-way. ",
