@@ -48,7 +48,7 @@ from compass.extraction.wind import (
     WIND_QUESTION_TEMPLATES,
     BEST_WIND_ORDINANCE_WEBSITE_URL_KEYWORDS,
 )
-from compass.extraction.accessory_wind import (
+from compass.extraction.small_wind import (
     SmallWindHeuristic,
     SmallWindOrdinanceTextCollector,
     SmallWindOrdinanceTextExtractor,
