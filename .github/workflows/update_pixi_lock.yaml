@@ -67,5 +67,4 @@ jobs:
           branch: "auto/pixi-update"
           base: "main"
           delete-branch: true
-          draft: always-true
           labels: dependencies, github_actions, chore
