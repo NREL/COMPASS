@@ -24,7 +24,7 @@ from compass.utilities.logs import (
 )
 
 
-def build_log_record(
+def _sample_log_record(
     *,
     name="test",
     level=logging.INFO,
@@ -49,7 +49,7 @@ def build_log_record(
     )
 
 
-def attach_value_error_exc_info(record, message):
+def _attach_value_error_exc_info(record, message):
     """Attach ValueError exc_info to the provided log record"""
 
     try:
@@ -116,7 +116,7 @@ def test_no_location_filter():
     """Test NoLocationFilter correctly identifies records without location"""
     filter_obj = NoLocationFilter()
 
-    record = build_log_record()
+    record = _sample_log_record()
     assert filter_obj.filter(record)
 
     record.location = None
@@ -137,14 +137,14 @@ def test_location_filter():
     location = "El Paso Colorado"
     filter_obj = LocationFilter(location)
 
-    record = build_log_record()
+    record = _sample_log_record()
     record.location = location
     assert filter_obj.filter(record)
 
     record.location = "Denver Colorado"
     assert not filter_obj.filter(record)
 
-    record_no_loc = build_log_record()
+    record_no_loc = _sample_log_record()
     assert not filter_obj.filter(record_no_loc)
 
     record.location = None
@@ -158,7 +158,7 @@ async def test_add_location_filter_with_async_task():
 
     async def task_with_name():
         await asyncio.sleep(0)
-        record = build_log_record()
+        record = _sample_log_record()
         result = filter_obj.filter(record)
         assert result
         assert hasattr(record, "location")
@@ -173,7 +173,7 @@ def test_add_location_filter_without_async_task():
     """Test AddLocationFilter defaults to 'main' when no async task"""
     filter_obj = AddLocationFilter()
 
-    record = build_log_record()
+    record = _sample_log_record()
     result = filter_obj.filter(record)
     assert result
     assert hasattr(record, "location")
@@ -187,7 +187,7 @@ async def test_add_location_filter_with_task_xx():
 
     async def task_with_generic_name():
         await asyncio.sleep(0)
-        record = build_log_record()
+        record = _sample_log_record()
         result = filter_obj.filter(record)
         assert result
         assert hasattr(record, "location")
@@ -202,13 +202,13 @@ def test_exception_only_filter():
     """Test ExceptionOnlyFilter only passes through exception records"""
     filter_obj = ExceptionOnlyFilter()
 
-    record = build_log_record()
+    record = _sample_log_record()
     assert not filter_obj.filter(record)
 
-    attach_value_error_exc_info(record, "test error")
+    _attach_value_error_exc_info(record, "test error")
 
     assert filter_obj.filter(record)
-    non_exception_record = build_log_record(msg="plain")
+    non_exception_record = _sample_log_record(msg="plain")
     assert not filter_obj.filter(non_exception_record)
 
 
@@ -216,7 +216,7 @@ def test_json_formatter():
     """Test _JsonFormatter correctly formats log records to dictionaries"""
     formatter = _JsonFormatter()
 
-    record = build_log_record(
+    record = _sample_log_record(
         pathname="test.py",
         lineno=42,
         msg="test message",
@@ -240,7 +240,7 @@ def test_json_formatter_with_exception():
     """Test _JsonFormatter correctly formats exception information"""
     formatter = _JsonFormatter()
 
-    record = build_log_record(
+    record = _sample_log_record(
         level=logging.ERROR,
         pathname="test.py",
         lineno=42,
@@ -249,7 +249,7 @@ def test_json_formatter_with_exception():
     )
     record.taskName = "test_task"
 
-    attach_value_error_exc_info(record, "custom error message")
+    _attach_value_error_exc_info(record, "custom error message")
 
     result = formatter.format(record)
     assert isinstance(result, dict)
@@ -262,7 +262,7 @@ def test_json_formatter_truncates_long_messages():
     formatter = _JsonFormatter()
 
     long_message = "a" * 200
-    record = build_log_record(
+    record = _sample_log_record(
         pathname="test.py",
         lineno=42,
         msg=long_message,
@@ -298,7 +298,7 @@ def test_json_exception_file_handler_emit(tmp_path):
     test_file = tmp_path / "test_exceptions.json"
     handler = _JsonExceptionFileHandler(test_file)
 
-    record = build_log_record(
+    record = _sample_log_record(
         level=logging.ERROR,
         pathname="test.py",
         lineno=42,
@@ -308,7 +308,7 @@ def test_json_exception_file_handler_emit(tmp_path):
     record.taskName = "test_task"
     record.module = "test_module"
 
-    attach_value_error_exc_info(record, "test exception")
+    _attach_value_error_exc_info(record, "test exception")
 
     handler.emit(record)
     handler.close()
@@ -332,7 +332,7 @@ def test_json_exception_file_handler_multiple_exceptions(tmp_path):
     handler = _JsonExceptionFileHandler(test_file)
 
     for i in range(3):
-        record = build_log_record(
+        record = _sample_log_record(
             level=logging.ERROR,
             pathname="test.py",
             lineno=i,
@@ -343,7 +343,7 @@ def test_json_exception_file_handler_multiple_exceptions(tmp_path):
         record.module = "test_module"
 
         msg = f"exception {i}"
-        attach_value_error_exc_info(record, msg)
+        _attach_value_error_exc_info(record, msg)
 
         handler.emit(record)
 
@@ -379,7 +379,7 @@ def test_local_process_queue_handler_emit():
     while not LOGGING_QUEUE.empty():
         LOGGING_QUEUE.get()
 
-    record = build_log_record(
+    record = _sample_log_record(
         pathname="test.py",
         lineno=42,
         msg="test message",
