@@ -474,9 +474,29 @@ async def test_log_listener_async_context_manager():
         assert len(logger.handlers) == 1
         assert listener._listener is not None
 
-    assert len(logger.handlers) == 0
+        captured_records = []
 
-    # TODO: Add case of logger emitting a record
+        class _CaptureHandler(logging.Handler):
+            def emit(self, record):
+                captured_records.append(record)
+
+        capture_handler = _CaptureHandler(level=logging.INFO)
+        listener.addHandler(capture_handler)
+
+        logger.info("async listener message")
+
+        for _ in range(30):
+            if captured_records:
+                break
+            await asyncio.sleep(0.1)
+
+        listener.removeHandler(capture_handler)
+
+        assert captured_records
+        assert captured_records[0].msg == "async listener message"
+        assert getattr(captured_records[0], "location", None) == "main"
+
+    assert len(logger.handlers) == 0
 
 
 if __name__ == "__main__":
