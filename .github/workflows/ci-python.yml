@@ -13,7 +13,6 @@ on:
       - compass/**
       - .github/workflows/ci-python.yml
       - pyproject.toml
-      - pixi.lock
   workflow_dispatch:
 
 jobs:
