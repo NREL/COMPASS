@@ -233,8 +233,16 @@ def test_exception_only_filter():
         record.exc_info = sys.exc_info()
 
     assert filter_obj.filter(record)
-
-    # TODO: Add a check that filter_obj does not capture normal records without exc_info
+    non_exception_record = logging.LogRecord(
+        name="test",
+        level=logging.INFO,
+        pathname="",
+        lineno=0,
+        msg="plain",
+        args=(),
+        exc_info=None,
+    )
+    assert not filter_obj.filter(non_exception_record)
 
 
 def test_json_formatter():
