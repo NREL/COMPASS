@@ -1,5 +1,7 @@
-"""Test COMPASS Ordinance logging logic."""
+"""Test COMPASS Ordinance logging logic"""
 
+import sys
+import json
 import logging
 import asyncio
 from pathlib import Path
@@ -7,12 +9,24 @@ from pathlib import Path
 import pytest
 
 from compass.services.provider import RunningAsyncServices
-from compass.utilities.logs import LocationFileLog, LogListener
+from compass.utilities.logs import (
+    AddLocationFilter,
+    ExceptionOnlyFilter,
+    LocationFileLog,
+    LocationFilter,
+    LogListener,
+    NoLocationFilter,
+    _JsonExceptionFileHandler,
+    _JsonFormatter,
+    _LocalProcessQueueHandler,
+    _setup_logging_levels,
+    LOGGING_QUEUE,
+)
 
 
 @pytest.mark.asyncio
 async def test_logs_sent_to_separate_files(tmp_path, service_base_class):
-    """Test that logs are correctly sent to individual files."""
+    """Test that logs are correctly sent to individual files"""
 
     logger = logging.getLogger("ords")
     test_locations = ["a", "bc", "def", "ghij"]
@@ -21,18 +35,18 @@ async def test_logs_sent_to_separate_files(tmp_path, service_base_class):
     assert not logger.handlers
 
     class AlwaysThreeService(TestService):
-        """Test service that returns ``3``."""
+        """Test service that returns ``3``"""
 
         NUMBER = 3
         LEN_SLEEP = 0.1
 
     async def process_single(val):
-        """Call `AlwaysThreeService`."""
+        """Call `AlwaysThreeService`"""
         logger.info(f"This location is {val!r}")
         return await AlwaysThreeService.call(len(val))
 
     async def process_location_with_logs(listener, log_dir, location):
-        """Process location and record logs for tests."""
+        """Process location and record logs for tests"""
         with LocationFileLog(listener, log_dir, location=location):
             logger.info("A generic test log")
             return await process_single(location)
@@ -62,6 +76,407 @@ async def test_logs_sent_to_separate_files(tmp_path, service_base_class):
         log_text = expected_log_file.read_text(encoding="utf-8")
         assert "A generic test log" in log_text
         assert f"This location is {loc!r}" in log_text
+
+
+def test_no_location_filter():
+    """Test NoLocationFilter correctly identifies records without location"""
+    filter_obj = NoLocationFilter()
+
+    record = logging.LogRecord(
+        name="test",
+        level=logging.INFO,
+        pathname="",
+        lineno=0,
+        msg="test",
+        args=(),
+        exc_info=None,
+    )
+    assert filter_obj.filter(record)
+
+    record.location = None
+    assert filter_obj.filter(record)
+
+    record.location = "Task-42"
+    assert filter_obj.filter(record)
+
+    record.location = "main"
+    assert filter_obj.filter(record)
+
+    record.location = "El Paso Colorado"
+    assert not filter_obj.filter(record)
+
+
+def test_location_filter():
+    """Test LocationFilter correctly filters records by specific location"""
+    location = "El Paso Colorado"
+    filter_obj = LocationFilter(location)
+
+    record = logging.LogRecord(
+        name="test",
+        level=logging.INFO,
+        pathname="",
+        lineno=0,
+        msg="test",
+        args=(),
+        exc_info=None,
+    )
+    record.location = location
+    assert filter_obj.filter(record)
+
+    record.location = "Denver Colorado"
+    assert not filter_obj.filter(record)
+
+    record_no_loc = logging.LogRecord(
+        name="test",
+        level=logging.INFO,
+        pathname="",
+        lineno=0,
+        msg="test",
+        args=(),
+        exc_info=None,
+    )
+    assert not filter_obj.filter(record_no_loc)
+
+    record.location = None
+    assert not filter_obj.filter(record)
+
+
+@pytest.mark.asyncio
+async def test_add_location_filter_with_async_task():
+    """Test AddLocationFilter adds location from async task name"""
+    filter_obj = AddLocationFilter()
+
+    async def task_with_name():
+        await asyncio.sleep(0)
+        record = logging.LogRecord(
+            name="test",
+            level=logging.INFO,
+            pathname="",
+            lineno=0,
+            msg="test",
+            args=(),
+            exc_info=None,
+        )
+        result = filter_obj.filter(record)
+        assert result
+        assert hasattr(record, "location")
+        assert record.location == "test_location"
+        return True
+
+    task = asyncio.create_task(task_with_name(), name="test_location")
+    await task
+
+
+def test_add_location_filter_without_async_task():
+    """Test AddLocationFilter defaults to 'main' when no async task"""
+    filter_obj = AddLocationFilter()
+
+    record = logging.LogRecord(
+        name="test",
+        level=logging.INFO,
+        pathname="",
+        lineno=0,
+        msg="test",
+        args=(),
+        exc_info=None,
+    )
+    result = filter_obj.filter(record)
+    assert result
+    assert hasattr(record, "location")
+    assert record.location == "main"
+
+
+@pytest.mark.asyncio
+async def test_add_location_filter_with_task_xx():
+    """Test AddLocationFilter defaults to 'main' for Task-XX names"""
+    filter_obj = AddLocationFilter()
+
+    async def task_with_generic_name():
+        await asyncio.sleep(0)
+        record = logging.LogRecord(
+            name="test",
+            level=logging.INFO,
+            pathname="",
+            lineno=0,
+            msg="test",
+            args=(),
+            exc_info=None,
+        )
+        result = filter_obj.filter(record)
+        assert result
+        assert hasattr(record, "location")
+        assert record.location == "main"
+        return True
+
+    task = asyncio.create_task(task_with_generic_name(), name="Task-42")
+    await task
+
+
+def test_exception_only_filter():
+    """Test ExceptionOnlyFilter only passes through exception records"""
+    filter_obj = ExceptionOnlyFilter()
+
+    record = logging.LogRecord(
+        name="test",
+        level=logging.INFO,
+        pathname="",
+        lineno=0,
+        msg="test",
+        args=(),
+        exc_info=None,
+    )
+    assert not filter_obj.filter(record)
+
+    try:
+        raise ValueError("test error")
+    except ValueError:
+        record.exc_info = sys.exc_info()
+
+    assert filter_obj.filter(record)
+
+    # TODO: Add a check that filter_obj does not capture normal records without exc_info
+
+
+def test_json_formatter():
+    """Test _JsonFormatter correctly formats log records to dictionaries"""
+    formatter = _JsonFormatter()
+
+    record = logging.LogRecord(
+        name="test",
+        level=logging.INFO,
+        pathname="test.py",
+        lineno=42,
+        msg="test message",
+        args=(),
+        exc_info=None,
+        func="test_func",
+    )
+    record.taskName = "test_task"
+
+    result = formatter.format(record)
+    assert isinstance(result, dict)
+    assert result["message"] == "test message"
+    assert result["filename"] == "test.py"
+    assert result["funcName"] == "test_func"
+    assert result["taskName"] == "test_task"
+    assert result["lineno"] == 42
+    assert result["exc_info"] is None
+    assert result["exc_text"] is None
+    assert "timestamp" in result
+
+
+def test_json_formatter_with_exception():
+    """Test _JsonFormatter correctly formats exception information"""
+    formatter = _JsonFormatter()
+
+    record = logging.LogRecord(
+        name="test",
+        level=logging.ERROR,
+        pathname="test.py",
+        lineno=42,
+        msg="test error",
+        args=(),
+        exc_info=None,
+        func="test_func",
+    )
+    record.taskName = "test_task"
+
+    try:
+        raise ValueError("custom error message")
+    except ValueError:
+        record.exc_info = sys.exc_info()
+
+    result = formatter.format(record)
+    assert isinstance(result, dict)
+    assert result["exc_info"] == "ValueError"
+    assert result["exc_text"] == "custom error message"
+
+
+def test_json_formatter_truncates_long_messages():
+    """Test _JsonFormatter truncates messages longer than 103 chars"""
+    formatter = _JsonFormatter()
+
+    long_message = "a" * 200
+    record = logging.LogRecord(
+        name="test",
+        level=logging.INFO,
+        pathname="test.py",
+        lineno=42,
+        msg=long_message,
+        args=(),
+        exc_info=None,
+        func="test_func",
+    )
+    record.taskName = "test_task"
+
+    result = formatter.format(record)
+    assert len(result["message"]) == 103
+    assert result["message"] == "a" * 103
+
+
+def test_json_exception_file_handler_initialization(tmp_path):
+    """Test _JsonExceptionFileHandler initializes correctly"""
+    test_file = tmp_path / "test_exceptions.json"
+
+    handler = _JsonExceptionFileHandler(test_file)
+
+    assert handler.filename == test_file
+    assert test_file.exists()
+
+    content = json.loads(test_file.read_text(encoding="utf-8"))
+    assert content == {}
+
+    assert handler.level == logging.ERROR
+    assert any(isinstance(f, ExceptionOnlyFilter) for f in handler.filters)
+
+    handler.close()
+
+
+def test_json_exception_file_handler_emit(tmp_path):
+    """Test _JsonExceptionFileHandler correctly writes exceptions to JSON"""
+    test_file = tmp_path / "test_exceptions.json"
+    handler = _JsonExceptionFileHandler(test_file)
+
+    record = logging.LogRecord(
+        name="test",
+        level=logging.ERROR,
+        pathname="test.py",
+        lineno=42,
+        msg="test error",
+        args=(),
+        exc_info=None,
+        func="test_func",
+    )
+    record.taskName = "test_task"
+    record.module = "test_module"
+
+    try:
+        raise ValueError("test exception")
+    except ValueError:
+        record.exc_info = sys.exc_info()
+
+    handler.emit(record)
+    handler.close()
+
+    content = json.loads(test_file.read_text(encoding="utf-8"))
+    assert "test_module" in content
+    assert "ValueError" in content["test_module"]
+    assert len(content["test_module"]["ValueError"]) == 1
+
+    entry = content["test_module"]["ValueError"][0]
+    assert entry["message"] == "test error"
+    assert entry["exc_text"] == "test exception"
+    assert entry["filename"] == "test.py"
+    assert entry["funcName"] == "test_func"
+    assert entry["lineno"] == 42
+
+
+def test_json_exception_file_handler_multiple_exceptions(tmp_path):
+    """Test _JsonExceptionFileHandler handles multiple exceptions"""
+    test_file = tmp_path / "test_exceptions.json"
+    handler = _JsonExceptionFileHandler(test_file)
+
+    for i in range(3):
+        record = logging.LogRecord(
+            name="test",
+            level=logging.ERROR,
+            pathname="test.py",
+            lineno=i,
+            msg=f"error {i}",
+            args=(),
+            exc_info=None,
+            func="test_func",
+        )
+        record.taskName = "test_task"
+        record.module = "test_module"
+
+        try:
+            msg = f"exception {i}"
+            raise ValueError(msg)
+        except ValueError:
+            record.exc_info = sys.exc_info()
+
+        handler.emit(record)
+
+    handler.close()
+
+    content = json.loads(test_file.read_text(encoding="utf-8"))
+    assert len(content["test_module"]["ValueError"]) == 3
+
+
+def test_setup_logging_levels():
+    """Test _setup_logging_levels adds custom logging levels"""
+    _setup_logging_levels()
+
+    assert hasattr(logging, "TRACE")
+    assert logging.TRACE == 5
+    assert logging.getLevelName(logging.TRACE) == "TRACE"
+
+    assert hasattr(logging, "DEBUG_TO_FILE")
+    assert logging.DEBUG_TO_FILE == 9
+    assert logging.getLevelName(logging.DEBUG_TO_FILE) == "DEBUG_TO_FILE"
+
+    logger = logging.getLogger("test_custom_levels")
+    assert hasattr(logger, "trace")
+    assert hasattr(logger, "debug_to_file")
+    assert callable(logger.trace)
+    assert callable(logger.debug_to_file)
+
+
+def test_local_process_queue_handler_emit():
+    """Test _LocalProcessQueueHandler correctly enqueues records"""
+    handler = _LocalProcessQueueHandler(LOGGING_QUEUE)
+
+    while not LOGGING_QUEUE.empty():
+        LOGGING_QUEUE.get()
+
+    record = logging.LogRecord(
+        name="test",
+        level=logging.INFO,
+        pathname="test.py",
+        lineno=42,
+        msg="test message",
+        args=(),
+        exc_info=None,
+        func="test_func",
+    )
+
+    handler.emit(record)
+
+    assert not LOGGING_QUEUE.empty()
+    queued_record = LOGGING_QUEUE.get()
+    assert queued_record.msg == "test message"
+
+
+def test_log_listener_context_manager():
+    """Test LogListener as a context manager"""
+    logger_name = "test_listener_logger"
+    logger = logging.getLogger(logger_name)
+
+    logger.handlers = []
+
+    with LogListener([logger_name], level="DEBUG") as listener:
+        assert len(logger.handlers) == 1
+        assert listener._listener is not None
+
+    assert len(logger.handlers) == 0
+
+
+@pytest.mark.asyncio
+async def test_log_listener_async_context_manager():
+    """Test LogListener as an async context manager"""
+    logger_name = "test_async_listener_logger"
+    logger = logging.getLogger(logger_name)
+
+    logger.handlers = []
+
+    async with LogListener([logger_name], level="INFO") as listener:
+        assert len(logger.handlers) == 1
+        assert listener._listener is not None
+
+    assert len(logger.handlers) == 0
+
+    # TODO: Add case of logger emitting a record
 
 
 if __name__ == "__main__":
