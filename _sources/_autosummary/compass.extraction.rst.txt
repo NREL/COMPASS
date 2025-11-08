@@ -1,0 +1,36 @@
+compass.extraction
+==================
+
+.. automodule:: compass.extraction
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   apply
+   date
+   features
+   ngrams
+   small_wind
+   solar
+   wind
+
