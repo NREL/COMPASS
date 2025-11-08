@@ -53,6 +53,19 @@ def log_record_factory():
     return _make
 
 
+@pytest.fixture
+def attach_value_error_exc_info():
+    """Return a helper to attach ValueError exc_info to a log record"""
+
+    def _attach(record, message):
+        try:
+            raise ValueError(message)
+        except ValueError:
+            record.exc_info = sys.exc_info()
+
+    return _attach
+
+
 @pytest.mark.asyncio
 async def test_logs_sent_to_separate_files(tmp_path, service_base_class):
     """Test that logs are correctly sent to individual files"""
@@ -193,17 +206,16 @@ async def test_add_location_filter_with_task_xx(log_record_factory):
     await task
 
 
-def test_exception_only_filter(log_record_factory):
+def test_exception_only_filter(
+    log_record_factory, attach_value_error_exc_info
+):
     """Test ExceptionOnlyFilter only passes through exception records"""
     filter_obj = ExceptionOnlyFilter()
 
     record = log_record_factory()
     assert not filter_obj.filter(record)
 
-    try:
-        raise ValueError("test error")
-    except ValueError:
-        record.exc_info = sys.exc_info()
+    attach_value_error_exc_info(record, "test error")
 
     assert filter_obj.filter(record)
     non_exception_record = log_record_factory(msg="plain")
@@ -234,7 +246,9 @@ def test_json_formatter(log_record_factory):
     assert "timestamp" in result
 
 
-def test_json_formatter_with_exception(log_record_factory):
+def test_json_formatter_with_exception(
+    log_record_factory, attach_value_error_exc_info
+):
     """Test _JsonFormatter correctly formats exception information"""
     formatter = _JsonFormatter()
 
@@ -247,10 +261,7 @@ def test_json_formatter_with_exception(log_record_factory):
     )
     record.taskName = "test_task"
 
-    try:
-        raise ValueError("custom error message")
-    except ValueError:
-        record.exc_info = sys.exc_info()
+    attach_value_error_exc_info(record, "custom error message")
 
     result = formatter.format(record)
     assert isinstance(result, dict)
@@ -294,7 +305,9 @@ def test_json_exception_file_handler_initialization(tmp_path):
     handler.close()
 
 
-def test_json_exception_file_handler_emit(tmp_path, log_record_factory):
+def test_json_exception_file_handler_emit(
+    tmp_path, log_record_factory, attach_value_error_exc_info
+):
     """Test _JsonExceptionFileHandler correctly writes exceptions to JSON"""
     test_file = tmp_path / "test_exceptions.json"
     handler = _JsonExceptionFileHandler(test_file)
@@ -309,10 +322,7 @@ def test_json_exception_file_handler_emit(tmp_path, log_record_factory):
     record.taskName = "test_task"
     record.module = "test_module"
 
-    try:
-        raise ValueError("test exception")
-    except ValueError:
-        record.exc_info = sys.exc_info()
+    attach_value_error_exc_info(record, "test exception")
 
     handler.emit(record)
     handler.close()
@@ -331,7 +341,7 @@ def test_json_exception_file_handler_emit(tmp_path, log_record_factory):
 
 
 def test_json_exception_file_handler_multiple_exceptions(
-    tmp_path, log_record_factory
+    tmp_path, log_record_factory, attach_value_error_exc_info
 ):
     """Test _JsonExceptionFileHandler handles multiple exceptions"""
     test_file = tmp_path / "test_exceptions.json"
@@ -348,11 +358,8 @@ def test_json_exception_file_handler_multiple_exceptions(
         record.taskName = "test_task"
         record.module = "test_module"
 
-        try:
-            msg = f"exception {i}"
-            raise ValueError(msg)
-        except ValueError:
-            record.exc_info = sys.exc_info()
+        msg = f"exception {i}"
+        attach_value_error_exc_info(record, msg)
 
         handler.emit(record)
 
