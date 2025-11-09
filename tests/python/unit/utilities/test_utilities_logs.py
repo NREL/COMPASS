@@ -293,6 +293,61 @@ def test_json_exception_file_handler_initialization(tmp_path):
     handler.close()
 
 
+def test_json_exception_file_handler_existing_file(tmp_path):
+    """Test existing JSON exception files remain intact upon init"""
+    test_file = tmp_path / "test_exceptions.json"
+    existing_content = {
+        "existing_module": {
+            "ValueError": [
+                {
+                    "timestamp": "existing",
+                    "message": "existing error",
+                    "exc_text": "existing exception",
+                    "filename": "existing.py",
+                    "funcName": "existing_func",
+                    "taskName": "existing_task",
+                    "lineno": 12,
+                }
+            ]
+        }
+    }
+    test_file.write_text(
+        json.dumps(existing_content, indent=4), encoding="utf-8"
+    )
+
+    handler = _JsonExceptionFileHandler(test_file)
+
+    content_after_init = json.loads(test_file.read_text(encoding="utf-8"))
+    assert content_after_init == existing_content
+
+    record = _sample_log_record(
+        level=logging.ERROR,
+        pathname="test.py",
+        lineno=10,
+        msg="new error",
+        func="test_func",
+    )
+    record.taskName = "test_task"
+    record.module = "new_module"
+
+    _attach_value_error_exc_info(record, "new exception")
+
+    handler.emit(record)
+    handler.close()
+
+    updated_content = json.loads(test_file.read_text(encoding="utf-8"))
+    assert (
+        updated_content["existing_module"]
+        == existing_content["existing_module"]
+    )
+    assert "new_module" in updated_content
+    assert "ValueError" in updated_content["new_module"]
+    new_entries = updated_content["new_module"]["ValueError"]
+    assert len(new_entries) == 1
+    assert new_entries[0]["message"] == "new error"
+    assert new_entries[0]["exc_text"] == "new exception"
+
+
 def test_json_exception_file_handler_emit(tmp_path):
     """Test _JsonExceptionFileHandler correctly writes exceptions to JSON"""
     test_file = tmp_path / "test_exceptions.json"
