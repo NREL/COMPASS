@@ -348,6 +348,35 @@ def test_json_exception_file_handler_existing_file(tmp_path):
     assert new_entries[0]["exc_text"] == "new exception"
 
 
+def test_json_exception_file_handler_emit_type_error(tmp_path, monkeypatch):
+    """Test emit returns early when json.dumps raises TypeError"""
+    test_file = tmp_path / "test_exceptions.json"
+    handler = _JsonExceptionFileHandler(test_file)
+    original_content = test_file.read_text(encoding="utf-8")
+
+    def _raise_type_error(*_, **__):
+        raise TypeError("cannot serialize")
+
+    monkeypatch.setattr("compass.utilities.logs.json.dumps", _raise_type_error)
+
+    record = _sample_log_record(
+        level=logging.ERROR,
+        pathname="test.py",
+        lineno=20,
+        msg="bad error",
+        func="test_func",
+    )
+    record.taskName = "test_task"
+    record.module = "bad_module"
+
+    _attach_value_error_exc_info(record, "bad exception")
+
+    handler.emit(record)
+    handler.close()
+
+    assert test_file.read_text(encoding="utf-8") == original_content
+
+
 def test_json_exception_file_handler_emit(tmp_path):
     """Test _JsonExceptionFileHandler correctly writes exceptions to JSON"""
     test_file = tmp_path / "test_exceptions.json"
