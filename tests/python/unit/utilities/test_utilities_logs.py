@@ -25,6 +25,18 @@ from compass.utilities.logs import (
 )
 
 
+@pytest.fixture(autouse=True, scope="module")
+def _speed_up_location_file_log_async_exit():
+    """Speed up async LocationFileLog tests by shortening sleep"""
+
+    original_sleep = LocationFileLog.ASYNC_EXIT_SLEEP_SECONDS
+    LocationFileLog.ASYNC_EXIT_SLEEP_SECONDS = 0.01
+    try:
+        yield
+    finally:
+        LocationFileLog.ASYNC_EXIT_SLEEP_SECONDS = original_sleep
+
+
 class _DummyListener:
     def __init__(self):
         self.added_handlers = []
@@ -129,50 +141,41 @@ async def test_logs_sent_to_separate_files(tmp_path, service_base_class):
 async def test_location_file_log_async_context(tmp_path):
     """Test async LocationFileLog context captures text and exception logs"""
 
-    original_sleep = LocationFileLog.ASYNC_EXIT_SLEEP_SECONDS
-    LocationFileLog.ASYNC_EXIT_SLEEP_SECONDS = 0.01
-    try:
-        logger_name = "async_location_logger"
-        logger = logging.getLogger(logger_name)
-        logger.handlers = []
+    logger_name = "async_location_logger"
+    logger = logging.getLogger(logger_name)
+    logger.handlers = []
 
-        log_dir = tmp_path / "async_logs"
+    log_dir = tmp_path / "async_logs"
 
-        async def _produce_logs(listener):
-            async with LocationFileLog(
-                listener, log_dir, location="async_loc"
-            ):
-                logger.info("async info message")
-                try:
-                    raise ValueError("async failure")
-                except ValueError:
-                    logger.exception("async failure")
+    async def _produce_logs(listener):
+        async with LocationFileLog(listener, log_dir, location="async_loc"):
+            logger.info("async info message")
+            try:
+                raise ValueError("async failure")
+            except ValueError:
+                logger.exception("async failure")
 
-        async with LogListener([logger_name], level="INFO") as listener:
-            task = asyncio.create_task(
-                _produce_logs(listener), name="async_loc"
-            )
-            await task
+    async with LogListener([logger_name], level="INFO") as listener:
+        task = asyncio.create_task(_produce_logs(listener), name="async_loc")
+        await task
 
-        text_log = log_dir / "async_loc.log"
-        json_log = log_dir / "async_loc exceptions.json"
-        assert text_log.exists()
-        assert json_log.exists()
+    text_log = log_dir / "async_loc.log"
+    json_log = log_dir / "async_loc exceptions.json"
+    assert text_log.exists()
+    assert json_log.exists()
 
-        log_text = text_log.read_text(encoding="utf-8")
-        assert "async info message" in log_text
-        assert "async failure" in log_text
+    log_text = text_log.read_text(encoding="utf-8")
+    assert "async info message" in log_text
+    assert "async failure" in log_text
 
-        json_content = json.loads(json_log.read_text(encoding="utf-8"))
-        assert "test_utilities_logs" in json_content
-        assert "ValueError" in json_content["test_utilities_logs"]
-        entries = json_content["test_utilities_logs"]["ValueError"]
-        assert len(entries) == 1
-        assert entries[0]["message"] == "async failure"
-        assert entries[0]["exc_text"] == "async failure"
-        assert entries[0]["taskName"] == "async_loc"
-    finally:
-        LocationFileLog.ASYNC_EXIT_SLEEP_SECONDS = original_sleep
+    json_content = json.loads(json_log.read_text(encoding="utf-8"))
+    assert "test_utilities_logs" in json_content
+    assert "ValueError" in json_content["test_utilities_logs"]
+    entries = json_content["test_utilities_logs"]["ValueError"]
+    assert len(entries) == 1
+    assert entries[0]["message"] == "async failure"
+    assert entries[0]["exc_text"] == "async failure"
+    assert entries[0]["taskName"] == "async_loc"
 
 
 def test_location_file_log_breakdown_without_handler(tmp_path):
