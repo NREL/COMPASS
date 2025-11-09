@@ -116,6 +116,8 @@ async def test_logs_sent_to_separate_files(tmp_path, service_base_class):
 async def test_location_file_log_async_context(tmp_path):
     """Test async LocationFileLog context captures text and exception logs"""
 
+    original_sleep = LocationFileLog.ASYNC_EXIT_SLEEP_SECONDS
+    LocationFileLog.ASYNC_EXIT_SLEEP_SECONDS = 0.01
     logger_name = "async_location_logger"
     logger = logging.getLogger(logger_name)
     logger.handlers = []
@@ -151,6 +153,8 @@ async def test_location_file_log_async_context(tmp_path):
     assert entries[0]["message"] == "async failure"
     assert entries[0]["exc_text"] == "async failure"
     assert entries[0]["taskName"] == "async_loc"
+
+    LocationFileLog.ASYNC_EXIT_SLEEP_SECONDS = original_sleep
 
 
 def test_no_location_filter():
