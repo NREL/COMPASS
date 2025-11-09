@@ -20,17 +20,17 @@ from compass.pb import (
 @pytest.fixture(name="console")
 def fixture_console():
     """Console directed to an in-memory buffer for deterministic tests"""
-
     return Console(file=StringIO(), color_system=None, force_terminal=False)
 
 
 @pytest.fixture(name="progress_bars")
 def fixture_progress_bars(console):
     """Fresh progress bar manager for each test"""
-
     manager = _COMPASSProgressBars(console=console)
-    yield manager
-    manager._main.stop()
+    try:
+        yield manager
+    finally:
+        manager._main.stop()
 
 
 class _DummyTask:
@@ -58,7 +58,6 @@ class _DummyTask:
 
 def test_time_elapsed_column_handles_missing_elapsed():
     """Render placeholder when elapsed time is missing"""
-
     column = _TimeElapsedColumn()
     task = _DummyTask()
 
@@ -68,7 +67,6 @@ def test_time_elapsed_column_handles_missing_elapsed():
 
 def test_time_elapsed_column_uses_finished_time():
     """Render finished time when task completes"""
-
     column = _TimeElapsedColumn()
     task = _DummyTask(finished=True, finished_time=125.7)
 
@@ -78,7 +76,6 @@ def test_time_elapsed_column_uses_finished_time():
 
 def test_m_of_n_complete_column_with_total_known():
     """Display counts when total is known"""
-
     column = _MofNCompleteColumn(style="green")
     task = _DummyTask(completed=5, total=42)
 
@@ -98,7 +95,6 @@ def test_m_of_n_complete_column_with_unknown_total():
 
 def test_total_cost_column_with_and_without_cost():
     """Show cost text only when present"""
-
     column = _TotalCostColumn()
 
     zero_text = column.render(_DummyTask(fields={"total_cost": 0}))
@@ -110,13 +106,11 @@ def test_total_cost_column_with_and_without_cost():
 
 def test_group_property_returns_group(progress_bars):
     """Expose default progress group"""
-
     assert progress_bars.group.renderables == [progress_bars._main]
 
 
 def test_create_main_task_single_and_duplicate_error(console):
     """Guard against duplicate main tasks"""
-
     bars = _COMPASSProgressBars(console=console)
     bars.create_main_task(1)
 
@@ -131,7 +125,6 @@ def test_create_main_task_single_and_duplicate_error(console):
 
 def test_create_main_task_multiple(progress_bars):
     """Format description for multiple jurisdictions"""
-
     progress_bars.create_main_task(3)
 
     task = progress_bars._main.tasks[progress_bars._main_task]
@@ -147,9 +140,7 @@ def test_progress_main_task_requires_initialization(progress_bars):
 
 def test_progress_main_task_advances(progress_bars):
     """Advance main task increments progress"""
-
     progress_bars.create_main_task(2)
-
     progress_bars.progress_main_task()
 
     task = progress_bars._main.tasks[progress_bars._main_task]
@@ -158,7 +149,6 @@ def test_progress_main_task_advances(progress_bars):
 
 def test_update_total_cost_handles_add_and_replace(progress_bars):
     """Handle cost updates for add and replace paths"""
-
     progress_bars.create_main_task(1)
 
     progress_bars.update_total_cost(1.25)
@@ -176,14 +166,12 @@ def test_update_total_cost_handles_add_and_replace(progress_bars):
 
 def test_update_total_cost_without_main(progress_bars):
     """Track cost updates without main task"""
-
     progress_bars.update_total_cost(2.0)
     assert progress_bars._total_cost == pytest.approx(2.0)
 
 
 def test_jurisdiction_prog_bar_lifecycle(progress_bars):
     """Manage lifecycle for jurisdiction bars"""
-
     progress_bars.create_main_task(1)
 
     with progress_bars.jurisdiction_prog_bar("Denmark") as jd_pb:
@@ -208,7 +196,6 @@ def test_jurisdiction_prog_bar_lifecycle(progress_bars):
 
 def test_jurisdiction_prog_bar_without_progress_main(progress_bars):
     """Skip main progress when requested"""
-
     progress_bars.create_main_task(1)
 
     with progress_bars.jurisdiction_prog_bar("Spain", progress_main=False):
@@ -220,7 +207,6 @@ def test_jurisdiction_prog_bar_without_progress_main(progress_bars):
 
 def test_jurisdiction_sub_prog_inserts_after_parent(progress_bars):
     """Insert sub progress after parent bar"""
-
     progress_bars.create_main_task(1)
 
     with ExitStack() as stack:
@@ -249,7 +235,6 @@ def test_jurisdiction_sub_prog_without_parent(progress_bars):
 
 def test_jurisdiction_sub_prog_bar_updates_fields(progress_bars):
     """Update jurisdiction sub progress fields"""
-
     progress_bars.create_main_task(1)
 
     with ExitStack() as stack:
@@ -270,7 +255,6 @@ def test_jurisdiction_sub_prog_bar_updates_fields(progress_bars):
 
 def test_jurisdiction_sub_prog_bar_without_parent(progress_bars):
     """Place sub progress bar at end when no parent exists"""
-
     start_len = len(progress_bars.group.renderables)
 
     with progress_bars.jurisdiction_sub_prog_bar("Portugal") as sub_pb:
@@ -288,7 +272,6 @@ async def test_file_download_prog_bar_async_lifecycle(
     progress_bars, monkeypatch
 ):
     """Drive async lifecycle for download progress bar"""
-
     calls = []
     original_sleep = pb_module.asyncio.sleep
 
@@ -317,7 +300,6 @@ async def test_file_download_prog_bar_positions_after_jurisdiction(
     progress_bars, monkeypatch
 ):
     """Insert download progress immediately after jurisdiction bar"""
-
     _patch_sleep(monkeypatch)
     progress_bars.create_main_task(1)
 
@@ -341,7 +323,6 @@ async def test_start_file_download_prog_bar_duplicate(
     progress_bars, monkeypatch
 ):
     """Prevent duplicate download progress bars"""
-
     original_sleep = pb_module.asyncio.sleep
 
     async def fake_sleep(_):
@@ -364,7 +345,6 @@ async def test_start_file_download_prog_bar_duplicate(
 
 def _patch_sleep(monkeypatch):
     """Patch asyncio.sleep and capture durations"""
-
     calls = []
     original_sleep = pb_module.asyncio.sleep
 
@@ -379,7 +359,6 @@ def _patch_sleep(monkeypatch):
 @pytest.mark.asyncio()
 async def test_website_crawl_prog_bar(progress_bars, monkeypatch):
     """Drive async lifecycle for website crawl progress bar"""
-
     calls_getter = _patch_sleep(monkeypatch)
 
     progress_bars.create_main_task(1)
@@ -401,7 +380,6 @@ async def test_website_crawl_prog_bar_positions_after_jurisdiction(
     progress_bars, monkeypatch
 ):
     """Insert website crawl progress immediately after jurisdiction bar"""
-
     calls_getter = _patch_sleep(monkeypatch)
     progress_bars.create_main_task(1)
 
@@ -426,7 +404,6 @@ async def test_file_download_prog_bar_positions_without_jurisdiction(
     progress_bars, monkeypatch
 ):
     """Place download progress at end when no jurisdiction bar exists"""
-
     calls_getter = _patch_sleep(monkeypatch)
 
     dl_pb, task = progress_bars.start_file_download_prog_bar("Greece", 2)
@@ -443,7 +420,6 @@ async def test_file_download_prog_bar_positions_without_jurisdiction(
 @pytest.mark.asyncio()
 async def test_website_crawl_prog_bar_duplicate(progress_bars, monkeypatch):
     """Prevent duplicate website crawl progress bars"""
-
     _patch_sleep(monkeypatch)
 
     async with progress_bars.website_crawl_prog_bar(
@@ -463,7 +439,6 @@ async def test_website_crawl_prog_bar_duplicate(progress_bars, monkeypatch):
 @pytest.mark.asyncio()
 async def test_compass_website_crawl_prog_bar(progress_bars, monkeypatch):
     """Drive async lifecycle for compass crawl progress bar"""
-
     calls_getter = _patch_sleep(monkeypatch)
 
     progress_bars.create_main_task(1)
@@ -486,7 +461,6 @@ async def test_compass_website_crawl_prog_bar_positions_after_jurisdiction(
     progress_bars, monkeypatch
 ):
     """Insert compass crawl progress immediately after jurisdiction bar"""
-
     calls_getter = _patch_sleep(monkeypatch)
     progress_bars.create_main_task(1)
 
@@ -511,7 +485,6 @@ async def test_compass_website_crawl_prog_bar_duplicate(
     progress_bars, monkeypatch
 ):
     """Prevent duplicate compass crawl progress bars"""
-
     _patch_sleep(monkeypatch)
 
     async with progress_bars.compass_website_crawl_prog_bar(
