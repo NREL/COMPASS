@@ -1,14 +1,10 @@
 """Tests for `compass.pb` progress bar helpers"""
 
-from __future__ import annotations
-
-from collections.abc import Callable
 from contextlib import ExitStack
 from io import StringIO
 
 import pytest
 from rich.console import Console
-from rich.text import Text
 
 from compass import pb as pb_module
 from compass.exceptions import COMPASSNotInitializedError, COMPASSValueError
@@ -43,14 +39,14 @@ class DummyTask:
     def __init__(
         self,
         *,
-        finished: bool = False,
-        finished_time: float | None = None,
-        elapsed: float | None = None,
-        completed: float = 0,
-        total: float | None = None,
-        fields: dict | None = None,
-        description: str = "",
-    ) -> None:
+        finished=False,
+        finished_time=None,
+        elapsed=None,
+        completed=0,
+        total=None,
+        fields=None,
+        description="",
+    ):
         self.finished = finished
         self.finished_time = finished_time
         self.elapsed = elapsed
@@ -60,13 +56,13 @@ class DummyTask:
         self.description = description
 
 
-def assert_text(text: Text, expected: str) -> None:
+def assert_text(text, expected):
     """Compare Text objects using their plain representation"""
 
     assert text.plain == expected
 
 
-def test_time_elapsed_column_handles_missing_elapsed() -> None:
+def test_time_elapsed_column_handles_missing_elapsed():
     """Render placeholder when elapsed time is missing"""
 
     column = _TimeElapsedColumn()
@@ -77,7 +73,7 @@ def test_time_elapsed_column_handles_missing_elapsed() -> None:
     assert_text(text, "[-:--:--]")
 
 
-def test_time_elapsed_column_uses_finished_time() -> None:
+def test_time_elapsed_column_uses_finished_time():
     """Render finished time when task completes"""
 
     column = _TimeElapsedColumn()
@@ -88,7 +84,7 @@ def test_time_elapsed_column_uses_finished_time() -> None:
     assert_text(text, "[0:02:05]")
 
 
-def test_m_of_n_complete_column_with_total_known() -> None:
+def test_m_of_n_complete_column_with_total_known():
     """Display counts when total is known"""
 
     column = _MofNCompleteColumn(style="green")
@@ -99,7 +95,7 @@ def test_m_of_n_complete_column_with_total_known() -> None:
     assert_text(text, "    5/42")
 
 
-def test_m_of_n_complete_column_with_unknown_total() -> None:
+def test_m_of_n_complete_column_with_unknown_total():
     """Display counts when total is unknown"""
 
     column = _MofNCompleteColumn()
@@ -110,7 +106,7 @@ def test_m_of_n_complete_column_with_unknown_total() -> None:
     assert_text(text, "   7/?")
 
 
-def test_total_cost_column_with_and_without_cost() -> None:
+def test_total_cost_column_with_and_without_cost():
     """Show cost text only when present"""
 
     column = _TotalCostColumn()
@@ -122,13 +118,13 @@ def test_total_cost_column_with_and_without_cost() -> None:
     assert_text(cost_text, "($3.46)")
 
 
-def test_group_property_returns_group(progress_bars) -> None:
+def test_group_property_returns_group(progress_bars):
     """Expose default progress group"""
 
     assert progress_bars.group.renderables == [progress_bars._main]
 
 
-def test_create_main_task_single_and_duplicate_error(console) -> None:
+def test_create_main_task_single_and_duplicate_error(console):
     """Guard against duplicate main tasks"""
 
     bars = _COMPASSProgressBars(console=console)
@@ -143,7 +139,7 @@ def test_create_main_task_single_and_duplicate_error(console) -> None:
     bars._main.stop()
 
 
-def test_create_main_task_multiple(progress_bars) -> None:
+def test_create_main_task_multiple(progress_bars):
     """Format description for multiple jurisdictions"""
 
     progress_bars.create_main_task(3)
@@ -152,14 +148,14 @@ def test_create_main_task_multiple(progress_bars) -> None:
     assert "Searching 3 Jurisdictions" in task.description
 
 
-def test_progress_main_task_requires_initialization(progress_bars) -> None:
+def test_progress_main_task_requires_initialization(progress_bars):
     """Require initialization before advancing main task"""
 
     with pytest.raises(COMPASSNotInitializedError):
         progress_bars.progress_main_task()
 
 
-def test_progress_main_task_advances(progress_bars) -> None:
+def test_progress_main_task_advances(progress_bars):
     """Advance main task increments progress"""
 
     progress_bars.create_main_task(2)
@@ -170,7 +166,7 @@ def test_progress_main_task_advances(progress_bars) -> None:
     assert task.completed == 1
 
 
-def test_update_total_cost_handles_add_and_replace(progress_bars) -> None:
+def test_update_total_cost_handles_add_and_replace(progress_bars):
     """Handle cost updates for add and replace paths"""
 
     progress_bars.create_main_task(1)
@@ -188,14 +184,14 @@ def test_update_total_cost_handles_add_and_replace(progress_bars) -> None:
     assert task.fields["total_cost"] == pytest.approx(5.0)
 
 
-def test_update_total_cost_without_main(progress_bars) -> None:
+def test_update_total_cost_without_main(progress_bars):
     """Track cost updates without main task"""
 
     progress_bars.update_total_cost(2.0)
     assert progress_bars._total_cost == pytest.approx(2.0)
 
 
-def test_jurisdiction_prog_bar_lifecycle(progress_bars) -> None:
+def test_jurisdiction_prog_bar_lifecycle(progress_bars):
     """Manage lifecycle for jurisdiction bars"""
 
     progress_bars.create_main_task(1)
@@ -204,7 +200,7 @@ def test_jurisdiction_prog_bar_lifecycle(progress_bars) -> None:
         assert "Denmark" in progress_bars._jd_pbs
         progress_bars.update_jurisdiction_task("Denmark", description="Work")
 
-        def enter_duplicate() -> None:
+        def enter_duplicate():
             with ExitStack() as stack:
                 stack.enter_context(
                     progress_bars.jurisdiction_prog_bar("Denmark")
@@ -220,7 +216,7 @@ def test_jurisdiction_prog_bar_lifecycle(progress_bars) -> None:
     assert "Denmark" not in progress_bars._jd_pbs
 
 
-def test_jurisdiction_prog_bar_without_progress_main(progress_bars) -> None:
+def test_jurisdiction_prog_bar_without_progress_main(progress_bars):
     """Skip main progress when requested"""
 
     progress_bars.create_main_task(1)
@@ -232,7 +228,7 @@ def test_jurisdiction_prog_bar_without_progress_main(progress_bars) -> None:
     assert task.completed == 0
 
 
-def test_jurisdiction_sub_prog_inserts_after_parent(progress_bars) -> None:
+def test_jurisdiction_sub_prog_inserts_after_parent(progress_bars):
     """Insert sub progress after parent bar"""
 
     progress_bars.create_main_task(1)
@@ -248,7 +244,7 @@ def test_jurisdiction_sub_prog_inserts_after_parent(progress_bars) -> None:
     assert not any("Sweden" in str(item) for item in renderables)
 
 
-def test_jurisdiction_sub_prog_without_parent(progress_bars) -> None:
+def test_jurisdiction_sub_prog_without_parent(progress_bars):
     """Create sub progress without parent bar"""
 
     assert "Norway" not in progress_bars._jd_pbs
@@ -261,7 +257,7 @@ def test_jurisdiction_sub_prog_without_parent(progress_bars) -> None:
     assert sub_pb not in progress_bars.group.renderables
 
 
-def test_jurisdiction_sub_prog_bar_updates_fields(progress_bars) -> None:
+def test_jurisdiction_sub_prog_bar_updates_fields(progress_bars):
     """Update jurisdiction sub progress fields"""
 
     progress_bars.create_main_task(1)
@@ -282,7 +278,7 @@ def test_jurisdiction_sub_prog_bar_updates_fields(progress_bars) -> None:
     assert "Iceland" not in progress_bars._jd_pbs
 
 
-def test_jurisdiction_sub_prog_bar_without_parent(progress_bars) -> None:
+def test_jurisdiction_sub_prog_bar_without_parent(progress_bars):
     """Place sub progress bar at end when no parent exists"""
 
     start_len = len(progress_bars.group.renderables)
@@ -301,13 +297,13 @@ def test_jurisdiction_sub_prog_bar_without_parent(progress_bars) -> None:
 async def test_file_download_prog_bar_async_lifecycle(
     progress_bars,
     monkeypatch,
-) -> None:
+):
     """Drive async lifecycle for download progress bar"""
 
-    calls: list[int] = []
+    calls = []
     original_sleep = pb_module.asyncio.sleep
 
-    async def fake_sleep(duration: int) -> None:
+    async def fake_sleep(duration):
         calls.append(duration)
         await original_sleep(0)
 
@@ -332,7 +328,7 @@ async def test_file_download_prog_bar_async_lifecycle(
 async def test_file_download_prog_bar_positions_after_jurisdiction(
     progress_bars,
     monkeypatch,
-) -> None:
+):
     """Insert download progress immediately after jurisdiction bar"""
 
     _patch_sleep(monkeypatch)
@@ -358,12 +354,12 @@ async def test_file_download_prog_bar_positions_after_jurisdiction(
 async def test_start_file_download_prog_bar_duplicate(
     progress_bars,
     monkeypatch,
-) -> None:
+):
     """Prevent duplicate download progress bars"""
 
     original_sleep = pb_module.asyncio.sleep
 
-    async def fake_sleep(_: int) -> None:
+    async def fake_sleep(_):
         await original_sleep(0)
 
     monkeypatch.setattr(pb_module.asyncio, "sleep", fake_sleep)
@@ -384,13 +380,13 @@ async def test_start_file_download_prog_bar_duplicate(
     assert "France" not in progress_bars._dl_pbs
 
 
-def _patch_sleep(monkeypatch) -> Callable[[], list[int]]:
+def _patch_sleep(monkeypatch):
     """Patch asyncio.sleep and capture durations"""
 
-    calls: list[int] = []
+    calls = []
     original_sleep = pb_module.asyncio.sleep
 
-    async def fake_sleep(duration: int) -> None:
+    async def fake_sleep(duration):
         calls.append(duration)
         await original_sleep(0)
 
@@ -399,7 +395,7 @@ def _patch_sleep(monkeypatch) -> Callable[[], list[int]]:
 
 
 @pytest.mark.asyncio()
-async def test_website_crawl_prog_bar(progress_bars, monkeypatch) -> None:
+async def test_website_crawl_prog_bar(progress_bars, monkeypatch):
     """Drive async lifecycle for website crawl progress bar"""
 
     calls_getter = _patch_sleep(monkeypatch)
@@ -423,7 +419,7 @@ async def test_website_crawl_prog_bar(progress_bars, monkeypatch) -> None:
 async def test_website_crawl_prog_bar_positions_after_jurisdiction(
     progress_bars,
     monkeypatch,
-) -> None:
+):
     """Insert website crawl progress immediately after jurisdiction bar"""
 
     calls_getter = _patch_sleep(monkeypatch)
@@ -450,7 +446,7 @@ async def test_website_crawl_prog_bar_positions_after_jurisdiction(
 async def test_file_download_prog_bar_positions_without_jurisdiction(
     progress_bars,
     monkeypatch,
-) -> None:
+):
     """Place download progress at end when no jurisdiction bar exists"""
 
     calls_getter = _patch_sleep(monkeypatch)
@@ -473,7 +469,7 @@ async def test_file_download_prog_bar_positions_without_jurisdiction(
 async def test_website_crawl_prog_bar_duplicate(
     progress_bars,
     monkeypatch,
-) -> None:
+):
     """Prevent duplicate website crawl progress bars"""
 
     _patch_sleep(monkeypatch)
@@ -498,7 +494,7 @@ async def test_website_crawl_prog_bar_duplicate(
 async def test_compass_website_crawl_prog_bar(
     progress_bars,
     monkeypatch,
-) -> None:
+):
     """Drive async lifecycle for compass crawl progress bar"""
 
     calls_getter = _patch_sleep(monkeypatch)
@@ -525,7 +521,7 @@ async def test_compass_website_crawl_prog_bar(
 async def test_compass_website_crawl_prog_bar_positions_after_jurisdiction(
     progress_bars,
     monkeypatch,
-) -> None:
+):
     """Insert compass crawl progress immediately after jurisdiction bar"""
 
     calls_getter = _patch_sleep(monkeypatch)
@@ -552,7 +548,7 @@ async def test_compass_website_crawl_prog_bar_positions_after_jurisdiction(
 async def test_compass_website_crawl_prog_bar_duplicate(
     progress_bars,
     monkeypatch,
-) -> None:
+):
     """Prevent duplicate compass crawl progress bars"""
 
     _patch_sleep(monkeypatch)
@@ -573,7 +569,7 @@ async def test_compass_website_crawl_prog_bar_duplicate(
     assert "Iceland" not in progress_bars._cwc_pbs
 
 
-def test_singleton_instance_accessible(console) -> None:
+def test_singleton_instance_accessible(console):
     """Expose singleton progress bar instance"""
 
     assert isinstance(COMPASS_PB, _COMPASSProgressBars)
