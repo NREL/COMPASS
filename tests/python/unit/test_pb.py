@@ -6,15 +6,8 @@ from io import StringIO
 import pytest
 from rich.console import Console
 
-from compass import pb as pb_module
+import compass.pb
 from compass.exceptions import COMPASSNotInitializedError, COMPASSValueError
-from compass.pb import (
-    COMPASS_PB,
-    _COMPASSProgressBars,
-    _MofNCompleteColumn,
-    _TimeElapsedColumn,
-    _TotalCostColumn,
-)
 
 
 @pytest.fixture
@@ -26,7 +19,7 @@ def console():
 @pytest.fixture
 def progress_bars(console):
     """Fresh progress bar manager for each test"""
-    manager = _COMPASSProgressBars(console=console)
+    manager = compass.pb._COMPASSProgressBars(console=console)
     try:
         yield manager
     finally:
@@ -58,7 +51,7 @@ class _DummyTask:
 
 def test_time_elapsed_column_handles_missing_elapsed():
     """Render placeholder when elapsed time is missing"""
-    column = _TimeElapsedColumn()
+    column = compass.pb._TimeElapsedColumn()
     task = _DummyTask()
 
     text = column.render(task)
@@ -67,7 +60,7 @@ def test_time_elapsed_column_handles_missing_elapsed():
 
 def test_time_elapsed_column_uses_finished_time():
     """Render finished time when task completes"""
-    column = _TimeElapsedColumn()
+    column = compass.pb._TimeElapsedColumn()
     task = _DummyTask(finished=True, finished_time=125.7)
 
     text = column.render(task)
@@ -76,7 +69,7 @@ def test_time_elapsed_column_uses_finished_time():
 
 def test_m_of_n_complete_column_with_total_known():
     """Display counts when total is known"""
-    column = _MofNCompleteColumn(style="green")
+    column = compass.pb._MofNCompleteColumn(style="green")
     task = _DummyTask(completed=5, total=42)
 
     text = column.render(task)
@@ -86,7 +79,7 @@ def test_m_of_n_complete_column_with_total_known():
 def test_m_of_n_complete_column_with_unknown_total():
     """Display counts when total is unknown"""
 
-    column = _MofNCompleteColumn()
+    column = compass.pb._MofNCompleteColumn()
     task = _DummyTask(completed=7)
 
     text = column.render(task)
@@ -95,7 +88,7 @@ def test_m_of_n_complete_column_with_unknown_total():
 
 def test_total_cost_column_with_and_without_cost():
     """Show cost text only when present"""
-    column = _TotalCostColumn()
+    column = compass.pb._TotalCostColumn()
 
     zero_text = column.render(_DummyTask(fields={"total_cost": 0}))
     cost_text = column.render(_DummyTask(fields={"total_cost": 3.456}))
@@ -111,7 +104,7 @@ def test_group_property_returns_group(progress_bars):
 
 def test_create_main_task_single_and_duplicate_error(console):
     """Guard against duplicate main tasks"""
-    bars = _COMPASSProgressBars(console=console)
+    bars = compass.pb._COMPASSProgressBars(console=console)
     bars.create_main_task(1)
 
     task = bars._main.tasks[bars._main_task]
@@ -273,13 +266,13 @@ async def test_file_download_prog_bar_async_lifecycle(
 ):
     """Drive async lifecycle for download progress bar"""
     calls = []
-    original_sleep = pb_module.asyncio.sleep
+    original_sleep = compass.pb.asyncio.sleep
 
     async def fake_sleep(duration):
         calls.append(duration)
         await original_sleep(0)
 
-    monkeypatch.setattr(pb_module.asyncio, "sleep", fake_sleep)
+    monkeypatch.setattr(compass.pb.asyncio, "sleep", fake_sleep)
 
     progress_bars.create_main_task(1)
 
@@ -323,12 +316,12 @@ async def test_start_file_download_prog_bar_duplicate(
     progress_bars, monkeypatch
 ):
     """Prevent duplicate download progress bars"""
-    original_sleep = pb_module.asyncio.sleep
+    original_sleep = compass.pb.asyncio.sleep
 
     async def fake_sleep(_):
         await original_sleep(0)
 
-    monkeypatch.setattr(pb_module.asyncio, "sleep", fake_sleep)
+    monkeypatch.setattr(compass.pb.asyncio, "sleep", fake_sleep)
 
     dl_pb, task = progress_bars.start_file_download_prog_bar("France", 1)
 
@@ -346,13 +339,13 @@ async def test_start_file_download_prog_bar_duplicate(
 def _patch_sleep(monkeypatch):
     """Patch asyncio.sleep and capture durations"""
     calls = []
-    original_sleep = pb_module.asyncio.sleep
+    original_sleep = compass.pb.asyncio.sleep
 
     async def fake_sleep(duration):
         calls.append(duration)
         await original_sleep(0)
 
-    monkeypatch.setattr(pb_module.asyncio, "sleep", fake_sleep)
+    monkeypatch.setattr(compass.pb.asyncio, "sleep", fake_sleep)
     return lambda: calls
 
 
@@ -504,6 +497,4 @@ async def test_compass_website_crawl_prog_bar_duplicate(
 
 def test_singleton_instance_accessible(console):
     """Expose singleton progress bar instance"""
-
-    assert isinstance(COMPASS_PB, _COMPASSProgressBars)
-    COMPASS_PB.console = console
+    assert isinstance(compass.pb.COMPASS_PB, compass.pb._COMPASSProgressBars)
