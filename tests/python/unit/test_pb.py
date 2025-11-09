@@ -209,8 +209,9 @@ def test_jurisdiction_sub_prog_inserts_after_parent(progress_bars):
         )
         assert sub_pb in progress_bars.group.renderables
 
-    renderables = progress_bars.group.renderables
-    assert not any("Sweden" in str(item) for item in renderables)
+    assert not any(
+        "Sweden" in str(item) for item in progress_bars.group.renderables
+    )
 
 
 def test_jurisdiction_sub_prog_without_parent(progress_bars):
