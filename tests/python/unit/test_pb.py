@@ -282,6 +282,21 @@ def test_jurisdiction_sub_prog_bar_updates_fields(progress_bars) -> None:
     assert "Iceland" not in progress_bars._jd_pbs
 
 
+def test_jurisdiction_sub_prog_bar_without_parent(progress_bars) -> None:
+    """Place sub progress bar at end when no parent exists"""
+
+    start_len = len(progress_bars.group.renderables)
+
+    with progress_bars.jurisdiction_sub_prog_bar("Portugal") as sub_pb:
+        assert progress_bars._jd_pbs.get("Portugal") is None
+        assert progress_bars.group.renderables.index(sub_pb) == start_len
+
+        task_id = sub_pb.add_task("extracting", total=2)
+        sub_pb.advance(task_id)
+
+    assert sub_pb not in progress_bars.group.renderables
+
+
 @pytest.mark.asyncio()
 async def test_file_download_prog_bar_async_lifecycle(
     progress_bars,
