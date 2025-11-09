@@ -23,5 +23,7 @@ def test_version_string_present():
 def test_version_semantic_shape():
     """Version matches dev semver pattern"""
     v = compass.__version__
-    assert SEMVER_DEV_PATTERN.match(v)
-    assert v != "9999"
+    assert SEMVER_DEV_PATTERN.match(v) is not None, (
+        f"Version {v} does not match expected pattern"
+    )
+    assert v != "9999", "Version set to placeholder"
