@@ -56,12 +56,6 @@ class _DummyTask:
         self.description = description
 
 
-def assert_text(text, expected):
-    """Compare Text objects using their plain representation"""
-
-    assert text.plain == expected
-
-
 def test_time_elapsed_column_handles_missing_elapsed():
     """Render placeholder when elapsed time is missing"""
 
@@ -69,8 +63,7 @@ def test_time_elapsed_column_handles_missing_elapsed():
     task = _DummyTask()
 
     text = column.render(task)
-
-    assert_text(text, "[-:--:--]")
+    assert text.plain == "[-:--:--]"
 
 
 def test_time_elapsed_column_uses_finished_time():
@@ -80,8 +73,7 @@ def test_time_elapsed_column_uses_finished_time():
     task = _DummyTask(finished=True, finished_time=125.7)
 
     text = column.render(task)
-
-    assert_text(text, "[0:02:05]")
+    assert text.plain == "[0:02:05]"
 
 
 def test_m_of_n_complete_column_with_total_known():
@@ -91,8 +83,7 @@ def test_m_of_n_complete_column_with_total_known():
     task = _DummyTask(completed=5, total=42)
 
     text = column.render(task)
-
-    assert_text(text, "    5/42")
+    assert text.plain == "    5/42"
 
 
 def test_m_of_n_complete_column_with_unknown_total():
@@ -102,8 +93,7 @@ def test_m_of_n_complete_column_with_unknown_total():
     task = _DummyTask(completed=7)
 
     text = column.render(task)
-
-    assert_text(text, "   7/?")
+    assert text.plain == "   7/?"
 
 
 def test_total_cost_column_with_and_without_cost():
@@ -114,8 +104,8 @@ def test_total_cost_column_with_and_without_cost():
     zero_text = column.render(_DummyTask(fields={"total_cost": 0}))
     cost_text = column.render(_DummyTask(fields={"total_cost": 3.456}))
 
-    assert_text(zero_text, "")
-    assert_text(cost_text, "($3.46)")
+    assert not zero_text.plain
+    assert cost_text.plain == "($3.46)"
 
 
 def test_group_property_returns_group(progress_bars):
@@ -311,8 +301,7 @@ async def test_file_download_prog_bar_async_lifecycle(
     progress_bars.create_main_task(1)
 
     async with progress_bars.file_download_prog_bar(
-        "Finland",
-        num_downloads=2,
+        "Finland", num_downloads=2
     ) as dl_pb:
         dl_task = progress_bars._dl_tasks["Finland"]
         dl_pb.advance(dl_task)
