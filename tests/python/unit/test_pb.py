@@ -17,14 +17,14 @@ from compass.pb import (
 )
 
 
-@pytest.fixture(name="console")
-def fixture_console():
+@pytest.fixture
+def console():
     """Console directed to an in-memory buffer for deterministic tests"""
     return Console(file=StringIO(), color_system=None, force_terminal=False)
 
 
-@pytest.fixture(name="progress_bars")
-def fixture_progress_bars(console):
+@pytest.fixture
+def progress_bars(console):
     """Fresh progress bar manager for each test"""
     manager = _COMPASSProgressBars(console=console)
     try:
