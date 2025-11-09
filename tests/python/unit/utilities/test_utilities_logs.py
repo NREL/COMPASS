@@ -131,43 +131,48 @@ async def test_location_file_log_async_context(tmp_path):
 
     original_sleep = LocationFileLog.ASYNC_EXIT_SLEEP_SECONDS
     LocationFileLog.ASYNC_EXIT_SLEEP_SECONDS = 0.01
-    logger_name = "async_location_logger"
-    logger = logging.getLogger(logger_name)
-    logger.handlers = []
+    try:
+        logger_name = "async_location_logger"
+        logger = logging.getLogger(logger_name)
+        logger.handlers = []
 
-    log_dir = tmp_path / "async_logs"
+        log_dir = tmp_path / "async_logs"
 
-    async def _produce_logs(listener):
-        async with LocationFileLog(listener, log_dir, location="async_loc"):
-            logger.info("async info message")
-            try:
-                raise ValueError("async failure")
-            except ValueError:
-                logger.exception("async failure")
+        async def _produce_logs(listener):
+            async with LocationFileLog(
+                listener, log_dir, location="async_loc"
+            ):
+                logger.info("async info message")
+                try:
+                    raise ValueError("async failure")
+                except ValueError:
+                    logger.exception("async failure")
 
-    async with LogListener([logger_name], level="INFO") as listener:
-        task = asyncio.create_task(_produce_logs(listener), name="async_loc")
-        await task
+        async with LogListener([logger_name], level="INFO") as listener:
+            task = asyncio.create_task(
+                _produce_logs(listener), name="async_loc"
+            )
+            await task
 
-    text_log = log_dir / "async_loc.log"
-    json_log = log_dir / "async_loc exceptions.json"
-    assert text_log.exists()
-    assert json_log.exists()
+        text_log = log_dir / "async_loc.log"
+        json_log = log_dir / "async_loc exceptions.json"
+        assert text_log.exists()
+        assert json_log.exists()
 
-    log_text = text_log.read_text(encoding="utf-8")
-    assert "async info message" in log_text
-    assert "async failure" in log_text
+        log_text = text_log.read_text(encoding="utf-8")
+        assert "async info message" in log_text
+        assert "async failure" in log_text
 
-    json_content = json.loads(json_log.read_text(encoding="utf-8"))
-    assert "test_utilities_logs" in json_content
-    assert "ValueError" in json_content["test_utilities_logs"]
-    entries = json_content["test_utilities_logs"]["ValueError"]
-    assert len(entries) == 1
-    assert entries[0]["message"] == "async failure"
-    assert entries[0]["exc_text"] == "async failure"
-    assert entries[0]["taskName"] == "async_loc"
-
-    LocationFileLog.ASYNC_EXIT_SLEEP_SECONDS = original_sleep
+        json_content = json.loads(json_log.read_text(encoding="utf-8"))
+        assert "test_utilities_logs" in json_content
+        assert "ValueError" in json_content["test_utilities_logs"]
+        entries = json_content["test_utilities_logs"]["ValueError"]
+        assert len(entries) == 1
+        assert entries[0]["message"] == "async failure"
+        assert entries[0]["exc_text"] == "async failure"
+        assert entries[0]["taskName"] == "async_loc"
+    finally:
+        LocationFileLog.ASYNC_EXIT_SLEEP_SECONDS = original_sleep
 
 
 def test_location_file_log_breakdown_without_handler(tmp_path):
@@ -176,7 +181,7 @@ def test_location_file_log_breakdown_without_handler(tmp_path):
     listener = _DummyListener()
     log = LocationFileLog(listener, tmp_path, location="loc")
 
-    log._break_down_handler()
+    log._break_down_handler()  # no AttributeError thrown
     log._remove_handler_from_listener()
 
     assert not listener.removed_handlers
@@ -188,7 +193,7 @@ def test_location_file_log_exception_breakdown_without_handler(tmp_path):
     listener = _DummyListener()
     log = LocationFileLog(listener, tmp_path, location="loc")
 
-    log._break_down_exception_handler()
+    log._break_down_exception_handler()  # no AttributeError thrown
     log._remove_exception_handler_from_listener()
 
     assert not listener.removed_handlers
@@ -200,7 +205,9 @@ def test_location_file_log_add_handler_without_setup(tmp_path):
     listener = _DummyListener()
     log = LocationFileLog(listener, tmp_path, location="loc")
 
-    with pytest.raises(COMPASSValueError):
+    with pytest.raises(
+        COMPASSValueError, match="Must set up handler before listener!"
+    ):
         log._add_handler_to_listener()
 
 
@@ -210,7 +217,10 @@ def test_location_file_log_add_exception_handler_without_setup(tmp_path):
     listener = _DummyListener()
     log = LocationFileLog(listener, tmp_path, location="loc")
 
-    with pytest.raises(COMPASSValueError):
+    with pytest.raises(
+        COMPASSValueError,
+        match="Must set up exception handler before listener!",
+    ):
         log._add_exception_handler_to_listener()
 
 
