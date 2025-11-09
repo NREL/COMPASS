@@ -377,6 +377,37 @@ def test_json_exception_file_handler_emit_type_error(tmp_path, monkeypatch):
     assert test_file.read_text(encoding="utf-8") == original_content
 
 
+def test_json_exception_file_handler_invalid_json(tmp_path):
+    """Test _JsonExceptionFileHandler handles invalid JSON gracefully"""
+    test_file = tmp_path / "test_exceptions.json"
+    test_file.write_text("not a valid json!", encoding="utf-8")
+
+    handler = _JsonExceptionFileHandler(test_file)
+
+    record = _sample_log_record(
+        level=logging.ERROR,
+        pathname="test.py",
+        lineno=30,
+        msg="error after invalid json",
+        func="test_func",
+    )
+    record.taskName = "test_task"
+    record.module = "invalid_json_module"
+
+    _attach_value_error_exc_info(record, "exception after invalid json")
+
+    handler.emit(record)
+    handler.close()
+
+    content = json.loads(test_file.read_text(encoding="utf-8"))
+    assert "invalid_json_module" in content
+    assert "ValueError" in content["invalid_json_module"]
+    entries = content["invalid_json_module"]["ValueError"]
+    assert len(entries) == 1
+    assert entries[0]["message"] == "error after invalid json"
+    assert entries[0]["exc_text"] == "exception after invalid json"
+
+
 def test_json_exception_file_handler_emit(tmp_path):
     """Test _JsonExceptionFileHandler correctly writes exceptions to JSON"""
     test_file = tmp_path / "test_exceptions.json"
