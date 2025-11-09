@@ -8,6 +8,7 @@ from pathlib import Path
 
 import pytest
 
+from compass.exceptions import COMPASSValueError
 from compass.services.provider import RunningAsyncServices
 from compass.utilities.logs import (
     AddLocationFilter,
@@ -22,6 +23,18 @@ from compass.utilities.logs import (
     _setup_logging_levels,
     LOGGING_QUEUE,
 )
+
+
+class _DummyListener:
+    def __init__(self):
+        self.added_handlers = []
+        self.removed_handlers = []
+
+    def addHandler(self, handler):  # noqa: N802
+        self.added_handlers.append(handler)
+
+    def removeHandler(self, handler):  # noqa: N802
+        self.removed_handlers.append(handler)
 
 
 def _sample_log_record(
@@ -155,6 +168,50 @@ async def test_location_file_log_async_context(tmp_path):
     assert entries[0]["taskName"] == "async_loc"
 
     LocationFileLog.ASYNC_EXIT_SLEEP_SECONDS = original_sleep
+
+
+def test_location_file_log_breakdown_without_handler(tmp_path):
+    """Ensure handler teardown skips when handler is missing"""
+
+    listener = _DummyListener()
+    log = LocationFileLog(listener, tmp_path, location="loc")
+
+    log._break_down_handler()
+    log._remove_handler_from_listener()
+
+    assert not listener.removed_handlers
+
+
+def test_location_file_log_exception_breakdown_without_handler(tmp_path):
+    """Ensure exception handler teardown skips when handler missing"""
+
+    listener = _DummyListener()
+    log = LocationFileLog(listener, tmp_path, location="loc")
+
+    log._break_down_exception_handler()
+    log._remove_exception_handler_from_listener()
+
+    assert not listener.removed_handlers
+
+
+def test_location_file_log_add_handler_without_setup(tmp_path):
+    """Ensure add handler raises when handler not set up"""
+
+    listener = _DummyListener()
+    log = LocationFileLog(listener, tmp_path, location="loc")
+
+    with pytest.raises(COMPASSValueError):
+        log._add_handler_to_listener()
+
+
+def test_location_file_log_add_exception_handler_without_setup(tmp_path):
+    """Ensure add exception handler raises when handler not set up"""
+
+    listener = _DummyListener()
+    log = LocationFileLog(listener, tmp_path, location="loc")
+
+    with pytest.raises(COMPASSValueError):
+        log._add_exception_handler_to_listener()
 
 
 def test_no_location_filter():
