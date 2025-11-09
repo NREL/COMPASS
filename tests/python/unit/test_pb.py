@@ -33,7 +33,7 @@ def fixture_progress_bars(console):
     manager._main.stop()
 
 
-class DummyTask:
+class _DummyTask:
     """Lightweight object exposing attributes used by rich tasks"""
 
     def __init__(
@@ -66,7 +66,7 @@ def test_time_elapsed_column_handles_missing_elapsed():
     """Render placeholder when elapsed time is missing"""
 
     column = _TimeElapsedColumn()
-    task = DummyTask()
+    task = _DummyTask()
 
     text = column.render(task)
 
@@ -77,7 +77,7 @@ def test_time_elapsed_column_uses_finished_time():
     """Render finished time when task completes"""
 
     column = _TimeElapsedColumn()
-    task = DummyTask(finished=True, finished_time=125.7)
+    task = _DummyTask(finished=True, finished_time=125.7)
 
     text = column.render(task)
 
@@ -88,7 +88,7 @@ def test_m_of_n_complete_column_with_total_known():
     """Display counts when total is known"""
 
     column = _MofNCompleteColumn(style="green")
-    task = DummyTask(completed=5, total=42)
+    task = _DummyTask(completed=5, total=42)
 
     text = column.render(task)
 
@@ -99,7 +99,7 @@ def test_m_of_n_complete_column_with_unknown_total():
     """Display counts when total is unknown"""
 
     column = _MofNCompleteColumn()
-    task = DummyTask(completed=7)
+    task = _DummyTask(completed=7)
 
     text = column.render(task)
 
@@ -111,8 +111,8 @@ def test_total_cost_column_with_and_without_cost():
 
     column = _TotalCostColumn()
 
-    zero_text = column.render(DummyTask(fields={"total_cost": 0}))
-    cost_text = column.render(DummyTask(fields={"total_cost": 3.456}))
+    zero_text = column.render(_DummyTask(fields={"total_cost": 0}))
+    cost_text = column.render(_DummyTask(fields={"total_cost": 3.456}))
 
     assert_text(zero_text, "")
     assert_text(cost_text, "($3.46)")
@@ -295,8 +295,7 @@ def test_jurisdiction_sub_prog_bar_without_parent(progress_bars):
 
 @pytest.mark.asyncio()
 async def test_file_download_prog_bar_async_lifecycle(
-    progress_bars,
-    monkeypatch,
+    progress_bars, monkeypatch
 ):
     """Drive async lifecycle for download progress bar"""
 
@@ -326,8 +325,7 @@ async def test_file_download_prog_bar_async_lifecycle(
 
 @pytest.mark.asyncio()
 async def test_file_download_prog_bar_positions_after_jurisdiction(
-    progress_bars,
-    monkeypatch,
+    progress_bars, monkeypatch
 ):
     """Insert download progress immediately after jurisdiction bar"""
 
@@ -336,8 +334,7 @@ async def test_file_download_prog_bar_positions_after_jurisdiction(
 
     with progress_bars.jurisdiction_prog_bar("Poland"):
         async with progress_bars.file_download_prog_bar(
-            "Poland",
-            num_downloads=1,
+            "Poland", num_downloads=1
         ) as dl_pb:
             jd_index = progress_bars.group.renderables.index(
                 progress_bars._jd_pbs["Poland"]
@@ -352,8 +349,7 @@ async def test_file_download_prog_bar_positions_after_jurisdiction(
 
 @pytest.mark.asyncio()
 async def test_start_file_download_prog_bar_duplicate(
-    progress_bars,
-    monkeypatch,
+    progress_bars, monkeypatch
 ):
     """Prevent duplicate download progress bars"""
 
@@ -371,10 +367,7 @@ async def test_start_file_download_prog_bar_duplicate(
 
     progress_bars._dl_tasks["France"] = dl_pb.add_task("extra")
     await progress_bars.tear_down_file_download_prog_bar(
-        "France",
-        1,
-        dl_pb,
-        task,
+        "France", 1, dl_pb, task
     )
 
     assert "France" not in progress_bars._dl_pbs
@@ -403,8 +396,7 @@ async def test_website_crawl_prog_bar(progress_bars, monkeypatch):
     progress_bars.create_main_task(1)
 
     async with progress_bars.website_crawl_prog_bar(
-        "Germany",
-        num_pages=3,
+        "Germany", num_pages=3
     ) as wc_pb:
         progress_bars.update_website_crawl_doc_found("Germany")
         progress_bars.update_website_crawl_doc_found("Germany")
@@ -417,8 +409,7 @@ async def test_website_crawl_prog_bar(progress_bars, monkeypatch):
 
 @pytest.mark.asyncio()
 async def test_website_crawl_prog_bar_positions_after_jurisdiction(
-    progress_bars,
-    monkeypatch,
+    progress_bars, monkeypatch
 ):
     """Insert website crawl progress immediately after jurisdiction bar"""
 
@@ -427,8 +418,7 @@ async def test_website_crawl_prog_bar_positions_after_jurisdiction(
 
     with progress_bars.jurisdiction_prog_bar("Poland"):
         async with progress_bars.website_crawl_prog_bar(
-            "Poland",
-            num_pages=1,
+            "Poland", num_pages=1
         ) as wc_pb:
             jd_index = progress_bars.group.renderables.index(
                 progress_bars._jd_pbs["Poland"]
@@ -444,8 +434,7 @@ async def test_website_crawl_prog_bar_positions_after_jurisdiction(
 
 @pytest.mark.asyncio()
 async def test_file_download_prog_bar_positions_without_jurisdiction(
-    progress_bars,
-    monkeypatch,
+    progress_bars, monkeypatch
 ):
     """Place download progress at end when no jurisdiction bar exists"""
 
@@ -456,32 +445,24 @@ async def test_file_download_prog_bar_positions_without_jurisdiction(
     assert progress_bars.group.renderables[-1] is dl_pb
 
     await progress_bars.tear_down_file_download_prog_bar(
-        "Greece",
-        2,
-        dl_pb,
-        task,
+        "Greece", 2, dl_pb, task
     )
 
     assert calls_getter() == [1]
 
 
 @pytest.mark.asyncio()
-async def test_website_crawl_prog_bar_duplicate(
-    progress_bars,
-    monkeypatch,
-):
+async def test_website_crawl_prog_bar_duplicate(progress_bars, monkeypatch):
     """Prevent duplicate website crawl progress bars"""
 
     _patch_sleep(monkeypatch)
 
     async with progress_bars.website_crawl_prog_bar(
-        "Italy",
-        num_pages=1,
+        "Italy", num_pages=1
     ) as wc_pb:
         with pytest.raises(COMPASSValueError):
             async with progress_bars.website_crawl_prog_bar(
-                "Italy",
-                num_pages=1,
+                "Italy", num_pages=1
             ):
                 pass
 
@@ -491,10 +472,7 @@ async def test_website_crawl_prog_bar_duplicate(
 
 
 @pytest.mark.asyncio()
-async def test_compass_website_crawl_prog_bar(
-    progress_bars,
-    monkeypatch,
-):
+async def test_compass_website_crawl_prog_bar(progress_bars, monkeypatch):
     """Drive async lifecycle for compass crawl progress bar"""
 
     calls_getter = _patch_sleep(monkeypatch)
@@ -507,10 +485,7 @@ async def test_compass_website_crawl_prog_bar(
     ) as cwc_pb:
         progress_bars.update_compass_website_crawl_doc_found("Hungary")
         progress_bars.update_compass_website_crawl_doc_found("Hungary")
-        progress_bars.update_compass_website_crawl_task(
-            "Hungary",
-            completed=1,
-        )
+        progress_bars.update_compass_website_crawl_task("Hungary", completed=1)
         progress_bars._cwc_tasks["Hungary"] = cwc_pb.add_task("extra")
 
     assert "Hungary" not in progress_bars._cwc_pbs
@@ -519,8 +494,7 @@ async def test_compass_website_crawl_prog_bar(
 
 @pytest.mark.asyncio()
 async def test_compass_website_crawl_prog_bar_positions_after_jurisdiction(
-    progress_bars,
-    monkeypatch,
+    progress_bars, monkeypatch
 ):
     """Insert compass crawl progress immediately after jurisdiction bar"""
 
@@ -529,8 +503,7 @@ async def test_compass_website_crawl_prog_bar_positions_after_jurisdiction(
 
     with progress_bars.jurisdiction_prog_bar("Poland"):
         async with progress_bars.compass_website_crawl_prog_bar(
-            "Poland",
-            num_pages=1,
+            "Poland", num_pages=1
         ) as cwc_pb:
             jd_index = progress_bars.group.renderables.index(
                 progress_bars._jd_pbs["Poland"]
@@ -546,8 +519,7 @@ async def test_compass_website_crawl_prog_bar_positions_after_jurisdiction(
 
 @pytest.mark.asyncio()
 async def test_compass_website_crawl_prog_bar_duplicate(
-    progress_bars,
-    monkeypatch,
+    progress_bars, monkeypatch
 ):
     """Prevent duplicate compass crawl progress bars"""
 
@@ -559,8 +531,7 @@ async def test_compass_website_crawl_prog_bar_duplicate(
     ) as cwc_pb:
         with pytest.raises(COMPASSValueError):
             async with progress_bars.compass_website_crawl_prog_bar(
-                "Iceland",
-                num_pages=1,
+                "Iceland", num_pages=1
             ):
                 pass
 
