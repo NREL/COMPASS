@@ -391,3 +391,11 @@ Congratulations, you have just released a new version of COMPASS!
 
 You may want to verify that the release has been published to `PyPi <https://pypi.org/project/NREL-COMPASS/>`_
 (if not, check the "Upload to PyPi" GitHub Action).
+
+
+Copilot
+^^^^^^^
+This repo hosts a custom set of instructions for GitHub Copilot to help it write
+code aligned with COMPASS best practices. You can check out these instructions
+`here <https://github.com/NREL/COMPASS/blob/main/.github/copilot-instructions.md>`_
+(they may help your as well!).
