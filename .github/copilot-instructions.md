@@ -120,10 +120,11 @@ Example: Add a helper to print current package version.
 - Rust: check → fmt/clippy → tests.
 - Docs must build with `--fail-on-warning`; ensure new references are valid.
 
-## 12. Contribution & Style Extensions
-- Follow Development Guidelines in published docs for deeper details.
+## 13. Contribution & Style Extensions
+- Follow Development Guidelines in `docs/source/dev/README.rst` for deeper details.
 - Keep functions small; prefer pure helpers in `utilities/` with focused responsibilities.
-- Prefer dataclass or simple dicts over complex inheritance unless mirroring existing pattern in `services/` or `extraction/`.
+- Prefer simple dicts over dataclasses
+- Avoid complex inheritance unless mirroring existing pattern in `services/` or `extraction/`.
 
 ## 13. Quick Triage Guide for the Agent
 - Need data extraction change? Inspect `extraction/<domain>/parse.py` and corresponding `validation/` modules.
