@@ -398,4 +398,5 @@ Copilot
 This repo hosts a custom set of instructions for GitHub Copilot to help it write
 code aligned with COMPASS best practices. You can check out these instructions
 `here <https://github.com/NREL/COMPASS/blob/main/.github/copilot-instructions.md>`_
-(they may help your as well!).
+(they may help your as well!). If you have any suggestions on how to improve these
+instructions, please open a PR!
