@@ -84,14 +84,14 @@ Use `pixi add --feature pdev <package>` to add a dependency that is only used fo
 - When adding extraction logic, mirror structure in existing solar/wind parsing modules (graphs.py, ordinance.py, parse.py) and supply validation counterparts.
 
 ## 6. Docstring Guidelines (Python)
-- Use numpy-style docstrings to document classes, methods, and functions
-- Avoid type hints
-- Keep docstring length to 72 characters per line
+- Use numpy-style docstrings to document classes, methods, and functions.
+- Avoid type hints.
+- Keep docstring length to 72 characters per line.
 - Never include a period (".") at the end of the first line of docstrings.
-- Do not add a short summary to __init__ methods. Instead, keep the line blank and start the "Parameters" section after a second newline
+- Do not add a short summary to __init__ methods. Instead, keep the line blank and start the "Parameters" section after a second newline.
 - Do not document parameters in the class docstring - do that in the __init__ docstring instead.
-- All @property and @cached_property method documentation should be one line long and should start with the return type
-- "Protected" functions and methods should always be documented using only one-line summary docstrings
+- All @property and @cached_property method documentation should be one line long and should start with the return type.
+- "Protected" functions and methods should always be documented using only one-line summary docstrings.
 
 ## 7. Coding Guidelines (Rust)
 - Workspace-managed deps; update root `Cargo.toml` if adding shared dependency.
