@@ -131,7 +131,7 @@ Example: Add a helper to print current package version.
 ## 13. Contribution & Style Extensions
 - Follow Development Guidelines in `docs/source/dev/README.rst` for deeper details.
 - Keep functions small; prefer pure helpers in `utilities/` with focused responsibilities.
-- Prefer simple dicts over dataclasses
+- Prefer simple dicts over dataclasses.
 - Avoid complex inheritance unless mirroring existing pattern in `services/` or `extraction/`.
 
 ## 14. Quick Triage Guide for the Agent
