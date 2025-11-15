@@ -114,7 +114,6 @@ Use `pixi add --feature pdev <package>` to add a dependency that is only used fo
 - Do not modify `_version.py` directly; tests or builds may assume dynamic version structure.
 - Browser install required for crawl; forgetting `playwright install` causes runtime failures.
 - Some services rely on external API keys (OpenAI, Anthropic); code should gracefully handle missing keys (check provider module patterns).
-- When adding new dependencies ensure compatibility with Ruff selected rules; if formatting conflicts, examine ignore list before adding new ignores.
 
 ## 11. Implementing a Sample Feature (Reference Flow)
 Example: Add a helper to print current package version.
