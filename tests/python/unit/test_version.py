@@ -27,3 +27,4 @@ def test_version_semantic_shape():
         f"Version {v} does not match expected pattern"
     )
     assert v != "9999", "Version set to placeholder"
+    assert not v.startswith("10000"), "Version set to placeholder"
