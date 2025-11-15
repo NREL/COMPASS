@@ -29,6 +29,7 @@ from compass.exceptions import COMPASSValueError
         ("```\ncode\n```", "code\n"),
         ("  ```json\ncode```  ", "json\ncode"),
         ("\n```\ncode\n```\n", "code\n"),
+        ("\r\n```\r\ncode\r\n```\r\n", "\r\ncode\r\n"),
         ("```", ""),
     ],
 )
