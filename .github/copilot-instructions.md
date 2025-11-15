@@ -70,7 +70,7 @@ pixi run -e pbuild build-wheels
 Playwright binaries must be installed once per environment: `pixi run playwright install` (or rely on Dockerfile which does this). For production container, the entrypoint sets up environment; `run.sh` expects `JURISDICTIONS` and `COMPASS_CONFIG` env vars to render input files then run `compass process`.
 
 To add a new dependency, use `pixi add <package>`; this updates `pyproject.toml` and the lockfile atomically.
-Use `pixi add --feature pdev <package>` to add a dependency that is only used for development (tests, linting, docs, etc.).
+Use `pixi add --feature python-dev <package>` to add a dependency that is only used for development (tests, linting, docs, etc.).
 
 ## 5. Coding Guidelines (Python)
 - Follow the repository style guide: avoid type hints, keep numpy-style docstrings, prefer protected helpers until APIs stabilize, and mirror existing naming/visibility patterns.
