@@ -128,8 +128,8 @@ publish-db = "cargo publish --locked -p infra-compass-db --all-features"
 publish-cli = "cargo publish --locked -p infra-compass-cli --all-features"
 
 [tool.pixi.feature.python-test.tasks]
-tests-p = "pytest --durations=20 -rapP -vv --cov=compass --cov-report=html --cov-branch --cov-report=xml:coverage.xml --cov-fail-under=30 tests/python"
-tests-u = "pytest --durations=20 -rapP -vv --cov=compass --cov-report=html --cov-branch --cov-report=xml:coverage.xml --cov-fail-under=30 tests/python/unit"
+tests-p = "pytest --durations=20 -rapP -vv --cov=compass --cov-report=html --cov-branch --cov-report=xml:coverage.xml --cov-fail-under=32.65 tests/python"
+tests-u = "pytest --durations=20 -rapP -vv --cov=compass --cov-report=html --cov-branch --cov-report=xml:coverage.xml --cov-fail-under=32.65 tests/python/unit"
 tests-i = "pytest --durations=20 -rapP -vv --cov=compass --cov-report=html --cov-branch --cov-report=xml:coverage.xml --cov-fail-under=15 tests/python/integration"
 
 [tool.pixi.feature.python-doc.tasks]
