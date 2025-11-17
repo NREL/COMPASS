@@ -1,7 +1,4 @@
 name: Rust Checks
-permissions:
-  contents: write
-  packages: write
 
 on:
   push:
