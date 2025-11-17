@@ -1,6 +1,7 @@
 name: Rust Checks
 permissions:
-  contents: read
+  contents: write
+  packages: write
 
 on:
   push:
