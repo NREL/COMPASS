@@ -1,4 +1,6 @@
 name: Python checks
+permissions:
+  contents: read
 
 on:
   push:
@@ -47,6 +49,7 @@ jobs:
     - name: Checkout Repo
       uses: actions/checkout@v5
       with:
+        fetch-depth: 0
         fetch-tags: true
 
     - uses: prefix-dev/setup-pixi@v0.9.3
@@ -75,6 +78,7 @@ jobs:
     - name: Checkout Repo
       uses: actions/checkout@v5
       with:
+        fetch-depth: 0
         fetch-tags: true
 
     - uses: prefix-dev/setup-pixi@v0.9.3
@@ -103,6 +107,7 @@ jobs:
     - name: Checkout Repo
       uses: actions/checkout@v5
       with:
+        fetch-depth: 0
         fetch-tags: true
 
     - uses: prefix-dev/setup-pixi@v0.9.3
