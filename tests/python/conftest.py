@@ -1,5 +1,6 @@
 """Fixtures for use across all tests"""
 
+import time
 import asyncio
 from pathlib import Path
 
