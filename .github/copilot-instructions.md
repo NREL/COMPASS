@@ -102,6 +102,14 @@ Use `pixi add --feature python-dev <package>` to add a dependency that is only u
 - Unit tests target granular modules (`tests/python/unit/...`). Add new tests adjacent to similar domain (e.g., new utility → `tests/python/unit/utilities/`).
 - Integration tests at `tests/python/integration` cover full pipelines.
 - Coverage thresholds enforced (`--cov-fail-under=30` for unit suite). Keep defensive code minimal; exclude per coverage config if necessary.
+- All python test files (e.g. ``test_scenario.py``) should end with the following block of code:
+
+  .. code-block:: python
+
+      if __name__ == "__main__":
+          pytest.main(["-q", "--show-capture=all", Path(__file__), "-rapP"])
+
+  This allows the (single) file to be executed, running only the tests contained within, which is extremely useful when updating/modifying/adding tests in the file.
 - Rust tests live in crate `src` using standard Cargo conventions; prefer small, deterministic tests.
 
 ## 9. Logging & Observability
