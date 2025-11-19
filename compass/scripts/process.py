@@ -21,7 +21,7 @@ from compass.scripts.download import (
     download_jurisdiction_ordinances_from_website_compass_crawl,
     filter_ordinance_docs,
 )
-from compass.exceptions import COMPASSValueError
+from compass.exceptions import COMPASSValueError, COMPASSError
 from compass.extraction import (
     extract_ordinance_values,
     extract_ordinance_text_with_ngram_validation,
@@ -457,38 +457,44 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
         ofd=ordinance_file_dir,
         jdd=jurisdiction_dbs_dir,
     )
-    pk = ProcessKwargs(
-        known_local_docs,
-        known_doc_urls,
-        file_loader_kwargs,
-        td_kwargs,
-        tpe_kwargs,
-        ppe_kwargs,
-        max_num_concurrent_jurisdictions,
-    )
-    wsp = WebSearchParams(
-        num_urls_to_check_per_jurisdiction,
-        max_num_concurrent_browsers,
-        max_num_concurrent_website_searches,
-        url_ignore_substrings,
-        pytesseract_exe_fp,
-        search_engines,
-    )
-    models = _initialize_model_params(model)
-    runner = _COMPASSRunner(
-        dirs=dirs,
-        log_listener=log_listener,
-        tech=tech,
-        models=models,
-        web_search_params=wsp,
-        process_kwargs=pk,
-        perform_se_search=perform_se_search,
-        perform_website_search=perform_website_search,
-        log_level=log_level,
-    )
     async with log_listener as ll:
         _setup_main_logging(dirs.logs, log_level, ll, keep_async_logs)
-        return await runner.run(jurisdiction_fp)
+        try:
+            pk = ProcessKwargs(
+                known_local_docs,
+                known_doc_urls,
+                file_loader_kwargs,
+                td_kwargs,
+                tpe_kwargs,
+                ppe_kwargs,
+                max_num_concurrent_jurisdictions,
+            )
+            wsp = WebSearchParams(
+                num_urls_to_check_per_jurisdiction,
+                max_num_concurrent_browsers,
+                max_num_concurrent_website_searches,
+                url_ignore_substrings,
+                pytesseract_exe_fp,
+                search_engines,
+            )
+            models = _initialize_model_params(model)
+            runner = _COMPASSRunner(
+                dirs=dirs,
+                log_listener=log_listener,
+                tech=tech,
+                models=models,
+                web_search_params=wsp,
+                process_kwargs=pk,
+                perform_se_search=perform_se_search,
+                perform_website_search=perform_website_search,
+                log_level=log_level,
+            )
+            return await runner.run(jurisdiction_fp)
+        except COMPASSError:
+            raise
+        except Exception:
+            logger.exception("Fatal error during processing")
+            raise
 
 
 class _COMPASSRunner:
