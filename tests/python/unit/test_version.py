@@ -6,6 +6,9 @@ We allow dev/local forms produced by setuptools_scm
 """
 
 import re
+from pathlib import Path
+
+import pytest
 
 import compass
 
@@ -28,3 +31,7 @@ def test_version_semantic_shape():
     )
     assert v != "9999", "Version set to placeholder"
     assert not v.startswith("10000"), "Version set to placeholder"
+
+
+if __name__ == "__main__":
+    pytest.main(["-q", "--show-capture=all", Path(__file__), "-rapP"])
