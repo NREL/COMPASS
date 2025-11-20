@@ -885,12 +885,20 @@ class _SingleJurisdictionRunner:
         """Download and parse document for a single jurisdiction"""
         start_time = time.monotonic()
         doc = None
+        logger.info(
+            "Kicking off processing for jurisdiction: %s",
+            self.jurisdiction.full_name,
+        )
         try:
             doc = await self._run()
         finally:
             await self._record_usage()
             await _record_jurisdiction_info(
                 self.jurisdiction, doc, start_time, self.usage_tracker
+            )
+            logger.info(
+                "Completed processing for jurisdiction: %s",
+                self.jurisdiction.full_name,
             )
 
         return doc
