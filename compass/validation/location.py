@@ -71,14 +71,15 @@ class DTreeURLJurisdictionValidator(BaseLLMCaller):
         ------
         compass.exceptions.COMPASSError
             Propagated if underlying LLM interactions fail while the
-            caller has configured :class:`BaseLLMCaller` to raise.
+            caller has configured
+            :class:`~compass.llm.calling.BaseLLMCaller` to raise.
 
         Notes
         -----
         The method delegates to an internal asynchronous decision tree
-        backed by :class:`ChatLLMCaller`. The validator aggregates
-        structured responses and only approves when each required
-        attribute matches the target jurisdiction.
+        backed by :class:`~compass.llm.calling.ChatLLMCaller`. The
+        validator aggregates structured responses and only approves when
+        each required attribute matches the target jurisdiction.
         """
         if not url:
             return False
@@ -207,7 +208,7 @@ class JurisdictionValidator:
             Threshold applied to the weighted page vote. Documents at or
             above the threshold are considered jurisdiction matches.
             Default is ``0.8``.
-        text_splitter : elm.web.text_splitter.LCTextSplitter, optional
+        text_splitter : LCTextSplitter, optional
             Optional splitter attached to documents lacking a
             ``text_splitter`` attribute so validators can iterate page
             content consistently. Default is ``None``.
@@ -358,8 +359,8 @@ class JurisdictionWebsiteValidator:
         Raises
         ------
         compass.exceptions.COMPASSError
-            Propagated from :class:`BaseLLMCaller` if configured to
-            raise on LLM failures.
+            Propagated from :class:`~compass.llm.calling.BaseLLMCaller`
+            if configured to raise on LLM failures.
 
         Examples
         --------

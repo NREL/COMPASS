@@ -14,9 +14,9 @@ def setup_graph_correct_document_type(**kwargs):
     ----------
     **kwargs
         Additional keyword arguments forwarded to
-        :func:`compass.common.setup_graph_no_nodes`. The helper consumes
-        ``doc_is_from_ocr`` (default ``False``) to alter draft-detection
-        prompts for scanned documents.
+        :func:`compass.common.base.setup_graph_no_nodes`. The helper
+        consumes ``doc_is_from_ocr`` (default ``False``) to alter
+        draft-detection prompts for scanned documents.
 
     Returns
     -------
@@ -295,7 +295,7 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
         Target jurisdiction descriptor that guides prompt wording.
     **kwargs
         Additional keyword arguments forwarded to
-        :func:`compass.common.setup_graph_no_nodes` (for example,
+        :func:`compass.common.base.setup_graph_no_nodes` (for example,
         ``usage_tracker`` or ``llm_service`` identifiers).
 
     Returns
@@ -525,7 +525,7 @@ def setup_graph_correct_jurisdiction_from_url(jurisdiction, **kwargs):
         phrases used in prompts.
     **kwargs
         Additional keyword arguments forwarded to
-        :func:`compass.common.setup_graph_no_nodes`.
+        :func:`compass.common.base.setup_graph_no_nodes`.
 
     Returns
     -------

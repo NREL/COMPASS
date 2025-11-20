@@ -149,8 +149,7 @@ def doc_infos_to_db(doc_infos):
     Returns
     -------
     pandas.DataFrame
-        Consolidated ordinance dataset containing the columns enumerated
-        in :data:`_PARSED_COLS`.
+        Consolidated ordinance dataset.
     int
         Number of jurisdictions contributing at least one ordinance to
         the consolidated dataset.

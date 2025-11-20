@@ -164,9 +164,10 @@ async def run_async_tree(tree, response_as_json=True):
     ----------
     tree : AsyncDecisionTree
         Decision tree to execute.
-    response_as_json : bool, optional
-        When ``True`` (default), attempts to parse the LLM response as
-        JSON using :func:`compass.utilities.llm_response_as_json`.
+    response_as_json : bool, default=True
+        If ``True``, attempts to parse the LLM response as JSON using
+        :func:`compass.utilities.parsing.llm_response_as_json`.
+        By default, ``True``.
 
     Returns
     -------

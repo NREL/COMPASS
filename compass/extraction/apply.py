@@ -207,7 +207,7 @@ async def extract_ordinance_text_with_llm(
         Optional Langchain text splitter (or subclass instance), or any
         object that implements a `split_text` method. The method should
         take text as input (str) and return a list of text chunks.
-    extractor : compass.extraction.base.OrdinanceTextExtractor
+    extractor : object
         Extractor instance exposing ``parsers`` that consume text
         chunks and update ``doc.attrs``.
     original_text_key : str
@@ -272,7 +272,7 @@ async def extract_ordinance_text_with_ngram_validation(
         Optional Langchain text splitter (or subclass instance), or any
         object that implements a `split_text` method. The method should
         take text as input (str) and return a list of text chunks.
-    extractor : compass.extraction.base.OrdinanceTextExtractor
+    extractor : object
         Extractor instance exposing ``parsers`` that consume text
         chunks and update ``doc.attrs``.
     original_text_key : str
@@ -431,7 +431,7 @@ async def extract_ordinance_values(doc, parser, text_key, out_key):
         that are found to contain ordinance data. Note that if the
         document's attrs does not contain the `text_key` key, it will
         not be processed.
-    parser : compass.extraction.base.StructuredParser
+    parser : object
         Parser instance with an async ``parse`` method that converts
         cleaned ordinance text into structured values.
     text_key : str

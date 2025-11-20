@@ -242,9 +242,8 @@ def load_config(config_fp):
 
     Notes
     -----
-    JSON5 loading is handled via :mod:`pyjson5`, enabling comments and
-    trailing commas, among other quality-of-life improvements over
-    standard JSON, which uses the built-in :func:`json.load`.
+    JSON5 enables comments and trailing commas, among other
+    quality-of-life improvements over vanilla JSON.
     """
     config_fp = Path(config_fp)
 
