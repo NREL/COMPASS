@@ -35,6 +35,22 @@ def testing_log_file(tmp_path):
     logger.propagate = prev_propagate
 
 
+@pytest.fixture
+def patched_runner(monkeypatch):
+    """Patch the COMPASSRunner to a dummy that bypasses processing"""
+
+    class DummyRunner:
+        """Minimal runner that bypasses full processing"""
+
+        def __init__(self, **_):
+            pass
+
+        async def run(self, jurisdiction_fp):
+            return f"processed {jurisdiction_fp}"
+
+    monkeypatch.setattr(process_module, "_COMPASSRunner", DummyRunner)
+
+
 def test_known_local_docs_missing_file(tmp_path):
     """Raise when known_local_docs points to missing config"""
     missing_fp = tmp_path / "does_not_exist.json"
@@ -140,20 +156,9 @@ async def test_external_exceptions_logged_to_file(tmp_path, monkeypatch):
 
 @pytest.mark.asyncio
 async def test_process_args_logged_at_debug_to_file(
-    tmp_path, monkeypatch, assert_message_was_logged
+    tmp_path, patched_runner, assert_message_was_logged
 ):
     """Log function arguments with DEBUG_TO_FILE level"""
-
-    class DummyRunner:
-        """Minimal runner that bypasses full processing"""
-
-        def __init__(self, **_):
-            pass
-
-        async def run(self, jurisdiction_fp):
-            return f"processed {jurisdiction_fp}"
-
-    monkeypatch.setattr(process_module, "_COMPASSRunner", DummyRunner)
 
     out_dir = tmp_path / "outputs"
     jurisdiction_fp = tmp_path / "jurisdictions.csv"
@@ -185,6 +190,37 @@ async def test_process_args_logged_at_debug_to_file(
     )
     assert_message_was_logged(
         '"keep_async_logs": false', log_level="DEBUG_TO_FILE"
+    )
+
+
+@pytest.mark.asyncio
+async def test_process_steps_logged(
+    tmp_path, patched_runner, assert_message_was_logged
+):
+    """Log function arguments with DEBUG_TO_FILE level"""
+
+    out_dir = tmp_path / "outputs"
+    jurisdiction_fp = tmp_path / "jurisdictions.csv"
+    jurisdiction_fp.touch()
+
+    result = await process_jurisdictions_with_openai(
+        out_dir=str(out_dir),
+        tech="solar",
+        jurisdiction_fp=str(jurisdiction_fp),
+        log_level="DEBUG",
+    )
+
+    assert result == f"processed {jurisdiction_fp}"
+
+    assert_message_was_logged(
+        "Using the following processing steps:", log_level="INFO"
+    )
+    assert_message_was_logged(
+        (
+            "Look for document using search engine "
+            "-> Look for document on jurisdiction website"
+        ),
+        log_level="INFO",
     )
 
 

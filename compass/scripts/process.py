@@ -462,7 +462,13 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
     )
     async with log_listener as ll:
         _setup_main_logging(dirs.logs, log_level, ll, keep_async_logs)
-        _log_exec_info(called_args)
+        steps = _check_enabled_steps(
+            known_local_docs=known_local_docs,
+            known_doc_urls=known_doc_urls,
+            perform_se_search=perform_se_search,
+            perform_website_search=perform_website_search,
+        )
+        _log_exec_info(called_args, steps)
         try:
             pk = ProcessKwargs(
                 known_local_docs,
@@ -1387,17 +1393,49 @@ def _setup_main_logging(log_dir, level, listener, keep_async_logs):
         listener.addHandler(handler)
 
 
-def _log_exec_info(called_args):
+def _log_exec_info(called_args, steps):
     """Log versions and function parameters to file"""
     log_versions(logger)
+
+    logger.info(
+        "Using the following processing steps:\n\t\t%s", " -> ".join(steps)
+    )
+
     for name, param in called_args.items():
         if isinstance(param, Path):
             called_args[name] = str(param)
-
     logger.debug_to_file(
         "Called 'process_jurisdictions_with_openai' with:\n%s",
         json.dumps(called_args, indent=4),
     )
+
+
+def _check_enabled_steps(
+    known_local_docs=None,
+    known_doc_urls=None,
+    perform_se_search=True,
+    perform_website_search=True,
+):
+    """Check that at least one processing step is enabled"""
+    steps = []
+    if known_local_docs:
+        steps.append("Check local document")
+    if known_doc_urls:
+        steps.append("Check known document URL")
+    if perform_se_search:
+        steps.append("Look for document using search engine")
+    if perform_website_search:
+        steps.append("Look for document on jurisdiction website")
+
+    if not steps:
+        msg = (
+            "No processing steps enabled! Please provide at least one of "
+            "'known_local_docs', 'known_doc_urls', or set at least one of "
+            "'perform_se_search' or 'perform_website_search' to True."
+        )
+        raise COMPASSValueError(msg)
+
+    return steps
 
 
 def _setup_folders(out_dir, log_dir=None, clean_dir=None, ofd=None, jdd=None):
