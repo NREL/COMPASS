@@ -2,6 +2,7 @@
 
 import os
 import asyncio
+from contextlib import AsyncExitStack
 from functools import partial
 
 import pytest
