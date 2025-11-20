@@ -21,6 +21,7 @@ from compass.utilities.logs import (
     _JsonExceptionFileHandler,
     _JsonFormatter,
     _LocalProcessQueueHandler,
+    _get_version,
     LOGGING_QUEUE,
 )
 
@@ -711,6 +712,11 @@ async def test_log_listener_async_context_manager():
         assert getattr(captured_records[0], "location", None) == "main"
 
     assert len(logger.handlers) == 0
+
+
+def test_get_dne_package():
+    """Test _get_version for a non-existent package"""
+    assert _get_version("DNE") == "not installed"
 
 
 if __name__ == "__main__":
