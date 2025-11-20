@@ -4,6 +4,7 @@ import time
 import json
 import asyncio
 import logging
+from pathlib import Path
 from copy import deepcopy
 from functools import cached_property
 from contextlib import AsyncExitStack, contextmanager
@@ -1389,6 +1390,10 @@ def _setup_main_logging(log_dir, level, listener, keep_async_logs):
 def _log_exec_info(called_args):
     """Log versions and function parameters to file"""
     log_versions(logger)
+    for name, param in called_args.items():
+        if isinstance(param, Path):
+            called_args[name] = str(param)
+
     logger.debug_to_file(
         "Called 'process_jurisdictions_with_openai' with:\n%s",
         json.dumps(called_args, indent=4),
