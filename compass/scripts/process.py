@@ -906,6 +906,10 @@ class _SingleJurisdictionRunner:
     async def _run(self):
         """Search for docs and parse them for ordinances"""
         if self.known_local_docs:
+            logger.debug(
+                "Checking local docs for jurisdiction: %s",
+                self.jurisdiction.full_name,
+            )
             doc = await self._try_find_ordinances(
                 method=self._load_known_local_documents,
             )
@@ -913,6 +917,10 @@ class _SingleJurisdictionRunner:
                 return doc
 
         if self.known_doc_urls:
+            logger.debug(
+                "Checking known URL's for jurisdiction: %s",
+                self.jurisdiction.full_name,
+            )
             doc = await self._try_find_ordinances(
                 method=self._download_known_url_documents,
             )
@@ -920,6 +928,11 @@ class _SingleJurisdictionRunner:
                 return doc
 
         if self.perform_se_search:
+            logger.debug(
+                "Collecting documents using a search engine for "
+                "jurisdiction: %s",
+                self.jurisdiction.full_name,
+            )
             doc = await self._try_find_ordinances(
                 method=self._find_documents_using_search_engine,
             )
@@ -927,6 +940,10 @@ class _SingleJurisdictionRunner:
                 return doc
 
         if self.perform_website_search:
+            logger.debug(
+                "Collecting documents from the jurisdiction website for: %s",
+                self.jurisdiction.full_name,
+            )
             doc = await self._try_find_ordinances(
                 method=self._find_documents_from_website,
             )
