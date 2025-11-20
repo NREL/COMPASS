@@ -18,10 +18,10 @@ from compass.utilities.logs import (
     LogListener,
     log_versions,
     NoLocationFilter,
+    setup_logging_levels,
     _JsonExceptionFileHandler,
     _JsonFormatter,
     _LocalProcessQueueHandler,
-    _setup_logging_levels,
     LOGGING_QUEUE,
 )
 
@@ -597,8 +597,8 @@ def test_json_exception_file_handler_multiple_exceptions(tmp_path):
 
 
 def test_setup_logging_levels():
-    """Test _setup_logging_levels adds custom logging levels"""
-    _setup_logging_levels()
+    """Test setup_logging_levels adds custom logging levels"""
+    setup_logging_levels()
 
     assert hasattr(logging, "TRACE")
     assert logging.TRACE == 5

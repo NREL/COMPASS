@@ -510,8 +510,8 @@ def log_versions(logger):
         logger.debug_to_file("- %s version: %s", pkg, _get_version(pkg))
 
 
-def _setup_logging_levels():
-    """Setup COMPASS logging levels"""
+def setup_logging_levels():
+    """[NOT PUBLIC API] Setup COMPASS logging levels"""
     logging.TRACE = 5
     logging.addLevelName(logging.TRACE, "TRACE")
     logging.Logger.trace = partialmethod(logging.Logger.log, logging.TRACE)

@@ -239,7 +239,7 @@ def load_config(config_fp):
 
 
 def convert_paths_to_strings(obj):
-    """Convert Path instances within nested structures to strings"""
+    """[NOT PUBLIC API] Convert all Path instances to strings"""
     if isinstance(obj, Path):
         return str(obj)
     if isinstance(obj, dict):
