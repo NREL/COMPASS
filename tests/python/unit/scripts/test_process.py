@@ -166,9 +166,9 @@ async def test_process_args_logged_at_debug_to_file(
     jurisdiction_fp.touch()
 
     result = await process_jurisdictions_with_openai(
-        out_dir=str(out_dir),
+        out_dir=out_dir,
         tech="solar",
-        jurisdiction_fp=str(jurisdiction_fp),
+        jurisdiction_fp=jurisdiction_fp,
         log_level="DEBUG",
     )
 
@@ -179,10 +179,10 @@ async def test_process_args_logged_at_debug_to_file(
         log_level="DEBUG_TO_FILE",
     )
     assert_message_was_logged('"out_dir": ', log_level="DEBUG_TO_FILE")
-    assert_message_was_logged(str(out_dir), log_level="DEBUG_TO_FILE")
+    assert_message_was_logged("outputs", log_level="DEBUG_TO_FILE")
     assert_message_was_logged('"tech": "solar"', log_level="DEBUG_TO_FILE")
     assert_message_was_logged('"jurisdiction_fp": ', log_level="DEBUG_TO_FILE")
-    assert_message_was_logged(str(jurisdiction_fp), log_level="DEBUG_TO_FILE")
+    assert_message_was_logged("jurisdictions.csv", log_level="DEBUG_TO_FILE")
     assert_message_was_logged(
         '"log_level": "DEBUG"', log_level="DEBUG_TO_FILE"
     )
