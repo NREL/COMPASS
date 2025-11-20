@@ -204,6 +204,14 @@ class Directories:
         )
 
     def __iter__(self):
+        """Yield managed directory paths in canonical order
+
+        Yields
+        ------
+        pathlib.Path
+            Each of the managed directories in the following order:
+            out, logs, clean_files, ordinance_files, jurisdiction_dbs.
+        """
         yield self.out
         yield self.logs
         yield self.clean_files

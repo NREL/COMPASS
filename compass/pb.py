@@ -182,10 +182,10 @@ class _COMPASSProgressBars:
 
         Parameters
         ----------
-        cost : float
+        cost : float or int
             Cost increment or replacement value in US dollars.
         replace : bool, optional
-            When ``True`` the total cost is replaced by ``cost`` ,
+            When ``True`` the total cost is replaced by ``cost``,
             provided it does not move backwards. When ``False``
             the cost is added cumulatively. By default, ``False``.
         """

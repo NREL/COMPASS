@@ -29,7 +29,7 @@ def setup_graph_correct_document_type(**kwargs):
     -----
     The resulting graph encodes a structured sequence of Yes/No prompts
     that culminate in a JSON response containing summary metadata and a
-    legal-text boolean keyed by ``{key}``.
+    legal-text boolean.
     """
     doc_is_from_ocr = kwargs.pop("doc_is_from_ocr", False)
 
