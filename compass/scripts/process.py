@@ -1422,7 +1422,7 @@ def _log_exec_info(called_args, steps):
     log_versions(logger)
 
     logger.info(
-        "Using the following processing steps:\n\t\t%s", " -> ".join(steps)
+        "Using the following processing step(s):\n\t%s", " -> ".join(steps)
     )
 
     normalized_args = convert_paths_to_strings(called_args)
