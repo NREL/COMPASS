@@ -4,7 +4,6 @@ import time
 import json
 import asyncio
 import logging
-from pathlib import Path
 from copy import deepcopy
 from functools import cached_property
 from contextlib import AsyncExitStack, contextmanager
@@ -105,7 +104,7 @@ from compass.utilities.logs import (
     log_versions,
 )
 from compass.utilities.base import WebSearchParams
-from compass.utilities.parsing import load_config
+from compass.utilities.parsing import load_config, convert_paths_to_strings
 from compass.pb import COMPASS_PB
 
 
@@ -1401,12 +1400,10 @@ def _log_exec_info(called_args, steps):
         "Using the following processing steps:\n\t\t%s", " -> ".join(steps)
     )
 
-    for name, param in called_args.items():
-        if isinstance(param, Path):
-            called_args[name] = str(param)
+    normalized_args = convert_paths_to_strings(called_args)
     logger.debug_to_file(
         "Called 'process_jurisdictions_with_openai' with:\n%s",
-        json.dumps(called_args, indent=4),
+        json.dumps(normalized_args, indent=4),
     )
 
 
