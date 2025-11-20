@@ -918,7 +918,7 @@ class _SingleJurisdictionRunner:
 
         if self.known_doc_urls:
             logger.debug(
-                "Checking known URL's for jurisdiction: %s",
+                "Checking known URLs for jurisdiction: %s",
                 self.jurisdiction.full_name,
             )
             doc = await self._try_find_ordinances(
