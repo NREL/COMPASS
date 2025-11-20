@@ -2,6 +2,7 @@
 
 import logging
 from pathlib import Path
+from itertools import product
 
 import pytest
 
@@ -194,20 +195,80 @@ async def test_process_args_logged_at_debug_to_file(
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize(
+    (
+        "has_known_local_docs",
+        "has_known_doc_urls",
+        "perform_se_search",
+        "perform_website_search",
+    ),
+    [
+        pytest.param(
+            *flags, id=("local-{}_urls-{}_se-{}_web-{}".format(*flags))
+        )
+        for flags in product([False, True], repeat=4)
+    ],
+)
 async def test_process_steps_logged(
-    tmp_path, patched_runner, assert_message_was_logged
+    tmp_path,
+    patched_runner,
+    assert_message_was_logged,
+    has_known_local_docs,
+    has_known_doc_urls,
+    perform_se_search,
+    perform_website_search,
 ):
-    """Log function arguments with DEBUG_TO_FILE level"""
+    """Log enabled processing steps for every combination of inputs"""
 
     out_dir = tmp_path / "outputs"
     jurisdiction_fp = tmp_path / "jurisdictions.csv"
     jurisdiction_fp.touch()
+
+    known_local_docs = None
+    if has_known_local_docs:
+        known_local_docs = {"1": [{"source_fp": tmp_path / "local_doc.pdf"}]}
+
+    known_doc_urls = None
+    if has_known_doc_urls:
+        known_doc_urls = {
+            "1": [{"source": "https://example.com/ordinance.pdf"}]
+        }
+
+    expected_steps = []
+    if has_known_local_docs:
+        expected_steps.append("Check local document")
+    if has_known_doc_urls:
+        expected_steps.append("Check known document URL")
+    if perform_se_search:
+        expected_steps.append("Look for document using search engine")
+    if perform_website_search:
+        expected_steps.append("Look for document on jurisdiction website")
+
+    if not expected_steps:
+        with pytest.raises(
+            COMPASSValueError, match="No processing steps enabled"
+        ):
+            await process_jurisdictions_with_openai(
+                out_dir=str(out_dir),
+                tech="solar",
+                jurisdiction_fp=str(jurisdiction_fp),
+                log_level="DEBUG",
+                known_local_docs=known_local_docs,
+                known_doc_urls=known_doc_urls,
+                perform_se_search=perform_se_search,
+                perform_website_search=perform_website_search,
+            )
+        return
 
     result = await process_jurisdictions_with_openai(
         out_dir=str(out_dir),
         tech="solar",
         jurisdiction_fp=str(jurisdiction_fp),
         log_level="DEBUG",
+        known_local_docs=known_local_docs,
+        known_doc_urls=known_doc_urls,
+        perform_se_search=perform_se_search,
+        perform_website_search=perform_website_search,
     )
 
     assert result == f"processed {jurisdiction_fp}"
@@ -215,34 +276,7 @@ async def test_process_steps_logged(
     assert_message_was_logged(
         "Using the following processing steps:", log_level="INFO"
     )
-    assert_message_was_logged(
-        (
-            "Look for document using search engine "
-            "-> Look for document on jurisdiction website"
-        ),
-        log_level="INFO",
-    )
-
-
-@pytest.mark.asyncio
-async def test_process_error_for_no_steps(tmp_path, patched_runner):
-    """Log function arguments with DEBUG_TO_FILE level"""
-
-    out_dir = tmp_path / "outputs"
-    jurisdiction_fp = tmp_path / "jurisdictions.csv"
-    jurisdiction_fp.touch()
-
-    with pytest.raises(COMPASSValueError, match="No processing steps enabled"):
-        await process_jurisdictions_with_openai(
-            out_dir=str(out_dir),
-            tech="solar",
-            jurisdiction_fp=str(jurisdiction_fp),
-            log_level="DEBUG",
-            known_local_docs=None,
-            known_doc_urls=None,
-            perform_se_search=False,
-            perform_website_search=False,
-        )
+    assert_message_was_logged(" -> ".join(expected_steps), log_level="INFO")
 
 
 if __name__ == "__main__":
