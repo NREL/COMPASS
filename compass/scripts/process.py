@@ -1,6 +1,7 @@
 """Ordinance full processing logic"""
 
 import time
+import json
 import asyncio
 import logging
 from copy import deepcopy
@@ -11,7 +12,6 @@ from datetime import datetime, UTC
 import pandas as pd
 from elm.web.utilities import get_redirected_url
 
-from compass import __version__
 from compass.scripts.download import (
     find_jurisdiction_website,
     download_known_urls,
@@ -101,6 +101,7 @@ from compass.utilities.logs import (
     LocationFileLog,
     LogListener,
     NoLocationFilter,
+    log_versions,
 )
 from compass.utilities.base import WebSearchParams
 from compass.utilities.parsing import load_config
@@ -445,6 +446,7 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
         and may include color-coded cost information if the terminal
         supports it.
     """
+    called_args = locals()
     if log_level == "DEBUG":
         log_level = "DEBUG_TO_FILE"
 
@@ -459,6 +461,7 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
     )
     async with log_listener as ll:
         _setup_main_logging(dirs.logs, log_level, ll, keep_async_logs)
+        _log_exec_info(called_args)
         try:
             pk = ProcessKwargs(
                 known_local_docs,
@@ -676,7 +679,6 @@ class _COMPASSRunner:
             terminal and may include color-coded cost information if
             the terminal supports it.
         """
-        logger.info("Running COMPASS version %s", __version__)
         jurisdictions = _load_jurisdictions_to_process(jurisdiction_fp)
 
         num_jurisdictions = len(jurisdictions)
@@ -1382,6 +1384,15 @@ def _setup_main_logging(log_dir, level, listener, keep_async_logs):
         handler.setFormatter(fmt)
         handler.setLevel(level)
         listener.addHandler(handler)
+
+
+def _log_exec_info(called_args):
+    """Log versions and function parameters to file"""
+    log_versions(logger)
+    logger.debug_to_file(
+        "Called 'process_jurisdictions_with_openai' with:\n%s",
+        json.dumps(called_args, indent=4),
+    )
 
 
 def _setup_folders(out_dir, log_dir=None, clean_dir=None, ofd=None, jdd=None):
