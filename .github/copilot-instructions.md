@@ -92,6 +92,7 @@ Use `pixi add --feature python-dev <package>` to add a dependency that is only u
 - Do not document parameters in the class docstring - do that in the __init__ docstring instead.
 - All @property and @cached_property method documentation should be one line long and should start with the return type.
 - "Protected" functions and methods should always be documented using only one-line summary docstrings.
+- To exclude functions or classes from the public API documentation, start the docstring with the token ``[NOT PUBLIC API]``.
 
 ## 7. Coding Guidelines (Rust)
 - Workspace-managed deps; update root `Cargo.toml` if adding shared dependency.
