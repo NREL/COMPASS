@@ -236,3 +236,21 @@ def load_config(config_fp):
         f"{config_fp.suffix}. Supported extensions are .json5 and .json."
     )
     raise COMPASSValueError(msg)
+
+
+def convert_paths_to_strings(obj):
+    """Convert Path instances within nested structures to strings"""
+    if isinstance(obj, Path):
+        return str(obj)
+    if isinstance(obj, dict):
+        return {
+            convert_paths_to_strings(key): convert_paths_to_strings(value)
+            for key, value in obj.items()
+        }
+    if isinstance(obj, list):
+        return [convert_paths_to_strings(item) for item in obj]
+    if isinstance(obj, tuple):
+        return tuple(convert_paths_to_strings(item) for item in obj)
+    if isinstance(obj, set):
+        return {convert_paths_to_strings(item) for item in obj}
+    return obj
