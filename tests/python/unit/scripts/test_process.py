@@ -224,5 +224,26 @@ async def test_process_steps_logged(
     )
 
 
+@pytest.mark.asyncio
+async def test_process_error_for_no_steps(tmp_path, patched_runner):
+    """Log function arguments with DEBUG_TO_FILE level"""
+
+    out_dir = tmp_path / "outputs"
+    jurisdiction_fp = tmp_path / "jurisdictions.csv"
+    jurisdiction_fp.touch()
+
+    with pytest.raises(COMPASSValueError, match="No processing steps enabled"):
+        await process_jurisdictions_with_openai(
+            out_dir=str(out_dir),
+            tech="solar",
+            jurisdiction_fp=str(jurisdiction_fp),
+            log_level="DEBUG",
+            known_local_docs=None,
+            known_doc_urls=None,
+            perform_se_search=False,
+            perform_website_search=False,
+        )
+
+
 if __name__ == "__main__":
     pytest.main(["-q", "--show-capture=all", Path(__file__), "-rapP"])
