@@ -13,7 +13,9 @@ import pytest
 import compass
 
 
-SEMVER_DEV_PATTERN = re.compile(r"^\d+\.\d+\.\d+(?:\.dev\d+\+g[0-9a-f]+)?$")
+SEMVER_DEV_PATTERN = re.compile(
+    r"^\d+\.\d+\.\d+(?:\.dev\d+\+g[0-9A-Fa-f]+(?:\.d\d{8})?)?$"
+)
 
 
 def test_version_string_present():
