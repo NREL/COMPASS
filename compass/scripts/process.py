@@ -1409,12 +1409,12 @@ def _setup_main_logging(log_dir, level, listener, keep_async_logs):
 
     if keep_async_logs:
         handler = logging.FileHandler(log_dir / "all.log", encoding="utf-8")
-        fmt = logging.Formatter(
-            fmt="[%(asctime)s] %(levelname)s - %(taskName)s: %(message)s",
-        )
+        log_fmt = "[%(asctime)s] %(levelname)s - %(taskName)s: %(message)s"
+        fmt = logging.Formatter(fmt=log_fmt)
         handler.setFormatter(fmt)
         handler.setLevel(level)
         listener.addHandler(handler)
+        logger.debug_to_file("Using async log format: %s", log_fmt)
 
 
 def _log_exec_info(called_args, steps):
