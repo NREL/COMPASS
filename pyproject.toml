@@ -149,6 +149,9 @@ cxx-compiler = ">=1.11.0,<2"
 graphviz = ">=12.2.1,<13"
 python = ">=3.12,<3.14"
 
+[tool.pixi.feature.rust-dev.target.win-64.dependencies]
+clangdev = ">=21.1.6,<22"
+
 [tool.pixi.feature.python-default.dependencies]
 aiohttp = ">=3.11.6,<4"
 beautifulsoup4 = ">=4.12.3,<5"
