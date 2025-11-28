@@ -108,7 +108,7 @@ git_describe_command = [ "git", "describe", "--dirty", "--tags", "--long", "--ma
 version_file = "compass/_version.py"
 
 [tool.pixi.workspace]
-channels = ["conda-forge", "microsoft", "anaconda", "main"]
+channels = ["conda-forge", "microsoft"]
 platforms = ["win-64", "osx-arm64", "osx-64", "linux-64", "linux-aarch64"]
 
 [tool.pixi.environments]
