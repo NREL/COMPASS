@@ -145,7 +145,7 @@ poppler = ">=24.8.0,<25"
 
 [tool.pixi.feature.rust-dev.dependencies]
 rust = ">=1.89.0,<1.92"
-cxx-compiler = ">=1.9.0,<2"
+cxx-compiler = ">=1.11.0,<2"
 graphviz = ">=12.2.1,<13"
 python = ">=3.12,<3.14"
 
