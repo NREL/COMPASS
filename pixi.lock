@@ -9938,6 +9938,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/win-64/bzip2-1.0.8-h0ad9c76_8.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/ca-certificates-2025.11.12-h4c7d964_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/cairo-1.18.4-h5782bbf_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/cargo-c-0.10.16-h4834f17_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/clang-21-21.1.6-default_hac490eb_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/clang-21.1.6-default_hac490eb_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/clang-format-21.1.6-default_hac490eb_0.conda
@@ -9976,6 +9977,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/win-64/libfreetype6-2.14.1-hdbac1cb_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libgcc-15.2.0-h8ee18e1_14.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libgd-2.3.3-h7208af6_11.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/libgit2-1.9.1-hce7164d_2.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libglib-2.86.2-h0c9aed9_1.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libgomp-15.2.0-h8ee18e1_14.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libiconv-1.18-hc1393d2_2.conda
@@ -11809,6 +11811,19 @@ packages:
   - typing-extensions
   - ua-parser
   requires_python: '>=3.8,<4.0'
+- conda: https://conda.anaconda.org/conda-forge/win-64/cargo-c-0.10.16-h4834f17_0.conda
+  sha256: 04561475b4798d5132ce48ea4c8421fb05cee526be69e2ef98e4683151e4ec9d
+  md5: a35a63d316314a930b191b14da169a7c
+  depends:
+  - libgit2 >=1.9.1,<1.10.0a0
+  - ucrt >=10.0.20348.0
+  - vc >=14.3,<15
+  - vc14_runtime >=14.44.35208
+  license: MIT
+  license_family: MIT
+  purls: []
+  size: 31875745
+  timestamp: 1758567079760
 - conda: https://conda.anaconda.org/conda-forge/noarch/cattrs-25.3.0-pyhd8ed1ab_0.conda
   sha256: 67ebbaa37cabf19fe39fee82d4b2e0a6c1cde58bc974b1963c86961ff91f6184
   md5: e78e411a2d5a999f2b1536f6c9481801
@@ -19971,6 +19986,23 @@ packages:
   purls: []
   size: 598642
   timestamp: 1764279461200
+- conda: https://conda.anaconda.org/conda-forge/win-64/libgit2-1.9.1-hce7164d_2.conda
+  sha256: 5cd43a933a0ab25fe3e8d8c745ff5edcf6ab05ce4b1215006bab318cfee5f0f7
+  md5: d514ee091868b452f320db150a21ca21
+  depends:
+  - vc >=14.3,<15
+  - vc14_runtime >=14.44.35208
+  - ucrt >=10.0.20348.0
+  - vc >=14.3,<15
+  - vc14_runtime >=14.44.35208
+  - ucrt >=10.0.20348.0
+  - libzlib >=1.3.1,<2.0a0
+  - libssh2 >=1.11.1,<2.0a0
+  license: GPL-2.0-only WITH GCC-exception-2.0
+  license_family: GPL
+  purls: []
+  size: 1174559
+  timestamp: 1763817563419
 - conda: https://conda.anaconda.org/conda-forge/linux-64/libgl-1.7.0-ha4b6fd6_2.conda
   sha256: dc2752241fa3d9e40ce552c1942d0a4b5eeb93740c9723873f6fcf8d39ef8d2d
   md5: 928b8be80851f5d8ffb016f9c81dae7a
@@ -24175,8 +24207,8 @@ packages:
   timestamp: 1733408419340
 - pypi: ./
   name: nrel-compass
-  version: 0.11.3.dev23+g2ec274a.d20251128
-  sha256: ad0fd7861625bbe100b5f7cefcd33276a65343da01823e7d2c56ce7345a531b4
+  version: 0.11.3.dev24+g6d7035c.d20251128
+  sha256: 48e5aead07863d7864f379973c8ae04b12293248bce30fd9cc7346f0e0411a39
   requires_dist:
   - click>=8.1.7,<9
   - html5lib>=1.1,<2

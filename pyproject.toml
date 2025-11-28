@@ -150,7 +150,9 @@ graphviz = ">=12.2.1,<13"
 python = ">=3.12,<3.14"
 
 [tool.pixi.feature.rust-dev.target.win-64.dependencies]
+cargo-c = ">=0.10.16,<0.11"
 clangdev = ">=21.1.6,<22"
+libclang = ">=21.1.6,<22"
 
 [tool.pixi.feature.python-default.dependencies]
 aiohttp = ">=3.11.6,<4"
