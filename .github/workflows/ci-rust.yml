@@ -107,13 +107,14 @@ jobs:
           shared-key: "gha"
           save-if: ${{ github.ref == 'refs/heads/main' }}
 
-      - name: Compile for windows
+      - name: Run tests for windows
         if: runner.os == 'Windows'
         env:
           RUSTFLAGS: "-C link-args=rstrtmgr.lib"
         run: pixi run -e rdev tests-r
 
       - name: Run tests
+        if: runner.os != 'Windows'
         run: pixi run -e rdev tests-r
 
   publish-dry:
