@@ -91,7 +91,14 @@ impl Usage {
               requests INTEGER NOT NULL,
               prompt_tokens INTEGER NOT NULL,
               response_tokens INTEGER NOT NULL,
-              );",
+              );
+
+            CREATE VIEW usage AS
+              SELECT *
+              FROM usage_event
+                JOIN usage_model ON (usage_event.id=usage_model.usage_lnk)
+                JOIN usage_step ON (usage_model.id=usage_step.model_lnk);
+            ",
         )?;
 
         Ok(())
