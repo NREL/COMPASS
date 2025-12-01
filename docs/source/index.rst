@@ -21,3 +21,5 @@ What is INFRA-COMPASS?
 .. include:: ../../README.rst
    :start-after: inclusion-intro
    :end-before: Installing INFRA-COMPASS
+
+:ref:`genindex` | :ref:`modindex` | :ref:`glossary`
