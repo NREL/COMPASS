@@ -81,7 +81,7 @@ Glossary
 
    log directory
       Folder defined by ``log_dir`` that stores run-level logs, prompt
-      archives, and timing summaries
+      archives, and timing summaries.
 
    llm cost tracker
       Runtime utility that multiplies token usage by configured pricing
