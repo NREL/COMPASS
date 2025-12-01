@@ -8,6 +8,7 @@
    CLI reference <_cli/cli>
    Validation <val/validation>
    Development <dev/index>
+   Glossary <glossary>
 
 
 INFRA-COMPASS documentation
