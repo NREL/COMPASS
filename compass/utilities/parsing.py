@@ -240,6 +240,7 @@ def load_config(config_fp):
 
 def convert_paths_to_strings(obj):
     """[NOT PUBLIC API] Convert all Path instances to strings"""
+    logger.trace("Converting paths to strings in object: %s", obj)
     if isinstance(obj, Path):
         return str(obj)
     if isinstance(obj, dict):
