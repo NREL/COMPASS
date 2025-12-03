@@ -6,14 +6,9 @@ name: Docker
 # documentation.
 
 on:
-  # schedule:
-  #   - cron: '25 5 * * *'
-  push:
-    branches: [ "main" ]
-    # Publish semver tags as releases.
-    tags: [ 'v*.*.*' ]
-  # pull_request:
-  #   branches: [ "main" ]
+  release:
+    types: [created, published]
+  workflow_dispatch:
 
 env:
   # Use docker.io for Docker Hub if empty
@@ -43,7 +38,6 @@ jobs:
       # Install the cosign tool except on PR
       # https://github.com/sigstore/cosign-installer
       - name: Install cosign
-        if: github.event_name != 'pull_request'
         uses: sigstore/cosign-installer@faadad0cce49287aee09b3a48701e75088a2c6ad #v4.0.0
         with:
           cosign-release: 'v2.2.4'
@@ -57,7 +51,6 @@ jobs:
       # Login against a Docker registry except on PR
       # https://github.com/docker/login-action
       - name: Log into registry ${{ env.REGISTRY }}
-        if: github.event_name != 'pull_request'
         uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
         with:
           registry: ${{ env.REGISTRY }}
@@ -79,7 +72,7 @@ jobs:
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         with:
           context: .
-          push: ${{ github.event_name != 'pull_request' }}
+          push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
@@ -91,7 +84,6 @@ jobs:
       # transparency data even for private images, pass --force to cosign below.
       # https://github.com/sigstore/cosign
       - name: Sign the published Docker image
-        if: ${{ github.event_name != 'pull_request' }}
         env:
           # https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-an-intermediate-environment-variable
           TAGS: ${{ steps.meta.outputs.tags }}
