@@ -1,6 +1,7 @@
 """Ordinance full processing logic"""
 
 import time
+import json
 import asyncio
 import logging
 from copy import deepcopy
@@ -11,7 +12,6 @@ from datetime import datetime, UTC
 import pandas as pd
 from elm.web.utilities import get_redirected_url
 
-from compass import __version__
 from compass.scripts.download import (
     find_jurisdiction_website,
     download_known_urls,
@@ -21,7 +21,7 @@ from compass.scripts.download import (
     download_jurisdiction_ordinances_from_website_compass_crawl,
     filter_ordinance_docs,
 )
-from compass.exceptions import COMPASSValueError
+from compass.exceptions import COMPASSValueError, COMPASSError
 from compass.extraction import (
     extract_ordinance_values,
     extract_ordinance_text_with_ngram_validation,
@@ -101,9 +101,10 @@ from compass.utilities.logs import (
     LocationFileLog,
     LogListener,
     NoLocationFilter,
+    log_versions,
 )
 from compass.utilities.base import WebSearchParams
-from compass.utilities.parsing import load_config
+from compass.utilities.parsing import load_config, convert_paths_to_strings
 from compass.pb import COMPASS_PB
 
 
@@ -282,12 +283,12 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
 
             url_ignore_substrings = [
                 "wikipedia",
-                "nrel.gov",
+                "nlr.gov",
                 "www.co.delaware.in.us/documents/1649699794_0382.pdf",
             ]
 
         The above configuration would ignore all `wikipedia` articles,
-        all websites on the NREL domain, and the specific file located
+        all websites on the NLR domain, and the specific file located
         at `www.co.delaware.in.us/documents/1649699794_0382.pdf`.
         By default, ``None``.
     known_local_docs : dict or path-like, optional
@@ -445,6 +446,7 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
         and may include color-coded cost information if the terminal
         supports it.
     """
+    called_args = locals()
     if log_level == "DEBUG":
         log_level = "DEBUG_TO_FILE"
 
@@ -457,38 +459,51 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
         ofd=ordinance_file_dir,
         jdd=jurisdiction_dbs_dir,
     )
-    pk = ProcessKwargs(
-        known_local_docs,
-        known_doc_urls,
-        file_loader_kwargs,
-        td_kwargs,
-        tpe_kwargs,
-        ppe_kwargs,
-        max_num_concurrent_jurisdictions,
-    )
-    wsp = WebSearchParams(
-        num_urls_to_check_per_jurisdiction,
-        max_num_concurrent_browsers,
-        max_num_concurrent_website_searches,
-        url_ignore_substrings,
-        pytesseract_exe_fp,
-        search_engines,
-    )
-    models = _initialize_model_params(model)
-    runner = _COMPASSRunner(
-        dirs=dirs,
-        log_listener=log_listener,
-        tech=tech,
-        models=models,
-        web_search_params=wsp,
-        process_kwargs=pk,
-        perform_se_search=perform_se_search,
-        perform_website_search=perform_website_search,
-        log_level=log_level,
-    )
     async with log_listener as ll:
         _setup_main_logging(dirs.logs, log_level, ll, keep_async_logs)
-        return await runner.run(jurisdiction_fp)
+        steps = _check_enabled_steps(
+            known_local_docs=known_local_docs,
+            known_doc_urls=known_doc_urls,
+            perform_se_search=perform_se_search,
+            perform_website_search=perform_website_search,
+        )
+        _log_exec_info(called_args, steps)
+        try:
+            pk = ProcessKwargs(
+                known_local_docs,
+                known_doc_urls,
+                file_loader_kwargs,
+                td_kwargs,
+                tpe_kwargs,
+                ppe_kwargs,
+                max_num_concurrent_jurisdictions,
+            )
+            wsp = WebSearchParams(
+                num_urls_to_check_per_jurisdiction,
+                max_num_concurrent_browsers,
+                max_num_concurrent_website_searches,
+                url_ignore_substrings,
+                pytesseract_exe_fp,
+                search_engines,
+            )
+            models = _initialize_model_params(model)
+            runner = _COMPASSRunner(
+                dirs=dirs,
+                log_listener=log_listener,
+                tech=tech,
+                models=models,
+                web_search_params=wsp,
+                process_kwargs=pk,
+                perform_se_search=perform_se_search,
+                perform_website_search=perform_website_search,
+                log_level=log_level,
+            )
+            return await runner.run(jurisdiction_fp)
+        except COMPASSError:
+            raise
+        except Exception:
+            logger.exception("Fatal error during processing")
+            raise
 
 
 class _COMPASSRunner:
@@ -518,7 +533,7 @@ class _COMPASSRunner:
 
     @cached_property
     def browser_semaphore(self):
-        """asyncio.Semaphore or None: Sem to limit # of browsers"""
+        """asyncio.Semaphore or None: Browser concurrency limiter"""
         return (
             asyncio.Semaphore(
                 self.web_search_params.max_num_concurrent_browsers
@@ -529,7 +544,7 @@ class _COMPASSRunner:
 
     @cached_property
     def crawl_semaphore(self):
-        """asyncio.Semaphore or None: Sem to limit # of crawls"""
+        """asyncio.Semaphore or None: Concurrency limiter for crawls"""
         return (
             asyncio.Semaphore(
                 self.web_search_params.max_num_concurrent_website_searches
@@ -540,7 +555,7 @@ class _COMPASSRunner:
 
     @cached_property
     def search_engine_semaphore(self):
-        """asyncio.Semaphore or None: Sem to limit # of SE queries"""
+        """asyncio.Semaphore: Concurrency limiter for search queries"""
         return asyncio.Semaphore(MAX_CONCURRENT_SEARCH_ENGINE_QUERIES)
 
     @cached_property
@@ -556,14 +571,14 @@ class _COMPASSRunner:
 
     @property
     def jurisdiction_semaphore(self):
-        """asyncio.Semaphore or AsyncExitStack: Jurisdictions limit"""
+        """asyncio.Semaphore or AsyncExitStack: Jurisdiction context"""
         if self._jurisdiction_semaphore is None:
             return AsyncExitStack()
         return self._jurisdiction_semaphore
 
     @cached_property
     def file_loader_kwargs(self):
-        """dict: Keyword arguments for `AsyncWebFileLoader`"""
+        """dict: Keyword arguments for ``AsyncWebFileLoader``"""
         file_loader_kwargs = _configure_file_loader_kwargs(
             self.process_kwargs.file_loader_kwargs
         )
@@ -576,7 +591,7 @@ class _COMPASSRunner:
 
     @cached_property
     def local_file_loader_kwargs(self):
-        """dict: Keyword arguments for `AsyncLocalFileLoader`"""
+        """dict: Keyword arguments for ``AsyncLocalFileLoader``"""
         file_loader_kwargs = {
             "pdf_read_coroutine": read_pdf_file,
             "pdf_read_kwargs": (
@@ -596,7 +611,7 @@ class _COMPASSRunner:
 
     @cached_property
     def known_local_docs(self):
-        """dict: Known filepaths by jurisdiction code"""
+        """dict: Known filepaths keyed by jurisdiction code"""
         known_local_docs = self.process_kwargs.known_local_docs or {}
         if isinstance(known_local_docs, str):
             known_local_docs = load_config(known_local_docs)
@@ -604,7 +619,7 @@ class _COMPASSRunner:
 
     @cached_property
     def known_doc_urls(self):
-        """dict: Known URL's keyed by jurisdiction code"""
+        """dict: Known URLs keyed by jurisdiction code"""
         known_doc_urls = self.process_kwargs.known_doc_urls or {}
         if isinstance(known_doc_urls, str):
             known_doc_urls = load_config(known_doc_urls)
@@ -612,12 +627,12 @@ class _COMPASSRunner:
 
     @cached_property
     def tpe_kwargs(self):
-        """dict: Keyword arguments for `ThreadPoolExecutor`"""
+        """dict: Keyword arguments for ``ThreadPoolExecutor``"""
         return _configure_thread_pool_kwargs(self.process_kwargs.tpe_kwargs)
 
     @cached_property
     def _base_services(self):
-        """list: List of required services to run for processing"""
+        """list: Services required to support jurisdiction processing"""
         base_services = [
             TempFileCachePB(
                 td_kwargs=self.process_kwargs.td_kwargs,
@@ -670,7 +685,6 @@ class _COMPASSRunner:
             terminal and may include color-coded cost information if
             the terminal supports it.
         """
-        logger.info("Running COMPASS version %s", __version__)
         jurisdictions = _load_jurisdictions_to_process(jurisdiction_fp)
 
         num_jurisdictions = len(jurisdictions)
@@ -704,7 +718,7 @@ class _COMPASSRunner:
         return run_msg
 
     async def _run_all(self, jurisdictions):
-        """Process all jurisdictions with running services"""
+        """Process all jurisdictions while required services run"""
         services = [model.llm_service for model in set(self.models.values())]
         services += self._base_services
         _ = self.file_loader_kwargs  # init loader kwargs once
@@ -743,7 +757,7 @@ class _COMPASSRunner:
     async def _processed_jurisdiction_info_with_pb(
         self, jurisdiction, *args, **kwargs
     ):
-        """Process jurisdiction and update progress bar"""
+        """Process a jurisdiction while updating the progress bar"""
         async with self.jurisdiction_semaphore:
             with COMPASS_PB.jurisdiction_prog_bar(jurisdiction.full_name):
                 return await self._processed_jurisdiction_info(
@@ -751,7 +765,7 @@ class _COMPASSRunner:
                 )
 
     async def _processed_jurisdiction_info(self, *args, **kwargs):
-        """Drop `doc` from RAM and only keep enough info to re-build"""
+        """Convert processed document to minimal metadata"""
 
         doc = await self._process_jurisdiction_with_logging(*args, **kwargs)
 
@@ -771,7 +785,7 @@ class _COMPASSRunner:
         known_doc_urls=None,
         usage_tracker=None,
     ):
-        """Retrieve ordinance document with async logs"""
+        """Retrieve ordinance document with location-scoped logging"""
         async with LocationFileLog(
             self.log_listener,
             self.dirs.logs,
@@ -868,9 +882,20 @@ class _SingleJurisdictionRunner:
         self._jsp = None
 
     async def run(self):
-        """Download and parse document for a single jurisdiction"""
+        """Download and parse ordinances for a single jurisdiction
+
+        Returns
+        -------
+        elm.web.document.BaseDocument or None
+            Document containing ordinance information, or ``None`` when
+            no valid ordinance content was identified.
+        """
         start_time = time.monotonic()
         doc = None
+        logger.info(
+            "Kicking off processing for jurisdiction: %s",
+            self.jurisdiction.full_name,
+        )
         try:
             doc = await self._run()
         finally:
@@ -878,12 +903,20 @@ class _SingleJurisdictionRunner:
             await _record_jurisdiction_info(
                 self.jurisdiction, doc, start_time, self.usage_tracker
             )
+            logger.info(
+                "Completed processing for jurisdiction: %s",
+                self.jurisdiction.full_name,
+            )
 
         return doc
 
     async def _run(self):
-        """Search for docs and parse them for ordinances"""
+        """Search for documents and parse them for ordinances"""
         if self.known_local_docs:
+            logger.debug(
+                "Checking local docs for jurisdiction: %s",
+                self.jurisdiction.full_name,
+            )
             doc = await self._try_find_ordinances(
                 method=self._load_known_local_documents,
             )
@@ -891,6 +924,10 @@ class _SingleJurisdictionRunner:
                 return doc
 
         if self.known_doc_urls:
+            logger.debug(
+                "Checking known URLs for jurisdiction: %s",
+                self.jurisdiction.full_name,
+            )
             doc = await self._try_find_ordinances(
                 method=self._download_known_url_documents,
             )
@@ -898,6 +935,11 @@ class _SingleJurisdictionRunner:
                 return doc
 
         if self.perform_se_search:
+            logger.debug(
+                "Collecting documents using a search engine for "
+                "jurisdiction: %s",
+                self.jurisdiction.full_name,
+            )
             doc = await self._try_find_ordinances(
                 method=self._find_documents_using_search_engine,
             )
@@ -905,6 +947,10 @@ class _SingleJurisdictionRunner:
                 return doc
 
         if self.perform_website_search:
+            logger.debug(
+                "Collecting documents from the jurisdiction website for: %s",
+                self.jurisdiction.full_name,
+            )
             doc = await self._try_find_ordinances(
                 method=self._find_documents_from_website,
             )
@@ -914,7 +960,7 @@ class _SingleJurisdictionRunner:
         return None
 
     async def _try_find_ordinances(self, method, *args, **kwargs):
-        """Try to find ordinances using specified method"""
+        """Execute a retrieval method and parse resulting documents"""
         docs = await method(*args, **kwargs)
         if docs is None:
             return None
@@ -926,7 +972,7 @@ class _SingleJurisdictionRunner:
         return await self._parse_docs_for_ordinances(docs)
 
     async def _load_known_local_documents(self):
-        """Load local ordinance documents"""
+        """Load ordinance documents from known local file paths"""
 
         docs = await load_known_docs(
             self.jurisdiction,
@@ -968,7 +1014,7 @@ class _SingleJurisdictionRunner:
         return docs
 
     async def _download_known_url_documents(self):
-        """Download ordinance documents from known URLs"""
+        """Download ordinance documents from pre-specified URLs"""
 
         docs = await download_known_urls(
             self.jurisdiction,
@@ -1011,7 +1057,7 @@ class _SingleJurisdictionRunner:
         return docs
 
     async def _find_documents_using_search_engine(self):
-        """Search the web for an ordinance document and construct it"""
+        """Search the web for ordinance docs using search engines"""
         docs = await download_jurisdiction_ordinance_using_search_engine(
             self.tech_specs.questions,
             self.jurisdiction,
@@ -1050,7 +1096,7 @@ class _SingleJurisdictionRunner:
         return docs
 
     async def _find_documents_from_website(self):
-        """Search the website for ordinance documents"""
+        """Search the jurisdiction website for ordinance documents"""
         if self.jurisdiction_website and self.validate_user_website_input:
             await self._validate_jurisdiction_website()
 
@@ -1080,7 +1126,7 @@ class _SingleJurisdictionRunner:
         return docs
 
     async def _validate_jurisdiction_website(self):
-        """Validate user input for jurisdiction website"""
+        """Validate a user-supplied jurisdiction website URL"""
         if self.jurisdiction_website is None:
             return
 
@@ -1111,7 +1157,7 @@ class _SingleJurisdictionRunner:
             self.jurisdiction_website = None
 
     async def _try_find_jurisdiction_website(self):
-        """Use web to try to find the main jurisdiction website"""
+        """Locate the primary jurisdiction website via search"""
         COMPASS_PB.update_jurisdiction_task(
             self.jurisdiction.full_name,
             description="Searching for jurisdiction website...",
@@ -1130,7 +1176,7 @@ class _SingleJurisdictionRunner:
         )
 
     async def _try_elm_crawl(self):
-        """Try crawling website using ELM crawler"""
+        """Crawl the jurisdiction website using the ELM crawler"""
         self.jurisdiction_website = await get_redirected_url(
             self.jurisdiction_website, timeout=30
         )
@@ -1162,7 +1208,7 @@ class _SingleJurisdictionRunner:
         return docs, scrape_results
 
     async def _try_compass_crawl(self, scrape_results):
-        """Try to crawl the website with compass-style crawling"""
+        """Crawl the jurisdiction website using the COMPASS crawler"""
         checked_urls = set()
         for scrape_result in scrape_results:
             checked_urls.update({sub_res.url for sub_res in scrape_result})
@@ -1194,7 +1240,7 @@ class _SingleJurisdictionRunner:
         )
 
     async def _parse_docs_for_ordinances(self, docs):
-        """Parse docs (in order) for ordinances"""
+        """Parse candidate documents in order until ordinances found"""
         for possible_ord_doc in docs:
             doc = await self._try_extract_all_ordinances(possible_ord_doc)
             ord_count = num_ordinances_in_doc(
@@ -1211,7 +1257,7 @@ class _SingleJurisdictionRunner:
         return None
 
     async def _try_extract_all_ordinances(self, possible_ord_doc):
-        """Try to extract ordinance values and permitted districts"""
+        """Extract both ordinance values and permitted-use districts"""
         with self._tracked_progress():
             tasks = [
                 asyncio.create_task(
@@ -1227,7 +1273,7 @@ class _SingleJurisdictionRunner:
 
     @property
     def _extraction_task_kwargs(self):
-        """Keyword-argument pairs to pass to _try_extract_ordinances"""
+        """list: Dictionaries describing extraction task config"""
         return [
             {
                 "extractor_class": self.tech_specs.ordinance_text_extractor,
@@ -1276,7 +1322,7 @@ class _SingleJurisdictionRunner:
         text_model,
         value_model,
     ):
-        """Try applying a single extractor to the relevant legal text"""
+        """Apply a single extractor and parser to legal text"""
         logger.debug(
             "Checking for ordinances in doc from %s",
             possible_ord_doc.attrs.get("source", "unknown source"),
@@ -1304,7 +1350,7 @@ class _SingleJurisdictionRunner:
         return out
 
     async def _record_usage(self):
-        """Dump usage to file if tracker given"""
+        """Persist usage tracking data when a tracker is available"""
         if self.usage_tracker is None:
             return
 
@@ -1370,12 +1416,55 @@ def _setup_main_logging(log_dir, level, listener, keep_async_logs):
 
     if keep_async_logs:
         handler = logging.FileHandler(log_dir / "all.log", encoding="utf-8")
-        fmt = logging.Formatter(
-            fmt="[%(asctime)s] %(levelname)s - %(taskName)s: %(message)s",
-        )
+        log_fmt = "[%(asctime)s] %(levelname)s - %(taskName)s: %(message)s"
+        fmt = logging.Formatter(fmt=log_fmt)
         handler.setFormatter(fmt)
         handler.setLevel(level)
         listener.addHandler(handler)
+        logger.debug_to_file("Using async log format: %s", log_fmt)
+
+
+def _log_exec_info(called_args, steps):
+    """Log versions and function parameters to file"""
+    log_versions(logger)
+
+    logger.info(
+        "Using the following processing step(s):\n\t%s", " -> ".join(steps)
+    )
+
+    normalized_args = convert_paths_to_strings(called_args)
+    logger.debug_to_file(
+        "Called 'process_jurisdictions_with_openai' with:\n%s",
+        json.dumps(normalized_args, indent=4),
+    )
+
+
+def _check_enabled_steps(
+    known_local_docs=None,
+    known_doc_urls=None,
+    perform_se_search=True,
+    perform_website_search=True,
+):
+    """Check that at least one processing step is enabled"""
+    steps = []
+    if known_local_docs:
+        steps.append("Check local document")
+    if known_doc_urls:
+        steps.append("Check known document URL")
+    if perform_se_search:
+        steps.append("Look for document using search engine")
+    if perform_website_search:
+        steps.append("Look for document on jurisdiction website")
+
+    if not steps:
+        msg = (
+            "No processing steps enabled! Please provide at least one of "
+            "'known_local_docs', 'known_doc_urls', or set at least one of "
+            "'perform_se_search' or 'perform_website_search' to True."
+        )
+        raise COMPASSValueError(msg)
+
+    return steps
 
 
 def _setup_folders(out_dir, log_dir=None, clean_dir=None, ofd=None, jdd=None):
