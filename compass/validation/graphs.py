@@ -41,8 +41,7 @@ def setup_graph_correct_document_type(**kwargs):
         prompt=(
             "Does the following text resemble an excerpt from a legal "
             "statute, such as an ordinance or code? "
-            "Please start your response with either 'Yes' or 'No' and "
-            "briefly explain your answer."
+            "{YES_NO_PROMPT}"
             '\n\n"""\n{text}\n"""'
         ),
     )
@@ -52,8 +51,7 @@ def setup_graph_correct_document_type(**kwargs):
         "check_for_laws",
         prompt=(
             "Does the text excerpt detail legal statutes/regulations? "
-            "Please start your response with either 'Yes' or 'No' and "
-            "briefly explain your answer."
+            "{YES_NO_PROMPT}"
         ),
     )
 
@@ -66,8 +64,7 @@ def setup_graph_correct_document_type(**kwargs):
         prompt=(
             "Does this text appear to be from a model ordinance or other "
             "kind of model law? "
-            "Please start your response with either 'Yes' or 'No' and briefly "
-            "explain why you chose your answer."
+            "{YES_NO_PROMPT}"
         ),
     )
 
@@ -99,8 +96,7 @@ def setup_graph_correct_document_type(**kwargs):
             "adoption status, or there is not enough information to "
             "**confidently** conclude one way or another, default to "
             '"Yes".\n\n'
-            "Please start your response with either 'Yes' or 'No' and briefly "
-            "explain why you chose your answer."
+            "{YES_NO_PROMPT}"
         ),
     )
 
@@ -111,8 +107,7 @@ def setup_graph_correct_document_type(**kwargs):
         "is_meeting",
         prompt=(
             "Does this text appear to be from town or board meeting notes? "
-            "Please start your response with either 'Yes' or 'No' and briefly "
-            "explain why you chose your answer."
+            "{YES_NO_PROMPT}"
         ),
     )
 
@@ -123,8 +118,7 @@ def setup_graph_correct_document_type(**kwargs):
         "is_public_notice",
         prompt=(
             "Does this text appear to be from a public notice or letter? "
-            "Please start your response with either 'Yes' or 'No' and briefly "
-            "explain why you chose your answer."
+            "{YES_NO_PROMPT}"
         ),
     )
 
@@ -137,8 +131,7 @@ def setup_graph_correct_document_type(**kwargs):
         "is_single_project",
         prompt=(
             "Does this text appear to apply for a single specific project? "
-            "Please start your response with either 'Yes' or 'No' and briefly "
-            "explain why you chose your answer."
+            "{YES_NO_PROMPT}"
         ),
     )
 
@@ -151,8 +144,7 @@ def setup_graph_correct_document_type(**kwargs):
         "is_planning_doc",
         prompt=(
             "Does this text appear to be from a project planning document? "
-            "Please start your response with either 'Yes' or 'No' and briefly "
-            "explain why you chose your answer."
+            "{YES_NO_PROMPT}"
         ),
     )
 
@@ -162,9 +154,7 @@ def setup_graph_correct_document_type(**kwargs):
     G.add_node(
         "is_pres",
         prompt=(
-            "Does this text appear to be from a presentation? "
-            "Please start your response with either 'Yes' or 'No' and briefly "
-            "explain why you chose your answer."
+            "Does this text appear to be from a presentation? {YES_NO_PROMPT}"
         ),
     )
 
@@ -232,10 +222,8 @@ def setup_graph_correct_document_type(**kwargs):
     G.add_node(
         "is_report",
         prompt=(
-            "Does this text appear to be from a report or summary "
-            "document? "
-            "Please start your response with either 'Yes' or 'No' and briefly "
-            "explain why you chose your answer."
+            "Does this text appear to be from a report or summary document? "
+            "{YES_NO_PROMPT}"
         ),
     )
 
@@ -245,10 +233,8 @@ def setup_graph_correct_document_type(**kwargs):
     G.add_node(
         "is_article",
         prompt=(
-            "Does this text appear to be from a news article or "
-            "other media? "
-            "Please start your response with either 'Yes' or 'No' and briefly "
-            "explain why you chose your answer."
+            "Does this text appear to be from a news article or other media? "
+            "{YES_NO_PROMPT}"
         ),
     )
 
@@ -262,8 +248,7 @@ def setup_graph_correct_document_type(**kwargs):
             "application form, or other legal or court document that is not "
             "intended to detail specific laws, ordinances, and/or "
             "regulations? "
-            "Please start your response with either 'Yes' or 'No' and briefly "
-            "explain why you chose your answer."
+            "{YES_NO_PROMPT}"
         ),
     )
 
@@ -322,8 +307,7 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
             "information to reasonably conclude what type of "
             "jurisdiction it applies to? Common types of jurisdictions "
             "include 'state', 'county', 'city', 'township',' borough', etc. "
-            "Please start your response with either 'Yes' or 'No' and briefly "
-            "explain your answer."
+            "{YES_NO_PROMPT}"
             '\n\n"""\n{text}\n"""'
         ),
     )
@@ -337,8 +321,7 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
             "Does the legal text explicitly include enough information to "
             "reasonably determine the **full name** of the jurisdiction it "
             f"applies to? We want to know at least {names_we_want}. "
-            "Please start your response with either 'Yes' or 'No' and briefly "
-            "explain your answer."
+            "{YES_NO_PROMPT}"
         ),
     )
 
@@ -352,9 +335,9 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
             "to a statewide statute, agency, or regulatory authority? If the "
             "text only applies to a county, municipality, or other local "
             f"subdivision within {jurisdiction.state}, or if the text applies "
-            "to a different state entirely, or if there is no "
-            "reasonable basis to infer statewide application, respond with "
-            "'No'. Start your response with 'Yes' or 'No' and briefly explain."
+            "to a different state entirely, or if there is no reasonable "
+            "basis to infer statewide application, respond with 'No'. "
+            "{YES_NO_PROMPT}"
         ),
     )
 
@@ -379,7 +362,7 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
                 "'State Zoning Administrator' are not sufficient on their own "
                 "unless clearly linked to "
                 f"{jurisdiction.full_name_the_prefixed}. "
-                "Start your response with 'Yes' or 'No' and explain briefly."
+                "{YES_NO_PROMPT}"
             ),
         )
         G.add_edge("has_state_name", "final")
@@ -407,7 +390,7 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
                 "township), or the text applies to a different county or "
                 "borough entirely, or if the scope is unclear, respond with "
                 "'No'. "
-                "Start your answer with 'Yes' or 'No' and explain briefly."
+                "{YES_NO_PROMPT}"
             ),
         )
         if not jurisdiction.subdivision_name:
@@ -435,8 +418,7 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
                     f"'{jurisdiction.type} Zoning Administrator' are not "
                     "sufficient on their own unless clearly linked to "
                     f"{jurisdiction.full_name_the_prefixed}. "
-                    "Start your response with 'Yes' or 'No' and explain "
-                    "briefly."
+                    "{YES_NO_PROMPT}"
                 ),
             )
             G.add_edge("has_county_name", "final")
@@ -465,7 +447,7 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
                 f"a different {jurisdiction.type.casefold()}, or does not "
                 "provide a reasonable basis to infer that it is limited to "
                 "municipal governance, respond with 'No'. "
-                "Start your response with 'Yes' or 'No' and explain briefly."
+                "{YES_NO_PROMPT}"
             ),
         )
 
@@ -490,8 +472,7 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
                 f"'{jurisdiction.type} Zoning Administrator' are not "
                 "sufficient on their own unless clearly linked to "
                 f"{jurisdiction.full_name_the_prefixed}. "
-                "Start your response with 'Yes' or 'No' and explain "
-                "briefly."
+                "{YES_NO_PROMPT}"
             ),
         )
         G.add_edge("has_city_name", "final")
@@ -551,8 +532,7 @@ def setup_graph_correct_jurisdiction_from_url(jurisdiction, **kwargs):
             "state in some way (e.g. either by full name or abbreviation)? "
             "**Do not** answer based on auxiliary information like county or "
             "city names. "
-            "Please start your response with either 'Yes' or 'No' and explain "
-            "your answer."
+            "{YES_NO_PROMPT}"
             "\n\nURL: '{url}\n'"
         ),
     )
@@ -573,8 +553,7 @@ def setup_graph_correct_jurisdiction_from_url(jurisdiction, **kwargs):
                 f"{jurisdiction.full_county_phrase} in some way (e.g. either "
                 "by full name or abbreviation)? **Do not** answer based on "
                 "auxiliary information like state or city names. "
-                "Please start your response with either 'Yes' or 'No' and "
-                "briefly explain your answer."
+                "{YES_NO_PROMPT}"
                 "\n\nURL: '{url}\n'"
             ),
         )
@@ -597,8 +576,7 @@ def setup_graph_correct_jurisdiction_from_url(jurisdiction, **kwargs):
                 "some way (e.g. either by full name or abbreviation)? **Do "
                 "not** answer based on auxiliary information like state or "
                 "county names. "
-                "Please start your response with either 'Yes' or 'No' and "
-                "briefly explain your answer."
+                "{YES_NO_PROMPT}"
                 "\n\nURL: '{url}\n'"
             ),
         )
