@@ -94,7 +94,20 @@ impl Usage {
               );
 
             CREATE VIEW usage AS
-              SELECT *
+              SELECT
+                usage_event.id AS usage_event_id,
+                usage_event.bookkeeper_lnk,
+                usage_event.jurisdiction,
+                usage_model.id AS usage_model_id,
+                usage_model.model,
+                usage_model.total_requests,
+                usage_model.total_prompt_tokens,
+                usage_model.total_response_tokens,
+                usage_step.id AS usage_step_id,
+                usage_step.step,
+                usage_step.requests,
+                usage_step.prompt_tokens,
+                usage_step.response_tokens
               FROM usage_event
                 JOIN usage_model ON (usage_event.id=usage_model.usage_lnk)
                 JOIN usage_step ON (usage_model.id=usage_step.model_lnk);
