@@ -30,7 +30,7 @@ pub(super) struct Jurisdiction {
     /// Full name of the jurisdiction, such as "Golden City, Colorado"
     full_name: String,
     /// County where the jurisdiction is located, such as "Jefferson County"
-    county: String,
+    county: Option<String>,
     /// State where the jurisdiction is located, such as "Colorado"
     state: String,
     /// Subdivision of the jurisdiction, if any, such as "Golden"
