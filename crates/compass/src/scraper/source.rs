@@ -201,8 +201,14 @@ impl Source {
             ));
         }
 
-        let content = tokio::fs::read_to_string(path).await?;
-        let jurisdictions = Self::from_json(&content)?;
+        let content = tokio::fs::read_to_string(&path).await?;
+        let jurisdictions = match Self::from_json(&content) {
+            Ok(jurisdictions) => jurisdictions,
+            Err(e) => {
+                error!("Failed parsing file: {:?}", &path);
+                return Err(e);
+            }
+        };
         trace!("Jurisdictions loaded: {:?}", jurisdictions);
 
         // ========================
