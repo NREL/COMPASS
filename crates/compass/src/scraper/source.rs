@@ -151,9 +151,17 @@ impl Source {
     }
 
     fn from_json(content: &str) -> Result<Self> {
-        trace!("Parsing sources from JSON: {:?}", content);
+        trace!("Parsing sources from json: {:?}", content);
 
-        let source = serde_json::from_str(content).unwrap();
+        let source = match serde_json::from_str(content) {
+            Ok(source) => source,
+            Err(e) => {
+                error!("Error parsing sources from json: {:?}", e);
+                return Err(crate::error::Error::Undefined(
+                    "Failed to parse source's json".to_string(),
+                ));
+            }
+        };
         Ok(source)
     }
 
