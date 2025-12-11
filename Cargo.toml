@@ -20,6 +20,7 @@ keywords = ["NLR", "database", "energy", "ordinance"]
 infra-compass-db = { version = "0.0.8", path = "crates/compass" }
 anyhow = { version = "1.0.98" }
 clap = { version = "4.5.40", features = ["cargo"] }
+chrono = { version = "0.4.42", default-features = false, features = ["serde"] }
 csv = { version = "1.3.1" }
 duckdb = { version = "1.4.0", features = ["bundled"] }
 serde = { version = "1.0.219", features = ["derive"] }
