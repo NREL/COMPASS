@@ -224,6 +224,15 @@ mod tests {
 pub(super) struct RuntimeLogs(Vec<LogRecord>);
 
 impl RuntimeLogs {
+    /// Parse runtime logs from text input
+    ///
+    /// # Notes
+    /// - For now, hardcoded to only keep INFO, WARNING, and ERROR levels.
+    ///   These logs are quite long with the more verbose levels. Since I
+    ///   collect everything, it is better to filter and reduce it here.
+    ///   In the future, consider returning an iterator instead.
+    /// - Ignore mulltiple lines messages.
+    /// - Lines that fail to parse are skipped with a warning.
     fn parse(input: &str) -> Result<Self> {
         let records: Vec<LogRecord> = input
             .lines()
