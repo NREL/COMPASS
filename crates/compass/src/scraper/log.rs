@@ -236,10 +236,27 @@ impl RuntimeLogs {
     fn parse(input: &str) -> Result<Self> {
         let records: Vec<LogRecord> = input
             .lines()
-            .map(|line| line.trim())
-            .filter(|line| !line.is_empty())
-            .map(LogRecord::parse)
-            .collect::<Result<Vec<LogRecord>>>()?;
+            .filter(|line| !line.trim().is_empty())
+            .filter_map(|line| match LogRecord::parse(line) {
+                Ok(record) => {
+                    trace!("Parsed log line: {}", line);
+                    Some(record)
+                }
+                Err(e) => {
+                    trace!("Failed to parse log line: {}. Error: {}", line, e);
+                    None
+                }
+            })
+            .filter(|record| {
+                (record.level == LogLevel::Info)
+                    || (record.level == LogLevel::Warning)
+                    || (record.level == LogLevel::Error)
+            })
+            .map(|record| {
+                debug!("Keeping log record: {:?}", record);
+                record
+            })
+            .collect();
         Ok(RuntimeLogs(records))
     }
 
