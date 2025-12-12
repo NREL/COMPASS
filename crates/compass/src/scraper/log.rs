@@ -174,6 +174,21 @@ impl LogRecord {
             message,
         })
     }
+
+    fn record(&self, conn: &duckdb::Transaction, bookkeeper_id: usize) -> Result<()> {
+        trace!("Recording log record: {:?}", self);
+        conn.execute(
+            "INSERT INTO logs (bookkeeper_lnk, timestamp, level, subject, message) VALUES (?, ?, ?, ?, ?)",
+            duckdb::params![
+                bookkeeper_id,
+                self.timestamp.format("%Y-%m-%d %H:%M:%S").to_string(),
+                format!("{:?}", self.level),
+                &self.subject,
+                &self.message,
+            ],
+        )?;
+        Ok(())
+    }
 }
 
 #[cfg(test)]
