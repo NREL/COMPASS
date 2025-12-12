@@ -176,11 +176,7 @@ impl ScrapedOrdinance {
 
 #[cfg(test)]
 mod tests {
-    use super::ScrapedOrdinance;
-    use super::metadata;
-    use super::ordinance;
-    use super::source;
-    use super::usage;
+    use super::*;
     use std::io::Write;
 
     #[tokio::test]
