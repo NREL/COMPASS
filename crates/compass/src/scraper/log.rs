@@ -3,7 +3,12 @@
 //! Parse and record the logs emitted by the runtime to support
 //! pos-processing and analysis.
 
-#[derive(Debug, serde::Deserialize)]
+use chrono::NaiveDateTime;
+use regex::Regex;
+
+use crate::error::Result;
+
+#[derive(Debug, PartialEq, serde::Deserialize)]
 enum LogLevel {
     #[serde(rename = "TRACE")]
     Trace,
