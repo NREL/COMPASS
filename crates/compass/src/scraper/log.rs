@@ -142,12 +142,15 @@ pub(super) struct LogRecord {
     message: String,
 }
 
+use std::sync::LazyLock;
+
 impl LogRecord {
     fn parse(line: &str) -> Result<Self> {
         // Regex pattern: [timestamp] LEVEL - subject: message
-        let re = Regex::new(r"^\[([^\]]+)\]\s+(\w+)\s+-\s+([^:]+):\s+(.+)$").unwrap();
+        static RE: LazyLock<Regex> =
+            LazyLock::new(|| Regex::new(r"^\[([^\]]+)\]\s+(\w+)\s+-\s+([^:]+):\s+(.+)$").unwrap());
 
-        let caps = re.captures(line).ok_or_else(|| {
+        let caps = RE.captures(line).ok_or_else(|| {
             crate::error::Error::Undefined(format!("Failed to parse log line: {}", line))
         })?;
 
