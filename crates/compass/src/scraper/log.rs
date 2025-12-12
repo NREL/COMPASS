@@ -172,15 +172,6 @@ impl LogRecord {
             message,
         })
     }
-
-    fn parse_lines(input: &str) -> Result<Vec<Self>> {
-        input
-            .lines()
-            .map(|line| line.trim())
-            .filter(|line| !line.is_empty())
-            .map(Self::parse)
-            .collect()
-    }
 }
 
 #[cfg(test)]
@@ -207,7 +198,20 @@ mod tests {
     }
 }
 
-impl LogRecord {
+#[derive(Debug)]
+pub(super) struct RuntimeLogs(Vec<LogRecord>);
+
+impl RuntimeLogs {
+    fn parse(input: &str) -> Result<Self> {
+        let records: Vec<LogRecord> = input
+            .lines()
+            .map(|line| line.trim())
+            .filter(|line| !line.is_empty())
+            .map(LogRecord::parse)
+            .collect::<Result<Vec<LogRecord>>>()?;
+        Ok(RuntimeLogs(records))
+    }
+
     pub(super) fn init_db(conn: &duckdb::Transaction) -> Result<()> {
         conn.execute_batch(
             r"
@@ -224,11 +228,11 @@ impl LogRecord {
         Ok(())
     }
 
-    pub(super) async fn open<P: AsRef<std::path::Path>>(root: P) -> Result<Vec<Self>> {
+    pub(super) async fn open<P: AsRef<std::path::Path>>(root: P) -> Result<Self> {
         let path = root.as_ref().join("logs").join("all.log");
         dbg!(&path);
         let content = tokio::fs::read_to_string(path).await?;
-        let records = Self::parse_lines(&content)?;
+        let records = Self::parse(&content)?;
         Ok(records)
     }
 }

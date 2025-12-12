@@ -12,6 +12,7 @@ use tracing::{self, debug, trace};
 
 use crate::error;
 use crate::error::Result;
+use log::RuntimeLogs;
 use metadata::Metadata;
 use ordinance::Ordinance;
 #[allow(unused_imports)]
@@ -74,6 +75,8 @@ pub(crate) struct ScrapedOrdinance {
     usage: Usage,
     /// The ordinance section
     ordinance: Ordinance,
+    /// The runtime logs
+    logs: RuntimeLogs,
 }
 
 impl ScrapedOrdinance {
@@ -89,7 +92,7 @@ impl ScrapedOrdinance {
     pub(super) fn init_db(conn: &duckdb::Transaction) -> Result<()> {
         debug!("Initializing ScrapedOrdinance database");
 
-        log::LogRecord::init_db(conn)?;
+        log::RuntimeLogs::init_db(conn)?;
         source::Source::init_db(conn)?;
         metadata::Metadata::init_db(conn)?;
         usage::Usage::init_db(conn)?;
@@ -119,7 +122,7 @@ impl ScrapedOrdinance {
             metadata::Metadata::open(&root),
             usage::Usage::open(&root),
             ordinance::Ordinance::open(&root),
-            log::LogRecord::open(&root),
+            log::RuntimeLogs::open(&root),
         )?;
         trace!("Scraped ordinance opened successfully");
 
