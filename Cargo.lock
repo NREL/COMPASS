@@ -781,6 +781,7 @@ dependencies = [
  "chrono",
  "csv",
  "duckdb",
+ "regex",
  "serde",
  "serde_json",
  "sha2",
