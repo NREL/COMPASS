@@ -175,3 +175,27 @@ impl LogRecord {
             .collect()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_single_line() {
+        let line = "[2025-12-06 15:15:14,272] INFO - Task-1: Running COMPASS";
+        let record = LogRecord::parse(line).unwrap();
+
+        assert_eq!(
+            record.timestamp.date(),
+            chrono::NaiveDate::from_ymd_opt(2025, 12, 6).unwrap()
+        );
+        assert_eq!(
+            record.timestamp.time(),
+            chrono::NaiveTime::from_hms_milli_opt(15, 15, 14, 272).unwrap()
+        );
+
+        assert!(matches!(record.level, LogLevel::Info));
+        assert_eq!(record.subject, "Task-1");
+        assert_eq!(record.message, "Running COMPASS");
+    }
+}
