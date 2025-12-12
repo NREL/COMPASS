@@ -12,6 +12,8 @@ use crate::error::Result;
 
 #[derive(Debug, PartialEq, serde::Deserialize)]
 enum LogLevel {
+    #[serde(rename = "DEBUG_TO_FILE")]
+    DebugToFile,
     #[serde(rename = "TRACE")]
     Trace,
     #[serde(rename = "DEBUG")]
