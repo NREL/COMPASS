@@ -284,6 +284,17 @@ impl RuntimeLogs {
         let records = Self::parse(&content)?;
         Ok(records)
     }
+
+    pub(super) fn record(&self, conn: &duckdb::Transaction, commit_id: usize) -> Result<()> {
+        // debug!("Recording log: {:?}", self);
+        debug!("Recording runtime logs");
+
+        for record in &self.0 {
+            record.record(conn, commit_id)?;
+        }
+
+        Ok(())
+    }
 }
 
 #[cfg(test)]

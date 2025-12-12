@@ -150,6 +150,7 @@ impl ScrapedOrdinance {
         self.metadata.write(&conn, commit_id).unwrap();
         self.usage().await.unwrap().write(&conn, commit_id).unwrap();
         self.ordinance.write(&conn, commit_id).unwrap();
+        self.logs.record(&conn, commit_id).unwrap();
 
         tracing::trace!("Committing transaction");
         conn.commit()?;
