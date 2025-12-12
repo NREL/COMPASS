@@ -267,11 +267,12 @@ pub(crate) mod sample {
     use std::io::Write;
 
     pub(crate) fn as_text_v1() -> String {
-        r#"[2025-12-06 15:15:14,272] INFO - Task-1: Running COMPASS version 0.11.3.dev8+g69a75b7.d20251111
-        [2025-12-06 15:15:14,872] INFO - Task-1: Processing 250 jurisdiction(s)
-        [2025-12-06 15:15:14,272] INFO - Task-1: Running COMPASS
-        [2025-12-06 15:15:14,572] INFO - Jefferson County, Colorado: Running COMPASS
-        [2025-12-06 19:48:10,503] INFO - Task-1: Total runtime: 4:32:55
+        r#"
+[2025-12-06 15:15:14,272] INFO - Task-1: Running COMPASS version 0.11.3.dev8+g69a75b7.d20251111
+[2025-12-06 15:15:14,872] INFO - Task-1: Processing 250 jurisdiction(s)
+[2025-12-06 15:15:14,272] INFO - Task-1: Running COMPASS
+[2025-12-06 15:15:14,572] INFO - Jefferson County, Colorado: Running COMPASS
+[2025-12-06 19:48:10,503] INFO - Task-1: Total runtime: 4:32:55
         "#
         .to_string()
     }
