@@ -131,3 +131,47 @@ struct LogRecord {
     subject: String,
     message: String,
 }
+
+impl LogRecord {
+    fn parse(line: &str) -> Result<Self> {
+        // Regex pattern: [timestamp] LEVEL - subject: message
+        let re = Regex::new(r"^\[([^\]]+)\]\s+(\w+)\s+-\s+([^:]+):\s+(.+)$").unwrap();
+
+        let caps = re.captures(line).ok_or_else(|| {
+            crate::error::Error::Undefined(format!("Failed to parse log line: {}", line))
+        })?;
+
+        let timestamp_str = caps.get(1).unwrap().as_str().to_string();
+        let timestamp = NaiveDateTime::parse_from_str(&timestamp_str, "%Y-%m-%d %H:%M:%S,%3f")
+            .map_err(|e| {
+                crate::error::Error::Undefined(format!(
+                    "Failed to parse timestamp '{}': {}",
+                    timestamp_str, e
+                ))
+            })?;
+
+        let level_str = caps.get(2).unwrap().as_str();
+        // Parse the log level
+        let level = serde_json::from_str(&format!(r#""{}""#, level_str))
+            .map_err(|e| format!("Invalid log level '{}': {}", level_str, e))
+            .unwrap();
+
+        let subject = caps.get(3).unwrap().as_str().to_string();
+        let message = caps.get(4).unwrap().as_str().to_string();
+
+        Ok(LogRecord {
+            timestamp,
+            level,
+            subject,
+            message,
+        })
+    }
+
+    fn parse_lines(input: &str) -> Result<Vec<Self>> {
+        input
+            .lines()
+            .filter(|line| !line.trim().is_empty())
+            .map(Self::parse)
+            .collect()
+    }
+}
