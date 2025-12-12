@@ -23,68 +23,68 @@ enum LogLevel {
 }
 
 #[cfg(test)]
-mod tests {
+mod test_loglevel {
     use super::*;
     use serde_json;
 
     #[test]
-    fn test_deserialize_trace() {
+    fn deserialize_trace() {
         let json = r#""TRACE""#;
         let level: LogLevel = serde_json::from_str(json).unwrap();
         assert!(matches!(level, LogLevel::Trace));
     }
 
     #[test]
-    fn test_deserialize_debug() {
+    fn deserialize_debug() {
         let json = r#""DEBUG""#;
         let level: LogLevel = serde_json::from_str(json).unwrap();
         assert!(matches!(level, LogLevel::Debug));
     }
 
     #[test]
-    fn test_deserialize_info() {
+    fn deserialize_info() {
         let json = r#""INFO""#;
         let level: LogLevel = serde_json::from_str(json).unwrap();
         assert!(matches!(level, LogLevel::Info));
     }
 
     #[test]
-    fn test_deserialize_warning() {
+    fn deserialize_warning() {
         let json = r#""WARNING""#;
         let level: LogLevel = serde_json::from_str(json).unwrap();
         assert!(matches!(level, LogLevel::Warning));
     }
 
     #[test]
-    fn test_deserialize_error() {
+    fn deserialize_error() {
         let json = r#""ERROR""#;
         let level: LogLevel = serde_json::from_str(json).unwrap();
         assert!(matches!(level, LogLevel::Error));
     }
 
     #[test]
-    fn test_deserialize_invalid_variant() {
+    fn deserialize_invalid_variant() {
         let json = r#""INVALID""#;
-        let result: Result<LogLevel, _> = serde_json::from_str(json);
+        let result: std::result::Result<LogLevel, _> = serde_json::from_str(json);
         assert!(result.is_err());
     }
 
     #[test]
-    fn test_deserialize_lowercase_fails() {
+    fn deserialize_lowercase_fails() {
         let json = r#""trace""#;
-        let result: Result<LogLevel, _> = serde_json::from_str(json);
+        let result: std::result::Result<LogLevel, _> = serde_json::from_str(json);
         assert!(result.is_err());
     }
 
     #[test]
-    fn test_deserialize_mixed_case_fails() {
+    fn deserialize_mixed_case_fails() {
         let json = r#""Trace""#;
-        let result: Result<LogLevel, _> = serde_json::from_str(json);
+        let result: std::result::Result<LogLevel, _> = serde_json::from_str(json);
         assert!(result.is_err());
     }
 
     #[test]
-    fn test_deserialize_in_struct() {
+    fn deserialize_in_struct() {
         #[derive(serde::Deserialize)]
         struct LogEntry {
             level: LogLevel,
@@ -98,7 +98,7 @@ mod tests {
     }
 
     #[test]
-    fn test_deserialize_array_of_levels() {
+    fn deserialize_array_of_levels() {
         let json = r#"["TRACE", "INFO", "ERROR"]"#;
         let levels: Vec<LogLevel> = serde_json::from_str(json).unwrap();
         assert_eq!(levels.len(), 3);
@@ -108,16 +108,16 @@ mod tests {
     }
 
     #[test]
-    fn test_deserialize_with_whitespace() {
+    fn deserialize_with_whitespace() {
         let json = r#"  "INFO"  "#;
         let level: LogLevel = serde_json::from_str(json).unwrap();
         assert!(matches!(level, LogLevel::Info));
     }
 
     #[test]
-    fn test_error_message_contains_valid_options() {
+    fn error_message_contains_valid_options() {
         let json = r#""FATAL""#;
-        let result: Result<LogLevel, _> = serde_json::from_str(json);
+        let result: std::result::Result<LogLevel, _> = serde_json::from_str(json);
 
         match result {
             Err(e) => {
