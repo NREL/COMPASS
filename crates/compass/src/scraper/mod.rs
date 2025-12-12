@@ -114,11 +114,12 @@ impl ScrapedOrdinance {
             return Err(error::Error::Undefined("Path does not exist".to_string()));
         }
 
-        let (source, metadata, usage, ordinance) = tokio::try_join!(
+        let (source, metadata, usage, ordinance, logs) = tokio::try_join!(
             source::Source::open(&root),
             metadata::Metadata::open(&root),
             usage::Usage::open(&root),
-            ordinance::Ordinance::open(&root)
+            ordinance::Ordinance::open(&root),
+            log::LogRecord::open(&root),
         )?;
         trace!("Scraped ordinance opened successfully");
 
@@ -129,6 +130,7 @@ impl ScrapedOrdinance {
             source,
             usage,
             ordinance,
+            logs,
         })
     }
 
