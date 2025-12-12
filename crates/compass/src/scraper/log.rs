@@ -125,8 +125,9 @@ mod tests {
     }
 }
 
-struct LogRecord {
-    timestamp: String,
+#[derive(Debug)]
+pub(super) struct LogRecord {
+    timestamp: NaiveDateTime,
     level: LogLevel,
     subject: String,
     message: String,
@@ -201,7 +202,7 @@ mod tests {
 }
 
 impl LogRecord {
-    fn init_db(conn: &duckdb::Transaction) -> Result<()> {
+    pub(super) fn init_db(conn: &duckdb::Transaction) -> Result<()> {
         conn.execute_batch(
             r"
             CREATE SEQUENCE IF NOT EXISTS scrapper_log_seq START 1;

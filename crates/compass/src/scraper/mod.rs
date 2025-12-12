@@ -1,5 +1,6 @@
 //! Support for the ordinance scraper output
 
+mod log;
 mod metadata;
 mod ordinance;
 mod source;
@@ -88,6 +89,7 @@ impl ScrapedOrdinance {
     pub(super) fn init_db(conn: &duckdb::Transaction) -> Result<()> {
         debug!("Initializing ScrapedOrdinance database");
 
+        log::LogRecord::init_db(conn)?;
         source::Source::init_db(conn)?;
         metadata::Metadata::init_db(conn)?;
         usage::Usage::init_db(conn)?;
