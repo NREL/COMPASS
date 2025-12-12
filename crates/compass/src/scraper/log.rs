@@ -4,7 +4,6 @@
 //! pos-processing and analysis.
 
 use chrono::NaiveDateTime;
-use duckdb;
 use regex::Regex;
 use tracing::{debug, trace};
 
@@ -29,7 +28,6 @@ enum LogLevel {
 #[cfg(test)]
 mod test_loglevel {
     use super::*;
-    use serde_json;
 
     #[test]
     fn deserialize_trace() {
