@@ -207,6 +207,8 @@ mod tests {
 
         let _metadata_file = metadata::sample::as_file(target.path().join("meta.json")).unwrap();
         let _usage_file = usage::sample::as_file(target.path().join("usage.json")).unwrap();
+        std::fs::create_dir(&target.path().join("logs")).unwrap();
+        let _log_file = log::sample::as_file(target.path().join("logs").join("all.log")).unwrap();
         ordinance::sample::as_file(target.path()).unwrap();
 
         let demo = ScrapedOrdinance::open(target).await.unwrap();
