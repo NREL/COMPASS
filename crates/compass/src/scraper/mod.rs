@@ -140,7 +140,7 @@ impl ScrapedOrdinance {
     #[allow(dead_code)]
     pub(crate) async fn push(&self, conn: &mut duckdb::Connection, commit_id: usize) -> Result<()> {
         // Load the ordinance into the database
-        tracing::trace!("Pushing scraped ordinance into the database");
+        tracing::info!("Recording scraped ordinance into the database");
         let conn = conn.transaction().unwrap();
         tracing::trace!("Transaction started");
 
