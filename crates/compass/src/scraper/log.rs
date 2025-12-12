@@ -176,7 +176,8 @@ impl LogRecord {
     fn parse_lines(input: &str) -> Result<Vec<Self>> {
         input
             .lines()
-            .filter(|line| !line.trim().is_empty())
+            .map(|line| line.trim())
+            .filter(|line| !line.is_empty())
             .map(Self::parse)
             .collect()
     }
