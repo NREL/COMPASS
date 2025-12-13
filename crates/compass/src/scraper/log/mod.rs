@@ -59,9 +59,9 @@ impl LogRecord {
 
         let level_str = caps.get(2).unwrap().as_str();
         // Parse the log level
-        let level = serde_json::from_str(&format!(r#""{}""#, level_str))
-            .map_err(|e| format!("Invalid log level '{}': {}", level_str, e))
-            .unwrap();
+        let level = serde_json::from_str(&format!(r#""{}""#, level_str)).map_err(|e| {
+            crate::error::Error::Undefined(format!("Invalid log level '{}': {}", level_str, e))
+        })?;
 
         let subject = caps.get(3).unwrap().as_str().to_string();
         let message = caps.get(4).unwrap().as_str().to_string();
