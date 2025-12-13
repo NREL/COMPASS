@@ -29,7 +29,7 @@ use loglevel::LogLevel;
 /// or
 /// [2025-12-06 15:15:14,572] INFO - Jefferson County, Colorado: Running COMPASS
 ///
-/// Note that the 'message' can have multiple lines.
+/// The 'message' field only supports single-line log messages.
 pub(super) struct LogRecord {
     timestamp: NaiveDateTime,
     level: LogLevel,
