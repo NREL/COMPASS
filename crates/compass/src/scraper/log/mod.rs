@@ -1,13 +1,13 @@
 //! Runtime logs
 //!
 //! Parse and record the logs from the ordinance runtime to support
-//! pos-processing and analysis.
+//! post-processing and analysis.
 //!
 //! The most verbose levels are ignored to minimize the impact on the
 //! final database size. The outputs are archived, so any forensics
 //! can be done by inspecting the raw log files if needed. The purpose
 //! here is to support questions such as what is the distribution of
-//! cost and runtime per jurisdictions? Which exceptions where captured
+//! cost and runtime per jurisdictions? Which exceptions were captured
 //! on each jurisdiction?
 
 mod loglevel;
