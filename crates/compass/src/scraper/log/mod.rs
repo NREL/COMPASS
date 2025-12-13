@@ -210,7 +210,6 @@ pub(crate) mod sample {
 
     pub(crate) fn as_file<P: AsRef<std::path::Path>>(path: P) -> Result<std::fs::File> {
         let mut file = std::fs::File::create(path).unwrap();
-        dbg!(&file);
         writeln!(file, "{}", as_text_v1()).unwrap();
         Ok(file)
     }
