@@ -1,7 +1,14 @@
 //! Runtime logs
 //!
-//! Parse and record the logs emitted by the runtime to support
+//! Parse and record the logs from the ordinance runtime to support
 //! pos-processing and analysis.
+//!
+//! The most verbose levels are ignored to minimize the impact on the
+//! final database size. The outputs are archived, so any forensics
+//! can be done by inspecting the raw log files if needed. The purpose
+//! here is to support questions such as what is the distribution of
+//! cost and runtime per jurisdictions? Which exceptions where captured
+//! on each jurisdiction?
 
 mod loglevel;
 
@@ -15,6 +22,14 @@ use crate::error::Result;
 use loglevel::LogLevel;
 
 #[derive(Debug)]
+/// A single log record parsed from the runtime logs.
+///
+/// Expect something like:
+/// [2025-12-06 15:15:14,272] INFO - Task-1: Running COMPASS
+/// or
+/// [2025-12-06 15:15:14,572] INFO - Jefferson County, Colorado: Running COMPASS
+///
+/// Note that the 'message' can have multiple lines.
 pub(super) struct LogRecord {
     timestamp: NaiveDateTime,
     level: LogLevel,
@@ -23,6 +38,7 @@ pub(super) struct LogRecord {
 }
 
 impl LogRecord {
+    /// Parse a single log line into a LogRecord
     fn parse(line: &str) -> Result<Self> {
         // Regex pattern: [timestamp] LEVEL - subject: message
         static RE: LazyLock<Regex> =
@@ -99,6 +115,7 @@ mod tests {
 }
 
 #[derive(Debug)]
+/// Collection of runtime log records
 pub(super) struct RuntimeLogs(Vec<LogRecord>);
 
 impl RuntimeLogs {
