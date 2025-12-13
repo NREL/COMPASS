@@ -3,12 +3,7 @@
 //! Parse and record the logs emitted by the runtime to support
 //! pos-processing and analysis.
 
-use chrono::NaiveDateTime;
-use regex::Regex;
-use tracing::{debug, trace};
-
-use crate::error::Result;
-
+/// Log levels emitted by the (Python) runtime.
 #[derive(Debug, PartialEq, serde::Deserialize)]
 pub(super) enum LogLevel {
     #[serde(rename = "DEBUG_TO_FILE")]
