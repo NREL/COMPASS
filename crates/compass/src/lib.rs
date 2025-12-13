@@ -118,7 +118,7 @@ pub fn load_ordinance<P: AsRef<std::path::Path> + std::fmt::Debug>(
 
     let ordinance = runtime
         .block_on(scraper::ScrapedOrdinance::open(ordinance_path))
-        .unwrap();
+        .expect("Failed to open ordinance data source");
     conn.commit().unwrap();
     tracing::debug!("Transaction committed");
 

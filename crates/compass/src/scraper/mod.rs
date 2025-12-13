@@ -1,5 +1,6 @@
 //! Support for the ordinance scraper output
 
+mod log;
 mod metadata;
 mod ordinance;
 mod source;
@@ -11,6 +12,7 @@ use tracing::{self, debug, trace};
 
 use crate::error;
 use crate::error::Result;
+use log::RuntimeLogs;
 use metadata::Metadata;
 use ordinance::Ordinance;
 #[allow(unused_imports)]
@@ -73,6 +75,8 @@ pub(crate) struct ScrapedOrdinance {
     usage: Usage,
     /// The ordinance section
     ordinance: Ordinance,
+    /// The runtime logs
+    logs: RuntimeLogs,
 }
 
 impl ScrapedOrdinance {
@@ -88,6 +92,7 @@ impl ScrapedOrdinance {
     pub(super) fn init_db(conn: &duckdb::Transaction) -> Result<()> {
         debug!("Initializing ScrapedOrdinance database");
 
+        log::RuntimeLogs::init_db(conn)?;
         source::Source::init_db(conn)?;
         metadata::Metadata::init_db(conn)?;
         usage::Usage::init_db(conn)?;
@@ -112,11 +117,12 @@ impl ScrapedOrdinance {
             return Err(error::Error::Undefined("Path does not exist".to_string()));
         }
 
-        let (source, metadata, usage, ordinance) = tokio::try_join!(
+        let (source, metadata, usage, ordinance, logs) = tokio::try_join!(
             source::Source::open(&root),
             metadata::Metadata::open(&root),
             usage::Usage::open(&root),
-            ordinance::Ordinance::open(&root)
+            ordinance::Ordinance::open(&root),
+            log::RuntimeLogs::open(&root),
         )?;
         trace!("Scraped ordinance opened successfully");
 
@@ -127,13 +133,14 @@ impl ScrapedOrdinance {
             source,
             usage,
             ordinance,
+            logs,
         })
     }
 
     #[allow(dead_code)]
     pub(crate) async fn push(&self, conn: &mut duckdb::Connection, commit_id: usize) -> Result<()> {
         // Load the ordinance into the database
-        tracing::trace!("Pushing scraped ordinance into the database");
+        tracing::info!("Recording scraped ordinance into the database");
         let conn = conn.transaction().unwrap();
         tracing::trace!("Transaction started");
 
@@ -143,6 +150,7 @@ impl ScrapedOrdinance {
         self.metadata.write(&conn, commit_id).unwrap();
         self.usage().await.unwrap().write(&conn, commit_id).unwrap();
         self.ordinance.write(&conn, commit_id).unwrap();
+        self.logs.record(&conn, commit_id).unwrap();
 
         tracing::trace!("Committing transaction");
         conn.commit()?;
@@ -169,11 +177,7 @@ impl ScrapedOrdinance {
 
 #[cfg(test)]
 mod tests {
-    use super::ScrapedOrdinance;
-    use super::metadata;
-    use super::ordinance;
-    use super::source;
-    use super::usage;
+    use super::*;
     use std::io::Write;
 
     #[tokio::test]
@@ -203,6 +207,8 @@ mod tests {
 
         let _metadata_file = metadata::sample::as_file(target.path().join("meta.json")).unwrap();
         let _usage_file = usage::sample::as_file(target.path().join("usage.json")).unwrap();
+        std::fs::create_dir(target.path().join("logs")).unwrap();
+        let _log_file = log::sample::as_file(target.path().join("logs").join("all.log")).unwrap();
         ordinance::sample::as_file(target.path()).unwrap();
 
         let demo = ScrapedOrdinance::open(target).await.unwrap();

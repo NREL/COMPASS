@@ -12,6 +12,9 @@ pub enum Error {
     #[error(transparent)]
     DuckDB(#[from] duckdb::Error),
 
+    #[error(transparent)]
+    Regex(#[from] regex::Error),
+
     #[allow(dead_code)]
     #[error("Undefined error")]
     // Used during development while it is not clear a category of error
