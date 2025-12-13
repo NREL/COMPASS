@@ -174,7 +174,6 @@ impl RuntimeLogs {
 
     pub(super) async fn open<P: AsRef<std::path::Path>>(root: P) -> Result<Self> {
         let path = root.as_ref().join("logs").join("all.log");
-        dbg!(&path);
         let content = tokio::fs::read_to_string(path).await?;
         let records = Self::parse(&content)?;
         Ok(records)
