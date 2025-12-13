@@ -158,9 +158,9 @@ impl RuntimeLogs {
     pub(super) fn init_db(conn: &duckdb::Transaction) -> Result<()> {
         conn.execute_batch(
             r"
-            CREATE SEQUENCE IF NOT EXISTS scrapper_log_seq START 1;
+            CREATE SEQUENCE IF NOT EXISTS scraper_log_seq START 1;
             CREATE TABLE IF NOT EXISTS logs (
-              id INTEGER PRIMARY KEY DEFAULT NEXTVAL('scrapper_log_seq'),
+              id INTEGER PRIMARY KEY DEFAULT NEXTVAL('scraper_log_seq'),
               bookkeeper_lnk INTEGER REFERENCES bookkeeper(id) NOT NULL,
               timestamp TIMESTAMP,
               level VARCHAR,
