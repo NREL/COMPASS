@@ -16,7 +16,7 @@ use std::sync::LazyLock;
 
 use chrono::NaiveDateTime;
 use regex::Regex;
-use tracing::{debug, trace};
+use tracing::{debug, error, trace};
 
 use crate::error::Result;
 use loglevel::LogLevel;
@@ -49,8 +49,10 @@ impl LogRecord {
         })?;
 
         let timestamp_str = caps.get(1).unwrap().as_str().to_string();
+        trace!("Parsing timestamp: {}", timestamp_str);
         let timestamp = NaiveDateTime::parse_from_str(&timestamp_str, "%Y-%m-%d %H:%M:%S,%3f")
             .map_err(|e| {
+                error!("Failed to parse timestamp: {}, error: {}", timestamp_str, e);
                 crate::error::Error::Undefined(format!(
                     "Failed to parse timestamp '{}': {}",
                     timestamp_str, e
