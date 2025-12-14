@@ -80,7 +80,7 @@ impl LogRecord {
             "INSERT INTO logs (bookkeeper_lnk, timestamp, level, subject, message) VALUES (?, ?, ?, ?, ?)",
             duckdb::params![
                 bookkeeper_id,
-                self.timestamp.format("%Y-%m-%d %H:%M:%S,%3f").to_string(),
+                self.timestamp.format("%Y-%m-%d %H:%M:%S.%3f").to_string(),
                 format!("{:?}", self.level),
                 &self.subject,
                 &self.message,
