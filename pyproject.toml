@@ -32,6 +32,7 @@ classifiers=[
   "Topic :: Software Development :: Libraries :: Application Frameworks",
 ]
 dependencies = [
+  "beautifulsoup4>=4.12.3,<5",
   "click>=8.1.7,<9",
   "html5lib>=1.1,<2",
   "langchain-text-splitters>=1.0.0,<2",
