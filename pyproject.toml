@@ -43,7 +43,7 @@ dependencies = [
   "pandas>=2.2.3,<3",
   "pdftotext>=2.2.2,<3",
   "playwright>=1.49.0,<1.52",  # version range required for c4ai"
-  "pyjson5>=1.6.8,<2",
+  "pyjson5>=2.0.0,<3",
   "rich>=13.9.4,<14",
 ]
 
