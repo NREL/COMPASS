@@ -63,7 +63,7 @@ pub(super) struct UsageValues {
 impl Usage {
     /// Initialize the database for the Usage context
     pub(super) fn init_db(conn: &duckdb::Transaction) -> Result<()> {
-        tracing::trace!("Initializing database for Usage");
+        tracing::debug!("Initializing database for Usage");
         conn.execute_batch(
             r"
             CREATE SEQUENCE usage_sequence START 1;
