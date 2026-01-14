@@ -191,7 +191,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/tenacity-9.1.2-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/tesseract-5.5.1-hea8d43c_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/text-unidecode-1.3-pyhd8ed1ab_2.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/tiktoken-0.8.0-py313h3f234b3_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/tiktoken-0.12.0-py313hbb364e9_3.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/tk-8.6.13-noxft_ha0e22de_103.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tqdm-4.67.1-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/traitlets-5.14.3-pyhd8ed1ab_1.conda
@@ -521,7 +521,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/tenacity-9.1.2-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/tesseract-5.5.1-hde4e5b7_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/text-unidecode-1.3-pyhd8ed1ab_2.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/tiktoken-0.8.0-py313h6b994ef_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/tiktoken-0.12.0-py313h8d4bf88_3.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/tk-8.6.13-noxft_h561c983_103.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tomli-2.3.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tqdm-4.67.1-pyhd8ed1ab_1.conda
@@ -808,7 +808,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/tenacity-9.1.2-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/tesseract-5.5.1-h5fa3334_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/text-unidecode-1.3-pyhd8ed1ab_2.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-64/tiktoken-0.8.0-py313h2822898_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-64/tiktoken-0.12.0-py313h185603f_3.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/tk-8.6.13-hf689a15_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tqdm-4.67.1-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/traitlets-5.14.3-pyhd8ed1ab_1.conda
@@ -1092,7 +1092,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/tenacity-9.1.2-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/tesseract-5.5.1-h6e845f4_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/text-unidecode-1.3-pyhd8ed1ab_2.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/tiktoken-0.8.0-py313h3b4eff6_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/tiktoken-0.12.0-py313h4bd1e59_2.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/tk-8.6.13-h892fb3f_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tqdm-4.67.1-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/traitlets-5.14.3-pyhd8ed1ab_1.conda
@@ -1364,7 +1364,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/tenacity-9.1.2-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/tesseract-5.5.1-h6db04f0_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/text-unidecode-1.3-pyhd8ed1ab_2.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/tiktoken-0.8.0-py313hbcc60ab_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/tiktoken-0.12.0-py313h034fbed_3.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/tk-8.6.13-h2c6b04d_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tqdm-4.67.1-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/traitlets-5.14.3-pyhd8ed1ab_1.conda
@@ -1718,7 +1718,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/tesseract-5.5.1-hea8d43c_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/text-unidecode-1.3-pyhd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/threadpoolctl-3.6.0-pyhecae5ae_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/tiktoken-0.8.0-py313h3f234b3_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/tiktoken-0.12.0-py313hbb364e9_3.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/tk-8.6.13-noxft_ha0e22de_103.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/tokenizers-0.22.1-py313h69125a3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/toml-0.10.2-pyhd8ed1ab_2.conda
@@ -2082,7 +2082,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/tesseract-5.5.1-hde4e5b7_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/text-unidecode-1.3-pyhd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/threadpoolctl-3.6.0-pyhecae5ae_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/tiktoken-0.8.0-py313h6b994ef_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/tiktoken-0.12.0-py313h8d4bf88_3.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/tk-8.6.13-noxft_h561c983_103.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/tokenizers-0.22.1-py313h757dd27_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/toml-0.10.2-pyhd8ed1ab_2.conda
@@ -2401,7 +2401,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/tesseract-5.5.1-h5fa3334_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/text-unidecode-1.3-pyhd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/threadpoolctl-3.6.0-pyhecae5ae_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-64/tiktoken-0.8.0-py313h2822898_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-64/tiktoken-0.12.0-py313h185603f_3.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/tk-8.6.13-hf689a15_3.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/tokenizers-0.22.1-py313h185603f_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/toml-0.10.2-pyhd8ed1ab_2.conda
@@ -2716,7 +2716,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/tesseract-5.5.1-h6e845f4_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/text-unidecode-1.3-pyhd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/threadpoolctl-3.6.0-pyhecae5ae_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/tiktoken-0.8.0-py313h3b4eff6_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/tiktoken-0.12.0-py313h4bd1e59_2.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/tk-8.6.13-h892fb3f_3.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/tokenizers-0.22.1-py313h4bd1e59_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/toml-0.10.2-pyhd8ed1ab_2.conda
@@ -3018,7 +3018,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/win-64/tesseract-5.5.1-h6db04f0_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/text-unidecode-1.3-pyhd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/threadpoolctl-3.6.0-pyhecae5ae_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/tiktoken-0.8.0-py313hbcc60ab_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/tiktoken-0.12.0-py313h034fbed_3.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/tk-8.6.13-h2c6b04d_3.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/tokenizers-0.22.1-py313h034fbed_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/toml-0.10.2-pyhd8ed1ab_2.conda
@@ -3477,7 +3477,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/tesseract-5.5.1-hea8d43c_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/text-unidecode-1.3-pyhd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/threadpoolctl-3.6.0-pyhecae5ae_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/tiktoken-0.8.0-py313h3f234b3_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/tiktoken-0.12.0-py313hbb364e9_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tinycss2-1.5.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/tk-8.6.13-noxft_ha0e22de_103.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/tokenizers-0.22.1-py313h69125a3_1.conda
@@ -3984,7 +3984,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/tesseract-5.5.1-hde4e5b7_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/text-unidecode-1.3-pyhd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/threadpoolctl-3.6.0-pyhecae5ae_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/tiktoken-0.8.0-py313h6b994ef_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/tiktoken-0.12.0-py313h8d4bf88_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tinycss2-1.5.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/tk-8.6.13-noxft_h561c983_103.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/tokenizers-0.22.1-py313h757dd27_1.conda
@@ -4446,7 +4446,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/tesseract-5.5.1-h5fa3334_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/text-unidecode-1.3-pyhd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/threadpoolctl-3.6.0-pyhecae5ae_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-64/tiktoken-0.8.0-py313h2822898_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-64/tiktoken-0.12.0-py313h185603f_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tinycss2-1.5.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/tk-8.6.13-hf689a15_3.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/tokenizers-0.22.1-py313h185603f_1.conda
@@ -4904,7 +4904,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/tesseract-5.5.1-h6e845f4_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/text-unidecode-1.3-pyhd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/threadpoolctl-3.6.0-pyhecae5ae_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/tiktoken-0.8.0-py313h3b4eff6_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/tiktoken-0.12.0-py313h4bd1e59_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tinycss2-1.5.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/tk-8.6.13-h892fb3f_3.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/tokenizers-0.22.1-py313h4bd1e59_1.conda
@@ -5349,7 +5349,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/win-64/tesseract-5.5.1-h6db04f0_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/text-unidecode-1.3-pyhd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/threadpoolctl-3.6.0-pyhecae5ae_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/tiktoken-0.8.0-py313hbcc60ab_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/tiktoken-0.12.0-py313h034fbed_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tinycss2-1.5.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/tk-8.6.13-h2c6b04d_3.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/tokenizers-0.22.1-py313h034fbed_1.conda
@@ -5696,7 +5696,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/tesseract-5.5.1-hea8d43c_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/text-unidecode-1.3-pyhd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/threadpoolctl-3.6.0-pyhecae5ae_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/tiktoken-0.8.0-py313h3f234b3_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/tiktoken-0.12.0-py313hbb364e9_3.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/tk-8.6.13-noxft_ha0e22de_103.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/tokenizers-0.22.1-py313h69125a3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/toml-0.10.2-pyhd8ed1ab_2.conda
@@ -6057,7 +6057,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/tesseract-5.5.1-hde4e5b7_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/text-unidecode-1.3-pyhd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/threadpoolctl-3.6.0-pyhecae5ae_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/tiktoken-0.8.0-py313h6b994ef_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/tiktoken-0.12.0-py313h8d4bf88_3.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/tk-8.6.13-noxft_h561c983_103.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/tokenizers-0.22.1-py313h757dd27_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/toml-0.10.2-pyhd8ed1ab_2.conda
@@ -6377,7 +6377,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/tesseract-5.5.1-h5fa3334_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/text-unidecode-1.3-pyhd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/threadpoolctl-3.6.0-pyhecae5ae_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-64/tiktoken-0.8.0-py313h2822898_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-64/tiktoken-0.12.0-py313h185603f_3.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/tk-8.6.13-hf689a15_3.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/tokenizers-0.22.1-py313h185603f_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/toml-0.10.2-pyhd8ed1ab_2.conda
@@ -6692,7 +6692,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/tesseract-5.5.1-h6e845f4_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/text-unidecode-1.3-pyhd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/threadpoolctl-3.6.0-pyhecae5ae_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/tiktoken-0.8.0-py313h3b4eff6_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/tiktoken-0.12.0-py313h4bd1e59_2.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/tk-8.6.13-h892fb3f_3.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/tokenizers-0.22.1-py313h4bd1e59_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/toml-0.10.2-pyhd8ed1ab_2.conda
@@ -6993,7 +6993,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/win-64/tesseract-5.5.1-h6db04f0_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/text-unidecode-1.3-pyhd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/threadpoolctl-3.6.0-pyhecae5ae_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/tiktoken-0.8.0-py313hbcc60ab_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/tiktoken-0.12.0-py313h034fbed_3.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/tk-8.6.13-h2c6b04d_3.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/tokenizers-0.22.1-py313h034fbed_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/toml-0.10.2-pyhd8ed1ab_2.conda
@@ -7319,7 +7319,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/tesseract-5.5.1-hea8d43c_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/text-unidecode-1.3-pyhd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/threadpoolctl-3.6.0-pyhecae5ae_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/tiktoken-0.8.0-py313h3f234b3_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/tiktoken-0.12.0-py313hbb364e9_3.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/tk-8.6.13-noxft_ha0e22de_103.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/tokenizers-0.22.1-py313h69125a3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/toml-0.10.2-pyhd8ed1ab_2.conda
@@ -7682,7 +7682,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/tesseract-5.5.1-hde4e5b7_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/text-unidecode-1.3-pyhd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/threadpoolctl-3.6.0-pyhecae5ae_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/tiktoken-0.8.0-py313h6b994ef_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/tiktoken-0.12.0-py313h8d4bf88_3.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/tk-8.6.13-noxft_h561c983_103.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/tokenizers-0.22.1-py313h757dd27_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/toml-0.10.2-pyhd8ed1ab_2.conda
@@ -8003,7 +8003,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/tesseract-5.5.1-h5fa3334_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/text-unidecode-1.3-pyhd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/threadpoolctl-3.6.0-pyhecae5ae_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-64/tiktoken-0.8.0-py313h2822898_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-64/tiktoken-0.12.0-py313h185603f_3.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/tk-8.6.13-hf689a15_3.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/tokenizers-0.22.1-py313h185603f_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/toml-0.10.2-pyhd8ed1ab_2.conda
@@ -8320,7 +8320,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/tesseract-5.5.1-h6e845f4_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/text-unidecode-1.3-pyhd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/threadpoolctl-3.6.0-pyhecae5ae_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/tiktoken-0.8.0-py313h3b4eff6_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/tiktoken-0.12.0-py313h4bd1e59_2.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/tk-8.6.13-h892fb3f_3.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/tokenizers-0.22.1-py313h4bd1e59_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/toml-0.10.2-pyhd8ed1ab_2.conda
@@ -8623,7 +8623,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/win-64/tesseract-5.5.1-h6db04f0_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/text-unidecode-1.3-pyhd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/threadpoolctl-3.6.0-pyhecae5ae_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/tiktoken-0.8.0-py313hbcc60ab_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/tiktoken-0.12.0-py313h034fbed_3.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/tk-8.6.13-h2c6b04d_3.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/tokenizers-0.22.1-py313h034fbed_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/toml-0.10.2-pyhd8ed1ab_2.conda
@@ -24168,8 +24168,8 @@ packages:
   timestamp: 1733408419340
 - pypi: ./
   name: nrel-compass
-  version: 0.11.3.dev37+g640c0ea.d20260114
-  sha256: f1893f7c009b9f509eab8c0d9f80c5a3967d66e2eac72ba1a4ef77ee19e8f27a
+  version: 0.11.3.dev38+gb5b003a.d20260114
+  sha256: bdd1e990060131aeb6b7cedf94023ffa50c52abcf38077172c1179f95c691f6e
   requires_dist:
   - click>=8.1.7,<9
   - html5lib>=1.1,<2
@@ -31453,14 +31453,14 @@ packages:
   - requests>=2.26.0
   - blobfile>=2 ; extra == 'blobfile'
   requires_python: '>=3.9'
-- conda: https://conda.anaconda.org/conda-forge/linux-64/tiktoken-0.8.0-py313h3f234b3_1.conda
-  sha256: 47c1a01bf463248b78c7c62ccc588b2acec9c760f16bc9a59181a6bd8d203d78
-  md5: df7af2e7a0f56d0fb03964e1538d2225
+- conda: https://conda.anaconda.org/conda-forge/linux-64/tiktoken-0.12.0-py313hbb364e9_3.conda
+  sha256: 74e1b825a516eb80c41c53eb007c73ff8fa93123f74d27fec3915b32bdefcbb0
+  md5: e54ae431da185668e57fa26576d5a4d3
   depends:
   - __glibc >=2.17,<3.0.a0
-  - libgcc >=13
-  - libstdcxx >=13
-  - python >=3.13.0rc3,<3.14.0a0
+  - libgcc >=14
+  - libstdcxx >=14
+  - python >=3.13,<3.14.0a0
   - python_abi 3.13.* *_cp313
   - regex >=2022.1.18
   - requests >=2.26.0
@@ -31470,15 +31470,15 @@ packages:
   license_family: MIT
   purls:
   - pkg:pypi/tiktoken?source=hash-mapping
-  size: 951929
-  timestamp: 1728084129137
-- conda: https://conda.anaconda.org/conda-forge/linux-aarch64/tiktoken-0.8.0-py313h6b994ef_1.conda
-  sha256: b52d559036eea185f625baa36277f44c47d33d723b578c3413f45ec1909768a4
-  md5: 6347603c920e1a286f20814f36bbda79
+  size: 936845
+  timestamp: 1764028394937
+- conda: https://conda.anaconda.org/conda-forge/linux-aarch64/tiktoken-0.12.0-py313h8d4bf88_3.conda
+  sha256: 3d5b80423d5d22c37f5c0802d9e66d3bf69f91dc11468b906f90d253a4d3073f
+  md5: a463ab213d4268fdc586a740434ed031
   depends:
-  - libgcc >=13
-  - libstdcxx >=13
-  - python >=3.13.0rc3,<3.14.0a0
+  - libgcc >=14
+  - libstdcxx >=14
+  - python >=3.13,<3.14.0a0
   - python_abi 3.13.* *_cp313
   - regex >=2022.1.18
   - requests >=2.26.0
@@ -31488,15 +31488,15 @@ packages:
   license_family: MIT
   purls:
   - pkg:pypi/tiktoken?source=hash-mapping
-  size: 921218
-  timestamp: 1728086294795
-- conda: https://conda.anaconda.org/conda-forge/osx-64/tiktoken-0.8.0-py313h2822898_1.conda
-  sha256: 4be783ce2cbf4d9223a86cff257c632190143ab70e6e557e5fc7984fc8ca8ac7
-  md5: e214d3b2ec65a22fe6fe8d22a02ed3fa
+  size: 912935
+  timestamp: 1764030335511
+- conda: https://conda.anaconda.org/conda-forge/osx-64/tiktoken-0.12.0-py313h185603f_3.conda
+  sha256: 09b1ed1df3832e147820dde593b0424dce9cc4e285c6e5b0c308ed671ecad2a8
+  md5: a5769188f6593a9b64f182520c511169
   depends:
   - __osx >=10.13
-  - libcxx >=17
-  - python >=3.13.0rc3,<3.14.0a0
+  - libcxx >=19
+  - python >=3.13,<3.14.0a0
   - python_abi 3.13.* *_cp313
   - regex >=2022.1.18
   - requests >=2.26.0
@@ -31506,16 +31506,16 @@ packages:
   license_family: MIT
   purls:
   - pkg:pypi/tiktoken?source=hash-mapping
-  size: 847383
-  timestamp: 1728084343977
-- conda: https://conda.anaconda.org/conda-forge/osx-arm64/tiktoken-0.8.0-py313h3b4eff6_1.conda
-  sha256: 423a25874b8370cf16265356e17d3863a53818577761709d0d526da0aa498c0a
-  md5: cf6f95d8a3603954004a4187bdf7d968
+  size: 863251
+  timestamp: 1764028667792
+- conda: https://conda.anaconda.org/conda-forge/osx-arm64/tiktoken-0.12.0-py313h4bd1e59_2.conda
+  sha256: c198302b2fa5bbbe028f75e6bf52165cd42283186b6f7d31e4cc5ed759034fe4
+  md5: 246f54410f33d6d9cc14d7cce9f85ee7
   depends:
   - __osx >=11.0
-  - libcxx >=17
-  - python >=3.13.0rc3,<3.14.0a0
-  - python >=3.13.0rc3,<3.14.0a0 *_cp313
+  - libcxx >=19
+  - python >=3.13,<3.14.0a0
+  - python >=3.13,<3.14.0a0 *_cp313
   - python_abi 3.13.* *_cp313
   - regex >=2022.1.18
   - requests >=2.26.0
@@ -31525,25 +31525,25 @@ packages:
   license_family: MIT
   purls:
   - pkg:pypi/tiktoken?source=hash-mapping
-  size: 801183
-  timestamp: 1728084268468
-- conda: https://conda.anaconda.org/conda-forge/win-64/tiktoken-0.8.0-py313hbcc60ab_1.conda
-  sha256: 3b6c1aff5a91fd5da9f6e3d16ad1a722457f28730e49cbd6e822fdc3fbea1219
-  md5: c5ab53f58eb4572609ff3c93de44366e
+  size: 821334
+  timestamp: 1762966367635
+- conda: https://conda.anaconda.org/conda-forge/win-64/tiktoken-0.12.0-py313h034fbed_3.conda
+  sha256: 51d78dbf780c37fdd6f600fd8deec05371c5df85b63d7adb4c6c56dbc12d1f99
+  md5: f40ea944f4e9ef1c0f6000dc3d954ffb
   depends:
-  - python >=3.13.0rc3,<3.14.0a0
+  - python >=3.13,<3.14.0a0
   - python_abi 3.13.* *_cp313
   - regex >=2022.1.18
   - requests >=2.26.0
   - ucrt >=10.0.20348.0
-  - vc >=14.2,<15
-  - vc14_runtime >=14.29.30139
+  - vc >=14.3,<15
+  - vc14_runtime >=14.44.35208
   license: MIT
   license_family: MIT
   purls:
   - pkg:pypi/tiktoken?source=hash-mapping
-  size: 725729
-  timestamp: 1728084734756
+  size: 721529
+  timestamp: 1764028625842
 - conda: https://conda.anaconda.org/conda-forge/noarch/tinycss2-1.5.0-pyhcf101f3_0.conda
   sha256: 9e8b4edf44ff0301c6d969a6ff5cceb340f1411ec65d5a99d0eafab36ecfdc23
   md5: 2caf483992d5d92b232451f843bdc8af
