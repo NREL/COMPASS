@@ -55,7 +55,7 @@ ocr = [
 dev = [
   "jupyter>=1.0.0,<1.1",
   "pipreqs>=0.4.13,<0.5",
-  "ruff>=0.13.3,<0.14",
+  "ruff>=0.14.11,<0.15",
   "ruff-lsp>=0.0.62,<0.0.63",
 ]
 test = [
@@ -126,6 +126,10 @@ openai-solar-demo = { cmd = "export OPENAI_API_KEY={{ api_key }}; compass proces
 tests-r = "cargo test --locked --workspace --no-fail-fast"
 publish-db = "cargo publish --locked -p infra-compass-db --all-features"
 publish-cli = "cargo publish --locked -p infra-compass-cli --all-features"
+
+[tool.pixi.feature.python-dev.tasks]
+lint = "ruff check ./compass"
+format = "ruff format ./compass"
 
 [tool.pixi.feature.python-test.tasks]
 tests-p = "pytest --durations=20 -rapP -vv --cov=compass --cov-report=html --cov-branch --cov-report=xml:coverage.xml --cov-fail-under=30 tests/python"
@@ -220,7 +224,7 @@ geopandas = ">=1.0.1,<2"
 ipykernel = ">=7.1.0,<8"
 jupyter = ">=1.0.0,<1.1"
 pipreqs = ">=0.4.13,<0.5"
-ruff = ">=0.13.3,<0.14"
+ruff = ">=0.14.11,<0.15"
 ruff-lsp = ">=0.0.62,<0.0.63"
 seaborn = ">=0.13.2,<0.14"
 
@@ -320,6 +324,7 @@ ignore = [
   "PYI024", # collections-named-tuple
   "RUF012", # mutable-class-default
   "RUF031", # incorrectly-parenthesized-tuple-in-subscript
+  "RUF067", # non-empty-init-module
   "S101", # assert
   "S324", # hashlib-insecure-hash-function
   "S403", # suspicious-pickle-import
