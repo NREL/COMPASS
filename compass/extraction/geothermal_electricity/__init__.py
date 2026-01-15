@@ -7,10 +7,6 @@ from .ordinance import (
     GeothermalElectricityPermittedUseDistrictsTextCollector,
     GeothermalElectricityPermittedUseDistrictsTextExtractor,
 )
-from .parse import (
-    StructuredGeothermalElectricityOrdinanceParser,
-    StructuredGeothermalElectricityPermittedUseDistrictsParser,
-)
 
 
 GEOTHERMAL_ELECTRICITY_QUESTION_TEMPLATES = [

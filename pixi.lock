@@ -6,8 +6,6 @@ environments:
     - url: https://conda.anaconda.org/microsoft/
     indexes:
     - https://pypi.org/simple
-    options:
-      pypi-prerelease-mode: if-necessary-or-explicit
     packages:
       linux-64:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/_libgcc_mutex-0.1-conda_forge.tar.bz2
@@ -1498,8 +1496,6 @@ environments:
     - url: https://conda.anaconda.org/microsoft/
     indexes:
     - https://pypi.org/simple
-    options:
-      pypi-prerelease-mode: if-necessary-or-explicit
     packages:
       linux-64:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/_libgcc_mutex-0.1-conda_forge.tar.bz2
@@ -3076,8 +3072,6 @@ environments:
     - url: https://conda.anaconda.org/microsoft/
     indexes:
     - https://pypi.org/simple
-    options:
-      pypi-prerelease-mode: if-necessary-or-explicit
     packages:
       linux-64:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/_libgcc_mutex-0.1-conda_forge.tar.bz2
@@ -5385,8 +5379,6 @@ environments:
     - url: https://conda.anaconda.org/microsoft/
     indexes:
     - https://pypi.org/simple
-    options:
-      pypi-prerelease-mode: if-necessary-or-explicit
     packages:
       linux-64:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/_libgcc_mutex-0.1-conda_forge.tar.bz2
@@ -6957,8 +6949,6 @@ environments:
     - url: https://conda.anaconda.org/microsoft/
     indexes:
     - https://pypi.org/simple
-    options:
-      pypi-prerelease-mode: if-necessary-or-explicit
     packages:
       linux-64:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/_libgcc_mutex-0.1-conda_forge.tar.bz2
@@ -8543,8 +8533,6 @@ environments:
     - url: https://conda.anaconda.org/microsoft/
     indexes:
     - https://pypi.org/simple
-    options:
-      pypi-prerelease-mode: if-necessary-or-explicit
     packages:
       linux-64:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/_libgcc_mutex-0.1-conda_forge.tar.bz2
@@ -24485,7 +24473,7 @@ packages:
   timestamp: 1733408419340
 - pypi: ./
   name: nrel-compass
-  version: 0.11.3.dev42+g0555ca3.d20260114
+  version: 0.12.1.dev3+g63e1ded.d20260115
   sha256: 382673f4a05238e824916000e06e5d9e2b4a35d076f8c9a46eec5ee1d31dec06
   requires_dist:
   - beautifulsoup4>=4.12.3,<5
@@ -24530,6 +24518,7 @@ packages:
   - pkginfo>=1.12.1.2,<2 ; extra == 'build'
   - twine>=6.1.0,<7 ; extra == 'build'
   requires_python: '>=3.12'
+  editable: true
 - pypi: https://files.pythonhosted.org/packages/b5/0e/0898bc80431eb17e7d0744321fab1ba1e39fae0ba2c9e8634c042feb31f5/nrel_elm-0.0.34-py3-none-any.whl
   name: nrel-elm
   version: 0.0.34
