@@ -101,3 +101,4 @@ __pypackages__/
 
 # Added by cargo
 /target
+examples/
