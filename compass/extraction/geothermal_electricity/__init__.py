@@ -13,11 +13,15 @@ GEOTHERMAL_ELECTRICITY_QUESTION_TEMPLATES = [
     "filetype:pdf {jurisdiction} geothermal power plant ordinance",
     "geothermal electricity generation ordinance {jurisdiction}",
     "{jurisdiction} geothermal energy facility zoning ordinance",
-    "Where can I find the legal text for geothermal power plant "
-    "zoning ordinances in {jurisdiction}?",
-    "What is the specific legal information regarding zoning "
-    "ordinances for geothermal electricity generation facilities in "
-    "{jurisdiction}?",
+    (
+        "Where can I find the legal text for geothermal power plant "
+        "zoning ordinances in {jurisdiction}?"
+    ),
+    (
+        "What is the specific legal information regarding zoning "
+        "ordinances for geothermal electricity generation facilities in "
+        "{jurisdiction}?"
+    ),
 ]
 
 BEST_GEOTHERMAL_ELECTRICITY_ORDINANCE_WEBSITE_URL_KEYWORDS = {
