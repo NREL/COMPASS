@@ -29,7 +29,8 @@ _SEARCH_TERMS_AND = (
 _SEARCH_TERMS_OR = _SEARCH_TERMS_AND.replace("and", "or")
 _IGNORE_TYPES = (
     "geothermal heat pumps, ground-source heat pumps, residential geothermal, "
-    "HVAC systems, ground-coupled systems, geoexchange systems")
+    "HVAC systems, ground-coupled systems, geoexchange systems"
+)
 
 
 class GeothermalElectricityHeuristic(Heuristic):
